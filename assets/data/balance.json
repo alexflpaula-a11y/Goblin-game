@@ -70,5 +70,16 @@
   },
   "cooking": {
     "healBonus": 0.0
+  },
+  "market": {
+    "prices": {
+      "wood": 2,
+      "stone": 3,
+      "ore": 7,
+      "food": 4
+    },
+    "sellMul": 0.75,
+    "buyMul": 1.6,
+    "levelBonus": 0.06
   }
 }

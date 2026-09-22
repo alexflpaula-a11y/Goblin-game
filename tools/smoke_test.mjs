@@ -261,6 +261,94 @@ check('não desperdiça em goblin cheio', cooking.feed(cv, hurtGoblin, 'bread') 
 check('prato continua guardado', cv.meals.bread === 1);
 
 // ============================================================
+section('Market — vender e comprar (etapa 1.6)');
+// ============================================================
+const market = req('market.js');
+
+const mv = new Village();
+mv.res = { wood: 100, stone: 50, ore: 10, food: 20, gold: 200 };
+check('sem Mercado construído, não vende', market.sell(mv, 'res', 'wood', 10) === 0);
+check('sem Mercado construído, não compra', market.buy(mv, 'res', 'stone', 1) === 0);
+check('madeira intacta depois da tentativa', mv.res.wood === 100);
+
+mv.level = 3;
+mv.build('mercado');
+check('Mercado construído no nível 3', mv.has('mercado'));
+
+// ----- preços -----
+const pSell = market.sellPrice(mv, 'res', 'wood');
+const pBuy = market.buyPrice(mv, 'res', 'wood');
+check('compra custa mais que a venda paga', pBuy > pSell, `${pSell} → ${pBuy}`);
+check('minério vale mais que madeira',
+  market.sellPrice(mv, 'res', 'ore') > market.sellPrice(mv, 'res', 'wood'));
+check('prato vale mais que recurso cru',
+  market.sellPrice(mv, 'meal', 'bread') > market.sellPrice(mv, 'res', 'food'));
+
+// ----- venda -----
+const mGoldBefore = mv.res.gold;
+const mWoodBefore = mv.res.wood;
+const mGot = market.sell(mv, 'res', 'wood', 10);
+check('vender rende ouro', mGot === pSell * 10, `${mGot} ouro`);
+check('ouro entrou no caixa', mv.res.gold === mGoldBefore + mGot);
+check('madeira saiu do estoque', mv.res.wood === mWoodBefore - 10, `${mv.res.wood}`);
+check('não vende mais do que tem', market.sell(mv, 'res', 'ore', 999) === 0);
+check('não vende quantidade zero/negativa',
+  market.sell(mv, 'res', 'wood', 0) === 0 && market.sell(mv, 'res', 'wood', -5) === 0);
+
+// ----- compra -----
+const g2 = mv.res.gold;
+const stoneBefore = mv.res.stone;
+const spent = market.buy(mv, 'res', 'stone', 3);
+check('comprar gasta ouro', spent === market.buyPrice(mv, 'res', 'stone') * 3);
+check('ouro saiu do caixa', mv.res.gold === g2 - spent);
+check('pedra entrou no estoque', mv.res.stone === stoneBefore + 3, `${mv.res.stone}`);
+
+const pobre = new Village();
+pobre.level = 3; pobre.res = { wood: 0, stone: 0, ore: 0, food: 0, gold: 1 };
+pobre.build('mercado');
+check('sem ouro, não compra', market.buy(pobre, 'res', 'ore', 1) === 0);
+check('maxBuy respeita o ouro', market.maxBuy(pobre, 'res', 'ore') === 0);
+
+// ----- pratos -----
+mv.meals = { bread: 4 };
+const bg = market.sell(mv, 'meal', 'bread', 2);
+check('vende pratos cozinhados', bg > 0, `${bg} ouro`);
+check('despensa diminuiu', mv.meals.bread === 2);
+mv.res.gold += 1000;
+check('compra prato liberado pelo nível do Mercado',
+  market.buy(mv, 'meal', 'bread', 1) > 0);
+check('prato comprado entra na despensa', mv.meals.bread === 3);
+check('prato acima do nível do Mercado não está à venda',
+  market.buy(mv, 'meal', 'feast', 1) === 0);
+
+// ----- catálogo e limites -----
+const sellCat = market.catalog(mv, 'sell');
+const buyCat = market.catalog(mv, 'buy');
+check('catálogo de venda tem recursos e pratos',
+  sellCat.some((i) => i.kind === 'res') && sellCat.some((i) => i.kind === 'meal'));
+check('catálogo traz preço e quantidade',
+  sellCat.every((i) => i.price > 0 && typeof i.have === 'number'));
+check('catálogo de compra esconde prato travado',
+  !buyCat.some((i) => i.kind === 'meal' && i.key === 'feast'));
+check('maxSell é o que o jogador tem',
+  market.maxSell(mv, 'res', 'wood') === mv.res.wood);
+
+// ----- melhorar o Mercado melhora o negócio -----
+const mercado = mv.get('mercado');
+const antesVenda = market.sellPrice(mv, 'res', 'ore');
+const antesCompra = market.buyPrice(mv, 'res', 'ore');
+mv.res = { wood: 9999, stone: 9999, ore: 9999, food: 9999, gold: 9999 };
+mv.level = 5;
+mv.upgrade(mercado);
+check('Mercado subiu de nível', mercado.level === 2);
+check('mercado melhor paga mais na venda',
+  market.sellPrice(mv, 'res', 'ore') >= antesVenda);
+check('mercado melhor cobra menos na compra',
+  market.buyPrice(mv, 'res', 'ore') <= antesCompra);
+check('mesmo melhorado, comprar continua mais caro que vender',
+  market.buyPrice(mv, 'res', 'ore') > market.sellPrice(mv, 'res', 'ore'));
+
+// ============================================================
 section('Save — o progresso novo persiste');
 // ============================================================
 const sv = new Village();
