@@ -11,5 +11,7 @@
   "village.js",
   "nodes.js",
   "ui.js",
+  "quests.js",
+  "cooking.js",
   "main.js"
 ]

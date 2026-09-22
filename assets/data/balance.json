@@ -51,5 +51,24 @@
     "treeStock": 15,
     "rockStock": 12,
     "workPeriod": 1.2
+  },
+  "village": {
+    "xpBase": 100,
+    "xpExp": 1.6,
+    "maxLevel": 20
+  },
+  "quests": {
+    "slots": 3,
+    "renewSeconds": 45,
+    "goldMul": 1.6,
+    "xpMul": 1.1,
+    "xpMin": 20,
+    "xpMax": 100
+  },
+  "buildings": {
+    "upgradeMul": 1.8
+  },
+  "cooking": {
+    "healBonus": 0.0
   }
 }

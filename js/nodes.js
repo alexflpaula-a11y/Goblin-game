@@ -1,7 +1,12 @@
 // ============================================================
-// nodes.js — Nós de recurso FINITOS espalhados pela ilha
-// (árvores → madeira, pedras → pedra). Quando o estoque acaba,
-// vira toco/entulho. Replantio/Mina entram em fases futuras.
+// nodes.js — Nós de trabalho espalhados pela ilha.
+//
+// Dois tipos:
+//   • FINITOS (naturais): árvores → madeira, pedras → pedra.
+//     Quando o estoque acaba, viram toco/entulho.
+//   • INFINITOS (estruturas): a Fazenda produz comida e a Mina
+//     produz pedra/minério sem acabar (§2.6). Eles nascem junto
+//     com a estrutura e usam o mesmo sistema de trabalho.
 // ============================================================
 const { getSprite } = require('assetLoader.js');
 const { BAL } = require('balance.js');
@@ -61,6 +66,38 @@ class Nodes {
 
   alive() { return this.list.filter((n) => !n.depleted); }
 
+  /**
+   * Sincroniza os postos de trabalho INFINITOS com as estruturas
+   * construídas: Fazenda → comida, Mina → pedra/minério (§2.6).
+   * Chamado no boot e sempre que uma estrutura nova é erguida.
+   */
+  syncFacilities(village) {
+    const FACILITY_NODES = [
+      { struct: 'fazenda', type: 'farm', dx: 0, dy: 34 },
+      { struct: 'mina', type: 'mineshaft', dx: 0, dy: 34 },
+    ];
+    for (const def of FACILITY_NODES) {
+      const s = village.get(def.struct);
+      const existing = this.list.find((n) => n.type === def.type);
+      if (!s) {
+        // estrutura não existe (ou foi removida) → tira o posto
+        if (existing) this.list.splice(this.list.indexOf(existing), 1);
+        continue;
+      }
+      if (existing) {
+        existing.x = s.x + def.dx;
+        existing.y = s.y + def.dy;
+        existing.level = s.level;
+      } else {
+        this.list.push({
+          type: def.type, x: s.x + def.dx, y: s.y + def.dy,
+          infinite: true, level: s.level,
+          stock: 1, max: 1, depleted: false, worker: null,
+        });
+      }
+    }
+  }
+
   hitTest(wx, wy) {
     for (let i = this.list.length - 1; i >= 0; i--) {
       const n = this.list[i];
@@ -89,6 +126,23 @@ class Nodes {
     return this.list.map((n) => ({
       y: n.y,
       draw: (ctx) => {
+        // Postos infinitos não têm sprite próprio: são marcados por um
+        // pequeno letreiro no chão, ao lado da estrutura que os criou.
+        if (n.infinite) {
+          const label = n.type === 'farm' ? '🌾' : '⛏';
+          ctx.fillStyle = 'rgba(22,16,36,0.72)';
+          ctx.fillRect(n.x - 13, n.y - 16, 26, 15);
+          ctx.strokeStyle = 'rgba(255,233,168,0.5)';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(n.x - 12.5, n.y - 15.5, 25, 14);
+          ctx.font = '10px monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#ffe9a8';
+          ctx.fillText(label, n.x, n.y - 8);
+          ctx.textAlign = 'left';
+          return;
+        }
         const id = n.depleted
           ? (n.type === 'tree' ? 'node_tree_stump' : 'node_rock_rubble')
           : (n.type === 'tree' ? 'node_tree_0' : 'node_rock_0');
@@ -105,8 +159,12 @@ class Nodes {
   }
 
   serialize() {
-    return this.list.map(({ type, x, y, stock, max, depleted }) =>
-      ({ type, x, y, stock, max, depleted }));
+    // Postos infinitos são recriados a partir das estruturas no boot,
+    // então não precisam ser salvos.
+    return this.list
+      .filter((n) => !n.infinite)
+      .map(({ type, x, y, stock, max, depleted }) =>
+        ({ type, x, y, stock, max, depleted }));
   }
 }
 
