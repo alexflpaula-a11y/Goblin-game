@@ -1,0 +1,17 @@
+[
+  "config.js",
+  "balance.js",
+  "assetLoader.js",
+  "i18n.js",
+  "save.js",
+  "input.js",
+  "camera.js",
+  "goblin.js",
+  "world.js",
+  "village.js",
+  "nodes.js",
+  "ui.js",
+  "quests.js",
+  "cooking.js",
+  "main.js"
+]
