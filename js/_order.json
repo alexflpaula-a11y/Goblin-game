@@ -13,5 +13,6 @@
   "ui.js",
   "quests.js",
   "cooking.js",
+  "market.js",
   "main.js"
 ]

@@ -49,6 +49,7 @@ Object.assign(BAL, JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/data/balan
 const { Village } = req('village.js');
 const { Quests } = req('quests.js');
 const cooking = req('cooking.js');
+const market = req('market.js');
 
 let pass = 0, fail = 0;
 const failures = [];
@@ -161,12 +162,36 @@ check('cozinha agora é nível 2', kitchen.level === 2);
 check('receita melhor desbloqueada pela melhoria',
   cooking.available(kitchen.level).some((r) => r.id === 'stew'));
 
+// ---------- 9.5. mercado: o excedente vira ouro e o que falta se compra ----------
+// O Mercado abre junto com a Cozinha (vila nv3) e fecha a economia da Fase 1.
+check('mercado liberado no nível 3', v.canBuild('mercado'));
+check('constrói o mercado', v.build('mercado') !== null);
+
+v.res = { wood: 300, stone: 100, ore: 0, food: 10, gold: 0 };
+const ganho = market.sell(v, 'res', 'wood', 200);
+check('vende o excedente de madeira', ganho > 0, `+${ganho} ouro`);
+check('ouro entrou no caixa', v.res.gold === ganho);
+check('madeira desceu para o que sobrou', v.res.wood === 100, `${v.res.wood}`);
+
+// com o ouro na mão, compra o minério que os goblins ainda não mineraram
+const podeComprar = market.maxBuy(v, 'res', 'ore');
+check('dá para comprar minério com o ouro da venda', podeComprar > 0, `${podeComprar} un`);
+const gasto = market.buy(v, 'res', 'ore', Math.min(3, podeComprar));
+check('compra minério', gasto > 0 && v.res.ore > 0, `${v.res.ore} minério por ${gasto} ouro`);
+check('o mercado não imprime dinheiro (compra > venda)',
+  market.buyPrice(v, 'res', 'ore') > market.sellPrice(v, 'res', 'ore'));
+
+// o ensopado precisa de minério: a compra destravou a receita na prática
+v.res.food = 99;
+const ensopado = cooking.cook(v, 'stew');
+check('minério comprado alimenta a receita melhor', ensopado !== null);
+
 // ---------- 10. o save aguenta tudo isso ----------
 const snapshot = JSON.parse(JSON.stringify({ village: v.serialize(), quests: q.serialize() }));
 const v2 = new Village(snapshot.village);
 const q2 = new Quests(snapshot.quests);
 check('save preserva o nível da vila', v2.level === v.level);
-check('save preserva as estruturas', v2.has('cozinha') && v2.has('fazenda'));
+check('save preserva as estruturas', v2.has('cozinha') && v2.has('fazenda') && v2.has('mercado'));
 check('save preserva os goblins', v2.goblins.length === v.goblins.length);
 check('save preserva as missões', q2.list.length === q.list.length);
 

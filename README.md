@@ -20,14 +20,14 @@ python3 -m http.server 8080
 | Toque em árvore/pedra/posto | manda o goblin livre mais próximo trabalhar |
 | Toque no goblin trabalhando | chama ele de volta |
 | Toque num prédio | abre a tela dele |
-| Botões no rodapé | **Construir**, **Missões**, **Cozinha**, **Vila** |
+| Botões no rodapé | **Construir**, **Missões**, **Cozinha**, **Mercado**, **Vila** |
 
 ## 🔄 O ciclo do jogo
 
 ```
 coletar recursos → construir → cumprir missões → XP da vila
    → subir de nível → desbloquear estruturas → fazenda/cozinha
-   → curar goblins → repetir
+   → curar goblins → vender o excedente no mercado → repetir
 ```
 
 A **vila sobe de nível** com o XP das missões. Cada nível libera novas estruturas *e* eleva o teto de melhoria de todas elas. Melhorar a Cozinha, por exemplo, desbloqueia pratos melhores.
@@ -62,6 +62,7 @@ js/
   goblin.js         entidade: 6 atributos, especialidade, raridade, XP
   quests.js         painel de missões (itens → ouro + XP da vila)
   cooking.js        receitas, pratos que curam
+  market.js         mercado: vender e comprar por ouro
   ui.js             UI imediata no canvas + visual rústico goblin
   assetLoader.js    sprites reais ou placeholder automático
   i18n.js           PT-BR / EN em tempo real
@@ -89,7 +90,7 @@ bash    tools/test.sh               # roda as 4 suítes de teste
 
 ## ✅ Testes
 
-151 testes automatizados, sem navegador (`bash tools/test.sh`):
+192 testes automatizados, sem navegador (`bash tools/test.sh`):
 
 | Suíte | O que cobre |
 |---|---|
@@ -108,6 +109,6 @@ PT-BR e EN com troca em tempo real (botão no HUD). Textos em `assets/data/i18n.
 
 ## 📜 Status
 
-**Fase 1 (núcleo da vila) concluída:** ilha + câmera, goblins + habitação + recrutamento 1-de-3, recursos finitos, trabalho, construção de todas as estruturas, missões, XP/nível da vila, cozinha e fontes renováveis.
+**Fase 1 concluída (1.1 → 1.8):** ilha + câmera, goblins + habitação + recrutamento 1-de-3, recursos finitos, trabalho, construção de todas as estruturas, missões, XP/nível da vila, cozinha, fontes renováveis e **Mercado** (vender o excedente por ouro, comprar o que falta).
 
-**A seguir:** Mercado (1.6) → Fase 2 (Ferraria, equipar, Altar, Bazar) → Fase 3 (combate por turnos). Roadmap completo em `planejamento-jogo-gnomos.md`.
+**A seguir:** Fase 2 (Ferraria, equipar, Altar, Bazar) → Fase 3 (combate por turnos). Roadmap completo em `planejamento-jogo-gnomos.md`.

@@ -16,6 +16,7 @@ const { loadBalance, BAL } = require('balance.js');
 const { Goblin, ATTRS } = require('goblin.js');
 const { Quests } = require('quests.js');
 const cooking = require('cooking.js');
+const market = require('market.js');
 // ---------- DOM ----------
 const viewport = document.getElementById('viewport');
 const canvas = document.getElementById('game');
@@ -31,13 +32,16 @@ const saved = loadGame() || {};
 const state = {
   language: saved.language || 'pt-BR',
   taps: saved.taps || 0,
-  // world | build | recruit | roster | detail | quests | kitchen
+  // world | build | recruit | roster | detail | quests | kitchen | market
   screen: 'world',
   buildTab: 0,            // 0 estruturas | 1 melhorias
   buildPage: 0,           // catálogo paginado (12 estruturas)
   candidates: null,       // 3 goblins p/ recrutamento
   detailIdx: 0,
   feedIdx: null,          // prato escolhido p/ alimentar um goblin
+  marketTab: 0,           // 0 vender | 1 comprar
+  marketPage: 0,          // prateleira paginada
+  marketQty: {},          // quantidade escolhida por item ("res:wood" → 3)
   toast: null,            // {msg, until}
   levelUp: null,          // {level, until} — banner de nível da vila
 };
@@ -181,6 +185,59 @@ function tryBuild(type) {
   }
 }
 
+// ---------- Mercado (etapa 1.6) ----------
+/** Abre a tela do Mercado — só se ele já estiver construído. */
+function openMarket() {
+  if (!village.has('mercado')) { toast('toast.market_closed'); return; }
+  state.screen = 'market';
+  state.marketPage = 0;
+}
+
+/** "res:wood" → {kind:'res', key:'wood'} */
+function slotParts(slot) {
+  const [kind, key] = slot.split(':');
+  return { kind, key };
+}
+
+/** Teto da quantidade: o que dá para vender ou o que o ouro compra. */
+function marketLimit(slot) {
+  const { kind, key } = slotParts(slot);
+  return state.marketTab === 0
+    ? market.maxSell(village, kind, key)
+    : market.maxBuy(village, kind, key);
+}
+
+/** Quantidade escolhida agora (sempre dentro do limite, mínimo 1). */
+function marketQty(slot) {
+  const limit = marketLimit(slot);
+  if (limit <= 0) return 0;
+  const q = state.marketQty[slot] ?? 1;
+  return Math.max(1, Math.min(limit, q));
+}
+
+function marketBumpQty(slot, delta) {
+  state.marketQty[slot] = Math.max(1, Math.min(marketLimit(slot), marketQty(slot) + delta));
+}
+
+/** Confirma a venda/compra e devolve o recibo em forma de toast. */
+function marketConfirm(slot) {
+  const { kind, key } = slotParts(slot);
+  const qty = marketQty(slot);
+  const name = kind === 'meal' ? i18n.t('meal.' + key) : i18n.t('res.' + key);
+
+  if (state.marketTab === 0) {
+    const gold = market.sell(village, kind, key, qty);
+    if (gold > 0) toast('toast.sold', { n: qty, name, gold });
+    else toast('toast.market_nothing');
+  } else {
+    const cost = market.buy(village, kind, key, qty);
+    if (cost > 0) toast('toast.bought', { n: qty, name, gold: cost });
+    else toast('toast.market_gold');
+  }
+  // depois do negócio a quantidade volta ao mínimo
+  delete state.marketQty[slot];
+}
+
 function routeTap(id) {
   switch (id) {
     case 'close': state.screen = 'world'; break;
@@ -197,6 +254,11 @@ function routeTap(id) {
     case 'back_world': state.screen = 'world'; state.feedIdx = null; break;
     case 'quests_btn': state.screen = 'quests'; break;
     case 'kitchen_btn': state.screen = 'kitchen'; break;
+    case 'market_btn': openMarket(); break;
+    case 'mtab_0': state.marketTab = 0; state.marketPage = 0; break;
+    case 'mtab_1': state.marketTab = 1; state.marketPage = 0; break;
+    case 'mpage_prev': state.marketPage = Math.max(0, state.marketPage - 1); break;
+    case 'mpage_next': state.marketPage += 1; break;
     case 'build_house': tryBuild('house'); break;
     case 'upgrade_house':
       if (village.upgradeHouse(state.upgradeIdx || 0)) {
@@ -237,6 +299,21 @@ function routeTap(id) {
         const out = cooking.cook(village, id.slice(5));
         if (out) toast('toast.cooked', { n: out.qty, name: i18n.t('meal.' + out.id) });
         else toast('toast.need');
+        break;
+      }
+      // ----- mercado: +/-, tudo/máx e confirmar -----
+      if (id?.startsWith('mq_')) {          // mq_<+|->_<kind>:<key>
+        const [, sign, slot] = id.split('_');
+        marketBumpQty(slot, sign === '+' ? 1 : -1);
+        break;
+      }
+      if (id?.startsWith('mmax_')) {        // mmax_<kind>:<key>
+        const slot = id.slice(5);
+        state.marketQty[slot] = marketLimit(slot);
+        break;
+      }
+      if (id?.startsWith('mdo_')) {         // mdo_<kind>:<key>
+        marketConfirm(id.slice(4));
         break;
       }
       // ----- escolher prato e alimentar goblin -----
@@ -308,6 +385,7 @@ function update(dt) {
         else if (s.type === 'house') state.screen = 'roster';
         else if (s.type === 'quest') state.screen = 'quests';
         else if (s.type === 'cozinha') state.screen = 'kitchen';
+        else if (s.type === 'mercado') openMarket();
         else toast('toast.soon');
       }
     }
@@ -352,6 +430,7 @@ function render(time) {
   else if (state.screen === 'detail') drawDetailScreen();
   else if (state.screen === 'quests') drawQuestScreen();
   else if (state.screen === 'kitchen') drawKitchenScreen();
+  else if (state.screen === 'market') drawMarketScreen();
   if (state.screen === 'world') drawWorldButtons();
 }
 
@@ -464,6 +543,15 @@ function drawWorldButtons() {
     ui.text(274, 334, i18n.t('ui.kitchen_btn'),
       { align: 'center', size: 11, bold: true, color: '#ffe9b8' });
     ui.region('kitchen_btn', 224, 316, 100, 36);
+  }
+
+  // MERCADO — só aparece depois de construído
+  if (village.has('mercado')) {
+    ui.rusticPanel(332, 316, 100, 36);
+    ctx.drawImage(getSprite('res_gold'), 342, 326, 14, 14);
+    ui.text(392, 334, i18n.t('ui.market_btn'),
+      { align: 'center', size: 11, bold: true, color: '#ffe9b8' });
+    ui.region('market_btn', 332, 316, 100, 36);
   }
 
   ui.button('roster_btn', 548, 316, 84, 34,
@@ -823,6 +911,88 @@ function drawKitchenScreen() {
   }
 }
 
+// ---------- Tela: Mercado (etapa 1.6) ----------
+const MARKET_PER_PAGE = 4;
+
+function drawMarketScreen() {
+  ui.rusticPanel(8, 40, 624, 286);
+  const lv = market.level(village);
+  ui.woodSign(16, 46, 240, 22, i18n.t('ui.market_title'), 11);
+  ui.text(268, 57, i18n.t('ui.market_sub', { n: lv, gold: village.res.gold }),
+    { size: 9, color: '#ffe9b8' });
+  ui.closeX('back_world', 604, 46);
+
+  // mercado ainda não construído (só acontece por save antigo/atalho)
+  if (lv <= 0) {
+    ui.text(320, 180, i18n.t('ui.market_locked'),
+      { align: 'center', size: 12, bold: true, color: '#ffb8a8' });
+    return;
+  }
+
+  const selling = state.marketTab === 0;
+  ui.tab('mtab_0', 22, 74, 110, 20, i18n.t('ui.tab_sell'), selling);
+  ui.tab('mtab_1', 140, 74, 110, 20, i18n.t('ui.tab_buy'), !selling);
+
+  // Na venda só faz sentido mostrar o que o jogador realmente tem.
+  let items = market.catalog(village, selling ? 'sell' : 'buy');
+  if (selling) items = items.filter((it) => it.have > 0);
+
+  if (!items.length) {
+    ui.text(320, 200, i18n.t('ui.market_empty'),
+      { align: 'center', size: 11, color: '#e8d5a8' });
+    return;
+  }
+
+  const pages = Math.max(1, Math.ceil(items.length / MARKET_PER_PAGE));
+  state.marketPage = Math.max(0, Math.min(state.marketPage, pages - 1));
+  const from = state.marketPage * MARKET_PER_PAGE;
+  const slice = items.slice(from, from + MARKET_PER_PAGE);
+
+  slice.forEach((it, i) => {
+    const x = 16 + i * 153, y = 102, w = 145, h = 176;
+    const slot = `${it.kind}:${it.key}`;
+    const name = it.kind === 'meal' ? i18n.t('meal.' + it.key) : i18n.t('res.' + it.key);
+    const limit = marketLimit(slot);
+    const qty = marketQty(slot);
+    const total = qty * it.price;
+
+    ui.parchment(x, y, w, h);
+    ui.woodSign(x + 4, y + 3, w - 8, 14, name, 8);
+
+    ui.glow(x + w / 2, y + 44, 28);
+    ctx.drawImage(getSprite(it.sprite), x + w / 2 - 18, y + 26, 36, 36);
+
+    // preço unitário + quanto o jogador já tem
+    ui.text(x + w / 2, y + 72, i18n.t('ui.market_unit', { n: it.price }),
+      { align: 'center', size: 9, bold: true, color: '#4a3018' });
+    ui.text(x + w / 2, y + 86, `${i18n.t('ui.have')}: ${it.have}`,
+      { align: 'center', size: 8, color: '#6e4626' });
+
+    // seletor de quantidade  −  N  +   (máx)
+    ui.button('mq_-_' + slot, x + 8, y + 96, 26, 24, '−', limit > 0 && qty > 1);
+    ui.text(x + w / 2, y + 108, i18n.t('ui.market_qty', { n: qty }),
+      { align: 'center', size: 11, bold: true, color: '#3c2712' });
+    ui.button('mq_+_' + slot, x + w - 34, y + 96, 26, 24, '+', qty < limit);
+    ui.button('mmax_' + slot, x + 8, y + 124, w - 16, 18,
+      `${i18n.t('ui.market_max')} ${limit}`, limit > 0);
+
+    // total e confirmação
+    ctx.drawImage(getSprite('res_gold'), x + 8, y + 148, 12, 12);
+    ui.text(x + 24, y + 154, String(total),
+      { size: 10, bold: true, color: limit > 0 ? '#4a3018' : '#8c2f1f' });
+    ui.button('mdo_' + slot, x + 62, y + 146, w - 70, 24,
+      selling ? i18n.t('ui.market_sell') : i18n.t('ui.market_buy'),
+      limit > 0, limit > 0);
+  });
+
+  if (pages > 1) {
+    if (state.marketPage > 0) ui.button('mpage_prev', 250, 292, 36, 18, '‹', true);
+    ui.text(320, 301, `${state.marketPage + 1}/${pages}`,
+      { align: 'center', size: 9, bold: true, color: '#ffe9b8' });
+    if (state.marketPage < pages - 1) ui.button('mpage_next', 354, 292, 36, 18, '›', true);
+  }
+}
+
 // ---------- Textos DOM ----------
 function applyTexts() {
   titleEl.textContent = i18n.t('app.title');
@@ -889,6 +1059,15 @@ async function init() {
   else if (demo === 'build') state.screen = 'build';
   else if (demo === 'quests') state.screen = 'quests';
   else if (demo === 'kitchen') state.screen = 'kitchen';
+  else if (demo === 'market') {
+    // a prévia precisa do Mercado de pé: destrava e constrói na hora
+    if (!village.has('mercado')) {
+      village.level = Math.max(village.level, BUILDINGS.mercado.reqLevel);
+      village.res.wood += 999; village.res.stone += 999; village.res.gold += 999;
+      village.build('mercado');
+    }
+    openMarket();
+  }
   else if (demo === 'nodes' || demo === 'work' || demo === 'stumps') {
     const t = nodes.list.find((n) => n.type === 'tree' && !n.depleted);
     if (t) {

@@ -850,6 +850,7 @@ Melhorar estrutura: desbloqueia equipamentos e comidas melhores.
 | 1.5 Construção de TODAS as estruturas + melhorias | ✅ | (testes automatizados) |
 | 1.7 Painel de Missões | ✅ | (testes automatizados) |
 | 1.4 Cozinha: comida que cura | ✅ | (testes automatizados) |
+| 1.6 Mercado: vender e comprar | ✅ | (testes automatizados) |
 | Fazenda e Mina como postos de trabalho infinitos | ✅ | (testes automatizados) |
 
 **Notas da UI de construção:** botão rústico "Construir" no canto inferior esquerdo abre o painel da Casa de Construção em qualquer lugar do mapa (estilo inspirado na referência do usuário: painel de pranchas com pregos/lascas, placa de título, abas, cards de pergaminho com ícone brilhando, contagem construída e custo com ícones). Aba **Estruturas**: catálogo `BUILD_DEFS` — casas + futuras estruturas travadas por nível da vila (Serraria/Fazenda nv2 … Quartel nv8) mostradas com placa "?" + "Vila nv X"; slot "…em breve…". Aba **Melhorias**: melhorar casas (+1 capacidade). Tocar fora do painel fecha. Novas estruturas implementadas futuramente **aparecem automaticamente nesse catálogo**.
@@ -868,16 +869,18 @@ Melhorar estrutura: desbloqueia equipamentos e comidas melhores.
 
 **Notas da 1.7 (missões):** `quests.js` com 3 slots fixos; cada missão pede recursos ou pratos e paga **ouro + XP da vila**. Dificuldade escala ~12% por nível da vila e o que pode ser pedido tem gate por nível (minério só a partir do nv4, pratos a partir do nv3). Recompensa proporcional ao valor pedido, XP limitado a 20–100 (§8). Slot entregue entra em renovação (45s) e volta sozinho. Botão "Missões" no mundo mostra um selo verde com quantas dá para entregar agora.
 
+**Notas da 1.6 (Mercado):** `market.js` fecha a economia da Fase 1 — o excedente vira **ouro** e o ouro compra o que está faltando. Preços-base no `balance.json` (`market.prices`: madeira 2, pedra 3, minério 7, comida 4); pratos usam o `price` da própria receita. Duas margens garantem que o mercado **nunca imprima dinheiro**: venda ×0,75 e compra ×1,6, com o preço de compra sempre pelo menos 1 ouro acima do de venda. **Melhorar o Mercado melhora o negócio** (§2.5): +6% por nível no que ele paga e −6% no que ele cobra. Pratos só entram na prateleira de *compra* conforme o nível do Mercado (o Banquete exige nv3), então comprar comida pronta não atropela a Cozinha. Tela com abas **Vender/Comprar**, cards paginados (4 por página) com ícone, preço unitário, quanto você tem, seletor de quantidade −/N/+ mais botão "máx", total em ouro e confirmação — tudo por toque. Na aba Vender só aparece o que o jogador realmente tem. Botão "Mercado" no rodapé do mundo (surge depois de construído) e toque no prédio também abre. Hook de prévia `?demo=market`.
+
 **Notas da 1.4 (cozinha):** `cooking.js` com 4 receitas — pão, sopa (Cozinha nv1), ensopado (nv2), banquete (nv3): **melhorar a Cozinha desbloqueia pratos melhores**, como manda o §2.5. Consomem `food` (da Fazenda) e produzem pratos que curam HP fora de batalha e servem de moeda nas missões. Goblin com especialidade `cook` tem chance de render porção dobrada. Tela da Cozinha: receitas com custo/cura, despensa e cura por toque (escolhe o prato → toca no goblin ferido).
 
 **Notas da Fazenda/Mina (§2.6):** as duas viram **postos de trabalho infinitos** (`nodes.syncFacilities`), reaproveitando o mesmo sistema de trabalho dos nós naturais — o goblin caminha até lá e produz em ciclos. Fazenda → comida; Mina → pedra com chance crescente de minério conforme o nível. A Serraria aumenta o rendimento de madeira dos nós de árvore. Postos infinitos não são salvos: nascem das estruturas no boot.
 
-**Testes (`bash tools/test.sh`):** o Playwright não instala neste ambiente (sem binário de navegador e download bloqueado), então as prévias PNG deram lugar a **151 testes automatizados** em 4 suítes: `smoke` (lógica), `render` (as 6 telas desenham, traduções e sprites conferidos), `playthrough` (uma partida inteira: nv1 → nv3 desbloqueando e cozinhando) e `build` (o arquivo único distribuído sobe sozinho). O `playthrough` é o que pega "o jogo trava no meio" — exatamente o problema que o nível fixo causava.
+**Testes (`bash tools/test.sh`):** o Playwright não instala neste ambiente (sem binário de navegador e download bloqueado), então as prévias PNG deram lugar a **192 testes automatizados** em 4 suítes: `smoke` (lógica), `render` (as 6 telas desenham, traduções e sprites conferidos), `playthrough` (uma partida inteira: nv1 → nv3 desbloqueando e cozinhando) e `build` (o arquivo único distribuído sobe sozinho). O `playthrough` é o que pega "o jogo trava no meio" — exatamente o problema que o nível fixo causava.
 
 ---
 
 ## ✅ PRÓXIMO PASSO SUGERIDO
 
-O ciclo da **Fase 1 está fechado**: coletar → construir → missões → XP → subir de nível → desbloquear → cozinhar → curar.
+A **Fase 1 está concluída** — todas as etapas de 1.1 a 1.8 estão implementadas. O ciclo fecha por inteiro: coletar → construir → missões → XP → subir de nível → desbloquear → cozinhar → curar → **vender/comprar no Mercado**.
 
-Próxima etapa natural: **1.6 — Mercado** (vender comida/recursos por ouro e comprar o que falta), que fecha a economia antes da Fase 2 (Ferraria/equipamentos). Alternativa: pular direto para a **Fase 3 — Combate por turnos**, já que os goblins têm os 6 atributos, HP/MP e comida curativa prontos.
+Próxima etapa natural: **Fase 2 — 2.1 Ferraria** (armas e armaduras a partir de minério), seguida de 2.2 (equipar goblins) e 2.3 (Altar). Alternativa: pular para a **Fase 3 — Combate por turnos**, já que os goblins têm os 6 atributos, HP/MP e comida curativa prontos.
