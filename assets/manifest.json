@@ -1,0 +1,300 @@
+{
+  "sprites": [
+    {
+      "id": "building_construction_1",
+      "path": "assets/sprites/buildings/building_construction_1.png"
+    },
+    {
+      "id": "building_house_1",
+      "path": "assets/sprites/buildings/building_house_1.png"
+    },
+    {
+      "id": "building_questboard_1",
+      "path": "assets/sprites/buildings/building_questboard_1.png"
+    },
+    {
+      "id": "goblin_attack_0",
+      "path": "assets/sprites/goblins/goblin_attack_0.png"
+    },
+    {
+      "id": "goblin_attack_1",
+      "path": "assets/sprites/goblins/goblin_attack_1.png"
+    },
+    {
+      "id": "goblin_attack_10",
+      "path": "assets/sprites/goblins/goblin_attack_10.png"
+    },
+    {
+      "id": "goblin_attack_11",
+      "path": "assets/sprites/goblins/goblin_attack_11.png"
+    },
+    {
+      "id": "goblin_attack_12",
+      "path": "assets/sprites/goblins/goblin_attack_12.png"
+    },
+    {
+      "id": "goblin_attack_13",
+      "path": "assets/sprites/goblins/goblin_attack_13.png"
+    },
+    {
+      "id": "goblin_attack_14",
+      "path": "assets/sprites/goblins/goblin_attack_14.png"
+    },
+    {
+      "id": "goblin_attack_15",
+      "path": "assets/sprites/goblins/goblin_attack_15.png"
+    },
+    {
+      "id": "goblin_attack_16",
+      "path": "assets/sprites/goblins/goblin_attack_16.png"
+    },
+    {
+      "id": "goblin_attack_2",
+      "path": "assets/sprites/goblins/goblin_attack_2.png"
+    },
+    {
+      "id": "goblin_attack_3",
+      "path": "assets/sprites/goblins/goblin_attack_3.png"
+    },
+    {
+      "id": "goblin_attack_4",
+      "path": "assets/sprites/goblins/goblin_attack_4.png"
+    },
+    {
+      "id": "goblin_attack_5",
+      "path": "assets/sprites/goblins/goblin_attack_5.png"
+    },
+    {
+      "id": "goblin_attack_6",
+      "path": "assets/sprites/goblins/goblin_attack_6.png"
+    },
+    {
+      "id": "goblin_attack_7",
+      "path": "assets/sprites/goblins/goblin_attack_7.png"
+    },
+    {
+      "id": "goblin_attack_8",
+      "path": "assets/sprites/goblins/goblin_attack_8.png"
+    },
+    {
+      "id": "goblin_attack_9",
+      "path": "assets/sprites/goblins/goblin_attack_9.png"
+    },
+    {
+      "id": "goblin_death_0",
+      "path": "assets/sprites/goblins/goblin_death_0.png"
+    },
+    {
+      "id": "goblin_death_1",
+      "path": "assets/sprites/goblins/goblin_death_1.png"
+    },
+    {
+      "id": "goblin_death_10",
+      "path": "assets/sprites/goblins/goblin_death_10.png"
+    },
+    {
+      "id": "goblin_death_11",
+      "path": "assets/sprites/goblins/goblin_death_11.png"
+    },
+    {
+      "id": "goblin_death_12",
+      "path": "assets/sprites/goblins/goblin_death_12.png"
+    },
+    {
+      "id": "goblin_death_13",
+      "path": "assets/sprites/goblins/goblin_death_13.png"
+    },
+    {
+      "id": "goblin_death_14",
+      "path": "assets/sprites/goblins/goblin_death_14.png"
+    },
+    {
+      "id": "goblin_death_2",
+      "path": "assets/sprites/goblins/goblin_death_2.png"
+    },
+    {
+      "id": "goblin_death_3",
+      "path": "assets/sprites/goblins/goblin_death_3.png"
+    },
+    {
+      "id": "goblin_death_4",
+      "path": "assets/sprites/goblins/goblin_death_4.png"
+    },
+    {
+      "id": "goblin_death_5",
+      "path": "assets/sprites/goblins/goblin_death_5.png"
+    },
+    {
+      "id": "goblin_death_6",
+      "path": "assets/sprites/goblins/goblin_death_6.png"
+    },
+    {
+      "id": "goblin_death_7",
+      "path": "assets/sprites/goblins/goblin_death_7.png"
+    },
+    {
+      "id": "goblin_death_8",
+      "path": "assets/sprites/goblins/goblin_death_8.png"
+    },
+    {
+      "id": "goblin_death_9",
+      "path": "assets/sprites/goblins/goblin_death_9.png"
+    },
+    {
+      "id": "goblin_hurt_0",
+      "path": "assets/sprites/goblins/goblin_hurt_0.png"
+    },
+    {
+      "id": "goblin_hurt_1",
+      "path": "assets/sprites/goblins/goblin_hurt_1.png"
+    },
+    {
+      "id": "goblin_hurt_10",
+      "path": "assets/sprites/goblins/goblin_hurt_10.png"
+    },
+    {
+      "id": "goblin_hurt_11",
+      "path": "assets/sprites/goblins/goblin_hurt_11.png"
+    },
+    {
+      "id": "goblin_hurt_12",
+      "path": "assets/sprites/goblins/goblin_hurt_12.png"
+    },
+    {
+      "id": "goblin_hurt_13",
+      "path": "assets/sprites/goblins/goblin_hurt_13.png"
+    },
+    {
+      "id": "goblin_hurt_14",
+      "path": "assets/sprites/goblins/goblin_hurt_14.png"
+    },
+    {
+      "id": "goblin_hurt_15",
+      "path": "assets/sprites/goblins/goblin_hurt_15.png"
+    },
+    {
+      "id": "goblin_hurt_16",
+      "path": "assets/sprites/goblins/goblin_hurt_16.png"
+    },
+    {
+      "id": "goblin_hurt_2",
+      "path": "assets/sprites/goblins/goblin_hurt_2.png"
+    },
+    {
+      "id": "goblin_hurt_3",
+      "path": "assets/sprites/goblins/goblin_hurt_3.png"
+    },
+    {
+      "id": "goblin_hurt_4",
+      "path": "assets/sprites/goblins/goblin_hurt_4.png"
+    },
+    {
+      "id": "goblin_hurt_5",
+      "path": "assets/sprites/goblins/goblin_hurt_5.png"
+    },
+    {
+      "id": "goblin_hurt_6",
+      "path": "assets/sprites/goblins/goblin_hurt_6.png"
+    },
+    {
+      "id": "goblin_hurt_7",
+      "path": "assets/sprites/goblins/goblin_hurt_7.png"
+    },
+    {
+      "id": "goblin_hurt_8",
+      "path": "assets/sprites/goblins/goblin_hurt_8.png"
+    },
+    {
+      "id": "goblin_hurt_9",
+      "path": "assets/sprites/goblins/goblin_hurt_9.png"
+    },
+    {
+      "id": "goblin_idle_0",
+      "path": "assets/sprites/goblins/goblin_idle_0.png"
+    },
+    {
+      "id": "goblin_idle_1",
+      "path": "assets/sprites/goblins/goblin_idle_1.png"
+    },
+    {
+      "id": "goblin_idle_2",
+      "path": "assets/sprites/goblins/goblin_idle_2.png"
+    },
+    {
+      "id": "goblin_idle_3",
+      "path": "assets/sprites/goblins/goblin_idle_3.png"
+    },
+    {
+      "id": "goblin_idle_4",
+      "path": "assets/sprites/goblins/goblin_idle_4.png"
+    },
+    {
+      "id": "goblin_walk_0",
+      "path": "assets/sprites/goblins/goblin_walk_0.png"
+    },
+    {
+      "id": "goblin_walk_1",
+      "path": "assets/sprites/goblins/goblin_walk_1.png"
+    },
+    {
+      "id": "goblin_walk_2",
+      "path": "assets/sprites/goblins/goblin_walk_2.png"
+    },
+    {
+      "id": "goblin_walk_3",
+      "path": "assets/sprites/goblins/goblin_walk_3.png"
+    },
+    {
+      "id": "goblin_walk_4",
+      "path": "assets/sprites/goblins/goblin_walk_4.png"
+    },
+    {
+      "id": "goblin_walk_5",
+      "path": "assets/sprites/goblins/goblin_walk_5.png"
+    },
+    {
+      "id": "goblin_walk_6",
+      "path": "assets/sprites/goblins/goblin_walk_6.png"
+    },
+    {
+      "id": "goblin_walk_7",
+      "path": "assets/sprites/goblins/goblin_walk_7.png"
+    },
+    {
+      "id": "node_rock_0",
+      "path": "assets/sprites/nodes/node_rock_0.png"
+    },
+    {
+      "id": "node_rock_rubble",
+      "path": "assets/sprites/nodes/node_rock_rubble.png"
+    },
+    {
+      "id": "node_tree_0",
+      "path": "assets/sprites/nodes/node_tree_0.png"
+    },
+    {
+      "id": "node_tree_stump",
+      "path": "assets/sprites/nodes/node_tree_stump.png"
+    },
+    {
+      "id": "res_food",
+      "path": "assets/sprites/resources/res_food.png"
+    },
+    {
+      "id": "res_gold",
+      "path": "assets/sprites/resources/res_gold.png"
+    },
+    {
+      "id": "res_ore",
+      "path": "assets/sprites/resources/res_ore.png"
+    },
+    {
+      "id": "res_stone",
+      "path": "assets/sprites/resources/res_stone.png"
+    },
+    {
+      "id": "res_wood",
+      "path": "assets/sprites/resources/res_wood.png"
+    }
+  ]
+}

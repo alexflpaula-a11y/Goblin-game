@@ -1,0 +1,94 @@
+/* ============================================================
+   style.css — Mobile-first, UI sobreposta ao canvas
+   ============================================================ */
+:root {
+  --bg: #16121f;
+  --panel: rgba(20, 16, 32, 0.85);
+  --text: #efeafd;
+  --muted: #b9aedc;
+  --accent: #a78bfa;
+  --accent-ink: #1b1530;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+/* Área do jogo — JS ajusta tamanho/posição para manter a proporção 360x640 */
+#viewport {
+  position: absolute;
+  overflow: hidden;
+  background: #241d38;
+}
+
+canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  touch-action: none;
+}
+
+#hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: var(--panel);
+  backdrop-filter: blur(4px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#title {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+#subtitle {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 400;
+}
+
+#langBtn {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+#langBtn:active {
+  transform: scale(0.94);
+}
+
+/* em paisagem o status vive dentro do canvas p/ economizar espaço */
+#status {
+  display: none;
+}
