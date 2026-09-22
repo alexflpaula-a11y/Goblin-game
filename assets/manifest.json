@@ -1,16 +1,60 @@
 {
   "sprites": [
     {
+      "id": "building_altar_1",
+      "path": "assets/sprites/buildings/building_altar_1.png"
+    },
+    {
+      "id": "building_bazar_1",
+      "path": "assets/sprites/buildings/building_bazar_1.png"
+    },
+    {
       "id": "building_construction_1",
       "path": "assets/sprites/buildings/building_construction_1.png"
+    },
+    {
+      "id": "building_cozinha_1",
+      "path": "assets/sprites/buildings/building_cozinha_1.png"
+    },
+    {
+      "id": "building_estabulo_1",
+      "path": "assets/sprites/buildings/building_estabulo_1.png"
+    },
+    {
+      "id": "building_fazenda_1",
+      "path": "assets/sprites/buildings/building_fazenda_1.png"
+    },
+    {
+      "id": "building_ferraria_1",
+      "path": "assets/sprites/buildings/building_ferraria_1.png"
     },
     {
       "id": "building_house_1",
       "path": "assets/sprites/buildings/building_house_1.png"
     },
     {
+      "id": "building_mercado_1",
+      "path": "assets/sprites/buildings/building_mercado_1.png"
+    },
+    {
+      "id": "building_mina_1",
+      "path": "assets/sprites/buildings/building_mina_1.png"
+    },
+    {
+      "id": "building_porto_1",
+      "path": "assets/sprites/buildings/building_porto_1.png"
+    },
+    {
+      "id": "building_quartel_1",
+      "path": "assets/sprites/buildings/building_quartel_1.png"
+    },
+    {
       "id": "building_questboard_1",
       "path": "assets/sprites/buildings/building_questboard_1.png"
+    },
+    {
+      "id": "building_serraria_1",
+      "path": "assets/sprites/buildings/building_serraria_1.png"
     },
     {
       "id": "goblin_attack_0",
@@ -259,6 +303,22 @@
     {
       "id": "goblin_walk_7",
       "path": "assets/sprites/goblins/goblin_walk_7.png"
+    },
+    {
+      "id": "item_bread",
+      "path": "assets/sprites/items/item_bread.png"
+    },
+    {
+      "id": "item_feast",
+      "path": "assets/sprites/items/item_feast.png"
+    },
+    {
+      "id": "item_soup",
+      "path": "assets/sprites/items/item_soup.png"
+    },
+    {
+      "id": "item_stew",
+      "path": "assets/sprites/items/item_stew.png"
     },
     {
       "id": "node_rock_0",
