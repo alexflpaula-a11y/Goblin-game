@@ -128,5 +128,10 @@
   "toast.bought": "Bought {n} {name} for {gold} gold",
   "toast.market_nothing": "You don't have that to sell!",
   "toast.market_gold": "Not enough gold!",
-  "toast.market_closed": "The Market hasn't been built yet!"
+  "toast.market_closed": "The Market hasn't been built yet!",
+  "gear.peitoral_avaritia": "Avaritia Chestplate",
+  "gear.calca_avaritia": "Avaritia Leggings",
+  "gear.capacete_avaritia": "Avaritia Helmet",
+  "ui.gear_owned": "✔ owned",
+  "toast.gear_bought": "{name} now dresses the whole village!"
 }

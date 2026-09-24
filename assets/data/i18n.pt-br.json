@@ -128,5 +128,10 @@
   "toast.bought": "Comprou {n} {name} por {gold} ouro",
   "toast.market_nothing": "Você não tem isso para vender!",
   "toast.market_gold": "Ouro insuficiente!",
-  "toast.market_closed": "O Mercado ainda não foi construído!"
+  "toast.market_closed": "O Mercado ainda não foi construído!",
+  "gear.peitoral_avaritia": "Peitoral de Avaritia",
+  "gear.calca_avaritia": "Calça de Avaritia",
+  "gear.capacete_avaritia": "Capacete de Avaritia",
+  "ui.gear_owned": "✔ adquirida",
+  "toast.gear_bought": "{name} agora veste a vila inteira!"
 }

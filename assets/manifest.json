@@ -1,6 +1,1754 @@
 {
   "sprites": [
     {
+      "id": "av_cal_attack_0",
+      "path": "assets/sprites/avaritia/av_cal_attack_0.png"
+    },
+    {
+      "id": "av_cal_attack_1",
+      "path": "assets/sprites/avaritia/av_cal_attack_1.png"
+    },
+    {
+      "id": "av_cal_attack_10",
+      "path": "assets/sprites/avaritia/av_cal_attack_10.png"
+    },
+    {
+      "id": "av_cal_attack_11",
+      "path": "assets/sprites/avaritia/av_cal_attack_11.png"
+    },
+    {
+      "id": "av_cal_attack_12",
+      "path": "assets/sprites/avaritia/av_cal_attack_12.png"
+    },
+    {
+      "id": "av_cal_attack_13",
+      "path": "assets/sprites/avaritia/av_cal_attack_13.png"
+    },
+    {
+      "id": "av_cal_attack_14",
+      "path": "assets/sprites/avaritia/av_cal_attack_14.png"
+    },
+    {
+      "id": "av_cal_attack_15",
+      "path": "assets/sprites/avaritia/av_cal_attack_15.png"
+    },
+    {
+      "id": "av_cal_attack_16",
+      "path": "assets/sprites/avaritia/av_cal_attack_16.png"
+    },
+    {
+      "id": "av_cal_attack_2",
+      "path": "assets/sprites/avaritia/av_cal_attack_2.png"
+    },
+    {
+      "id": "av_cal_attack_3",
+      "path": "assets/sprites/avaritia/av_cal_attack_3.png"
+    },
+    {
+      "id": "av_cal_attack_4",
+      "path": "assets/sprites/avaritia/av_cal_attack_4.png"
+    },
+    {
+      "id": "av_cal_attack_5",
+      "path": "assets/sprites/avaritia/av_cal_attack_5.png"
+    },
+    {
+      "id": "av_cal_attack_6",
+      "path": "assets/sprites/avaritia/av_cal_attack_6.png"
+    },
+    {
+      "id": "av_cal_attack_7",
+      "path": "assets/sprites/avaritia/av_cal_attack_7.png"
+    },
+    {
+      "id": "av_cal_attack_8",
+      "path": "assets/sprites/avaritia/av_cal_attack_8.png"
+    },
+    {
+      "id": "av_cal_attack_9",
+      "path": "assets/sprites/avaritia/av_cal_attack_9.png"
+    },
+    {
+      "id": "av_cal_death_0",
+      "path": "assets/sprites/avaritia/av_cal_death_0.png"
+    },
+    {
+      "id": "av_cal_death_1",
+      "path": "assets/sprites/avaritia/av_cal_death_1.png"
+    },
+    {
+      "id": "av_cal_death_10",
+      "path": "assets/sprites/avaritia/av_cal_death_10.png"
+    },
+    {
+      "id": "av_cal_death_11",
+      "path": "assets/sprites/avaritia/av_cal_death_11.png"
+    },
+    {
+      "id": "av_cal_death_12",
+      "path": "assets/sprites/avaritia/av_cal_death_12.png"
+    },
+    {
+      "id": "av_cal_death_13",
+      "path": "assets/sprites/avaritia/av_cal_death_13.png"
+    },
+    {
+      "id": "av_cal_death_14",
+      "path": "assets/sprites/avaritia/av_cal_death_14.png"
+    },
+    {
+      "id": "av_cal_death_2",
+      "path": "assets/sprites/avaritia/av_cal_death_2.png"
+    },
+    {
+      "id": "av_cal_death_3",
+      "path": "assets/sprites/avaritia/av_cal_death_3.png"
+    },
+    {
+      "id": "av_cal_death_4",
+      "path": "assets/sprites/avaritia/av_cal_death_4.png"
+    },
+    {
+      "id": "av_cal_death_5",
+      "path": "assets/sprites/avaritia/av_cal_death_5.png"
+    },
+    {
+      "id": "av_cal_death_6",
+      "path": "assets/sprites/avaritia/av_cal_death_6.png"
+    },
+    {
+      "id": "av_cal_death_7",
+      "path": "assets/sprites/avaritia/av_cal_death_7.png"
+    },
+    {
+      "id": "av_cal_death_8",
+      "path": "assets/sprites/avaritia/av_cal_death_8.png"
+    },
+    {
+      "id": "av_cal_death_9",
+      "path": "assets/sprites/avaritia/av_cal_death_9.png"
+    },
+    {
+      "id": "av_cal_hurt_0",
+      "path": "assets/sprites/avaritia/av_cal_hurt_0.png"
+    },
+    {
+      "id": "av_cal_hurt_1",
+      "path": "assets/sprites/avaritia/av_cal_hurt_1.png"
+    },
+    {
+      "id": "av_cal_hurt_10",
+      "path": "assets/sprites/avaritia/av_cal_hurt_10.png"
+    },
+    {
+      "id": "av_cal_hurt_11",
+      "path": "assets/sprites/avaritia/av_cal_hurt_11.png"
+    },
+    {
+      "id": "av_cal_hurt_12",
+      "path": "assets/sprites/avaritia/av_cal_hurt_12.png"
+    },
+    {
+      "id": "av_cal_hurt_13",
+      "path": "assets/sprites/avaritia/av_cal_hurt_13.png"
+    },
+    {
+      "id": "av_cal_hurt_14",
+      "path": "assets/sprites/avaritia/av_cal_hurt_14.png"
+    },
+    {
+      "id": "av_cal_hurt_15",
+      "path": "assets/sprites/avaritia/av_cal_hurt_15.png"
+    },
+    {
+      "id": "av_cal_hurt_16",
+      "path": "assets/sprites/avaritia/av_cal_hurt_16.png"
+    },
+    {
+      "id": "av_cal_hurt_2",
+      "path": "assets/sprites/avaritia/av_cal_hurt_2.png"
+    },
+    {
+      "id": "av_cal_hurt_3",
+      "path": "assets/sprites/avaritia/av_cal_hurt_3.png"
+    },
+    {
+      "id": "av_cal_hurt_4",
+      "path": "assets/sprites/avaritia/av_cal_hurt_4.png"
+    },
+    {
+      "id": "av_cal_hurt_5",
+      "path": "assets/sprites/avaritia/av_cal_hurt_5.png"
+    },
+    {
+      "id": "av_cal_hurt_6",
+      "path": "assets/sprites/avaritia/av_cal_hurt_6.png"
+    },
+    {
+      "id": "av_cal_hurt_7",
+      "path": "assets/sprites/avaritia/av_cal_hurt_7.png"
+    },
+    {
+      "id": "av_cal_hurt_8",
+      "path": "assets/sprites/avaritia/av_cal_hurt_8.png"
+    },
+    {
+      "id": "av_cal_hurt_9",
+      "path": "assets/sprites/avaritia/av_cal_hurt_9.png"
+    },
+    {
+      "id": "av_cal_icon",
+      "path": "assets/sprites/avaritia/av_cal_icon.png"
+    },
+    {
+      "id": "av_cal_idle_0",
+      "path": "assets/sprites/avaritia/av_cal_idle_0.png"
+    },
+    {
+      "id": "av_cal_idle_1",
+      "path": "assets/sprites/avaritia/av_cal_idle_1.png"
+    },
+    {
+      "id": "av_cal_idle_2",
+      "path": "assets/sprites/avaritia/av_cal_idle_2.png"
+    },
+    {
+      "id": "av_cal_idle_3",
+      "path": "assets/sprites/avaritia/av_cal_idle_3.png"
+    },
+    {
+      "id": "av_cal_idle_4",
+      "path": "assets/sprites/avaritia/av_cal_idle_4.png"
+    },
+    {
+      "id": "av_cal_walk_0",
+      "path": "assets/sprites/avaritia/av_cal_walk_0.png"
+    },
+    {
+      "id": "av_cal_walk_1",
+      "path": "assets/sprites/avaritia/av_cal_walk_1.png"
+    },
+    {
+      "id": "av_cal_walk_2",
+      "path": "assets/sprites/avaritia/av_cal_walk_2.png"
+    },
+    {
+      "id": "av_cal_walk_3",
+      "path": "assets/sprites/avaritia/av_cal_walk_3.png"
+    },
+    {
+      "id": "av_cal_walk_4",
+      "path": "assets/sprites/avaritia/av_cal_walk_4.png"
+    },
+    {
+      "id": "av_cal_walk_5",
+      "path": "assets/sprites/avaritia/av_cal_walk_5.png"
+    },
+    {
+      "id": "av_cal_walk_6",
+      "path": "assets/sprites/avaritia/av_cal_walk_6.png"
+    },
+    {
+      "id": "av_cal_walk_7",
+      "path": "assets/sprites/avaritia/av_cal_walk_7.png"
+    },
+    {
+      "id": "av_cap_attack_0",
+      "path": "assets/sprites/avaritia/av_cap_attack_0.png"
+    },
+    {
+      "id": "av_cap_attack_1",
+      "path": "assets/sprites/avaritia/av_cap_attack_1.png"
+    },
+    {
+      "id": "av_cap_attack_10",
+      "path": "assets/sprites/avaritia/av_cap_attack_10.png"
+    },
+    {
+      "id": "av_cap_attack_11",
+      "path": "assets/sprites/avaritia/av_cap_attack_11.png"
+    },
+    {
+      "id": "av_cap_attack_12",
+      "path": "assets/sprites/avaritia/av_cap_attack_12.png"
+    },
+    {
+      "id": "av_cap_attack_13",
+      "path": "assets/sprites/avaritia/av_cap_attack_13.png"
+    },
+    {
+      "id": "av_cap_attack_14",
+      "path": "assets/sprites/avaritia/av_cap_attack_14.png"
+    },
+    {
+      "id": "av_cap_attack_15",
+      "path": "assets/sprites/avaritia/av_cap_attack_15.png"
+    },
+    {
+      "id": "av_cap_attack_16",
+      "path": "assets/sprites/avaritia/av_cap_attack_16.png"
+    },
+    {
+      "id": "av_cap_attack_2",
+      "path": "assets/sprites/avaritia/av_cap_attack_2.png"
+    },
+    {
+      "id": "av_cap_attack_3",
+      "path": "assets/sprites/avaritia/av_cap_attack_3.png"
+    },
+    {
+      "id": "av_cap_attack_4",
+      "path": "assets/sprites/avaritia/av_cap_attack_4.png"
+    },
+    {
+      "id": "av_cap_attack_5",
+      "path": "assets/sprites/avaritia/av_cap_attack_5.png"
+    },
+    {
+      "id": "av_cap_attack_6",
+      "path": "assets/sprites/avaritia/av_cap_attack_6.png"
+    },
+    {
+      "id": "av_cap_attack_7",
+      "path": "assets/sprites/avaritia/av_cap_attack_7.png"
+    },
+    {
+      "id": "av_cap_attack_8",
+      "path": "assets/sprites/avaritia/av_cap_attack_8.png"
+    },
+    {
+      "id": "av_cap_attack_9",
+      "path": "assets/sprites/avaritia/av_cap_attack_9.png"
+    },
+    {
+      "id": "av_cap_cal_attack_0",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_0.png"
+    },
+    {
+      "id": "av_cap_cal_attack_1",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_1.png"
+    },
+    {
+      "id": "av_cap_cal_attack_10",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_10.png"
+    },
+    {
+      "id": "av_cap_cal_attack_11",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_11.png"
+    },
+    {
+      "id": "av_cap_cal_attack_12",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_12.png"
+    },
+    {
+      "id": "av_cap_cal_attack_13",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_13.png"
+    },
+    {
+      "id": "av_cap_cal_attack_14",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_14.png"
+    },
+    {
+      "id": "av_cap_cal_attack_15",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_15.png"
+    },
+    {
+      "id": "av_cap_cal_attack_16",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_16.png"
+    },
+    {
+      "id": "av_cap_cal_attack_2",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_2.png"
+    },
+    {
+      "id": "av_cap_cal_attack_3",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_3.png"
+    },
+    {
+      "id": "av_cap_cal_attack_4",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_4.png"
+    },
+    {
+      "id": "av_cap_cal_attack_5",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_5.png"
+    },
+    {
+      "id": "av_cap_cal_attack_6",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_6.png"
+    },
+    {
+      "id": "av_cap_cal_attack_7",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_7.png"
+    },
+    {
+      "id": "av_cap_cal_attack_8",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_8.png"
+    },
+    {
+      "id": "av_cap_cal_attack_9",
+      "path": "assets/sprites/avaritia/av_cap_cal_attack_9.png"
+    },
+    {
+      "id": "av_cap_cal_death_0",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_0.png"
+    },
+    {
+      "id": "av_cap_cal_death_1",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_1.png"
+    },
+    {
+      "id": "av_cap_cal_death_10",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_10.png"
+    },
+    {
+      "id": "av_cap_cal_death_11",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_11.png"
+    },
+    {
+      "id": "av_cap_cal_death_12",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_12.png"
+    },
+    {
+      "id": "av_cap_cal_death_13",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_13.png"
+    },
+    {
+      "id": "av_cap_cal_death_14",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_14.png"
+    },
+    {
+      "id": "av_cap_cal_death_2",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_2.png"
+    },
+    {
+      "id": "av_cap_cal_death_3",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_3.png"
+    },
+    {
+      "id": "av_cap_cal_death_4",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_4.png"
+    },
+    {
+      "id": "av_cap_cal_death_5",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_5.png"
+    },
+    {
+      "id": "av_cap_cal_death_6",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_6.png"
+    },
+    {
+      "id": "av_cap_cal_death_7",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_7.png"
+    },
+    {
+      "id": "av_cap_cal_death_8",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_8.png"
+    },
+    {
+      "id": "av_cap_cal_death_9",
+      "path": "assets/sprites/avaritia/av_cap_cal_death_9.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_0",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_0.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_1",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_1.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_10",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_10.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_11",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_11.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_12",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_12.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_13",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_13.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_14",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_14.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_15",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_15.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_16",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_16.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_2",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_2.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_3",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_3.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_4",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_4.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_5",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_5.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_6",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_6.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_7",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_7.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_8",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_8.png"
+    },
+    {
+      "id": "av_cap_cal_hurt_9",
+      "path": "assets/sprites/avaritia/av_cap_cal_hurt_9.png"
+    },
+    {
+      "id": "av_cap_cal_idle_0",
+      "path": "assets/sprites/avaritia/av_cap_cal_idle_0.png"
+    },
+    {
+      "id": "av_cap_cal_idle_1",
+      "path": "assets/sprites/avaritia/av_cap_cal_idle_1.png"
+    },
+    {
+      "id": "av_cap_cal_idle_2",
+      "path": "assets/sprites/avaritia/av_cap_cal_idle_2.png"
+    },
+    {
+      "id": "av_cap_cal_idle_3",
+      "path": "assets/sprites/avaritia/av_cap_cal_idle_3.png"
+    },
+    {
+      "id": "av_cap_cal_idle_4",
+      "path": "assets/sprites/avaritia/av_cap_cal_idle_4.png"
+    },
+    {
+      "id": "av_cap_cal_walk_0",
+      "path": "assets/sprites/avaritia/av_cap_cal_walk_0.png"
+    },
+    {
+      "id": "av_cap_cal_walk_1",
+      "path": "assets/sprites/avaritia/av_cap_cal_walk_1.png"
+    },
+    {
+      "id": "av_cap_cal_walk_2",
+      "path": "assets/sprites/avaritia/av_cap_cal_walk_2.png"
+    },
+    {
+      "id": "av_cap_cal_walk_3",
+      "path": "assets/sprites/avaritia/av_cap_cal_walk_3.png"
+    },
+    {
+      "id": "av_cap_cal_walk_4",
+      "path": "assets/sprites/avaritia/av_cap_cal_walk_4.png"
+    },
+    {
+      "id": "av_cap_cal_walk_5",
+      "path": "assets/sprites/avaritia/av_cap_cal_walk_5.png"
+    },
+    {
+      "id": "av_cap_cal_walk_6",
+      "path": "assets/sprites/avaritia/av_cap_cal_walk_6.png"
+    },
+    {
+      "id": "av_cap_cal_walk_7",
+      "path": "assets/sprites/avaritia/av_cap_cal_walk_7.png"
+    },
+    {
+      "id": "av_cap_death_0",
+      "path": "assets/sprites/avaritia/av_cap_death_0.png"
+    },
+    {
+      "id": "av_cap_death_1",
+      "path": "assets/sprites/avaritia/av_cap_death_1.png"
+    },
+    {
+      "id": "av_cap_death_10",
+      "path": "assets/sprites/avaritia/av_cap_death_10.png"
+    },
+    {
+      "id": "av_cap_death_11",
+      "path": "assets/sprites/avaritia/av_cap_death_11.png"
+    },
+    {
+      "id": "av_cap_death_12",
+      "path": "assets/sprites/avaritia/av_cap_death_12.png"
+    },
+    {
+      "id": "av_cap_death_13",
+      "path": "assets/sprites/avaritia/av_cap_death_13.png"
+    },
+    {
+      "id": "av_cap_death_14",
+      "path": "assets/sprites/avaritia/av_cap_death_14.png"
+    },
+    {
+      "id": "av_cap_death_2",
+      "path": "assets/sprites/avaritia/av_cap_death_2.png"
+    },
+    {
+      "id": "av_cap_death_3",
+      "path": "assets/sprites/avaritia/av_cap_death_3.png"
+    },
+    {
+      "id": "av_cap_death_4",
+      "path": "assets/sprites/avaritia/av_cap_death_4.png"
+    },
+    {
+      "id": "av_cap_death_5",
+      "path": "assets/sprites/avaritia/av_cap_death_5.png"
+    },
+    {
+      "id": "av_cap_death_6",
+      "path": "assets/sprites/avaritia/av_cap_death_6.png"
+    },
+    {
+      "id": "av_cap_death_7",
+      "path": "assets/sprites/avaritia/av_cap_death_7.png"
+    },
+    {
+      "id": "av_cap_death_8",
+      "path": "assets/sprites/avaritia/av_cap_death_8.png"
+    },
+    {
+      "id": "av_cap_death_9",
+      "path": "assets/sprites/avaritia/av_cap_death_9.png"
+    },
+    {
+      "id": "av_cap_hurt_0",
+      "path": "assets/sprites/avaritia/av_cap_hurt_0.png"
+    },
+    {
+      "id": "av_cap_hurt_1",
+      "path": "assets/sprites/avaritia/av_cap_hurt_1.png"
+    },
+    {
+      "id": "av_cap_hurt_10",
+      "path": "assets/sprites/avaritia/av_cap_hurt_10.png"
+    },
+    {
+      "id": "av_cap_hurt_11",
+      "path": "assets/sprites/avaritia/av_cap_hurt_11.png"
+    },
+    {
+      "id": "av_cap_hurt_12",
+      "path": "assets/sprites/avaritia/av_cap_hurt_12.png"
+    },
+    {
+      "id": "av_cap_hurt_13",
+      "path": "assets/sprites/avaritia/av_cap_hurt_13.png"
+    },
+    {
+      "id": "av_cap_hurt_14",
+      "path": "assets/sprites/avaritia/av_cap_hurt_14.png"
+    },
+    {
+      "id": "av_cap_hurt_15",
+      "path": "assets/sprites/avaritia/av_cap_hurt_15.png"
+    },
+    {
+      "id": "av_cap_hurt_16",
+      "path": "assets/sprites/avaritia/av_cap_hurt_16.png"
+    },
+    {
+      "id": "av_cap_hurt_2",
+      "path": "assets/sprites/avaritia/av_cap_hurt_2.png"
+    },
+    {
+      "id": "av_cap_hurt_3",
+      "path": "assets/sprites/avaritia/av_cap_hurt_3.png"
+    },
+    {
+      "id": "av_cap_hurt_4",
+      "path": "assets/sprites/avaritia/av_cap_hurt_4.png"
+    },
+    {
+      "id": "av_cap_hurt_5",
+      "path": "assets/sprites/avaritia/av_cap_hurt_5.png"
+    },
+    {
+      "id": "av_cap_hurt_6",
+      "path": "assets/sprites/avaritia/av_cap_hurt_6.png"
+    },
+    {
+      "id": "av_cap_hurt_7",
+      "path": "assets/sprites/avaritia/av_cap_hurt_7.png"
+    },
+    {
+      "id": "av_cap_hurt_8",
+      "path": "assets/sprites/avaritia/av_cap_hurt_8.png"
+    },
+    {
+      "id": "av_cap_hurt_9",
+      "path": "assets/sprites/avaritia/av_cap_hurt_9.png"
+    },
+    {
+      "id": "av_cap_icon",
+      "path": "assets/sprites/avaritia/av_cap_icon.png"
+    },
+    {
+      "id": "av_cap_idle_0",
+      "path": "assets/sprites/avaritia/av_cap_idle_0.png"
+    },
+    {
+      "id": "av_cap_idle_1",
+      "path": "assets/sprites/avaritia/av_cap_idle_1.png"
+    },
+    {
+      "id": "av_cap_idle_2",
+      "path": "assets/sprites/avaritia/av_cap_idle_2.png"
+    },
+    {
+      "id": "av_cap_idle_3",
+      "path": "assets/sprites/avaritia/av_cap_idle_3.png"
+    },
+    {
+      "id": "av_cap_idle_4",
+      "path": "assets/sprites/avaritia/av_cap_idle_4.png"
+    },
+    {
+      "id": "av_cap_pei_attack_0",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_0.png"
+    },
+    {
+      "id": "av_cap_pei_attack_1",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_1.png"
+    },
+    {
+      "id": "av_cap_pei_attack_10",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_10.png"
+    },
+    {
+      "id": "av_cap_pei_attack_11",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_11.png"
+    },
+    {
+      "id": "av_cap_pei_attack_12",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_12.png"
+    },
+    {
+      "id": "av_cap_pei_attack_13",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_13.png"
+    },
+    {
+      "id": "av_cap_pei_attack_14",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_14.png"
+    },
+    {
+      "id": "av_cap_pei_attack_15",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_15.png"
+    },
+    {
+      "id": "av_cap_pei_attack_16",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_16.png"
+    },
+    {
+      "id": "av_cap_pei_attack_2",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_2.png"
+    },
+    {
+      "id": "av_cap_pei_attack_3",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_3.png"
+    },
+    {
+      "id": "av_cap_pei_attack_4",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_4.png"
+    },
+    {
+      "id": "av_cap_pei_attack_5",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_5.png"
+    },
+    {
+      "id": "av_cap_pei_attack_6",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_6.png"
+    },
+    {
+      "id": "av_cap_pei_attack_7",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_7.png"
+    },
+    {
+      "id": "av_cap_pei_attack_8",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_8.png"
+    },
+    {
+      "id": "av_cap_pei_attack_9",
+      "path": "assets/sprites/avaritia/av_cap_pei_attack_9.png"
+    },
+    {
+      "id": "av_cap_pei_death_0",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_0.png"
+    },
+    {
+      "id": "av_cap_pei_death_1",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_1.png"
+    },
+    {
+      "id": "av_cap_pei_death_10",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_10.png"
+    },
+    {
+      "id": "av_cap_pei_death_11",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_11.png"
+    },
+    {
+      "id": "av_cap_pei_death_12",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_12.png"
+    },
+    {
+      "id": "av_cap_pei_death_13",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_13.png"
+    },
+    {
+      "id": "av_cap_pei_death_14",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_14.png"
+    },
+    {
+      "id": "av_cap_pei_death_2",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_2.png"
+    },
+    {
+      "id": "av_cap_pei_death_3",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_3.png"
+    },
+    {
+      "id": "av_cap_pei_death_4",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_4.png"
+    },
+    {
+      "id": "av_cap_pei_death_5",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_5.png"
+    },
+    {
+      "id": "av_cap_pei_death_6",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_6.png"
+    },
+    {
+      "id": "av_cap_pei_death_7",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_7.png"
+    },
+    {
+      "id": "av_cap_pei_death_8",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_8.png"
+    },
+    {
+      "id": "av_cap_pei_death_9",
+      "path": "assets/sprites/avaritia/av_cap_pei_death_9.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_0",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_0.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_1",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_1.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_10",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_10.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_11",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_11.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_12",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_12.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_13",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_13.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_14",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_14.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_15",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_15.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_16",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_16.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_2",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_2.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_3",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_3.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_4",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_4.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_5",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_5.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_6",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_6.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_7",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_7.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_8",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_8.png"
+    },
+    {
+      "id": "av_cap_pei_hurt_9",
+      "path": "assets/sprites/avaritia/av_cap_pei_hurt_9.png"
+    },
+    {
+      "id": "av_cap_pei_idle_0",
+      "path": "assets/sprites/avaritia/av_cap_pei_idle_0.png"
+    },
+    {
+      "id": "av_cap_pei_idle_1",
+      "path": "assets/sprites/avaritia/av_cap_pei_idle_1.png"
+    },
+    {
+      "id": "av_cap_pei_idle_2",
+      "path": "assets/sprites/avaritia/av_cap_pei_idle_2.png"
+    },
+    {
+      "id": "av_cap_pei_idle_3",
+      "path": "assets/sprites/avaritia/av_cap_pei_idle_3.png"
+    },
+    {
+      "id": "av_cap_pei_idle_4",
+      "path": "assets/sprites/avaritia/av_cap_pei_idle_4.png"
+    },
+    {
+      "id": "av_cap_pei_walk_0",
+      "path": "assets/sprites/avaritia/av_cap_pei_walk_0.png"
+    },
+    {
+      "id": "av_cap_pei_walk_1",
+      "path": "assets/sprites/avaritia/av_cap_pei_walk_1.png"
+    },
+    {
+      "id": "av_cap_pei_walk_2",
+      "path": "assets/sprites/avaritia/av_cap_pei_walk_2.png"
+    },
+    {
+      "id": "av_cap_pei_walk_3",
+      "path": "assets/sprites/avaritia/av_cap_pei_walk_3.png"
+    },
+    {
+      "id": "av_cap_pei_walk_4",
+      "path": "assets/sprites/avaritia/av_cap_pei_walk_4.png"
+    },
+    {
+      "id": "av_cap_pei_walk_5",
+      "path": "assets/sprites/avaritia/av_cap_pei_walk_5.png"
+    },
+    {
+      "id": "av_cap_pei_walk_6",
+      "path": "assets/sprites/avaritia/av_cap_pei_walk_6.png"
+    },
+    {
+      "id": "av_cap_pei_walk_7",
+      "path": "assets/sprites/avaritia/av_cap_pei_walk_7.png"
+    },
+    {
+      "id": "av_cap_walk_0",
+      "path": "assets/sprites/avaritia/av_cap_walk_0.png"
+    },
+    {
+      "id": "av_cap_walk_1",
+      "path": "assets/sprites/avaritia/av_cap_walk_1.png"
+    },
+    {
+      "id": "av_cap_walk_2",
+      "path": "assets/sprites/avaritia/av_cap_walk_2.png"
+    },
+    {
+      "id": "av_cap_walk_3",
+      "path": "assets/sprites/avaritia/av_cap_walk_3.png"
+    },
+    {
+      "id": "av_cap_walk_4",
+      "path": "assets/sprites/avaritia/av_cap_walk_4.png"
+    },
+    {
+      "id": "av_cap_walk_5",
+      "path": "assets/sprites/avaritia/av_cap_walk_5.png"
+    },
+    {
+      "id": "av_cap_walk_6",
+      "path": "assets/sprites/avaritia/av_cap_walk_6.png"
+    },
+    {
+      "id": "av_cap_walk_7",
+      "path": "assets/sprites/avaritia/av_cap_walk_7.png"
+    },
+    {
+      "id": "av_full_attack_0",
+      "path": "assets/sprites/avaritia/av_full_attack_0.png"
+    },
+    {
+      "id": "av_full_attack_1",
+      "path": "assets/sprites/avaritia/av_full_attack_1.png"
+    },
+    {
+      "id": "av_full_attack_10",
+      "path": "assets/sprites/avaritia/av_full_attack_10.png"
+    },
+    {
+      "id": "av_full_attack_11",
+      "path": "assets/sprites/avaritia/av_full_attack_11.png"
+    },
+    {
+      "id": "av_full_attack_12",
+      "path": "assets/sprites/avaritia/av_full_attack_12.png"
+    },
+    {
+      "id": "av_full_attack_13",
+      "path": "assets/sprites/avaritia/av_full_attack_13.png"
+    },
+    {
+      "id": "av_full_attack_14",
+      "path": "assets/sprites/avaritia/av_full_attack_14.png"
+    },
+    {
+      "id": "av_full_attack_15",
+      "path": "assets/sprites/avaritia/av_full_attack_15.png"
+    },
+    {
+      "id": "av_full_attack_16",
+      "path": "assets/sprites/avaritia/av_full_attack_16.png"
+    },
+    {
+      "id": "av_full_attack_2",
+      "path": "assets/sprites/avaritia/av_full_attack_2.png"
+    },
+    {
+      "id": "av_full_attack_3",
+      "path": "assets/sprites/avaritia/av_full_attack_3.png"
+    },
+    {
+      "id": "av_full_attack_4",
+      "path": "assets/sprites/avaritia/av_full_attack_4.png"
+    },
+    {
+      "id": "av_full_attack_5",
+      "path": "assets/sprites/avaritia/av_full_attack_5.png"
+    },
+    {
+      "id": "av_full_attack_6",
+      "path": "assets/sprites/avaritia/av_full_attack_6.png"
+    },
+    {
+      "id": "av_full_attack_7",
+      "path": "assets/sprites/avaritia/av_full_attack_7.png"
+    },
+    {
+      "id": "av_full_attack_8",
+      "path": "assets/sprites/avaritia/av_full_attack_8.png"
+    },
+    {
+      "id": "av_full_attack_9",
+      "path": "assets/sprites/avaritia/av_full_attack_9.png"
+    },
+    {
+      "id": "av_full_death_0",
+      "path": "assets/sprites/avaritia/av_full_death_0.png"
+    },
+    {
+      "id": "av_full_death_1",
+      "path": "assets/sprites/avaritia/av_full_death_1.png"
+    },
+    {
+      "id": "av_full_death_10",
+      "path": "assets/sprites/avaritia/av_full_death_10.png"
+    },
+    {
+      "id": "av_full_death_11",
+      "path": "assets/sprites/avaritia/av_full_death_11.png"
+    },
+    {
+      "id": "av_full_death_12",
+      "path": "assets/sprites/avaritia/av_full_death_12.png"
+    },
+    {
+      "id": "av_full_death_13",
+      "path": "assets/sprites/avaritia/av_full_death_13.png"
+    },
+    {
+      "id": "av_full_death_14",
+      "path": "assets/sprites/avaritia/av_full_death_14.png"
+    },
+    {
+      "id": "av_full_death_2",
+      "path": "assets/sprites/avaritia/av_full_death_2.png"
+    },
+    {
+      "id": "av_full_death_3",
+      "path": "assets/sprites/avaritia/av_full_death_3.png"
+    },
+    {
+      "id": "av_full_death_4",
+      "path": "assets/sprites/avaritia/av_full_death_4.png"
+    },
+    {
+      "id": "av_full_death_5",
+      "path": "assets/sprites/avaritia/av_full_death_5.png"
+    },
+    {
+      "id": "av_full_death_6",
+      "path": "assets/sprites/avaritia/av_full_death_6.png"
+    },
+    {
+      "id": "av_full_death_7",
+      "path": "assets/sprites/avaritia/av_full_death_7.png"
+    },
+    {
+      "id": "av_full_death_8",
+      "path": "assets/sprites/avaritia/av_full_death_8.png"
+    },
+    {
+      "id": "av_full_death_9",
+      "path": "assets/sprites/avaritia/av_full_death_9.png"
+    },
+    {
+      "id": "av_full_hurt_0",
+      "path": "assets/sprites/avaritia/av_full_hurt_0.png"
+    },
+    {
+      "id": "av_full_hurt_1",
+      "path": "assets/sprites/avaritia/av_full_hurt_1.png"
+    },
+    {
+      "id": "av_full_hurt_10",
+      "path": "assets/sprites/avaritia/av_full_hurt_10.png"
+    },
+    {
+      "id": "av_full_hurt_11",
+      "path": "assets/sprites/avaritia/av_full_hurt_11.png"
+    },
+    {
+      "id": "av_full_hurt_12",
+      "path": "assets/sprites/avaritia/av_full_hurt_12.png"
+    },
+    {
+      "id": "av_full_hurt_13",
+      "path": "assets/sprites/avaritia/av_full_hurt_13.png"
+    },
+    {
+      "id": "av_full_hurt_14",
+      "path": "assets/sprites/avaritia/av_full_hurt_14.png"
+    },
+    {
+      "id": "av_full_hurt_15",
+      "path": "assets/sprites/avaritia/av_full_hurt_15.png"
+    },
+    {
+      "id": "av_full_hurt_16",
+      "path": "assets/sprites/avaritia/av_full_hurt_16.png"
+    },
+    {
+      "id": "av_full_hurt_2",
+      "path": "assets/sprites/avaritia/av_full_hurt_2.png"
+    },
+    {
+      "id": "av_full_hurt_3",
+      "path": "assets/sprites/avaritia/av_full_hurt_3.png"
+    },
+    {
+      "id": "av_full_hurt_4",
+      "path": "assets/sprites/avaritia/av_full_hurt_4.png"
+    },
+    {
+      "id": "av_full_hurt_5",
+      "path": "assets/sprites/avaritia/av_full_hurt_5.png"
+    },
+    {
+      "id": "av_full_hurt_6",
+      "path": "assets/sprites/avaritia/av_full_hurt_6.png"
+    },
+    {
+      "id": "av_full_hurt_7",
+      "path": "assets/sprites/avaritia/av_full_hurt_7.png"
+    },
+    {
+      "id": "av_full_hurt_8",
+      "path": "assets/sprites/avaritia/av_full_hurt_8.png"
+    },
+    {
+      "id": "av_full_hurt_9",
+      "path": "assets/sprites/avaritia/av_full_hurt_9.png"
+    },
+    {
+      "id": "av_full_idle_0",
+      "path": "assets/sprites/avaritia/av_full_idle_0.png"
+    },
+    {
+      "id": "av_full_idle_1",
+      "path": "assets/sprites/avaritia/av_full_idle_1.png"
+    },
+    {
+      "id": "av_full_idle_2",
+      "path": "assets/sprites/avaritia/av_full_idle_2.png"
+    },
+    {
+      "id": "av_full_idle_3",
+      "path": "assets/sprites/avaritia/av_full_idle_3.png"
+    },
+    {
+      "id": "av_full_idle_4",
+      "path": "assets/sprites/avaritia/av_full_idle_4.png"
+    },
+    {
+      "id": "av_full_walk_0",
+      "path": "assets/sprites/avaritia/av_full_walk_0.png"
+    },
+    {
+      "id": "av_full_walk_1",
+      "path": "assets/sprites/avaritia/av_full_walk_1.png"
+    },
+    {
+      "id": "av_full_walk_2",
+      "path": "assets/sprites/avaritia/av_full_walk_2.png"
+    },
+    {
+      "id": "av_full_walk_3",
+      "path": "assets/sprites/avaritia/av_full_walk_3.png"
+    },
+    {
+      "id": "av_full_walk_4",
+      "path": "assets/sprites/avaritia/av_full_walk_4.png"
+    },
+    {
+      "id": "av_full_walk_5",
+      "path": "assets/sprites/avaritia/av_full_walk_5.png"
+    },
+    {
+      "id": "av_full_walk_6",
+      "path": "assets/sprites/avaritia/av_full_walk_6.png"
+    },
+    {
+      "id": "av_full_walk_7",
+      "path": "assets/sprites/avaritia/av_full_walk_7.png"
+    },
+    {
+      "id": "av_pei_attack_0",
+      "path": "assets/sprites/avaritia/av_pei_attack_0.png"
+    },
+    {
+      "id": "av_pei_attack_1",
+      "path": "assets/sprites/avaritia/av_pei_attack_1.png"
+    },
+    {
+      "id": "av_pei_attack_10",
+      "path": "assets/sprites/avaritia/av_pei_attack_10.png"
+    },
+    {
+      "id": "av_pei_attack_11",
+      "path": "assets/sprites/avaritia/av_pei_attack_11.png"
+    },
+    {
+      "id": "av_pei_attack_12",
+      "path": "assets/sprites/avaritia/av_pei_attack_12.png"
+    },
+    {
+      "id": "av_pei_attack_13",
+      "path": "assets/sprites/avaritia/av_pei_attack_13.png"
+    },
+    {
+      "id": "av_pei_attack_14",
+      "path": "assets/sprites/avaritia/av_pei_attack_14.png"
+    },
+    {
+      "id": "av_pei_attack_15",
+      "path": "assets/sprites/avaritia/av_pei_attack_15.png"
+    },
+    {
+      "id": "av_pei_attack_16",
+      "path": "assets/sprites/avaritia/av_pei_attack_16.png"
+    },
+    {
+      "id": "av_pei_attack_2",
+      "path": "assets/sprites/avaritia/av_pei_attack_2.png"
+    },
+    {
+      "id": "av_pei_attack_3",
+      "path": "assets/sprites/avaritia/av_pei_attack_3.png"
+    },
+    {
+      "id": "av_pei_attack_4",
+      "path": "assets/sprites/avaritia/av_pei_attack_4.png"
+    },
+    {
+      "id": "av_pei_attack_5",
+      "path": "assets/sprites/avaritia/av_pei_attack_5.png"
+    },
+    {
+      "id": "av_pei_attack_6",
+      "path": "assets/sprites/avaritia/av_pei_attack_6.png"
+    },
+    {
+      "id": "av_pei_attack_7",
+      "path": "assets/sprites/avaritia/av_pei_attack_7.png"
+    },
+    {
+      "id": "av_pei_attack_8",
+      "path": "assets/sprites/avaritia/av_pei_attack_8.png"
+    },
+    {
+      "id": "av_pei_attack_9",
+      "path": "assets/sprites/avaritia/av_pei_attack_9.png"
+    },
+    {
+      "id": "av_pei_cal_attack_0",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_0.png"
+    },
+    {
+      "id": "av_pei_cal_attack_1",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_1.png"
+    },
+    {
+      "id": "av_pei_cal_attack_10",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_10.png"
+    },
+    {
+      "id": "av_pei_cal_attack_11",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_11.png"
+    },
+    {
+      "id": "av_pei_cal_attack_12",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_12.png"
+    },
+    {
+      "id": "av_pei_cal_attack_13",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_13.png"
+    },
+    {
+      "id": "av_pei_cal_attack_14",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_14.png"
+    },
+    {
+      "id": "av_pei_cal_attack_15",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_15.png"
+    },
+    {
+      "id": "av_pei_cal_attack_16",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_16.png"
+    },
+    {
+      "id": "av_pei_cal_attack_2",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_2.png"
+    },
+    {
+      "id": "av_pei_cal_attack_3",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_3.png"
+    },
+    {
+      "id": "av_pei_cal_attack_4",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_4.png"
+    },
+    {
+      "id": "av_pei_cal_attack_5",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_5.png"
+    },
+    {
+      "id": "av_pei_cal_attack_6",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_6.png"
+    },
+    {
+      "id": "av_pei_cal_attack_7",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_7.png"
+    },
+    {
+      "id": "av_pei_cal_attack_8",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_8.png"
+    },
+    {
+      "id": "av_pei_cal_attack_9",
+      "path": "assets/sprites/avaritia/av_pei_cal_attack_9.png"
+    },
+    {
+      "id": "av_pei_cal_death_0",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_0.png"
+    },
+    {
+      "id": "av_pei_cal_death_1",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_1.png"
+    },
+    {
+      "id": "av_pei_cal_death_10",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_10.png"
+    },
+    {
+      "id": "av_pei_cal_death_11",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_11.png"
+    },
+    {
+      "id": "av_pei_cal_death_12",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_12.png"
+    },
+    {
+      "id": "av_pei_cal_death_13",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_13.png"
+    },
+    {
+      "id": "av_pei_cal_death_14",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_14.png"
+    },
+    {
+      "id": "av_pei_cal_death_2",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_2.png"
+    },
+    {
+      "id": "av_pei_cal_death_3",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_3.png"
+    },
+    {
+      "id": "av_pei_cal_death_4",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_4.png"
+    },
+    {
+      "id": "av_pei_cal_death_5",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_5.png"
+    },
+    {
+      "id": "av_pei_cal_death_6",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_6.png"
+    },
+    {
+      "id": "av_pei_cal_death_7",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_7.png"
+    },
+    {
+      "id": "av_pei_cal_death_8",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_8.png"
+    },
+    {
+      "id": "av_pei_cal_death_9",
+      "path": "assets/sprites/avaritia/av_pei_cal_death_9.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_0",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_0.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_1",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_1.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_10",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_10.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_11",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_11.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_12",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_12.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_13",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_13.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_14",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_14.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_15",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_15.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_16",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_16.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_2",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_2.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_3",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_3.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_4",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_4.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_5",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_5.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_6",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_6.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_7",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_7.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_8",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_8.png"
+    },
+    {
+      "id": "av_pei_cal_hurt_9",
+      "path": "assets/sprites/avaritia/av_pei_cal_hurt_9.png"
+    },
+    {
+      "id": "av_pei_cal_idle_0",
+      "path": "assets/sprites/avaritia/av_pei_cal_idle_0.png"
+    },
+    {
+      "id": "av_pei_cal_idle_1",
+      "path": "assets/sprites/avaritia/av_pei_cal_idle_1.png"
+    },
+    {
+      "id": "av_pei_cal_idle_2",
+      "path": "assets/sprites/avaritia/av_pei_cal_idle_2.png"
+    },
+    {
+      "id": "av_pei_cal_idle_3",
+      "path": "assets/sprites/avaritia/av_pei_cal_idle_3.png"
+    },
+    {
+      "id": "av_pei_cal_idle_4",
+      "path": "assets/sprites/avaritia/av_pei_cal_idle_4.png"
+    },
+    {
+      "id": "av_pei_cal_walk_0",
+      "path": "assets/sprites/avaritia/av_pei_cal_walk_0.png"
+    },
+    {
+      "id": "av_pei_cal_walk_1",
+      "path": "assets/sprites/avaritia/av_pei_cal_walk_1.png"
+    },
+    {
+      "id": "av_pei_cal_walk_2",
+      "path": "assets/sprites/avaritia/av_pei_cal_walk_2.png"
+    },
+    {
+      "id": "av_pei_cal_walk_3",
+      "path": "assets/sprites/avaritia/av_pei_cal_walk_3.png"
+    },
+    {
+      "id": "av_pei_cal_walk_4",
+      "path": "assets/sprites/avaritia/av_pei_cal_walk_4.png"
+    },
+    {
+      "id": "av_pei_cal_walk_5",
+      "path": "assets/sprites/avaritia/av_pei_cal_walk_5.png"
+    },
+    {
+      "id": "av_pei_cal_walk_6",
+      "path": "assets/sprites/avaritia/av_pei_cal_walk_6.png"
+    },
+    {
+      "id": "av_pei_cal_walk_7",
+      "path": "assets/sprites/avaritia/av_pei_cal_walk_7.png"
+    },
+    {
+      "id": "av_pei_death_0",
+      "path": "assets/sprites/avaritia/av_pei_death_0.png"
+    },
+    {
+      "id": "av_pei_death_1",
+      "path": "assets/sprites/avaritia/av_pei_death_1.png"
+    },
+    {
+      "id": "av_pei_death_10",
+      "path": "assets/sprites/avaritia/av_pei_death_10.png"
+    },
+    {
+      "id": "av_pei_death_11",
+      "path": "assets/sprites/avaritia/av_pei_death_11.png"
+    },
+    {
+      "id": "av_pei_death_12",
+      "path": "assets/sprites/avaritia/av_pei_death_12.png"
+    },
+    {
+      "id": "av_pei_death_13",
+      "path": "assets/sprites/avaritia/av_pei_death_13.png"
+    },
+    {
+      "id": "av_pei_death_14",
+      "path": "assets/sprites/avaritia/av_pei_death_14.png"
+    },
+    {
+      "id": "av_pei_death_2",
+      "path": "assets/sprites/avaritia/av_pei_death_2.png"
+    },
+    {
+      "id": "av_pei_death_3",
+      "path": "assets/sprites/avaritia/av_pei_death_3.png"
+    },
+    {
+      "id": "av_pei_death_4",
+      "path": "assets/sprites/avaritia/av_pei_death_4.png"
+    },
+    {
+      "id": "av_pei_death_5",
+      "path": "assets/sprites/avaritia/av_pei_death_5.png"
+    },
+    {
+      "id": "av_pei_death_6",
+      "path": "assets/sprites/avaritia/av_pei_death_6.png"
+    },
+    {
+      "id": "av_pei_death_7",
+      "path": "assets/sprites/avaritia/av_pei_death_7.png"
+    },
+    {
+      "id": "av_pei_death_8",
+      "path": "assets/sprites/avaritia/av_pei_death_8.png"
+    },
+    {
+      "id": "av_pei_death_9",
+      "path": "assets/sprites/avaritia/av_pei_death_9.png"
+    },
+    {
+      "id": "av_pei_hurt_0",
+      "path": "assets/sprites/avaritia/av_pei_hurt_0.png"
+    },
+    {
+      "id": "av_pei_hurt_1",
+      "path": "assets/sprites/avaritia/av_pei_hurt_1.png"
+    },
+    {
+      "id": "av_pei_hurt_10",
+      "path": "assets/sprites/avaritia/av_pei_hurt_10.png"
+    },
+    {
+      "id": "av_pei_hurt_11",
+      "path": "assets/sprites/avaritia/av_pei_hurt_11.png"
+    },
+    {
+      "id": "av_pei_hurt_12",
+      "path": "assets/sprites/avaritia/av_pei_hurt_12.png"
+    },
+    {
+      "id": "av_pei_hurt_13",
+      "path": "assets/sprites/avaritia/av_pei_hurt_13.png"
+    },
+    {
+      "id": "av_pei_hurt_14",
+      "path": "assets/sprites/avaritia/av_pei_hurt_14.png"
+    },
+    {
+      "id": "av_pei_hurt_15",
+      "path": "assets/sprites/avaritia/av_pei_hurt_15.png"
+    },
+    {
+      "id": "av_pei_hurt_16",
+      "path": "assets/sprites/avaritia/av_pei_hurt_16.png"
+    },
+    {
+      "id": "av_pei_hurt_2",
+      "path": "assets/sprites/avaritia/av_pei_hurt_2.png"
+    },
+    {
+      "id": "av_pei_hurt_3",
+      "path": "assets/sprites/avaritia/av_pei_hurt_3.png"
+    },
+    {
+      "id": "av_pei_hurt_4",
+      "path": "assets/sprites/avaritia/av_pei_hurt_4.png"
+    },
+    {
+      "id": "av_pei_hurt_5",
+      "path": "assets/sprites/avaritia/av_pei_hurt_5.png"
+    },
+    {
+      "id": "av_pei_hurt_6",
+      "path": "assets/sprites/avaritia/av_pei_hurt_6.png"
+    },
+    {
+      "id": "av_pei_hurt_7",
+      "path": "assets/sprites/avaritia/av_pei_hurt_7.png"
+    },
+    {
+      "id": "av_pei_hurt_8",
+      "path": "assets/sprites/avaritia/av_pei_hurt_8.png"
+    },
+    {
+      "id": "av_pei_hurt_9",
+      "path": "assets/sprites/avaritia/av_pei_hurt_9.png"
+    },
+    {
+      "id": "av_pei_icon",
+      "path": "assets/sprites/avaritia/av_pei_icon.png"
+    },
+    {
+      "id": "av_pei_idle_0",
+      "path": "assets/sprites/avaritia/av_pei_idle_0.png"
+    },
+    {
+      "id": "av_pei_idle_1",
+      "path": "assets/sprites/avaritia/av_pei_idle_1.png"
+    },
+    {
+      "id": "av_pei_idle_2",
+      "path": "assets/sprites/avaritia/av_pei_idle_2.png"
+    },
+    {
+      "id": "av_pei_idle_3",
+      "path": "assets/sprites/avaritia/av_pei_idle_3.png"
+    },
+    {
+      "id": "av_pei_idle_4",
+      "path": "assets/sprites/avaritia/av_pei_idle_4.png"
+    },
+    {
+      "id": "av_pei_walk_0",
+      "path": "assets/sprites/avaritia/av_pei_walk_0.png"
+    },
+    {
+      "id": "av_pei_walk_1",
+      "path": "assets/sprites/avaritia/av_pei_walk_1.png"
+    },
+    {
+      "id": "av_pei_walk_2",
+      "path": "assets/sprites/avaritia/av_pei_walk_2.png"
+    },
+    {
+      "id": "av_pei_walk_3",
+      "path": "assets/sprites/avaritia/av_pei_walk_3.png"
+    },
+    {
+      "id": "av_pei_walk_4",
+      "path": "assets/sprites/avaritia/av_pei_walk_4.png"
+    },
+    {
+      "id": "av_pei_walk_5",
+      "path": "assets/sprites/avaritia/av_pei_walk_5.png"
+    },
+    {
+      "id": "av_pei_walk_6",
+      "path": "assets/sprites/avaritia/av_pei_walk_6.png"
+    },
+    {
+      "id": "av_pei_walk_7",
+      "path": "assets/sprites/avaritia/av_pei_walk_7.png"
+    },
+    {
       "id": "building_altar_1",
       "path": "assets/sprites/buildings/building_altar_1.png"
     },

@@ -14,6 +14,7 @@ const { Nodes } = require('nodes.js');
 const { UI } = require('ui.js');
 const { loadBalance, BAL } = require('balance.js');
 const { Goblin, ATTRS } = require('goblin.js');
+const gear = require('gear.js');
 const { Quests } = require('quests.js');
 const cooking = require('cooking.js');
 const market = require('market.js');
@@ -49,6 +50,7 @@ const state = {
 // ---------- Mundo / vila / câmera / UI ----------
 const world = new World(7);
 const village = new Village(saved.village);
+gear.setOwned(village.gear);
 world.setGoblinCount(village.goblins.length);
 const nodes = new Nodes(world, saved.nodes);
 nodes.syncFacilities(village);          // postos da Fazenda/Mina
@@ -223,7 +225,9 @@ function marketBumpQty(slot, delta) {
 function marketConfirm(slot) {
   const { kind, key } = slotParts(slot);
   const qty = marketQty(slot);
-  const name = kind === 'meal' ? i18n.t('meal.' + key) : i18n.t('res.' + key);
+  const name = kind === 'meal' ? i18n.t('meal.' + key)
+    : kind === 'gear' ? i18n.t('gear.' + key)
+    : i18n.t('res.' + key);
 
   if (state.marketTab === 0) {
     const gold = market.sell(village, kind, key, qty);
@@ -231,7 +235,11 @@ function marketConfirm(slot) {
     else toast('toast.market_nothing');
   } else {
     const cost = market.buy(village, kind, key, qty);
-    if (cost > 0) toast('toast.bought', { n: qty, name, gold: cost });
+    if (cost > 0) {
+      toast('toast.bought', { n: qty, name, gold: cost });
+      if (kind === 'gear') toast('toast.gear_bought', { name });
+    }
+    else if (kind === 'gear') toast('toast.market_gold');
     else toast('toast.market_gold');
   }
   // depois do negócio a quantidade volta ao mínimo
@@ -718,7 +726,7 @@ function drawRecruitScreen() {
     const cx = x + w / 2;
     ui.glow(cx, y + 44, 36);
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(getSprite(`goblin_idle_${i % 5}`), cx - 28, y + 16, 56, 56);
+    ctx.drawImage(getSprite(gear.spriteFor('idle', i % 5)), cx - 28, y + 16, 56, 56);
 
     ui.text(cx, y + 84, g.name, { align: 'center', size: 12, bold: true, color: '#3c2712' });
     ui.text(cx, y + 100, `${i18n.t('spec.' + g.specialty)} • ${i18n.t('rarity.' + g.rarity)} ${'★'.repeat(RARITIES_IDX(g.rarity) + 1)}`,
@@ -745,7 +753,7 @@ function drawRosterScreen() {
     const x = 16 + col * 308, y = 76 + row * 60, w = 300, h = 56;
     ui.parchment(x, y, w, h);
     ui.region('g_' + i, x, y, w, h);
-    ctx.drawImage(getSprite('goblin_idle_0'), x + 8, y + 10, 36, 36);
+    ctx.drawImage(getSprite(gear.spriteFor('idle', 0)), x + 8, y + 10, 36, 36);
     ui.text(x + 52, y + 16, `${g.name}  ${i18n.t('ui.level', { n: g.level })}`, { size: 11, bold: true, color: '#3c2712' });
     ui.text(x + 52, y + 34, `${i18n.t('spec.' + g.specialty)} • ${i18n.t('rarity.' + g.rarity)}`, { size: 9, color: '#6e4626' });
     ui.bar(x + 212, y + 14, 78, 8, g.hp / g.maxHp, '#4fa562');
@@ -764,7 +772,7 @@ function drawDetailScreen() {
   ui.rusticPanel(60, 40, 520, 286);
   ui.woodSign(70, 48, 220, 22, g.name, 12);
   ui.glow(130, 130, 46);
-  ctx.drawImage(getSprite('goblin_idle_0'), 94, 84, 72, 72);
+  ctx.drawImage(getSprite(gear.spriteFor('idle', 0)), 94, 84, 72, 72);
   ui.text(94, 172, i18n.t('spec.' + g.specialty), { size: 11, bold: true, color: '#ffe9b8' });
   ui.text(94, 188, `${i18n.t('rarity.' + g.rarity)} ${'★'.repeat(RARITIES_IDX(g.rarity) + 1)}`, { size: 9, color: '#ffe9b8' });
   ui.text(94, 204, i18n.t('ui.level', { n: g.level }), { size: 10, color: '#ffe9b8' });
@@ -902,7 +910,7 @@ function drawKitchenScreen() {
     hurt.forEach(({ g, i }, k) => {
       const x = 300 + k * 84;
       ui.parchment(x, 244, 78, 62);
-      ctx.drawImage(getSprite('goblin_idle_0'), x + 24, 246, 30, 30);
+      ctx.drawImage(getSprite(gear.spriteFor('idle', 0)), x + 24, 246, 30, 30);
       ui.text(x + 39, 284, g.name, { align: 'center', size: 8, bold: true, color: '#3c2712' });
       ui.bar(x + 8, 290, 62, 6, g.hp / g.maxHp, '#4fa562');
       ui.text(x + 39, 302, `${g.hp}/${g.maxHp}`, { align: 'center', size: 7, color: '#6e4626' });
@@ -951,13 +959,32 @@ function drawMarketScreen() {
   slice.forEach((it, i) => {
     const x = 16 + i * 153, y = 102, w = 145, h = 176;
     const slot = `${it.kind}:${it.key}`;
-    const name = it.kind === 'meal' ? i18n.t('meal.' + it.key) : i18n.t('res.' + it.key);
+    const name = it.kind === 'meal' ? i18n.t('meal.' + it.key)
+      : it.kind === 'gear' ? i18n.t('gear.' + it.key)
+      : i18n.t('res.' + it.key);
     const limit = marketLimit(slot);
     const qty = marketQty(slot);
     const total = qty * it.price;
 
     ui.parchment(x, y, w, h);
     ui.woodSign(x + 4, y + 3, w - 8, 14, name, 8);
+
+    if (it.kind === 'gear') {
+      // ARMADURA (compra única): ícone grande com brilho + preço fixo
+      ui.glow(x + w / 2, y + 52, 34);
+      ctx.drawImage(getSprite(it.sprite), x + w / 2 - 24, y + 30, 48, 48);
+      ctx.drawImage(getSprite('res_gold'), x + w / 2 - 30, y + 92, 12, 12);
+      ui.text(x + w / 2 - 14, y + 98, String(it.price),
+        { size: 11, bold: true, color: it.have ? '#4a3018' : '#6e4626' });
+      if (it.have > 0) {
+        ui.text(x + w / 2, y + 128, i18n.t('ui.gear_owned'),
+          { align: 'center', size: 11, bold: true, color: '#2f6b3a' });
+      } else {
+        ui.button('mdo_' + slot, x + 10, y + 118, w - 20, 26,
+          i18n.t('ui.market_buy'), limit > 0, limit > 0);
+      }
+      return;
+    }
 
     ui.glow(x + w / 2, y + 44, 28);
     ctx.drawImage(getSprite(it.sprite), x + w / 2 - 18, y + 26, 36, 36);

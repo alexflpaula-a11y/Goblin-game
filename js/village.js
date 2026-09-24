@@ -112,6 +112,8 @@ class Village {
     this.xp = data?.xp ?? 0;
     // despensa de comidas cozinhadas: { bread: 3, soup: 1, ... }
     this.meals = data?.meals || {};
+    // armaduras compradas no Mercado: { peitoral_avaritia: true, ... }
+    this.gear = data?.gear || {};
   }
 
   // ---------- Consultas ----------
@@ -323,6 +325,7 @@ class Village {
       level: this.level,
       xp: this.xp,
       meals: this.meals,
+      gear: this.gear,
     };
   }
 }

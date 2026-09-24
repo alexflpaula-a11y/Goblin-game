@@ -11,7 +11,7 @@ set -u
 cd "$(dirname "$0")/.."
 
 fails=0
-for t in smoke render playthrough build; do
+for t in smoke render playthrough gear build; do
   printf '\n\033[1m── %s ─────────────────────────────\033[0m\n' "$t"
   # PIPESTATUS preserva o código de saída do node (o grep mascararia)
   node "tools/${t}_test.mjs" 2>&1 | grep -v '^\['
