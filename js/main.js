@@ -1186,9 +1186,11 @@ function drawArmazemScreen() {
   ui.text(612, 84, i18n.t('ui.items_count', { n: used, max: cap }),
     { size: 10, bold: true, align: 'right', color: used > cap ? '#ff8a8a' : '#ffe9a8' });
 
-  // células: 8 por linha, cada uma com 1 item (ordem do catálogo)
+  // células: 8 por linha, cada uma com 1 item (ordem do catálogo).
+  // Estouro (desequipar com armazém cheio) ganha linhas extras —
+  // nada fica invisível; as células tracejadas param no cap.
   const COLS = 8, CELL = 40, GAP = 4;
-  const rows = Math.ceil(cap / COLS);
+  const rows = Math.max(Math.ceil(cap / COLS), Math.ceil(used / COLS));
   const cells = [];
   for (const it of inv.ITEMS) {
     const n = village.items[it.id] || 0;
@@ -1196,7 +1198,7 @@ function drawArmazemScreen() {
   }
   for (let i = cells.length; i < cap; i++) cells.push(null);
 
-  cells.slice(0, cap).forEach((it, i) => {
+  cells.forEach((it, i) => {
     const col = i % COLS, row = Math.floor(i / COLS);
     const x = 262 + col * (CELL + GAP), y = 94 + row * (CELL + GAP);
     if (it) {
