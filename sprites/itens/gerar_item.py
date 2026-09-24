@@ -66,6 +66,7 @@ A_d = (120, 131, 162, 255)   # aço escuro
 A_T = (45, 206, 164, 255)    # gema teal
 A_t = (48, 173, 161, 255)    # gema teal escura
 A_j = (41, 170, 195, 255)    # gema azul-teal (base da gema da perna — arte original)
+GEMAS = {A_T[:3], A_t[:3], A_j[:3]}   # todas as gemas (apagam no death)
 
 # estilo avaritia — PERSONAGEM (100% baseado na imagem de referência enviada:
 # placas praticamente pretas, bevels cinza-azulados escuros, gema grande no
@@ -359,7 +360,7 @@ def expande_cluster(xs, seed):
     return sorted(chosen)
 
 
-def mascara_torso_em_pe(px, eye_x, eye_y):
+def mascara_torso_em_pe(px, eye_x, eye_y, cobre_alca=False):
     """banda olhos+4 .. olhos+8, propagando por conectividade desde os ombros"""
     c = int(eye_x + 0.5)
     top = int(eye_y + 0.5) + 4
@@ -379,6 +380,30 @@ def mascara_torso_em_pe(px, eye_x, eye_y):
             painted[y] = chosen; prev = chosen
         else:
             prev = None
+    # PEDAÇOS FALTANDO: a alça/cinto marrom do base cruza o peito por baixo
+    # da placa — cobre os marrons LIGADOS à placa. Linhas da zona das
+    # PERNAS (cós/tanga) e o cós (run marrom >= 5) ficam de fora (calça).
+    if not cobre_alca:
+        return painted
+    pernas = mascara_pernas_em_pe(px, eye_y)
+    pernas_top = min(pernas) if pernas else 32
+    for y in list(painted):
+        if y >= pernas_top:
+            continue
+        xs = painted[y]
+        lo, hi = min(xs), max(xs)
+        browns = [x for x in range(32)
+                  if px[x, y][3] >= 40 and px[x, y][:3] in BROWNS]
+        if browns and any(len(r) >= 5 for r in _runs(browns)):
+            continue                      # linha do cós — não mexe
+        for x in range(max(0, lo - 1), min(31, hi + 2)):
+            if px[x, y][3] < 40 or px[x, y][:3] not in BROWNS:
+                continue
+            viz = (x - 1 in xs or x in xs or x + 1 in xs
+                   or (y - 1 in painted and any(abs(x - a) <= 1 for a in painted[y - 1]))
+                   or (y + 1 in painted and any(abs(x - a) <= 1 for a in painted[y + 1])))
+            if viz:
+                painted[y].append(x)
     return painted
 
 
@@ -567,11 +592,19 @@ def pinta_avaritia(base, painted, zona, deitado=False):
     return im
 
 
+def _sombra_gema(px, painted, y, cols):
+    """sombra A_t da gema na linha seguinte, onde houver pixel da máscara"""
+    y2 = y + 1
+    if y2 in painted:
+        for x in cols:
+            if x in painted[y2]:
+                px[x, y2] = A_t
+
+
 def _gema_peito(px, painted, rows, deitado):
-    """DUAS gemas 2×1 lado a lado no peito, IGUAL À ARTE ORIGINAL
-    (sprite_1: B#TT##TT#B — duas gemas A_T com vão central, sem sombra).
-    Posição estável: linha do run mais largo (em pé: entre as 3 primeiras
-    do torso). Vale para TODAS as versões com peitoral."""
+    """gema 2×2 do peito (versão aprovada): UMA gema central A_T com sombra
+    A_t na linha de baixo, estável em todos os frames — a linha com o run
+    mais largo (em pé: entre as 3 primeiras do torso)."""
     cand = rows if deitado else rows[:3]
     best = None
     for y in cand:
@@ -586,23 +619,17 @@ def _gema_peito(px, painted, rows, deitado):
     y, r = best
     s_, e = r[0], r[-1]
     w = e - s_ + 1
-    if w >= 7:
-        gemas = [[s_ + 1, s_ + 2], [e - 2, e - 1]]     # 2 gemas, vão central
-    elif w == 6:
-        gemas = [[s_ + 1, s_ + 2], [s_ + 4, s_ + 5]]   # vão de 1
-    elif w == 5:
-        gemas = [[s_ + 1], [e - 1]]                    # 2 gemas de 1px
-    elif w == 4:
-        gemas = [[s_ + 1, s_ + 2]]                     # 1 gema central
-    elif w == 3:
-        gemas = [[s_ + 1]]
-    elif w == 2:
-        gemas = [[s_, s_ + 1]]
+    if w >= 4:                            # gema central 2×2
+        m = (s_ + e) // 2
+        pares = [[m, m + 1]] if m + 1 <= e else [[m - 1, m]]
+    elif w >= 2:
+        pares = [[s_, s_ + 1]]
     else:
-        gemas = [[s_]]
-    for g in gemas:
-        for x in g:
+        pares = [[s_]]
+    for par in pares:
+        for x in par:
             px[x, y] = A_T
+        _sombra_gema(px, painted, y, par)
 
 
 def _gemas_pernas(px, painted, rows, base, deitado):
@@ -772,7 +799,7 @@ def make_drop(icon):
 # ─────────────────────────── MAIN ───────────────────────────
 def alvo_valido(px, x, y, zona):
     c = px[x, y][:3]
-    if zona == 'pernas':
+    if zona in ('pernas', 'torso'):
         return c in BROWNS or c in GREENS
     return c in GREENS
 
@@ -799,7 +826,7 @@ def main():
                 ex = sum(p[0] for p in eyes) / len(eyes)
                 ey = sum(p[1] for p in eyes) / len(eyes)
                 if cfg['zona'] == 'torso':
-                    mask = mascara_torso_em_pe(px, ex, ey)
+                    mask = mascara_torso_em_pe(px, ex, ey, cfg['estilo'] == 'avaritia')
                 elif cfg['zona'] == 'cabeca':
                     if cfg.get('tampa_rosto'):
                         mask = mascara_cabeca_fechada_em_pe(px)
@@ -824,6 +851,13 @@ def main():
                 for (x, y) in boca_px(px):
                     ipx[x, y] = R_K
                 restaura_orelhas(im, px)   # passo 2: orelhas consertadas
+            if name.startswith('goblin_death_'):
+                # o goblin vai ao chão: TODAS as gemas se apagam
+                ipx = im.load()
+                for yy in range(32):
+                    for xx in range(32):
+                        if ipx[xx, yy][3] >= 40 and ipx[xx, yy][:3] in GEMAS:
+                            ipx[xx, yy] = R_K
             anim = '_'.join(name.split('_')[1:-1]); idx = int(name.split('_')[-1])
             im.save(os.path.join(out, 'goblin_%s_%d.png' % (anim, idx)))
             ger += 1

@@ -65,7 +65,7 @@ def compoe(frames, ids, blackout_total):
             elif zona == 'cabeca':
                 mask = G.mascara_cabeca_em_pe(px, ex, ey)
             elif zona == 'torso':
-                mask = G.mascara_torso_em_pe(px, ex, ey)
+                mask = G.mascara_torso_em_pe(px, ex, ey, True)
             else:
                 mask = G.mascara_pernas_em_pe(px, ey)
             for y, xs in mask.items():
@@ -105,6 +105,14 @@ def compoe(frames, ids, blackout_total):
                     p = ipx[x, y]
                     if p[3] >= 40 and (p[:3] in G.GREENS or p[:3] in G.BROWNS):
                         ipx[x, y] = G.R_K
+
+        if name.startswith('goblin_death_'):
+            # o goblin vai ao chão: TODAS as gemas se apagam
+            ipx = im.load()
+            for yy in range(32):
+                for xx in range(32):
+                    if ipx[xx, yy][3] >= 40 and ipx[xx, yy][:3] in G.GEMAS:
+                        ipx[xx, yy] = G.R_K
 
         anim = '_'.join(name.split('_')[1:-1]); idx = int(name.split('_')[-1])
         if out is None:
