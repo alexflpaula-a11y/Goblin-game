@@ -1,0 +1,85 @@
+{
+  "startResources": {
+    "wood": 50,
+    "stone": 30,
+    "ore": 0,
+    "food": 0,
+    "gold": 100
+  },
+  "house": {
+    "buildCost": {
+      "wood": 15,
+      "stone": 10
+    },
+    "upgradeBase": {
+      "wood": 25,
+      "stone": 15
+    },
+    "upgradeMul": 1.6,
+    "maxLevel": 3
+  },
+  "recruit": {
+    "rarityBase": {
+      "common": 0.68,
+      "uncommon": 0.22,
+      "rare": 0.08,
+      "epic": 0.02
+    },
+    "luckPerRecruit": 0.005,
+    "attrRange": {
+      "common": [
+        1,
+        5
+      ],
+      "uncommon": [
+        2,
+        7
+      ],
+      "rare": [
+        4,
+        9
+      ],
+      "epic": [
+        6,
+        10
+      ]
+    }
+  },
+  "nodes": {
+    "treeCount": 90,
+    "rockCount": 55,
+    "treeStock": 15,
+    "rockStock": 12,
+    "workPeriod": 1.2
+  },
+  "village": {
+    "xpBase": 100,
+    "xpExp": 1.6,
+    "maxLevel": 20
+  },
+  "quests": {
+    "slots": 3,
+    "renewSeconds": 45,
+    "goldMul": 1.6,
+    "xpMul": 1.1,
+    "xpMin": 20,
+    "xpMax": 100
+  },
+  "buildings": {
+    "upgradeMul": 1.8
+  },
+  "cooking": {
+    "healBonus": 0.0
+  },
+  "market": {
+    "prices": {
+      "wood": 2,
+      "stone": 3,
+      "ore": 7,
+      "food": 4
+    },
+    "sellMul": 0.75,
+    "buyMul": 1.6,
+    "levelBonus": 0.06
+  }
+}

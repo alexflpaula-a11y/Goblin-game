@@ -845,6 +845,13 @@ Melhorar estrutura: desbloqueia equipamentos e comidas melhores.
 | 1.3 Trabalho (cortar/minerar) + progresso | ✅ | `etapa-1-3-trabalho.png`, `etapa-1-3-hud.png` |
 | UI de construção rústica (botão de canto + abas) | ✅ | `etapa-build-ui-mundo.png`, `etapa-build-ui-painel.png`, `etapa-build-ui-melhorias.png` |
 | Mudança p/ paisagem 640×360 + re-layout de todas as telas | ✅ | `etapa-paisagem-mundo.png`, `etapa-paisagem-build.png`, `etapa-paisagem-recrutamento.png`, `etapa-paisagem-roster.png` |
+| Recuperação do projeto-fonte (o repo só tinha o build) | ✅ | — |
+| 1.8 XP e nível da vila + desbloqueios | ✅ | (testes automatizados) |
+| 1.5 Construção de TODAS as estruturas + melhorias | ✅ | (testes automatizados) |
+| 1.7 Painel de Missões | ✅ | (testes automatizados) |
+| 1.4 Cozinha: comida que cura | ✅ | (testes automatizados) |
+| 1.6 Mercado: vender e comprar | ✅ | (testes automatizados) |
+| Fazenda e Mina como postos de trabalho infinitos | ✅ | (testes automatizados) |
 
 **Notas da UI de construção:** botão rústico "Construir" no canto inferior esquerdo abre o painel da Casa de Construção em qualquer lugar do mapa (estilo inspirado na referência do usuário: painel de pranchas com pregos/lascas, placa de título, abas, cards de pergaminho com ícone brilhando, contagem construída e custo com ícones). Aba **Estruturas**: catálogo `BUILD_DEFS` — casas + futuras estruturas travadas por nível da vila (Serraria/Fazenda nv2 … Quartel nv8) mostradas com placa "?" + "Vila nv X"; slot "…em breve…". Aba **Melhorias**: melhorar casas (+1 capacidade). Tocar fora do painel fecha. Novas estruturas implementadas futuramente **aparecem automaticamente nesse catálogo**.
 
@@ -854,10 +861,26 @@ Melhorar estrutura: desbloqueia equipamentos e comidas melhores.
 
 **Notas da 1.1:** `goblin.js` (entidade: 6 atributos, especialidade, raridade, nível/XP com bônus de potencialEvolucao), `village.js` (recursos iniciais 50 madeira/30 pedra/100 ouro; Casa de Construção + Casa de Goblin + Painel de Missões iniciais; construir casa 15m+10p; melhorar casa 25m+15p ×1.6/nível, máx 3; capacidade = soma dos níveis das casas; construir/melhorar abre escolha de 1 entre 3 candidatos com sorte crescente de +0,5%/recrutado), `ui.js` (UI imediata no canvas), telas: mundo / construção / recrutamento / roster / detalhe. Arte real (sem placeholder): 3 prédios + 4 recursos + 2 nós em pixel art autoral 32×32.
 
-**Ferramenta de prévia:** `python3 /home/user/tools/shot.py <nome> [?demo=world|build|recruit|roster] [--tap x,y] [--wait ms]` gera screenshot 360×640 @2x sem precisar de preview ao vivo.
+**Notas da recuperação do projeto-fonte:** o repositório havia ficado só com o build de arquivo único (`vila-de-goblins-jogavel.html`) — a árvore `js/`, `css/` e `assets/` tinha se perdido. `tools/unbuild.py` faz o caminho inverso do build e recupera tudo (13 módulos, 74 sprites, JSONs, CSS); `tools/build_singlefile.py` refaz o arquivo único. O ciclo fonte → build → fonte é fiel (conferido sprite a sprite e módulo a módulo).
+
+**Notas da 1.8 (XP/nível da vila):** `village.level` era **fixo em 1** — nenhuma estrutura além de casas podia ser construída, e o catálogo mostrava tudo travado. Agora: `xpNext() = 100 × N^1.6` (§8), `gainXp()` acumula e sobe vários níveis de uma vez, teto em `maxLevel` (20). XP vem das missões (batalhas entram na Fase 3). Cada nível libera estruturas (`unlockedAt`) e **eleva o teto de melhoria** de todas elas (`maxUpgradeLevel` = nível da vila, §2.5). HUD ganhou nível + barra de XP; ao subir aparece o banner "VILA NÍVEL N!" e um aviso do que foi desbloqueado.
+
+**Notas da 1.5 (construção completa):** o catálogo `BUILDINGS` mora agora no `village.js` (fonte única): sprite, nível exigido, quantidade máxima, teto de melhoria e custo de cada uma das 12 estruturas. `build(type)` vale para todas; `blockedReason(type)` responde **por que** não dá (`level` / `count` / `cost`) e a UI mostra a mensagem certa em vez de um "recursos insuficientes" genérico. Catálogo paginado (6 por página) mostrando as 12; estrutura única já construída ganha selo "✔ construída". Aba **Melhorias** agora lista casas **e** as demais estruturas, marcando o que está travado pelo nível da vila. Posições fixas no anel da clareira (`STRUCT_SLOTS`).
+
+**Notas da 1.7 (missões):** `quests.js` com 3 slots fixos; cada missão pede recursos ou pratos e paga **ouro + XP da vila**. Dificuldade escala ~12% por nível da vila e o que pode ser pedido tem gate por nível (minério só a partir do nv4, pratos a partir do nv3). Recompensa proporcional ao valor pedido, XP limitado a 20–100 (§8). Slot entregue entra em renovação (45s) e volta sozinho. Botão "Missões" no mundo mostra um selo verde com quantas dá para entregar agora.
+
+**Notas da 1.6 (Mercado):** `market.js` fecha a economia da Fase 1 — o excedente vira **ouro** e o ouro compra o que está faltando. Preços-base no `balance.json` (`market.prices`: madeira 2, pedra 3, minério 7, comida 4); pratos usam o `price` da própria receita. Duas margens garantem que o mercado **nunca imprima dinheiro**: venda ×0,75 e compra ×1,6, com o preço de compra sempre pelo menos 1 ouro acima do de venda. **Melhorar o Mercado melhora o negócio** (§2.5): +6% por nível no que ele paga e −6% no que ele cobra. Pratos só entram na prateleira de *compra* conforme o nível do Mercado (o Banquete exige nv3), então comprar comida pronta não atropela a Cozinha. Tela com abas **Vender/Comprar**, cards paginados (4 por página) com ícone, preço unitário, quanto você tem, seletor de quantidade −/N/+ mais botão "máx", total em ouro e confirmação — tudo por toque. Na aba Vender só aparece o que o jogador realmente tem. Botão "Mercado" no rodapé do mundo (surge depois de construído) e toque no prédio também abre. Hook de prévia `?demo=market`.
+
+**Notas da 1.4 (cozinha):** `cooking.js` com 4 receitas — pão, sopa (Cozinha nv1), ensopado (nv2), banquete (nv3): **melhorar a Cozinha desbloqueia pratos melhores**, como manda o §2.5. Consomem `food` (da Fazenda) e produzem pratos que curam HP fora de batalha e servem de moeda nas missões. Goblin com especialidade `cook` tem chance de render porção dobrada. Tela da Cozinha: receitas com custo/cura, despensa e cura por toque (escolhe o prato → toca no goblin ferido).
+
+**Notas da Fazenda/Mina (§2.6):** as duas viram **postos de trabalho infinitos** (`nodes.syncFacilities`), reaproveitando o mesmo sistema de trabalho dos nós naturais — o goblin caminha até lá e produz em ciclos. Fazenda → comida; Mina → pedra com chance crescente de minério conforme o nível. A Serraria aumenta o rendimento de madeira dos nós de árvore. Postos infinitos não são salvos: nascem das estruturas no boot.
+
+**Testes (`bash tools/test.sh`):** o Playwright não instala neste ambiente (sem binário de navegador e download bloqueado), então as prévias PNG deram lugar a **192 testes automatizados** em 4 suítes: `smoke` (lógica), `render` (as 6 telas desenham, traduções e sprites conferidos), `playthrough` (uma partida inteira: nv1 → nv3 desbloqueando e cozinhando) e `build` (o arquivo único distribuído sobe sozinho). O `playthrough` é o que pega "o jogo trava no meio" — exatamente o problema que o nível fixo causava.
 
 ---
 
 ## ✅ PRÓXIMO PASSO SUGERIDO
 
-Continuar com a **Etapa 1.4 — Cozinha & comida curativa** (Cozinha converte comida crua em refeições que curam; cozinheiros com especialidade cook têm bônus). As prévias de cada etapa continuam sendo geradas em `/home/user/previas/`.
+A **Fase 1 está concluída** — todas as etapas de 1.1 a 1.8 estão implementadas. O ciclo fecha por inteiro: coletar → construir → missões → XP → subir de nível → desbloquear → cozinhar → curar → **vender/comprar no Mercado**.
+
+Próxima etapa natural: **Fase 2 — 2.1 Ferraria** (armas e armaduras a partir de minério), seguida de 2.2 (equipar goblins) e 2.3 (Altar). Alternativa: pular para a **Fase 3 — Combate por turnos**, já que os goblins têm os 6 atributos, HP/MP e comida curativa prontos.
