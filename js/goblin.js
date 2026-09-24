@@ -37,7 +37,11 @@ class Goblin {
       poderDestrutivo: 1, potencialMagico: 1, vitalidade: 1,
       velocidade: 1, precisao: 1, potencialEvolucao: 1,
       hp: null, mp: null,
+      equip: {},   // { capacete: 'capacete_ferro', anel1: 'anel_rubi', ... }
+      skills: [],  // [ 'investida', 'golpe_brutal' ] (2 espaços)
     }, data);
+    this.equip = this.equip || {};
+    this.skills = this.skills || [];
     this.recalc();
   }
 

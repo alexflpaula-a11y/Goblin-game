@@ -251,6 +251,38 @@ def mercado():
     return g
 
 
+def armazem():
+    """Armazém: galpão largo de telhado escuro, porta dupla, caixote e barril."""
+    g = blank()
+    trapez_roof(g, 4, 10, 10, 21, 3, 28, WOOD_X, WOOD_D)   # telhado largo de tábuas escuras
+    rect(g, 5, 11, 26, 27, WOOD)                            # parede
+    for x in range(5, 27, 5):                               # ripas verticais
+        vline(g, x, 11, 27, WOOD_D)
+    hline(g, 5, 26, 23, WOOD_D)
+    # porta dupla grande (o armazém é o depósito da vila)
+    rect(g, 10, 15, 21, 27, WOOD_X)
+    vline(g, 15, 15, 27, WOOD_D)                            # divisão das duas folhas
+    vline(g, 16, 15, 27, WOOD_D)
+    hline(g, 10, 21, 17, WOOD_D)                            # travessa
+    px(g, 12, 21, GOLD)                                     # ferrolhos
+    px(g, 19, 21, GOLD)
+    # caixote de madeira à esquerda
+    rect(g, 6, 21, 9, 27, STRAW)
+    hline(g, 6, 9, 23, STRAW_D)
+    vline(g, 7, 21, 27, STRAW_D)
+    px(g, 6, 21, STRAW_D)
+    px(g, 9, 21, STRAW_D)
+    # barril à direita
+    rect(g, 23, 20, 26, 27, WOOD_L)
+    vline(g, 23, 21, 26, WOOD_D)
+    vline(g, 26, 21, 26, WOOD_D)
+    hline(g, 23, 26, 21, WOOD_D)
+    hline(g, 23, 26, 24, WOOD_D)
+    hline(g, 4, 27, 28, WOOD_X)                             # base
+    outline(g)
+    return g
+
+
 def mina():
     """Mina: encosta de pedra com entrada escorada e vagonete."""
     g = blank()
@@ -508,6 +540,7 @@ def item_feast():
 BUILDINGS = {
     'building_serraria_1': serraria,
     'building_fazenda_1': fazenda,
+    'building_armazem_1': armazem,
     'building_cozinha_1': cozinha,
     'building_mercado_1': mercado,
     'building_mina_1': mina,

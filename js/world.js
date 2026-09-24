@@ -86,6 +86,9 @@ class GoblinWalker {
   }
 
   update(dt, api = {}) {
+    // qual goblin do roster este walker representa (p/ vestir o equip dele)
+    this.goblin = api.village?.goblins?.[this.i] ?? this.goblin ?? null;
+
     // ----- trabalhando -----
     if (this.job) {
       const node = this.job.node;
@@ -163,7 +166,7 @@ class GoblinWalker {
       ctx.fillRect(this.x - 9, this.y - 40, 18 * this.jobProgress, 3);
     }
     // sprite (ancorado pelos pés), espelhado quando olha p/ esquerda
-    const spr = getSprite(gear.spriteFor(this.anim, this.frame));
+    const spr = getSprite(gear.spriteForGoblin(this.goblin, this.anim, this.frame));
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.scale(this.face, 1);

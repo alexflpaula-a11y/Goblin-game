@@ -2103,6 +2103,342 @@
     {
       "id": "res_wood",
       "path": "assets/sprites/resources/res_wood.png"
+    },
+    {
+      "id": "item_capacete_ferro",
+      "path": "assets/sprites/items/item_capacete_ferro.png"
+    },
+    {
+      "id": "item_calca_ferro",
+      "path": "assets/sprites/items/item_calca_ferro.png"
+    },
+    {
+      "id": "item_botas_couro",
+      "path": "assets/sprites/items/item_botas_couro.png"
+    },
+    {
+      "id": "item_anel_cobre",
+      "path": "assets/sprites/items/item_anel_cobre.png"
+    },
+    {
+      "id": "item_anel_rubi",
+      "path": "assets/sprites/items/item_anel_rubi.png"
+    },
+    {
+      "id": "item_espada_ferro",
+      "path": "assets/sprites/items/item_espada_ferro.png"
+    },
+    {
+      "id": "item_clava_goblin",
+      "path": "assets/sprites/items/item_clava_goblin.png"
+    },
+    {
+      "id": "item_escudo_madeira",
+      "path": "assets/sprites/items/item_escudo_madeira.png"
+    },
+    {
+      "id": "item_runa_azul",
+      "path": "assets/sprites/items/item_runa_azul.png"
+    },
+    {
+      "id": "item_colar_presas",
+      "path": "assets/sprites/items/item_colar_presas.png"
+    },
+    {
+      "id": "skill_golpe_brutal",
+      "path": "assets/sprites/items/skill_golpe_brutal.png"
+    },
+    {
+      "id": "skill_muralha_ferro",
+      "path": "assets/sprites/items/skill_muralha_ferro.png"
+    },
+    {
+      "id": "skill_bola_fogo",
+      "path": "assets/sprites/items/skill_bola_fogo.png"
+    },
+    {
+      "id": "skill_raio_gelido",
+      "path": "assets/sprites/items/skill_raio_gelido.png"
+    },
+    {
+      "id": "skill_toque_curativo",
+      "path": "assets/sprites/items/skill_toque_curativo.png"
+    },
+    {
+      "id": "skill_rezo",
+      "path": "assets/sprites/items/skill_rezo.png"
+    },
+    {
+      "id": "skill_tempero_secreto",
+      "path": "assets/sprites/items/skill_tempero_secreto.png"
+    },
+    {
+      "id": "skill_braco_forte",
+      "path": "assets/sprites/items/skill_braco_forte.png"
+    },
+    {
+      "id": "skill_passo_leve",
+      "path": "assets/sprites/items/skill_passo_leve.png"
+    },
+    {
+      "id": "skill_investida",
+      "path": "assets/sprites/items/skill_investida.png"
+    },
+    {
+      "id": "item_peitoral_ferro",
+      "path": "assets/sprites/items/item_peitoral_ferro.png"
+    },
+    {
+      "id": "ferro_pei_idle_0",
+      "path": "assets/sprites/goblins/ferro_pei_idle_0.png"
+    },
+    {
+      "id": "ferro_pei_idle_1",
+      "path": "assets/sprites/goblins/ferro_pei_idle_1.png"
+    },
+    {
+      "id": "ferro_pei_idle_2",
+      "path": "assets/sprites/goblins/ferro_pei_idle_2.png"
+    },
+    {
+      "id": "ferro_pei_idle_3",
+      "path": "assets/sprites/goblins/ferro_pei_idle_3.png"
+    },
+    {
+      "id": "ferro_pei_idle_4",
+      "path": "assets/sprites/goblins/ferro_pei_idle_4.png"
+    },
+    {
+      "id": "ferro_pei_walk_0",
+      "path": "assets/sprites/goblins/ferro_pei_walk_0.png"
+    },
+    {
+      "id": "ferro_pei_walk_1",
+      "path": "assets/sprites/goblins/ferro_pei_walk_1.png"
+    },
+    {
+      "id": "ferro_pei_walk_2",
+      "path": "assets/sprites/goblins/ferro_pei_walk_2.png"
+    },
+    {
+      "id": "ferro_pei_walk_3",
+      "path": "assets/sprites/goblins/ferro_pei_walk_3.png"
+    },
+    {
+      "id": "ferro_pei_walk_4",
+      "path": "assets/sprites/goblins/ferro_pei_walk_4.png"
+    },
+    {
+      "id": "ferro_pei_walk_5",
+      "path": "assets/sprites/goblins/ferro_pei_walk_5.png"
+    },
+    {
+      "id": "ferro_pei_walk_6",
+      "path": "assets/sprites/goblins/ferro_pei_walk_6.png"
+    },
+    {
+      "id": "ferro_pei_walk_7",
+      "path": "assets/sprites/goblins/ferro_pei_walk_7.png"
+    },
+    {
+      "id": "ferro_pei_attack_0",
+      "path": "assets/sprites/goblins/ferro_pei_attack_0.png"
+    },
+    {
+      "id": "ferro_pei_attack_1",
+      "path": "assets/sprites/goblins/ferro_pei_attack_1.png"
+    },
+    {
+      "id": "ferro_pei_attack_2",
+      "path": "assets/sprites/goblins/ferro_pei_attack_2.png"
+    },
+    {
+      "id": "ferro_pei_attack_3",
+      "path": "assets/sprites/goblins/ferro_pei_attack_3.png"
+    },
+    {
+      "id": "ferro_pei_attack_4",
+      "path": "assets/sprites/goblins/ferro_pei_attack_4.png"
+    },
+    {
+      "id": "ferro_pei_attack_5",
+      "path": "assets/sprites/goblins/ferro_pei_attack_5.png"
+    },
+    {
+      "id": "ferro_pei_attack_6",
+      "path": "assets/sprites/goblins/ferro_pei_attack_6.png"
+    },
+    {
+      "id": "ferro_pei_attack_7",
+      "path": "assets/sprites/goblins/ferro_pei_attack_7.png"
+    },
+    {
+      "id": "ferro_pei_attack_8",
+      "path": "assets/sprites/goblins/ferro_pei_attack_8.png"
+    },
+    {
+      "id": "ferro_pei_attack_9",
+      "path": "assets/sprites/goblins/ferro_pei_attack_9.png"
+    },
+    {
+      "id": "ferro_pei_attack_10",
+      "path": "assets/sprites/goblins/ferro_pei_attack_10.png"
+    },
+    {
+      "id": "ferro_pei_attack_11",
+      "path": "assets/sprites/goblins/ferro_pei_attack_11.png"
+    },
+    {
+      "id": "ferro_pei_attack_12",
+      "path": "assets/sprites/goblins/ferro_pei_attack_12.png"
+    },
+    {
+      "id": "ferro_pei_attack_13",
+      "path": "assets/sprites/goblins/ferro_pei_attack_13.png"
+    },
+    {
+      "id": "ferro_pei_attack_14",
+      "path": "assets/sprites/goblins/ferro_pei_attack_14.png"
+    },
+    {
+      "id": "ferro_pei_attack_15",
+      "path": "assets/sprites/goblins/ferro_pei_attack_15.png"
+    },
+    {
+      "id": "ferro_pei_attack_16",
+      "path": "assets/sprites/goblins/ferro_pei_attack_16.png"
+    },
+    {
+      "id": "ferro_pei_hurt_0",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_0.png"
+    },
+    {
+      "id": "ferro_pei_hurt_1",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_1.png"
+    },
+    {
+      "id": "ferro_pei_hurt_2",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_2.png"
+    },
+    {
+      "id": "ferro_pei_hurt_3",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_3.png"
+    },
+    {
+      "id": "ferro_pei_hurt_4",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_4.png"
+    },
+    {
+      "id": "ferro_pei_hurt_5",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_5.png"
+    },
+    {
+      "id": "ferro_pei_hurt_6",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_6.png"
+    },
+    {
+      "id": "ferro_pei_hurt_7",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_7.png"
+    },
+    {
+      "id": "ferro_pei_hurt_8",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_8.png"
+    },
+    {
+      "id": "ferro_pei_hurt_9",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_9.png"
+    },
+    {
+      "id": "ferro_pei_hurt_10",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_10.png"
+    },
+    {
+      "id": "ferro_pei_hurt_11",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_11.png"
+    },
+    {
+      "id": "ferro_pei_hurt_12",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_12.png"
+    },
+    {
+      "id": "ferro_pei_hurt_13",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_13.png"
+    },
+    {
+      "id": "ferro_pei_hurt_14",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_14.png"
+    },
+    {
+      "id": "ferro_pei_hurt_15",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_15.png"
+    },
+    {
+      "id": "ferro_pei_hurt_16",
+      "path": "assets/sprites/goblins/ferro_pei_hurt_16.png"
+    },
+    {
+      "id": "ferro_pei_death_0",
+      "path": "assets/sprites/goblins/ferro_pei_death_0.png"
+    },
+    {
+      "id": "ferro_pei_death_1",
+      "path": "assets/sprites/goblins/ferro_pei_death_1.png"
+    },
+    {
+      "id": "ferro_pei_death_2",
+      "path": "assets/sprites/goblins/ferro_pei_death_2.png"
+    },
+    {
+      "id": "ferro_pei_death_3",
+      "path": "assets/sprites/goblins/ferro_pei_death_3.png"
+    },
+    {
+      "id": "ferro_pei_death_4",
+      "path": "assets/sprites/goblins/ferro_pei_death_4.png"
+    },
+    {
+      "id": "ferro_pei_death_5",
+      "path": "assets/sprites/goblins/ferro_pei_death_5.png"
+    },
+    {
+      "id": "ferro_pei_death_6",
+      "path": "assets/sprites/goblins/ferro_pei_death_6.png"
+    },
+    {
+      "id": "ferro_pei_death_7",
+      "path": "assets/sprites/goblins/ferro_pei_death_7.png"
+    },
+    {
+      "id": "ferro_pei_death_8",
+      "path": "assets/sprites/goblins/ferro_pei_death_8.png"
+    },
+    {
+      "id": "ferro_pei_death_9",
+      "path": "assets/sprites/goblins/ferro_pei_death_9.png"
+    },
+    {
+      "id": "ferro_pei_death_10",
+      "path": "assets/sprites/goblins/ferro_pei_death_10.png"
+    },
+    {
+      "id": "ferro_pei_death_11",
+      "path": "assets/sprites/goblins/ferro_pei_death_11.png"
+    },
+    {
+      "id": "ferro_pei_death_12",
+      "path": "assets/sprites/goblins/ferro_pei_death_12.png"
+    },
+    {
+      "id": "ferro_pei_death_13",
+      "path": "assets/sprites/goblins/ferro_pei_death_13.png"
+    },
+    {
+      "id": "ferro_pei_death_14",
+      "path": "assets/sprites/goblins/ferro_pei_death_14.png"
+    },
+    {
+      "id": "building_armazem_1",
+      "path": "assets/sprites/buildings/building_armazem_1.png"
     }
   ]
 }

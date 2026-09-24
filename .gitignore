@@ -34,4 +34,7 @@ coverage/
 .venv-tools/
 previas/
 
+# Saída das prévias de tela (tools/render_preview.mjs)
+tools/preview/
+
 __pycache__/

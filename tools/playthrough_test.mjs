@@ -50,6 +50,9 @@ const { Village } = req('village.js');
 const { Quests } = req('quests.js');
 const cooking = req('cooking.js');
 const market = req('market.js');
+const gear = req('gear.js');
+const inv = req('inventory.js');
+const abilities = req('abilities.js');
 
 let pass = 0, fail = 0;
 const failures = [];
@@ -186,6 +189,35 @@ v.res.food = 99;
 const ensopado = cooking.cook(v, 'stew');
 check('minério comprado alimenta a receita melhor', ensopado !== null);
 
+// ---------- 9.6. armazém: inventário + equipar goblin ----------
+check('armazém liberado no nível 2', v.canBuild('armazem'));
+v.res = { wood: 999, stone: 999, ore: 99, food: 99, gold: v.res.gold };
+check('constrói o armazém', v.build('armazem') !== null);
+check('armazém nv1 dá 16 espaços de item', v.itemCapacity() === 16);
+
+v.res.gold = 1000;
+check('compra espada no mercado', market.buy(v, 'gear', 'espada_ferro', 1) > 0);
+check('compra capacete no mercado', market.buy(v, 'gear', 'capacete_ferro', 1) > 0);
+check('itens estão no inventário', v.itemsCount() === 2);
+
+const lutador = v.goblins[0];
+check('equipa espada no goblin', inv.equip(v, lutador, 'arma_primaria', 'espada_ferro'));
+check('equipa capacete no goblin', inv.equip(v, lutador, 'capacete', 'capacete_ferro'));
+check('itens saíram do armazém', v.itemsCount() === 0);
+check('goblin veste 2 peças', inv.equippedCount(lutador) === 2);
+check('capacete de ferro não tem skin própria (sprite base)',
+  gear.spriteForGoblin(lutador, 'idle', 0) === 'goblin_idle_0');
+check('outro goblin segue sem nada',
+  gear.spriteForGoblin(v.goblins[1], 'idle', 0) === 'goblin_idle_0');
+
+check('aprimora o armazém p/ mais espaços', v.upgrade(v.get('armazem')) === true);
+check('armazém nv2 → 24 espaços', v.itemCapacity() === 24);
+
+const habilidoso = v.goblins[1];
+const abGenerica = abilities.byId('investida');
+check('habilidade genérica serve p/ qualquer goblin', abilities.canEquip(habilidoso, abGenerica));
+check('goblin aprende habilidade', abilities.equipAbility(habilidoso, 0, 'investida'));
+
 // ---------- 10. o save aguenta tudo isso ----------
 const snapshot = JSON.parse(JSON.stringify({ village: v.serialize(), quests: q.serialize() }));
 const v2 = new Village(snapshot.village);
@@ -194,6 +226,10 @@ check('save preserva o nível da vila', v2.level === v.level);
 check('save preserva as estruturas', v2.has('cozinha') && v2.has('fazenda') && v2.has('mercado'));
 check('save preserva os goblins', v2.goblins.length === v.goblins.length);
 check('save preserva as missões', q2.list.length === q.list.length);
+check('save preserva o armazém', v2.has('armazem') && v2.itemCapacity() === v.itemCapacity());
+check('save preserva o equipamento do goblin',
+  v2.goblins[0].equip?.arma_primaria === 'espada_ferro');
+check('save preserva a habilidade do goblin', v2.goblins[1].skills?.[0] === 'investida');
 
 console.log(`\n  vila nv${v.level} · ${v.goblins.length} goblins · ` +
   `${v.structures.length} estruturas · ${q.completed} missões concluídas`);

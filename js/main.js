@@ -15,6 +15,8 @@ const { UI } = require('ui.js');
 const { loadBalance, BAL } = require('balance.js');
 const { Goblin, ATTRS } = require('goblin.js');
 const gear = require('gear.js');
+const inv = require('inventory.js');
+const abilities = require('abilities.js');
 const { Quests } = require('quests.js');
 const cooking = require('cooking.js');
 const market = require('market.js');
@@ -33,10 +35,10 @@ const saved = loadGame() || {};
 const state = {
   language: saved.language || 'pt-BR',
   taps: saved.taps || 0,
-  // world | build | recruit | roster | detail | quests | kitchen | market
+  // world | build | recruit | roster | detail | quests | kitchen | market | armazem | equip
   screen: 'world',
   buildTab: 0,            // 0 estruturas | 1 melhorias
-  buildPage: 0,           // catálogo paginado (12 estruturas)
+  buildPage: 0,           // catálogo paginado (13 estruturas)
   candidates: null,       // 3 goblins p/ recrutamento
   detailIdx: 0,
   feedIdx: null,          // prato escolhido p/ alimentar um goblin
@@ -45,12 +47,17 @@ const state = {
   marketQty: {},          // quantidade escolhida por item ("res:wood" → 3)
   toast: null,            // {msg, until}
   levelUp: null,          // {level, until} — banner de nível da vila
+  equipIdx: 0,            // goblin sendo equipado
+  equipTab: 0,            // 0 equipamento | 1 alimentos | 2 habilidades
+  equipSel: null,         // espaço do boneco selecionado ('capacete', ...)
+  equipBack: 'armazem',   // p/ onde o "voltar" da tela de equipar vai
+  abSel: 0,               // espaço de habilidade selecionado
+  invSel: null,           // item selecionado na grade do armazém
 };
 
 // ---------- Mundo / vila / câmera / UI ----------
 const world = new World(7);
 const village = new Village(saved.village);
-gear.setOwned(village.gear);
 world.setGoblinCount(village.goblins.length);
 const nodes = new Nodes(world, saved.nodes);
 nodes.syncFacilities(village);          // postos da Fazenda/Mina
@@ -195,6 +202,34 @@ function openMarket() {
   state.marketPage = 0;
 }
 
+// ---------- Armazém / equipamento ----------
+/** Abre a tela de equipar um goblin (idx do roster). */
+function openEquip(idx, backTo = 'armazem') {
+  const n = village.goblins.length;
+  if (!n) return;
+  state.equipIdx = Math.max(0, Math.min(idx || 0, n - 1));
+  state.equipBack = backTo;
+  state.equipSel = null;
+  state.equipTab = 0;
+  state.screen = 'equip';
+}
+
+/** Cíclo entre os goblins na tela de equipar. */
+function cycleEquip(dir) {
+  const n = village.goblins.length;
+  if (!n) return;
+  state.equipIdx = (state.equipIdx + dir + n) % n;
+  state.equipSel = null;
+}
+
+/** Destrava e constrói o Armazém na hora (gancho ?demo=). */
+function ensureArmazem() {
+  if (village.has('armazem')) return;
+  village.level = Math.max(village.level, BUILDINGS.armazem.reqLevel);
+  village.res.wood += 999; village.res.stone += 999;
+  village.build('armazem');
+}
+
 /** "res:wood" → {kind:'res', key:'wood'} */
 function slotParts(slot) {
   const [kind, key] = slot.split(':');
@@ -226,7 +261,7 @@ function marketConfirm(slot) {
   const { kind, key } = slotParts(slot);
   const qty = marketQty(slot);
   const name = kind === 'meal' ? i18n.t('meal.' + key)
-    : kind === 'gear' ? i18n.t('gear.' + key)
+    : kind === 'gear' ? i18n.t('item.' + key)
     : i18n.t('res.' + key);
 
   if (state.marketTab === 0) {
@@ -238,9 +273,11 @@ function marketConfirm(slot) {
     if (cost > 0) {
       toast('toast.bought', { n: qty, name, gold: cost });
       if (kind === 'gear') toast('toast.gear_bought', { name });
-    }
-    else if (kind === 'gear') toast('toast.market_gold');
-    else toast('toast.market_gold');
+    } else if (kind === 'gear') {
+      // falhou: sem ouro ou sem espaço no Armazém?
+      if ((village.res.gold || 0) >= market.buyPrice(village, kind, key)) toast('toast.inv_full');
+      else toast('toast.market_gold');
+    } else toast('toast.market_gold');
   }
   // depois do negócio a quantidade volta ao mínimo
   delete state.marketQty[slot];
@@ -263,6 +300,28 @@ function routeTap(id) {
     case 'quests_btn': state.screen = 'quests'; break;
     case 'kitchen_btn': state.screen = 'kitchen'; break;
     case 'market_btn': openMarket(); break;
+    case 'armazem_btn': state.screen = 'armazem'; break;
+    case 'back_armazem': state.screen = 'world'; break;
+    case 'inv_upgrade': {
+      const s = village.get('armazem');
+      if (!s) break;
+      if (s.level >= village.maxUpgradeLevel(s.type)) {
+        toast('toast.village_level', { n: s.level + 1 });
+      } else if (village.upgrade(s)) {
+        toast('toast.upgraded');
+      } else toast('toast.need');
+      break;
+    }
+    case 'inv_equip': openEquip(0, 'armazem'); break;
+    case 'eq_prev': cycleEquip(-1); break;
+    case 'eq_next': cycleEquip(1); break;
+    case 'eqtab_0': state.equipTab = 0; break;
+    case 'eqtab_1': state.equipTab = 1; break;
+    case 'eqtab_2': state.equipTab = 2; break;
+    case 'back_eq':
+      state.screen = state.equipBack === 'detail' ? 'detail' : 'armazem';
+      break;
+    case 'open_equip': openEquip(state.detailIdx, 'detail'); break;
     case 'mtab_0': state.marketTab = 0; state.marketPage = 0; break;
     case 'mtab_1': state.marketTab = 1; state.marketPage = 0; break;
     case 'mpage_prev': state.marketPage = Math.max(0, state.marketPage - 1); break;
@@ -339,6 +398,61 @@ function routeTap(id) {
         if (!village.meals[state.feedIdx]) state.feedIdx = null;
         break;
       }
+      // ----- armazém: selecionar item da grade -----
+      if (id?.startsWith('invs_')) {          // invs_<itemId>
+        state.invSel = state.invSel === id.slice(5) ? null : id.slice(5);
+        break;
+      }
+      // ----- equipar: selecionar espaço do boneco -----
+      if (id?.startsWith('slot_')) {          // slot_<slotKey>
+        const key = id.slice(5);
+        state.equipSel = state.equipSel === key ? null : key;
+        break;
+      }
+      // ----- equipar: colocar item do armazém no espaço -----
+      if (id?.startsWith('eqdo_')) {          // eqdo_<slotKey>_<itemId>
+        const [slotKey, itemId] = id.slice(5).split('_:_');
+        const g = village.goblins[state.equipIdx];
+        const item = inv.byId(itemId);
+        if (g && inv.equip(village, g, slotKey, itemId)) {
+          toast('toast.equipped', { name: g.name, item: i18n.t('item.' + itemId) });
+        } else if (item && (village.items[itemId] || 0) <= 0) {
+          toast('toast.item_gone');
+        } else toast('toast.need');
+        break;
+      }
+      // ----- equipar: tirar item do espaço -----
+      if (id?.startsWith('equn_')) {          // equn_<slotKey>
+        const slotKey = id.slice(5);
+        const g = village.goblins[state.equipIdx];
+        const out = g && inv.unequip(village, g, slotKey);
+        if (out) toast('toast.unequipped', { item: i18n.t('item.' + out) });
+        break;
+      }
+      // ----- habilidades: selecionar espaço / equipar / remover -----
+      if (id?.startsWith('abslot_')) {        // abslot_<i>
+        state.abSel = Number(id.slice(7));
+        break;
+      }
+      if (id?.startsWith('abeq_')) {          // abeq_<abilityId>
+        const abId = id.slice(5);
+        const g = village.goblins[state.equipIdx];
+        const ab = abilities.byId(abId);
+        if (!g || !ab) break;
+        if (abilities.hasAbility(g, abId)) {
+          abilities.unequipAbility(g, g.skills.indexOf(abId));
+          toast('toast.ability_removed', { name: g.name, ab: i18n.t('ab.' + abId) });
+        } else if (abilities.equipAbility(g, state.abSel, abId)) {
+          toast('toast.ability_equip', { name: g.name, ab: i18n.t('ab.' + abId) });
+        } else toast('toast.ability_locked', { spec: i18n.t('spec.' + ab.spec) });
+        break;
+      }
+      if (id?.startsWith('abun_')) {          // abun_<i>
+        const g = village.goblins[state.equipIdx];
+        const cur = g && abilities.unequipAbility(g, Number(id.slice(5)));
+        if (cur) toast('toast.ability_removed', { name: g.name, ab: i18n.t('ab.' + cur) });
+        break;
+      }
       // ----- recrutamento / roster -----
       if (id?.startsWith('card_')) {
         const g = state.candidates[Number(id.slice(5))];
@@ -394,6 +508,7 @@ function update(dt) {
         else if (s.type === 'quest') state.screen = 'quests';
         else if (s.type === 'cozinha') state.screen = 'kitchen';
         else if (s.type === 'mercado') openMarket();
+        else if (s.type === 'armazem') state.screen = 'armazem';
         else toast('toast.soon');
       }
     }
@@ -439,6 +554,8 @@ function render(time) {
   else if (state.screen === 'quests') drawQuestScreen();
   else if (state.screen === 'kitchen') drawKitchenScreen();
   else if (state.screen === 'market') drawMarketScreen();
+  else if (state.screen === 'armazem') drawArmazemScreen();
+  else if (state.screen === 'equip') drawEquipScreen();
   if (state.screen === 'world') drawWorldButtons();
 }
 
@@ -560,6 +677,22 @@ function drawWorldButtons() {
     ui.text(392, 334, i18n.t('ui.market_btn'),
       { align: 'center', size: 11, bold: true, color: '#ffe9b8' });
     ui.region('market_btn', 332, 316, 100, 36);
+  }
+
+  // ARMAZÉM — inventário de recursos e itens
+  if (village.has('armazem')) {
+    ui.rusticPanel(440, 316, 100, 36);
+    // caixote de madeira (X de tábuas)
+    ctx.fillStyle = '#a9713d'; ctx.fillRect(449, 326, 15, 13);
+    ctx.strokeStyle = '#3c2712'; ctx.lineWidth = 1;
+    ctx.strokeRect(449.5, 326.5, 14, 12);
+    ctx.beginPath();
+    ctx.moveTo(449, 326); ctx.lineTo(464, 339);
+    ctx.moveTo(464, 326); ctx.lineTo(449, 339);
+    ctx.stroke();
+    ui.text(498, 334, i18n.t('ui.armazem_btn'),
+      { align: 'center', size: 11, bold: true, color: '#ffe9b8' });
+    ui.region('armazem_btn', 440, 316, 100, 36);
   }
 
   ui.button('roster_btn', 548, 316, 84, 34,
@@ -726,7 +859,7 @@ function drawRecruitScreen() {
     const cx = x + w / 2;
     ui.glow(cx, y + 44, 36);
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(getSprite(gear.spriteFor('idle', i % 5)), cx - 28, y + 16, 56, 56);
+    ctx.drawImage(getSprite(gear.spriteForGoblin(g, 'idle', i % 5)), cx - 28, y + 16, 56, 56);
 
     ui.text(cx, y + 84, g.name, { align: 'center', size: 12, bold: true, color: '#3c2712' });
     ui.text(cx, y + 100, `${i18n.t('spec.' + g.specialty)} • ${i18n.t('rarity.' + g.rarity)} ${'★'.repeat(RARITIES_IDX(g.rarity) + 1)}`,
@@ -753,7 +886,7 @@ function drawRosterScreen() {
     const x = 16 + col * 308, y = 76 + row * 60, w = 300, h = 56;
     ui.parchment(x, y, w, h);
     ui.region('g_' + i, x, y, w, h);
-    ctx.drawImage(getSprite(gear.spriteFor('idle', 0)), x + 8, y + 10, 36, 36);
+    ctx.drawImage(getSprite(gear.spriteForGoblin(g, 'idle', 0)), x + 8, y + 10, 36, 36);
     ui.text(x + 52, y + 16, `${g.name}  ${i18n.t('ui.level', { n: g.level })}`, { size: 11, bold: true, color: '#3c2712' });
     ui.text(x + 52, y + 34, `${i18n.t('spec.' + g.specialty)} • ${i18n.t('rarity.' + g.rarity)}`, { size: 9, color: '#6e4626' });
     ui.bar(x + 212, y + 14, 78, 8, g.hp / g.maxHp, '#4fa562');
@@ -772,7 +905,7 @@ function drawDetailScreen() {
   ui.rusticPanel(60, 40, 520, 286);
   ui.woodSign(70, 48, 220, 22, g.name, 12);
   ui.glow(130, 130, 46);
-  ctx.drawImage(getSprite(gear.spriteFor('idle', 0)), 94, 84, 72, 72);
+  ctx.drawImage(getSprite(gear.spriteForGoblin(g, 'idle', 0)), 94, 84, 72, 72);
   ui.text(94, 172, i18n.t('spec.' + g.specialty), { size: 11, bold: true, color: '#ffe9b8' });
   ui.text(94, 188, `${i18n.t('rarity.' + g.rarity)} ${'★'.repeat(RARITIES_IDX(g.rarity) + 1)}`, { size: 9, color: '#ffe9b8' });
   ui.text(94, 204, i18n.t('ui.level', { n: g.level }), { size: 10, color: '#ffe9b8' });
@@ -787,7 +920,9 @@ function drawDetailScreen() {
   });
 
   ui.text(250, 208, `HP ${g.hp}/${g.maxHp}   MP ${g.mp}/${g.maxMp}`, { size: 10, color: '#b9aedc' });
-  ui.button('back_roster', 270, 292, 100, 26, i18n.t('ui.back'), true, true);
+  ui.text(250, 228, i18n.t('ui.equipped_count', { n: inv.equippedCount(g) }), { size: 9, color: '#b9aedc' });
+  ui.button('back_roster', 240, 292, 100, 26, i18n.t('ui.back'), true, true);
+  ui.button('open_equip', 352, 292, 120, 26, i18n.t('ui.equip_btn'), true, true);
 }
 
 // ---------- Tela: Painel de Missões (etapa 1.7) ----------
@@ -910,7 +1045,7 @@ function drawKitchenScreen() {
     hurt.forEach(({ g, i }, k) => {
       const x = 300 + k * 84;
       ui.parchment(x, 244, 78, 62);
-      ctx.drawImage(getSprite(gear.spriteFor('idle', 0)), x + 24, 246, 30, 30);
+      ctx.drawImage(getSprite(gear.spriteForGoblin(g, 'idle', 0)), x + 24, 246, 30, 30);
       ui.text(x + 39, 284, g.name, { align: 'center', size: 8, bold: true, color: '#3c2712' });
       ui.bar(x + 8, 290, 62, 6, g.hp / g.maxHp, '#4fa562');
       ui.text(x + 39, 302, `${g.hp}/${g.maxHp}`, { align: 'center', size: 7, color: '#6e4626' });
@@ -926,8 +1061,13 @@ function drawMarketScreen() {
   ui.rusticPanel(8, 40, 624, 286);
   const lv = market.level(village);
   ui.woodSign(16, 46, 240, 22, i18n.t('ui.market_title'), 11);
-  ui.text(268, 57, i18n.t('ui.market_sub', { n: lv, gold: village.res.gold }),
-    { size: 9, color: '#ffe9b8' });
+  // equipamentos só entram na prateleira com Armazém construído
+  if (!village.has('armazem')) {
+    ui.text(268, 57, i18n.t('ui.market_need_armazem'), { size: 8, color: '#ffb8a8' });
+  } else {
+    ui.text(268, 57, i18n.t('ui.market_sub', { n: lv, gold: village.res.gold }),
+      { size: 9, color: '#ffe9b8' });
+  }
   ui.closeX('back_world', 604, 46);
 
   // mercado ainda não construído (só acontece por save antigo/atalho)
@@ -960,7 +1100,7 @@ function drawMarketScreen() {
     const x = 16 + i * 153, y = 102, w = 145, h = 176;
     const slot = `${it.kind}:${it.key}`;
     const name = it.kind === 'meal' ? i18n.t('meal.' + it.key)
-      : it.kind === 'gear' ? i18n.t('gear.' + it.key)
+      : it.kind === 'gear' ? i18n.t('item.' + it.key)
       : i18n.t('res.' + it.key);
     const limit = marketLimit(slot);
     const qty = marketQty(slot);
@@ -968,23 +1108,6 @@ function drawMarketScreen() {
 
     ui.parchment(x, y, w, h);
     ui.woodSign(x + 4, y + 3, w - 8, 14, name, 8);
-
-    if (it.kind === 'gear') {
-      // ARMADURA (compra única): ícone grande com brilho + preço fixo
-      ui.glow(x + w / 2, y + 52, 34);
-      ctx.drawImage(getSprite(it.sprite), x + w / 2 - 24, y + 30, 48, 48);
-      ctx.drawImage(getSprite('res_gold'), x + w / 2 - 30, y + 92, 12, 12);
-      ui.text(x + w / 2 - 14, y + 98, String(it.price),
-        { size: 11, bold: true, color: it.have ? '#4a3018' : '#6e4626' });
-      if (it.have > 0) {
-        ui.text(x + w / 2, y + 128, i18n.t('ui.gear_owned'),
-          { align: 'center', size: 11, bold: true, color: '#2f6b3a' });
-      } else {
-        ui.button('mdo_' + slot, x + 10, y + 118, w - 20, 26,
-          i18n.t('ui.market_buy'), limit > 0, limit > 0);
-      }
-      return;
-    }
 
     ui.glow(x + w / 2, y + 44, 28);
     ctx.drawImage(getSprite(it.sprite), x + w / 2 - 18, y + 26, 36, 36);
@@ -1018,6 +1141,362 @@ function drawMarketScreen() {
       { align: 'center', size: 9, bold: true, color: '#ffe9b8' });
     if (state.marketPage < pages - 1) ui.button('mpage_next', 354, 292, 36, 18, '›', true);
   }
+}
+
+// ---------- Tela: Armazém / Inventário ----------
+/** Grade de espaços de itens: cada célula = 1 item guardado. */
+function drawArmazemScreen() {
+  ui.rusticPanel(8, 40, 624, 286);
+  const lv = village.levelOf('armazem');
+  ui.woodSign(16, 46, 236, 22, `${i18n.t('bld.armazem')} • ${i18n.t('ui.level', { n: lv })}`, 11);
+  ui.closeX('back_world', 604, 46);
+
+  // ----- área 1: recursos da vila -----
+  ui.text(20, 84, i18n.t('ui.res_section'), { size: 10, bold: true, color: '#ffe9b8' });
+  const RES_LIST = ['wood', 'stone', 'ore', 'food', 'gold'];
+  RES_LIST.forEach((k, i) => {
+    const y = 96 + i * 21;
+    ctx.drawImage(getSprite('res_' + k), 22, y - 7, 14, 14);
+    ui.text(42, y, i18n.t('res.' + k), { size: 10, color: '#e8d5a8' });
+    ui.text(240, y, String(village.res[k] || 0), { size: 10, bold: true, align: 'right', color: '#ffe9a8' });
+  });
+
+  // ----- despensa (pratos cozinhados) -----
+  ui.text(20, 214, i18n.t('ui.pantry'), { size: 10, bold: true, color: '#ffe9b8' });
+  let my = 226;
+  let mx = 22;
+  for (const r of cooking.RECIPES) {
+    const n = village.meals[r.id] || 0;
+    if (n <= 0) continue;
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(mx, my, 58, 26);
+    ctx.strokeStyle = 'rgba(255,233,168,0.4)'; ctx.lineWidth = 1;
+    ctx.strokeRect(mx + 0.5, my + 0.5, 57, 25);
+    ctx.drawImage(getSprite(r.sprite), mx + 3, my + 3, 20, 20);
+    ui.text(mx + 50, my + 13, `x${n}`, { align: 'right', size: 9, bold: true, color: '#ffe9a8' });
+    mx += 64;
+    if (mx > 200) { mx = 22; my += 30; }
+  }
+  if (mx === 22) ui.text(22, 240, i18n.t('ui.no_meals'), { size: 9, color: '#8a8798' });
+
+  // ----- área 2: itens de equipamento (separados em espaços) -----
+  ui.text(262, 84, i18n.t('ui.items_section'), { size: 10, bold: true, color: '#ffe9b8' });
+  const cap = village.itemCapacity();
+  const used = village.itemsCount();
+  ui.text(612, 84, i18n.t('ui.items_count', { n: used, max: cap }),
+    { size: 10, bold: true, align: 'right', color: used > cap ? '#ff8a8a' : '#ffe9a8' });
+
+  // células: 8 por linha, cada uma com 1 item (ordem do catálogo)
+  const COLS = 8, CELL = 40, GAP = 4;
+  const rows = Math.ceil(cap / COLS);
+  const cells = [];
+  for (const it of inv.ITEMS) {
+    const n = village.items[it.id] || 0;
+    for (let k = 0; k < n; k++) cells.push(it);
+  }
+  for (let i = cells.length; i < cap; i++) cells.push(null);
+
+  cells.slice(0, cap).forEach((it, i) => {
+    const col = i % COLS, row = Math.floor(i / COLS);
+    const x = 262 + col * (CELL + GAP), y = 94 + row * (CELL + GAP);
+    if (it) {
+      ui.parchment(x, y, CELL, CELL);
+      ctx.drawImage(getSprite(it.icon), x + 6, y + 6, 28, 28);
+      const sel = state.invSel === it.id;
+      if (sel) {
+        ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 2;
+        ctx.strokeRect(x + 1, y + 1, CELL - 2, CELL - 2);
+      }
+      ui.region('invs_' + it.id, x, y, CELL, CELL);
+    } else {
+      // espaço vazio: caixa tracejada
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillRect(x, y, CELL, CELL);
+      ctx.strokeStyle = 'rgba(255,233,168,0.22)'; ctx.lineWidth = 1;
+      ctx.setLineDash([4, 3]);
+      ctx.strokeRect(x + 0.5, y + 0.5, CELL - 1, CELL - 1);
+      ctx.setLineDash([]);
+    }
+  });
+
+  // nota sobre o item selecionado (logo abaixo da grade)
+  const noteY = 94 + rows * (CELL + GAP) + 10;
+  if (state.invSel && inv.byId(state.invSel)) {
+    const it = inv.byId(state.invSel);
+    ui.text(262, noteY, `${i18n.t('item.' + it.id)} • ${i18n.t('slot.' + it.slot)}`,
+      { size: 9, bold: true, color: '#e8d5a8' });
+  } else {
+    ui.text(262, noteY, i18n.t('ui.inv_hint'), { size: 9, color: '#8a8798' });
+  }
+
+  // ----- rodapé: melhorar o armazém + equipar goblins -----
+  const s = village.get('armazem');
+  const hardMax = s.level >= BUILDINGS.armazem.maxLevel;
+  const gated = !hardMax && s.level >= village.maxUpgradeLevel('armazem');
+  const cost = village.upgradeCost(s);
+  let info;
+  if (hardMax) info = i18n.t('ui.max');
+  else if (gated) info = i18n.t('ui.locked_village', { n: s.level + 1 });
+  else info = village.costText(cost, (k) => i18n.t(k));
+  ui.button('inv_upgrade', 20, 294, 96, 24, i18n.t('ui.upgrade_house'),
+    !hardMax && !gated && village.canAfford(cost));
+  ui.text(128, 302, i18n.t('ui.armazem_up_info', { n: cap + (hardMax ? 0 : 8) }),
+    { size: 8, color: '#b99b6f' });
+  ui.text(128, 314, info, { size: 8, color: gated ? '#8c2f1f' : '#b99b6f' });
+  ui.button('inv_equip', 420, 294, 190, 24, i18n.t('ui.equip_goblins'), true, true);
+}
+
+// ---------- Tela: Equipar goblin (boneco + abas) ----------
+/** Posições dos 10 espaços rodando o personagem (elipse). */
+const RING_SLOTS = [
+  { key: 'capacete', ang: -90 },
+  { key: 'colar', ang: -54 },
+  { key: 'arma_primaria', ang: -18 },
+  { key: 'anel1', ang: 18 },
+  { key: 'botas', ang: 54 },
+  { key: 'calca', ang: 90 },
+  { key: 'anel2', ang: 126 },
+  { key: 'arma_secundaria', ang: 162 },
+  { key: 'runa', ang: 198 },
+  { key: 'peitoral', ang: 234 },
+];
+
+function ringPos(ang) {
+  const cx = 250, cy = 208, rx = 96, ry = 92;
+  const rad = (ang * Math.PI) / 180;
+  return { x: cx + rx * Math.cos(rad), y: cy + ry * Math.sin(rad) };
+}
+
+function drawEquipScreen() {
+  const g = village.goblins[state.equipIdx];
+  if (!g) { state.screen = 'armazem'; return; }
+  ui.rusticPanel(8, 40, 624, 286);
+  ui.woodSign(16, 46, 150, 22, i18n.t('ui.equip_title'), 11);
+  ui.closeX('back_eq', 604, 46);
+
+  // ----- seletor de goblin (‹ nome ›) -----
+  const n = village.goblins.length;
+  if (n > 1) {
+    ui.button('eq_prev', 388, 50, 24, 16, '‹', true);
+    ui.button('eq_next', 576, 50, 24, 16, '›', true);
+  }
+  const midW = 160;
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(320 - midW / 2 + 36, 48, midW, 20);
+  ui.text(320 + 36, 58, `${g.name}  ${i18n.t('ui.level', { n: g.level })} (${state.equipIdx + 1}/${n})`,
+    { align: 'center', size: 10, bold: true, color: '#ffe9a8' });
+
+  // ----- abas -----
+  ui.tab('eqtab_0', 22, 74, 110, 20, i18n.t('ui.tab_equipment'), state.equipTab === 0);
+  ui.tab('eqtab_1', 140, 74, 100, 20, i18n.t('ui.tab_food'), state.equipTab === 1);
+  ui.tab('eqtab_2', 248, 74, 110, 20, i18n.t('ui.tab_skills'), state.equipTab === 2);
+
+  if (state.equipTab === 0) drawEquipTabGear(g);
+  else if (state.equipTab === 1) drawEquipTabFood(g);
+  else drawEquipTabSkills(g);
+}
+
+/** Aba EQUIPAMENTO: goblin no centro, 10 espaços rodando ele. */
+function drawEquipTabGear(g) {
+  // goblin no centro (idle animado)
+  const frame = Math.floor(performance.now() / 240) % 5;
+  ui.glow(250, 208, 62);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(getSprite(gear.spriteForGoblin(g, 'idle', frame)), 214, 152, 72, 72);
+  ui.bar(200, 236, 100, 8, g.hp / g.maxHp, '#4fa562');
+  ui.text(250, 252, `HP ${g.hp}/${g.maxHp}`, { align: 'center', size: 8, color: '#e8d5a8' });
+
+  // ----- anel de espaços -----
+  const SLOT_BOX = 36;
+  for (const { key, ang } of RING_SLOTS) {
+    const p = ringPos(ang);
+    const x = p.x - SLOT_BOX / 2, y = p.y - SLOT_BOX / 2;
+    const item = inv.byId(g.equip?.[key]);
+    const sel = state.equipSel === key;
+
+    if (item) {
+      ui.parchment(x, y, SLOT_BOX, SLOT_BOX);
+      ctx.drawImage(getSprite(item.icon), x + 5, y + 5, 26, 26);
+    } else {
+      ctx.fillStyle = 'rgba(0,0,0,0.38)';
+      ctx.fillRect(x, y, SLOT_BOX, SLOT_BOX);
+      ctx.strokeStyle = 'rgba(255,233,168,0.25)'; ctx.lineWidth = 1;
+      ctx.setLineDash([4, 3]);
+      ctx.strokeRect(x + 0.5, y + 0.5, SLOT_BOX - 1, SLOT_BOX - 1);
+      ctx.setLineDash([]);
+    }
+    if (sel) {
+      ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 2;
+      ctx.strokeRect(x + 1, y + 1, SLOT_BOX - 2, SLOT_BOX - 2);
+    }
+    ui.region('slot_' + key, x, y, SLOT_BOX, SLOT_BOX);
+    ui.text(p.x, y + SLOT_BOX + 7, inv.slotName(i18n.t, key),
+      { align: 'center', size: 7, color: sel ? '#d9cdfa' : '#b99b6f' });
+  }
+
+  // ----- painel da direita: equipar/remover -----
+  const px = 402, pw = 214;
+  if (!state.equipSel) {
+    ui.text(px + pw / 2, 130, i18n.t('ui.equip_hint'),
+      { align: 'center', size: 9, color: '#e8d5a8' });
+    // resumo do que já está vestido
+    ui.text(px + pw / 2, 160, i18n.t('ui.equipped_count', { n: inv.equippedCount(g) }),
+      { align: 'center', size: 9, color: '#b99b6f' });
+    let yy = 180;
+    for (const { key } of RING_SLOTS) {
+      const it = inv.byId(g.equip?.[key]);
+      if (!it) continue;
+      ctx.drawImage(getSprite(it.icon), px + 8, yy - 7, 14, 14);
+      ui.text(px + 28, yy, `${i18n.t('item.' + it.id)}`, { size: 8, color: '#e8d5a8' });
+      ui.text(px + pw - 8, yy, inv.slotName(i18n.t, key),
+        { size: 7, align: 'right', color: '#b99b6f' });
+      yy += 17;
+    }
+    return;
+  }
+
+  const slotKey = state.equipSel;
+  ui.woodSign(px, 100, pw, 20, inv.slotName(i18n.t, slotKey), 10);
+
+  let yy = 128;
+  const cur = inv.byId(g.equip?.[slotKey]);
+  if (cur) {
+    ui.parchment(px, yy, pw, 48);
+    ctx.drawImage(getSprite(cur.icon), px + 8, yy + 8, 32, 32);
+    ui.text(px + 48, yy + 18, i18n.t('item.' + cur.id), { size: 10, bold: true, color: '#3c2712' });
+    ui.text(px + 48, yy + 33, i18n.t('ui.equipped_now'), { size: 7, color: '#6e4626' });
+    ui.button('equn_' + slotKey, px + pw - 74, yy + 12, 66, 22, i18n.t('ui.equip_remove'), true);
+    yy += 56;
+  } else {
+    ui.text(px + pw / 2, yy + 4, i18n.t('ui.equip_none'),
+      { align: 'center', size: 9, color: '#b99b6f' });
+    yy += 20;
+  }
+
+  const options = inv.itemsForSlot(village, slotKey);
+  if (!options.length) {
+    ui.text(px + pw / 2, yy + 6, i18n.t('ui.none_of_type'),
+      { align: 'center', size: 9, color: '#8a8798' });
+    return;
+  }
+  for (const it of options) {
+    ui.parchment(px, yy, pw, 46);
+    ctx.drawImage(getSprite(it.icon), px + 8, yy + 7, 32, 32);
+    ui.text(px + 48, yy + 16, i18n.t('item.' + it.id), { size: 10, bold: true, color: '#3c2712' });
+    ui.text(px + 48, yy + 32, `x${it.have}`, { size: 8, color: '#6e4626' });
+    ui.button(`eqdo_${slotKey}_:_${it.id}`, px + pw - 74, yy + 11, 66, 22,
+      i18n.t('ui.equip_do'), true, true);
+    yy += 52;
+  }
+}
+
+/** Aba ALIMENTOS: escolher prato e alimentar qualquer goblin. */
+function drawEquipTabFood() {
+  ui.text(20, 112, i18n.t('ui.feed_hint'), { size: 9, color: '#ffe9b8' });
+
+  // pratos guardados
+  let px0 = 16;
+  for (const r of cooking.RECIPES) {
+    const n = village.meals[r.id] || 0;
+    if (n <= 0) continue;
+    const sel = state.feedIdx === r.id;
+    ctx.fillStyle = sel ? 'rgba(79,165,98,0.55)' : 'rgba(0,0,0,0.35)';
+    ctx.fillRect(px0, 124, 52, 32);
+    ctx.strokeStyle = sel ? '#4fa562' : 'rgba(255,233,168,0.4)';
+    ctx.lineWidth = sel ? 2 : 1;
+    ctx.strokeRect(px0 + 0.5, 124.5, 51, 31);
+    ctx.drawImage(getSprite(r.sprite), px0 + 3, 128, 24, 24);
+    ui.text(px0 + 46, 140, `x${n}`, { align: 'right', size: 9, bold: true, color: '#ffe9a8' });
+    ui.region('pick_' + r.id, px0, 124, 52, 32);
+    px0 += 58;
+  }
+  if (px0 === 16) ui.text(16, 140, i18n.t('ui.no_meals'), { size: 9, color: '#8a8798' });
+
+  // goblins para alimentar (2 colunas × 3 linhas)
+  village.goblins.slice(0, 6).forEach((gg, i) => {
+    const col = i % 2, row = Math.floor(i / 2);
+    const x = 300 + col * 160, y = 104 + row * 72;
+    ui.parchment(x, y, 150, 64);
+    const sel = state.equipIdx === village.goblins.indexOf(gg);
+    if (sel) {
+      ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 2;
+      ctx.strokeRect(x + 1, y + 1, 148, 62);
+    }
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(getSprite(gear.spriteForGoblin(gg, 'idle', 0)), x + 6, y + 12, 40, 40);
+    ui.text(x + 52, y + 16, gg.name, { size: 9, bold: true, color: '#3c2712' });
+    ui.bar(x + 52, y + 28, 90, 7, gg.hp / gg.maxHp, '#4fa562');
+    ui.text(x + 52, y + 44, `HP ${gg.hp}/${gg.maxHp}`, { size: 8, color: '#6e4626' });
+    ui.text(x + 52, y + 56, `+${i18n.t('ui.feed_heal')}`, { size: 7, color: '#2f6b3c' });
+    ui.region('feed_' + village.goblins.indexOf(gg), x, y, 150, 64);
+  });
+  if (village.goblins.length > 6) {
+    ui.text(460, 316, `+${village.goblins.length - 6} …`, { size: 9, color: '#ffe9b8' });
+  }
+}
+
+/** Aba HABILIDADES: 2 espaços + catálogo. */
+function drawEquipTabSkills(g) {
+  // goblin + especialidade
+  ui.glow(70, 130, 40);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(getSprite(gear.spriteForGoblin(g, 'idle', 0)), 38, 96, 64, 64);
+  ui.text(70, 176, g.name, { align: 'center', size: 10, bold: true, color: '#ffe9a8' });
+  ui.text(70, 190, i18n.t('spec.' + g.specialty), { align: 'center', size: 8, color: '#b99b6f' });
+  ui.text(70, 214, i18n.t('ui.skills_hint'), { align: 'center', size: 7, color: '#b99b6f' });
+
+  // ----- 2 espaços de habilidade -----
+  for (let i = 0; i < abilities.SKILL_SLOTS; i++) {
+    const x = 26, y = 230 + i * 48;
+    const abId = g.skills?.[i];
+    const ab = abilities.byId(abId);
+    const sel = state.abSel === i;
+    if (ab) {
+      ui.parchment(x, y, 88, 46);
+      ctx.drawImage(getSprite(ab.icon), x + 6, y + 7, 32, 32);
+      ui.text(x + 44, y + 18, i18n.t('ab.' + ab.id), { size: 8, bold: true, color: '#3c2712' });
+      ui.button('abun_' + i, x + 44, y + 27, 38, 14, '✕', true);
+    } else {
+      ctx.fillStyle = 'rgba(0,0,0,0.38)';
+      ctx.fillRect(x, y, 88, 46);
+      ctx.strokeStyle = 'rgba(255,233,168,0.25)'; ctx.lineWidth = 1;
+      ctx.setLineDash([4, 3]);
+      ctx.strokeRect(x + 0.5, y + 0.5, 87, 45);
+      ctx.setLineDash([]);
+      ui.text(x + 44, y + 23, `${i18n.t('ui.skill_slot')} ${i + 1}`,
+        { align: 'center', size: 8, color: '#8a8798' });
+    }
+    if (sel) {
+      ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 2;
+      ctx.strokeRect(x + 1, y + 1, 86, 44);
+    }
+    ui.region('abslot_' + i, x, y, 88, 46);
+  }
+
+  // ----- catálogo (2 colunas × 5) -----
+  abilities.ABILITIES.forEach((ab, i) => {
+    const col = i % 2, row = Math.floor(i / 2);
+    const x = 150 + col * 234, y = 104 + row * 44;
+    const can = abilities.canEquip(g, ab);
+    const has = abilities.hasAbility(g, ab.id);
+    ui.parchment(x, y, 226, 40);
+    ctx.globalAlpha = can ? 1 : 0.55;
+    ctx.drawImage(getSprite(ab.icon), x + 5, y + 4, 32, 32);
+    ui.text(x + 44, y + 13, i18n.t('ab.' + ab.id), { size: 9, bold: true, color: can ? '#3c2712' : '#8a6b4a' });
+    ui.text(x + 44, y + 27, i18n.t('abd.' + ab.id), { size: 6, color: '#6e4626' });
+    // estado à direita
+    if (has) {
+      ui.text(x + 214, y + 20, '✔', { align: 'right', size: 12, bold: true, color: '#2f6b3c' });
+    } else if (!can) {
+      ui.text(x + 214, y + 20, '🔒', { align: 'right', size: 9, color: '#8c2f1f' });
+      ui.text(x + 214, y + 31, i18n.t('ui.skill_only', { spec: i18n.t('spec.' + ab.spec) }),
+        { align: 'right', size: 6, color: '#8c2f1f' });
+    } else {
+      ui.text(x + 214, y + 20, '+', { align: 'right', size: 13, bold: true, color: '#4fa562' });
+    }
+    ctx.globalAlpha = 1;
+    if (can) ui.region('abeq_' + ab.id, x, y, 226, 40);
+  });
 }
 
 // ---------- Textos DOM ----------
@@ -1093,7 +1572,32 @@ async function init() {
       village.res.wood += 999; village.res.stone += 999; village.res.gold += 999;
       village.build('mercado');
     }
+    ensureArmazem();          // p/ a prateleira de equipamentos aparecer
+    village.addItem('espada_ferro', 2);   // e algo de equipamento p/ revender
     openMarket();
+  }
+  else if (demo === 'armazem') {
+    // a prévia precisa do Armazém de pé: destrava e constrói na hora
+    ensureArmazem();
+    village.addItem('peitoral_avaritia', 1);
+    village.addItem('anel_rubi', 2);
+    village.addItem('clava_goblin', 1);
+    village.meals = { bread: 3, soup: 1, stew: 2, feast: 1 };
+    state.screen = 'armazem';
+  }
+  else if (demo === 'equip') {
+    ensureArmazem();
+    // dá umas peças para a prévia ter o que equipar
+    village.addItem('capacete_ferro', 1);
+    village.addItem('peitoral_ferro', 1);
+    village.addItem('espada_ferro', 1);
+    village.addItem('anel_cobre', 2);
+    village.addItem('escudo_madeira', 1);
+    village.addItem('runa_azul', 1);
+    // e um prato + goblin ferido p/ a aba Alimentos
+    village.meals.bread = 1;
+    village.goblins[0].hp = Math.max(1, Math.floor(village.goblins[0].maxHp * 0.3));
+    openEquip(0, 'armazem');
   }
   else if (demo === 'nodes' || demo === 'work' || demo === 'stumps') {
     const t = nodes.list.find((n) => n.type === 'tree' && !n.depleted);

@@ -162,7 +162,7 @@ const ui = null; // acessamos pelo estado interno via main? não exportado.
 const input = req('input.js');
 
 // O jeito mais direto e realista: usar as telas pelo hook ?demo=
-const SCREENS = ['world', 'build', 'recruit', 'roster', 'quests', 'kitchen', 'market'];
+const SCREENS = ['world', 'build', 'recruit', 'roster', 'quests', 'kitchen', 'market', 'armazem', 'equip'];
 for (const scr of SCREENS) {
   // recria o jogo com a tela pedida
   for (const k of Object.keys(cache)) delete cache[k];
@@ -215,12 +215,19 @@ check('prefixos dinâmicos têm traduções', orphanPrefix.length === 0, orphanP
 
 // Os conjuntos que o jogo monta dinamicamente, conferidos um a um.
 const { BUILD_ORDER } = req('village.js');
+const inventory = req('inventory.js');
+const abilities = req('abilities.js');
 const dyn = [
   ...BUILD_ORDER.map((id) => 'bld.' + id),
   ...['wood', 'stone', 'ore', 'food', 'gold'].map((r) => 'res.' + r),
   ...cookingMeals(),
   ...['warrior', 'mage', 'healer', 'cook', 'worker', 'runner', 'common'].map((s) => 'spec.' + s),
   ...['common', 'uncommon', 'rare', 'epic'].map((r) => 'rarity.' + r),
+  ...inventory.EQUIP_SLOTS.map((s) => 'slot.' + s),
+  ...inventory.SLOT_TYPES.map((s) => 'slot.' + s),
+  ...inventory.ITEMS.map((i) => 'item.' + i.id),
+  ...abilities.ABILITIES.map((a) => 'ab.' + a.id),
+  ...abilities.ABILITIES.map((a) => 'abd.' + a.id),
 ];
 function cookingMeals() {
   return req('cooking.js').RECIPES.map((r) => 'meal.' + r.id);
@@ -239,6 +246,23 @@ check('todo prédio tem sprite no manifest', missingB.length === 0, missingB.joi
 const cooking = req('cooking.js');
 const missingM = cooking.RECIPES.map((r) => r.sprite).filter((s) => !haveSprites.has(s));
 check('toda comida tem sprite no manifest', missingM.length === 0, missingM.join(', '));
+const missingI = inventory.ITEMS.map((i) => i.icon).filter((s) => !haveSprites.has(s));
+check('todo item de equipamento tem ícone no manifest', missingI.length === 0, missingI.join(', '));
+const missingA = abilities.ABILITIES.map((a) => a.icon).filter((s) => !haveSprites.has(s));
+check('toda habilidade tem ícone no manifest', missingA.length === 0, missingA.join(', '));
+// skins do goblin equipado (ferro_pei / avaritia) cobrem as animações usadas
+const gear = req('gear.js');
+const anims = [['idle', 5], ['walk', 8], ['attack', 17], ['hurt', 17], ['death', 15]];
+const skinMissing = [];
+for (const ver of ['ferro_pei', 'av_full', 'av_cap_pei', 'av_pei_cal', 'av_cap_cal', 'av_pei', 'av_cap', 'av_cal']) {
+  for (const [anim, n] of anims) {
+    for (let i = 0; i < n; i++) {
+      if (!haveSprites.has(`${ver}_${anim}_${i}`)) skinMissing.push(`${ver}_${anim}_${i}`);
+    }
+  }
+}
+check('todas as skins de equipamento existem no manifest', skinMissing.length === 0,
+  skinMissing.slice(0, 4).join(', '));
 const missingFiles = manifest.sprites.filter((s) => !fs.existsSync(path.join(ROOT, s.path)));
 check('todo sprite do manifest existe em disco', missingFiles.length === 0,
   missingFiles.map((s) => s.path).join(', '));
