@@ -4,6 +4,10 @@ Jogo mobile-first de **gerenciamento de vila + batalhas por turnos**, em HTML5 C
 
 ## ▶️ Como jogar
 
+**🎮 Jogar online (GitHub Pages):** **<https://alexflpaula-a11y.github.io/Goblin-game/>**
+Versão de arquivo único (carrega num toque, funciona offline):
+**<https://alexflpaula-a11y.github.io/Goblin-game/vila-de-goblins-jogavel.html>**
+
 **Sem instalar nada:** abra `vila-de-goblins-jogavel.html` no navegador (PC ou celular). É um build de arquivo único com sprites e textos embutidos — funciona offline.
 
 **Modo desenvolvimento:** sirva a pasta e abra `http://localhost:8080`:
