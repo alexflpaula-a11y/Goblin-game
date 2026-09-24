@@ -453,8 +453,12 @@ def restaura_orelhas(im, base_px):
     """CAPACETE FECHADO — passo 2: CONSERTA AS ORELHAS (fiéis ao sprite).
     dome = 1ª linha em que a cabeça fica LARGA (run contíguo ≥6 de verdes).
     ORELHA = acima do dome: o 1º e o último run de verdes da linha (os
-    externos — o run do meio é a coroa, fica preto);
-             no dome/dome+1: runs laterais pequenos (≤4), fora da massa.
+    externos — o run do meio é a coroa, fica preto); 1 run sozinho só é
+    orelha se sai pra FORA do run largo (ponta isolada) — em cima da
+    massa é coroa;
+             na linha do dome: runs pequenos (≤4) SEPARADOS da massa,
+             só se continuam a orelha de cima. Abaixo do dome: nada
+             (dome+1 já é rosto).
     Devolve o verde ORIGINAL desses pixels por cima do elmo preto."""
     eyes = olhos_px(base_px)
     if not eyes:
@@ -468,10 +472,14 @@ def restaura_orelhas(im, base_px):
     dome = _dome_y(base_px, W0, W1, y0, my)
     if dome is None:
         return set()
+    # run largo da linha do dome = a MASSA da cabeça
+    xs_d = [x for x in range(W0, W1 + 1)
+            if base_px[x, dome][3] >= 40 and base_px[x, dome][:3] in GREENS]
+    wr = max(_runs(xs_d), key=len) if xs_d else None
     px = im.load()
     ears = set()
     prev = set()
-    for y in range(y0, min(my + 1, dome + 2)):
+    for y in range(y0, dome + 1):        # dome+1 em diante é rosto — nada lá
         xs = [x for x in range(W0, W1 + 1)
               if base_px[x, y][3] >= 40 and base_px[x, y][:3] in GREENS]
         if not xs:
@@ -480,10 +488,13 @@ def restaura_orelhas(im, base_px):
         if y < dome:
             if len(runs) >= 2:              # 1º e último = orelhas
                 sel = runs[0] + runs[-1]
+            elif wr is None or runs[0][0] < wr[0] or runs[0][-1] > wr[-1]:
+                sel = runs[0]               # ponta isolada FORA da massa = orelha
             else:
-                sel = []                    # 1 run só = coroa (preto)
+                sel = []                    # 1 run em cima da massa = coroa (preto)
         else:
-            # pontas laterais: apenas continuação vertical das orelhas
+            # linha do dome: só pontas SEPARADAS da massa (≤4), continuação
+            # vertical da orelha da linha de cima
             sel = [x for r in runs if len(r) <= 4 for x in r
                    if x - 1 in prev or x in prev or x + 1 in prev]
         for x in sel:
