@@ -63,6 +63,7 @@ js/
   quests.js         painel de missões (itens → ouro + XP da vila)
   cooking.js        receitas, pratos que curam
   market.js         mercado: vender e comprar por ouro
+  gear.js           conjunto Avaritia: armaduras da loja (compra única)
   ui.js             UI imediata no canvas + visual rústico goblin
   assetLoader.js    sprites reais ou placeholder automático
   i18n.js           PT-BR / EN em tempo real
@@ -101,6 +102,8 @@ bash    tools/test.sh               # roda as 4 suítes de teste
 
 ## 🎨 Sprites
 
+O conjunto **Avaritia** (peitoral, calça, capacete + 3 pares + conjunto completo, 62 frames cada) vive em `sprites/itens/` e é gerado por `sprites/itens/gerar_item.py` / `gerar_conjunto.py` a partir dos frames do goblin no `window.EMBEDDED` do jogo — apenas recolor de pixels existentes.
+
 PNGs **32×32** referenciados por **nome lógico** no `manifest.json`. Se um PNG não existir, um placeholder é desenhado automaticamente (o jogo nunca quebra). Os goblins vieram de um GIF do autor (idle/walk/attack/hurt/death); prédios, recursos e comidas são pixel art autoral gerada por `tools/gen_sprites.py`.
 
 ## 🌐 Idiomas
@@ -109,6 +112,6 @@ PT-BR e EN com troca em tempo real (botão no HUD). Textos em `assets/data/i18n.
 
 ## 📜 Status
 
-**Fase 1 concluída (1.1 → 1.8):** ilha + câmera, goblins + habitação + recrutamento 1-de-3, recursos finitos, trabalho, construção de todas as estruturas, missões, XP/nível da vila, cozinha, fontes renováveis e **Mercado** (vender o excedente por ouro, comprar o que falta).
+**Fase 1 concluída (1.1 → 1.8):** ilha + câmera, goblins + habitação + recrutamento 1-de-3, recursos finitos, trabalho, construção de todas as estruturas, missões, XP/nível da vila, cozinha, fontes renováveis e **Mercado** (vender o excedente por ouro, comprar o que falta) — incluindo a **loja de armaduras Avaritia**: Peitoral (120 ouro), Calça (90) e Capacete (150), compra única; cada peça adquirida veste a vila inteira (individual → pares → conjunto completo, sprites gerados por recolor em `sprites/itens/`, sem pixels novos).
 
 **A seguir:** Fase 2 (Ferraria, equipar, Altar, Bazar) → Fase 3 (combate por turnos). Roadmap completo em `planejamento-jogo-gnomos.md`.

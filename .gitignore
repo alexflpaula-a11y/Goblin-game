@@ -33,3 +33,5 @@ coverage/
 # Ferramentas de prévia (baixadas localmente)
 .venv-tools/
 previas/
+
+__pycache__/

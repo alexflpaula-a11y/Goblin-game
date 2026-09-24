@@ -81,5 +81,12 @@
     "sellMul": 0.75,
     "buyMul": 1.6,
     "levelBonus": 0.06
+  },
+  "gear": {
+    "prices": {
+      "peitoral_avaritia": 120,
+      "calca_avaritia": 90,
+      "capacete_avaritia": 150
+    }
   }
 }

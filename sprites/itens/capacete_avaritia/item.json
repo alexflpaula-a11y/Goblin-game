@@ -1,0 +1,26 @@
+{
+  "id": "capacete_avaritia",
+  "nome": {
+    "pt-BR": "Capacete de Avaritia",
+    "en": "Avaritia Helmet"
+  },
+  "slot": "capacete",
+  "set": "avaritia",
+  "rarity": "uncommon",
+  "tier": 2,
+  "aparece_na_skin": true,
+  "cai_no_chao_ao_morrer": false,
+  "descricao": {
+    "pt-BR": "Elmo escuro de avaritia com gema de avareza na testa. Cobiçoso por natureza: a gema brilha mais perto de tesouros.",
+    "en": "Elmo escuro de avaritia com gema de avareza na testa. Cobiçoso por natureza: a gema brilha mais perto de tesouros."
+  },
+  "bonus_exemplo": {
+    "vitalidade": 2,
+    "precisao": 1
+  },
+  "arquivos": {
+    "icon": "icon.png",
+    "drop": "drop.png",
+    "skin": "goblin_{anim}_{n}.png (idle 0-4, walk 0-7, attack 0-16, hurt 0-16, death 0-14)"
+  }
+}

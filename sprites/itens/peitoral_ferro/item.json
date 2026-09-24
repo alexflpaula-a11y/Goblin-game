@@ -1,0 +1,19 @@
+{
+  "id": "peitoral_ferro",
+  "nome": { "pt-BR": "Peitoral de Ferro", "en": "Iron Chestplate" },
+  "slot": "peitoral",
+  "rarity": "common",
+  "tier": 1,
+  "aparece_na_skin": true,
+  "cai_no_chao_ao_morrer": false,
+  "descricao": {
+    "pt-BR": "Placas de ferro batido com cinto de couro. Feias, pesadas e honestas — protegem o coração apressado de qualquer goblin.",
+    "en": "Hammered iron plates on a leather belt. Ugly, heavy and honest — they guard any goblin's hurried heart."
+  },
+  "bonus_exemplo": { "vitalidade": 2 },
+  "arquivos": {
+    "icon": "icon.png",
+    "drop": "drop.png",
+    "skin": "goblin_{anim}_{n}.png (idle 0-4, walk 0-7, attack 0-16, hurt 0-16, death 0-14)"
+  }
+}

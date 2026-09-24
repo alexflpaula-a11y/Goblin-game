@@ -13,6 +13,7 @@
   "ui.js",
   "quests.js",
   "cooking.js",
+  "gear.js",
   "market.js",
   "main.js"
 ]

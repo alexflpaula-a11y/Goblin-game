@@ -1,0 +1,26 @@
+{
+  "id": "calca_avaritia",
+  "nome": {
+    "pt-BR": "Calça de Avaritia",
+    "en": "Avaritia Leggings"
+  },
+  "slot": "calcas",
+  "set": "avaritia",
+  "rarity": "uncommon",
+  "tier": 2,
+  "aparece_na_skin": true,
+  "cai_no_chao_ao_morrer": false,
+  "descricao": {
+    "pt-BR": "Perneiras de placas negras com gemas de avareza no cós. Pesadas, cobiçosas e impossíveis de rasgar.",
+    "en": "Perneiras de placas negras com gemas de avareza no cós. Pesadas, cobiçosas e impossíveis de rasgar."
+  },
+  "bonus_exemplo": {
+    "vitalidade": 2,
+    "velocidade": -1
+  },
+  "arquivos": {
+    "icon": "icon.png",
+    "drop": "drop.png",
+    "skin": "goblin_{anim}_{n}.png (idle 0-4, walk 0-7, attack 0-16, hurt 0-16, death 0-14)"
+  }
+}

@@ -3,6 +3,7 @@
 // pré-renderizado) e os goblins que passeiam por ela.
 // ============================================================
 const { getSprite } = require('assetLoader.js');
+const gear = require('gear.js');
 const WORLD = {
   TILE: 16,
   COLS: 120,
@@ -162,7 +163,7 @@ class GoblinWalker {
       ctx.fillRect(this.x - 9, this.y - 40, 18 * this.jobProgress, 3);
     }
     // sprite (ancorado pelos pés), espelhado quando olha p/ esquerda
-    const spr = getSprite(`goblin_${this.anim}_${this.frame}`);
+    const spr = getSprite(gear.spriteFor(this.anim, this.frame));
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.scale(this.face, 1);
