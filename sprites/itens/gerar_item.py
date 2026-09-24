@@ -89,7 +89,9 @@ PAL_ICON = {'O': F_O, 'L': F_L, 'M': F_M, 'D': F_D, 'S': (80, 87, 99, 255),
             # tons EXATOS da imagem original (ícone do peitoral)
             'Z': (0, 0, 0, 255), 'X': (25, 25, 25, 255),
             'V': (40, 40, 40, 255), 'W': (152, 165, 201, 255),
-            'N': (12, 12, 12, 255), 'z': (30, 30, 30, 255)}
+            'N': (12, 12, 12, 255), 'z': (30, 30, 30, 255),
+            'a': (45, 45, 45, 255), 'p': (34, 34, 34, 255),
+            'j': (41, 170, 195, 255)}
 
 # ============================ ITENS ============================
 ITENS = [
@@ -175,19 +177,19 @@ ITENS = [
     icon=[
         "................",
         "....xx....mm....",
-        "..x?##m..w#+m?..",
-        ".uo#???m?###ooT.",
-        ".To#????####o+u.",
-        ".?o#???;??#oo+?.",
-        ".?o#??;tT;#oo+?.",
-        "..mo#?;?t##o+?..",
-        "..?o##???##o+m..",
+        "..xW##m..w#amW..",
+        ".uo#ZZZmW###ooT.",
+        ".To#ZZZZ####oau.",
+        ".Wo#ZZZpZZ#ooaW.",
+        ".Wo#ZZptTp#ooaW.",
+        "..mo#Zpjt##oaW..",
+        "..Wo##ZZZ##oam..",
         "...mo######om...",
-        "...?o#####o+?...",
-        "...?oo###oo+?...",
-        "...?+ooooo++?...",
-        "....x++++++m....",
-        ".....x?xmm?.....",
+        "...Wo#####oaW...",
+        "...Woo###ooaW...",
+        "...WaoooooaaW...",
+        "....xaaaaaam....",
+        ".....xWxmmW.....",
         "................",
     ],
     # deitado: capacete fechado cobre a cabeça inteira (boca coberta),
@@ -244,19 +246,19 @@ ITENS = [
     # gemas teal na lateral, na altura do joelho)
     icon=[
         "................",
-        "..mxwwvxvv......",
-        ".x???###ox......",
-        ".w???###oov.....",
-        ".w?###ooo+v.....",
-        ".x?#oxxoo+x.....",
-        ".x?#w..xo+x.....",
-        ".w?#v..wo+x.....",
-        ".wtTx..xtTw.....",
-        ".x?tv..x?tx.....",
-        ".x?#v..wo+x.....",
-        ".w??v..wo+v.....",
-        ".x?+v..xo+x.....",
-        ".xwxw..xwwv.....",
+        "....mxwwvxvv....",
+        "...xzZZZ###ox...",
+        "...wzZZ###oov...",
+        "...wz###oooav...",
+        "...xz#oxxooax...",
+        "...xz#w..xoax...",
+        "...wz#v..woax...",
+        "...wtTx..xtTw...",
+        "...xjtv..xjtx...",
+        "...xz#v..woax...",
+        "...wzzv..woav...",
+        "...xzav..xoax...",
+        "...xwxw..xwwv...",
         "................",
         "................",
     ],
@@ -382,16 +384,21 @@ def mascara_torso_em_pe(px, eye_x, eye_y):
 def mascara_pernas_em_pe(px, eye_y):
     """tanga/cinto marrom + pernas verdes, abaixo do torso.
     marrom: y ≥ eye+8 | verde (perna): y ≥ eye+10 (nunca os pés-borda)."""
-    top_b = int(eye_y + 0.5) + 8
-    top_g = int(eye_y + 0.5) + 10
-    painted = {}
-    for y in range(top_b, 32):
-        xs = [x for x in range(32)
-              if px[x, y][3] >= 40 and (px[x, y][:3] in BROWNS or
-                (y >= top_g and px[x, y][:3] in GREENS))]
-        if xs:
-            painted[y] = xs
-    return painted
+    eb = int(eye_y + 0.5)
+    for top_b, top_g in ((eb + 8, eb + 10), (eb + 6, eb + 8)):
+        # 2ª tentativa (janela 2px mais alta): frames com a cabeça abaixada
+        # (olhos y21-22) têm a tanga em y28-29 — a janela primária os perde
+        # e a calça sumia inteira (death_1/9, hurt_1...)
+        painted = {}
+        for y in range(top_b, 32):
+            xs = [x for x in range(32)
+                  if px[x, y][3] >= 40 and (px[x, y][:3] in BROWNS or
+                    (y >= top_g and px[x, y][:3] in GREENS))]
+            if xs:
+                painted[y] = xs
+        if painted:
+            return painted
+    return {}
 
 
 def mascara_cabeca_em_pe(px, eye_x, eye_y):
@@ -549,66 +556,101 @@ def pinta_avaritia(base, painted, zona, deitado=False):
     """armadura avaritia no personagem: placas TOTALMENTE PRETAS + gemas teal"""
     im = base.copy(); px = im.load()
     rows = sorted(painted)
-    for ri, y in enumerate(rows):
-        xs = painted[y]
-        for run in _runs(xs):
-            n = len(run)
-            for x in run:
-                px[x, y] = R_K            # preto (referência), sem borda cinza
-            # gema do peito (deitado): central
-            if zona == 'torso' and deitado and n >= 4 and ri == 1 and len(rows) >= 3:
-                m = n // 2
-                px[run[m], y] = A_T
-                if n >= 6:
-                    px[run[m + 1], y] = A_T
-    if zona == 'torso' and not deitado and len(rows) >= 3:
-        # gema grande central 2×2 no peito (como na referência)
-        def _main_run(yy):
-            rr = _runs(painted[yy])
-            return max(rr, key=len) if rr else None
-        linhas = [(rows[i], _main_run(rows[i])) for i in (1, 2) if i < len(rows)]
-        sets = [(yy, set(r)) for yy, r in linhas if r]
-        if len(sets) == 2:
-            inter = sorted(sets[0][1] & sets[1][1])
-        else:
-            inter = sorted(sets[0][1]) if sets else []
-        if inter:
-            m = inter[len(inter) // 2]
-            for yy, st in sets:
-                for xx in (m, m + 1):
-                    if xx in st:
-                        px[xx, yy] = A_T
+    for y in rows:
+        for x in painted[y]:
+            px[x, y] = R_K                # preto, sem borda cinza
+    if zona == 'torso':
+        _gema_peito(px, painted, rows, deitado)
     if zona == 'pernas':
-        # GEMAS DAS PERNAS: em cada perna, abaixo do cós, lado interno
-        bpx = base.load()
+        _gemas_pernas(px, painted, rows, base, deitado)
+    return im
+
+
+def _sombra_gema(px, painted, y, cols):
+    """sombra A_t da gema na linha seguinte, onde houver pixel da máscara"""
+    y2 = y + 1
+    if y2 in painted:
+        for x in cols:
+            if x in painted[y2]:
+                px[x, y2] = A_t
+
+
+def _gema_peito(px, painted, rows, deitado):
+    """DUAS gemas 2×2 lado a lado no peito, IGUAL À ARTE ORIGINAL
+    (sprite_1: B#TT##TT#B). Posição estável em todos os frames: a linha
+    com o run mais largo (em pé: entre as 3 primeiras do torso)."""
+    cand = rows if deitado else rows[:3]
+    best = None
+    for y in cand:
+        rr = _runs(painted[y])
+        if not rr:
+            continue
+        r = max(rr, key=len)
+        if best is None or len(r) > len(best[1]):
+            best = (y, r)
+    if not best:
+        return
+    y, r = best
+    s, e = r[0], r[-1]
+    w = e - s + 1
+    if w >= 7:                            # duas gemas com vão central (original)
+        pares = [[s + 1, s + 2], [e - 2, e - 1]]
+    elif w >= 4:                          # torso estreito: uma gema central 2×2
+        m = (s + e) // 2
+        pares = [[m, m + 1]] if m + 1 <= e else [[m - 1, m]]
+    elif w >= 2:
+        pares = [[s, s + 1]]
+    else:
+        pares = [[s]]
+    for par in pares:
+        for x in par:
+            px[x, y] = A_T
+        _sombra_gema(px, painted, y, par)
+
+
+def _gemas_pernas(px, painted, rows, base, deitado):
+    """GEMAS DAS PERNAS iguais ao original (sprite_3: gema 2×2 no TOPO de
+    cada perna, preenchendo a largura, no lado interno, logo abaixo do
+    cós). Deitado: mesma regra no topo de cada grupo — a gema NUNCA some."""
+    bpx = base.load()
+    yb = None
+    if not deitado:
         yb = min((y for y in rows
                   if any(bpx[x, y][:3] in BROWNS for x in painted[y])), default=None)
-        if yb is None:
-            return im
-        cos_runs = _runs(painted.get(yb, []))
+    if yb is not None:
+        cos_runs = _runs(painted[yb])
         centro = ((cos_runs[0][0] + cos_runs[-1][-1]) / 2) if cos_runs else 16.0
-        grupos = []
-        for y in [r for r in rows if r > yb]:
-            for run in _runs(painted[y]):
-                for g in grupos:
-                    ly, lrun = g[-1]
-                    if ly == y - 1 and set(run) & set(lrun):
-                        g.append((y, run)); break
-                else:
-                    grupos.append([(y, run)])
-        for g in grupos:
-            if len(g) >= 2:
-                y, run = g[len(g) // 2]
-                if len(run) >= 2:
-                    c = (run[0] + run[-1]) / 2
-                    if c < centro:                       # perna esquerda
-                        inner = run[-2] if len(run) >= 3 else run[-1]
-                    else:                                # perna direita
-                        inner = run[1] if len(run) >= 3 else run[0]
-                    px[inner, y] = A_T
-                    if y + 1 in painted and inner in painted[y + 1]:
-                        px[inner, y + 1] = A_t
-    return im
+        ys = [r for r in rows if r > yb]
+    else:
+        centro = 16.0                     # sem cós (deitado/hurt): centro neutro
+        ys = rows
+    grupos = []
+    for y in ys:
+        for run in _runs(painted[y]):
+            for g in grupos:
+                ly, lrun = g[-1]
+                if ly == y - 1 and set(run) & set(lrun):
+                    g.append((y, run)); break
+            else:
+                grupos.append([(y, run)])
+    for g in grupos:
+        y, run = g[0]                     # TOPO da perna: logo abaixo do cós
+        w = len(run)
+        if w >= 5:                        # pernas juntas (de frente): 2 gemas
+            s, e = run[0], run[-1]
+            pares = [[s + 1, s + 2], [e - 2, e - 1]]
+        elif w >= 2:
+            c = (run[0] + run[-1]) / 2
+            if c < centro and w >= 3:     # perna esquerda: lado interno = fim
+                pares = [[run[-2], run[-1]]]
+            else:                         # perna direita (ou w==2): começo
+                pares = [run[:2]]
+        else:
+            continue
+        for par in pares:
+            for x in par:
+                px[x, y] = A_T
+            _sombra_gema(px, painted, y, par)
 
 
 def entre_orelhas_capacete(im, base_px, mask):
