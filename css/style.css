@@ -35,6 +35,20 @@ html, body {
   background: #241d38;
 }
 
+/* Mensagem de boot: visível até o jogo terminar de carregar */
+#bootMsg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: bold 13px monospace;
+  color: #b9aedc;
+  background: #241d38;
+  text-align: center;
+  padding: 0 20px;
+}
+
 canvas {
   position: absolute;
   inset: 0;

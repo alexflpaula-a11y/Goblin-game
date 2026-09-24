@@ -1639,6 +1639,8 @@ async function init() {
 
   startAutosave(currentSave, 10000);
   applyTexts();
+  const bootMsg = document.getElementById('bootMsg');
+  if (bootMsg?.remove) bootMsg.remove();   // sumiu o "carregando…"
   requestAnimationFrame(loop);
 }
 
