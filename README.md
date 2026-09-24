@@ -82,7 +82,7 @@ js/
   ui.js             UI imediata no canvas + visual rústico goblin
   assetLoader.js    sprites reais ou placeholder automático
   i18n.js           PT-BR / EN em tempo real
-  save.js           localStorage + autosave
+  save.js           localStorage + autosave (desativado no dev — `SAVE_ENABLED`)
   balance.js        carrega o balance.json
 assets/
   data/             balance.json, i18n.pt-br.json, i18n.en.json
@@ -99,7 +99,7 @@ python3 tools/build_singlefile.py   # gera o vila-de-goblins-jogavel.html
 python3 tools/gen_sprites.py        # (re)gera a pixel art de prédios e comidas
 python3 tools/gen_icons.py          # (re)gera ícones 16×16 de itens/habilidades
 python3 tools/unbuild.py            # extrai a fonte de volta a partir do build
-bash    tools/test.sh               # roda as 6 suítes de teste
+bash    tools/test.sh               # roda as 7 suítes de teste
 ```
 
 > **Importante:** depois de mexer em `js/`, `css/` ou `assets/`, rode o
@@ -107,7 +107,7 @@ bash    tools/test.sh               # roda as 6 suítes de teste
 
 ## ✅ Testes
 
-~330 testes automatizados, sem navegador (`bash tools/test.sh`):
+362 testes automatizados, sem navegador (`bash tools/test.sh`):
 
 | Suíte | O que cobre |
 |---|---|
@@ -116,6 +116,7 @@ bash    tools/test.sh               # roda as 6 suítes de teste
 | `playthrough` | uma partida inteira — o ciclo do jogo fecha do início ao fim |
 | `gear` | armazém: prateleira, capacidade, equipar por goblin, skins, migração de save |
 | `tap` | toques reais (input → routeTap → render): equipar, alimentar, habilidades |
+| `boot` | boot real: saves desativados, save velho ignorado, estouro 17/16, recrutamento, salto de nível |
 | `build` | o arquivo único distribuído sobe sozinho |
 
 ## 🎨 Sprites
@@ -127,6 +128,13 @@ PNGs **32×32** referenciados por **nome lógico** no `manifest.json`. Se um PNG
 ## 🌐 Idiomas
 
 PT-BR e EN com troca em tempo real (botão no HUD). Textos em `assets/data/i18n.*.json`.
+
+## 💾 Salvamento
+
+**Desativado durante o desenvolvimento** — o jogo começa uma vila nova a cada
+partida e nada é gravado no `localStorage` (qualquer save antigo é descartado
+no boot). Quando tudo estiver pronto, basta trocar `SAVE_ENABLED` para `true`
+em `js/save.js`; o sistema (save/load/autosave a cada 10s) continua intacto.
 
 ## 📜 Status
 

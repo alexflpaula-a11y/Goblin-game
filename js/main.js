@@ -6,7 +6,7 @@ const { CONFIG } = require('config.js');
 const { Input } = require('input.js');
 const { loadAssets, getSprite } = require('assetLoader.js');
 const { i18n, loadI18n } = require('i18n.js');
-const { saveGame, loadGame, startAutosave } = require('save.js');
+const { SAVE_ENABLED, saveGame, loadGame, clearGame, startAutosave } = require('save.js');
 const { Camera } = require('camera.js');
 const { World, WORLD } = require('world.js');
 const { Village, BUILDINGS, BUILD_ORDER } = require('village.js');
@@ -45,6 +45,8 @@ const state = {
   marketTab: 0,           // 0 vender | 1 comprar
   marketPage: 0,          // prateleira paginada
   marketQty: {},          // quantidade escolhida por item ("res:wood" → 3)
+  upgradeIdx: 0,          // casa sendo melhorada (aba Melhorias)
+  upgradePage: 0,         // paginação da aba Melhorias
   toast: null,            // {msg, until}
   levelUp: null,          // {level, until} — banner de nível da vila
   equipIdx: 0,            // goblin sendo equipado
@@ -164,7 +166,12 @@ function openRecruit() {
 function celebrateLevelUps(ups) {
   if (!ups) return;
   state.levelUp = { level: village.level, until: performance.now() + 3800 };
-  const unlocked = village.unlockedAt(village.level);
+  // pode ter subido mais de um nível de uma vez: anuncia TUDO que liberou
+  const from = village.level - ups + 1;
+  const unlocked = [];
+  for (let lv = from; lv <= village.level; lv++) {
+    unlocked.push(...village.unlockedAt(lv));
+  }
   if (unlocked.length) {
     const names = unlocked.map((id) => i18n.t('bld.' + id)).join(', ');
     toast('toast.unlocked', { names });
@@ -271,8 +278,9 @@ function marketConfirm(slot) {
   } else {
     const cost = market.buy(village, kind, key, qty);
     if (cost > 0) {
+      // um toast só (não existe fila): a mensagem de compra já
+      // traz item, quantidade e preço
       toast('toast.bought', { n: qty, name, gold: cost });
-      if (kind === 'gear') toast('toast.gear_bought', { name });
     } else if (kind === 'gear') {
       // falhou: sem ouro ou sem espaço no Armazém?
       if ((village.res.gold || 0) >= market.buyPrice(village, kind, key)) toast('toast.inv_full');
@@ -473,8 +481,14 @@ function routeTap(id) {
 }
 
 // ---------- Update ----------
+function updateStatus() {
+  statusEl.textContent =
+    `${i18n.t('demo.status', { n: state.taps })}  •  ${i18n.t(SAVE_ENABLED ? 'demo.autosave' : 'demo.nosave')}  •  ${i18n.t('stage')}`;
+}
+
 function update(dt) {
   const g = input.consume();
+  if (g.tap) { state.taps += 1; updateStatus(); }
 
   if (state.screen === 'world') {
     if (g.pan) camera.panByScreen(g.pan.dx, g.pan.dy);
@@ -1165,9 +1179,11 @@ function drawArmazemScreen() {
   ui.text(20, 214, i18n.t('ui.pantry'), { size: 10, bold: true, color: '#ffe9b8' });
   let my = 226;
   let mx = 22;
+  let pantryShown = 0;
   for (const r of cooking.RECIPES) {
     const n = village.meals[r.id] || 0;
     if (n <= 0) continue;
+    pantryShown += 1;
     ctx.fillStyle = 'rgba(0,0,0,0.35)';
     ctx.fillRect(mx, my, 58, 26);
     ctx.strokeStyle = 'rgba(255,233,168,0.4)'; ctx.lineWidth = 1;
@@ -1177,7 +1193,7 @@ function drawArmazemScreen() {
     mx += 64;
     if (mx > 200) { mx = 22; my += 30; }
   }
-  if (mx === 22) ui.text(22, 240, i18n.t('ui.no_meals'), { size: 9, color: '#8a8798' });
+  if (!pantryShown) ui.text(22, 240, i18n.t('ui.no_meals'), { size: 9, color: '#8a8798' });
 
   // ----- área 2: itens de equipamento (separados em espaços) -----
   ui.text(262, 84, i18n.t('ui.items_section'), { size: 10, bold: true, color: '#ffe9b8' });
@@ -1233,6 +1249,7 @@ function drawArmazemScreen() {
 
   // ----- rodapé: melhorar o armazém + equipar goblins -----
   const s = village.get('armazem');
+  if (!s) { state.screen = 'world'; return; }   // seguro: nunca deveria acontecer
   const hardMax = s.level >= BUILDINGS.armazem.maxLevel;
   const gated = !hardMax && s.level >= village.maxUpgradeLevel('armazem');
   const cost = village.upgradeCost(s);
@@ -1506,8 +1523,7 @@ function applyTexts() {
   titleEl.textContent = i18n.t('app.title');
   subtitleEl.textContent = i18n.t('app.subtitle');
   langBtn.textContent = i18n.lang === 'pt-BR' ? 'EN' : 'PT';
-  statusEl.textContent =
-    `${i18n.t('demo.status', { n: state.taps })}  •  ${i18n.t('demo.autosave')}  •  ${i18n.t('stage')}`;
+  updateStatus();
 }
 
 // ---------- Loop ----------
@@ -1544,6 +1560,9 @@ function currentSave() {
 
 async function init() {
   resize();
+  // salvamento desativado no desenvolvimento: qualquer save velho
+  // de versões anteriores é descartado — a vila começa do zero.
+  if (!SAVE_ENABLED) clearGame();
   window.addEventListener('resize', resize);
   window.addEventListener('orientationchange', () => setTimeout(resize, 120));
 
@@ -1624,3 +1643,12 @@ async function init() {
 }
 
 init();
+
+// Alça para os testes (tools/boot_test.mjs): deixa inspecionar e
+// semear o estado vivo sem passar por saves. Inofensivo no browser
+// (o loader dá um `module` vazio a cada arquivo).
+module.exports = {
+  get state() { return state; },
+  get village() { return village; },
+  get quests() { return quests; },
+};

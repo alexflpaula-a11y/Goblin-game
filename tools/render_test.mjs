@@ -195,13 +195,26 @@ const en = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/data/i18n.en.json'
 check('PT e EN têm as mesmas chaves',
   JSON.stringify(Object.keys(pt).sort()) === JSON.stringify(Object.keys(en).sort()));
 
-// Toda chave t('x') literal usada no código existe nos dois idiomas?
-// Chaves montadas em tempo de execução (ex.: t('res.' + k)) aparecem no
-// código como prefixo terminado em ponto — essas conferimos à parte.
-const mainSrc = fs.readFileSync(path.join(ROOT, 'js/main.js'), 'utf8');
-const used = [...new Set([...mainSrc.matchAll(/i18n\.t\('([^']+)'/g)].map((m) => m[1]))];
+// Toda chave usada no código existe nos dois idiomas? Além dos literais
+// i18n.t('x'), escaneamos QUALQUER string do código com cara de chave de
+// tradução ('toast.…', 'ui.…', …) — isso pega também chaves em ternários
+// e argumentos do helper toast(). Prefixos dinâmicos (t('res.' + k))
+// terminam em ponto e são conferidos à parte.
+const KEY_RE = /^(?:app|stage|demo|ui|res|bld|meal|item|slot|ab|abd|spec|rarity|attr|toast|gear)\.[a-z_0-9]+$/;
+const allSrc = fs.readdirSync(path.join(ROOT, 'js'))
+  .filter((f) => f.endsWith('.js'))
+  .map((f) => fs.readFileSync(path.join(ROOT, 'js', f), 'utf8').split('\n')
+    // ignora linhas de comentário (doc do i18n.t('chave…') etc.)
+    .filter((ln) => !/^[/*]/.test(ln.trim())))
+  .join('\n');
+const used = [...new Set([
+  ...[...allSrc.matchAll(/i18n\.t\('([^']+)'\s*[,)]/g)].map((m2) => m2[1]),
+  ...[...allSrc.matchAll(/\btoast\('([^']+)'\s*[,)]/g)].map((m2) => m2[1]),
+  ...[...allSrc.matchAll(/'([a-z]+\.[a-z_0-9]+)'/g)].map((m2) => m2[1])
+    .filter((k) => KEY_RE.test(k) && !k.endsWith('.js')),
+])];
 const literal = used.filter((k) => !k.endsWith('.'));
-const prefixes = used.filter((k) => k.endsWith('.'));
+const prefixes = [...new Set([...allSrc.matchAll(/i18n\.t\('([a-z_]+\.)'\s*\+/g)].map((m2) => m2[1]))];
 
 const missingPt = literal.filter((k) => !(k in pt));
 check('nenhuma tradução faltando em PT', missingPt.length === 0, missingPt.join(', '));
