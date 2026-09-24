@@ -65,6 +65,7 @@ A_m = (135, 146, 177, 255)   # aço médio
 A_d = (120, 131, 162, 255)   # aço escuro
 A_T = (45, 206, 164, 255)    # gema teal
 A_t = (48, 173, 161, 255)    # gema teal escura
+A_j = (41, 170, 195, 255)    # gema azul-teal (base da gema da perna — arte original)
 
 # estilo avaritia — PERSONAGEM (100% baseado na imagem de referência enviada:
 # placas praticamente pretas, bevels cinza-azulados escuros, gema grande no
@@ -566,19 +567,11 @@ def pinta_avaritia(base, painted, zona, deitado=False):
     return im
 
 
-def _sombra_gema(px, painted, y, cols):
-    """sombra A_t da gema na linha seguinte, onde houver pixel da máscara"""
-    y2 = y + 1
-    if y2 in painted:
-        for x in cols:
-            if x in painted[y2]:
-                px[x, y2] = A_t
-
-
 def _gema_peito(px, painted, rows, deitado):
-    """DUAS gemas 2×2 lado a lado no peito, IGUAL À ARTE ORIGINAL
-    (sprite_1: B#TT##TT#B). Posição estável em todos os frames: a linha
-    com o run mais largo (em pé: entre as 3 primeiras do torso)."""
+    """DUAS gemas 2×1 lado a lado no peito, IGUAL À ARTE ORIGINAL
+    (sprite_1: B#TT##TT#B — duas gemas A_T com vão central, sem sombra).
+    Posição estável: linha do run mais largo (em pé: entre as 3 primeiras
+    do torso). Vale para TODAS as versões com peitoral."""
     cand = rows if deitado else rows[:3]
     best = None
     for y in cand:
@@ -591,27 +584,33 @@ def _gema_peito(px, painted, rows, deitado):
     if not best:
         return
     y, r = best
-    s, e = r[0], r[-1]
-    w = e - s + 1
-    if w >= 7:                            # duas gemas com vão central (original)
-        pares = [[s + 1, s + 2], [e - 2, e - 1]]
-    elif w >= 4:                          # torso estreito: uma gema central 2×2
-        m = (s + e) // 2
-        pares = [[m, m + 1]] if m + 1 <= e else [[m - 1, m]]
-    elif w >= 2:
-        pares = [[s, s + 1]]
+    s_, e = r[0], r[-1]
+    w = e - s_ + 1
+    if w >= 7:
+        gemas = [[s_ + 1, s_ + 2], [e - 2, e - 1]]     # 2 gemas, vão central
+    elif w == 6:
+        gemas = [[s_ + 1, s_ + 2], [s_ + 4, s_ + 5]]   # vão de 1
+    elif w == 5:
+        gemas = [[s_ + 1], [e - 1]]                    # 2 gemas de 1px
+    elif w == 4:
+        gemas = [[s_ + 1, s_ + 2]]                     # 1 gema central
+    elif w == 3:
+        gemas = [[s_ + 1]]
+    elif w == 2:
+        gemas = [[s_, s_ + 1]]
     else:
-        pares = [[s]]
-    for par in pares:
-        for x in par:
+        gemas = [[s_]]
+    for g in gemas:
+        for x in g:
             px[x, y] = A_T
-        _sombra_gema(px, painted, y, par)
 
 
 def _gemas_pernas(px, painted, rows, base, deitado):
-    """GEMAS DAS PERNAS iguais ao original (sprite_3: gema 2×2 no TOPO de
-    cada perna, preenchendo a largura, no lado interno, logo abaixo do
-    cós). Deitado: mesma regra no topo de cada grupo — a gema NUNCA some."""
+    """GEMAS DAS PERNAS iguais à arte original (sprite_3): 2×2 MISTA por
+    perna — topo (A_t, A_T), base (A_j, A_t) — preenchendo a largura da
+    perna (lado interno quando larga), a partir da 2ª linha abaixo do
+    cós. Pernas juntas (de frente): 2 gemas espelhadas com vão central.
+    Deitado: mesma regra. A gema nunca some."""
     bpx = base.load()
     yb = None
     if not deitado:
@@ -624,33 +623,58 @@ def _gemas_pernas(px, painted, rows, base, deitado):
     else:
         centro = 16.0                     # sem cós (deitado/hurt): centro neutro
         ys = rows
-    grupos = []
+    # componentes conexas: uma PERNA = um componente (pode ter várias runs
+    # por linha — ex.: 2 pernas na mesma linha ligadas à de cima)
+    comps = []
     for y in ys:
-        for run in _runs(painted[y]):
-            for g in grupos:
-                ly, lrun = g[-1]
-                if ly == y - 1 and set(run) & set(lrun):
-                    g.append((y, run)); break
-            else:
-                grupos.append([(y, run)])
-    for g in grupos:
-        y, run = g[0]                     # TOPO da perna: logo abaixo do cós
-        w = len(run)
-        if w >= 5:                        # pernas juntas (de frente): 2 gemas
-            s, e = run[0], run[-1]
-            pares = [[s + 1, s + 2], [e - 2, e - 1]]
-        elif w >= 2:
-            c = (run[0] + run[-1]) / 2
-            if c < centro and w >= 3:     # perna esquerda: lado interno = fim
-                pares = [[run[-2], run[-1]]]
-            else:                         # perna direita (ou w==2): começo
-                pares = [run[:2]]
-        else:
-            continue
-        for par in pares:
-            for x in par:
-                px[x, y] = A_T
-            _sombra_gema(px, painted, y, par)
+        for r in _runs(painted[y]):
+            alvo = None
+            for comp in comps:
+                prev = comp.get(y - 1)
+                if prev and any(set(r) & set(c) for c in prev):
+                    if alvo is None:
+                        comp.setdefault(y, []).append(r)
+                        alvo = comp
+            if alvo is None:
+                comps.append({y: [r]})
+    for comp in comps:
+        ys_c = sorted(comp)
+        gi = 1 if len(ys_c) >= 3 else 0  # 2ª linha da perna (arte: 3ª de 7)
+        y = ys_c[gi]
+        y2 = ys_c[gi + 1] if gi + 1 < len(ys_c) else None
+        for run in comp[y]:
+            w = len(run)
+            if w >= 7:    # pernas juntas largas: 2 gemas espelhadas
+                pares = [((run[1], run[2]), False), ((run[-3], run[-2]), True)]
+            elif w == 6:
+                pares = [((run[1], run[2]), False), ((run[4], run[5]), True)]
+            elif w == 5:
+                pares = [((run[1], run[1]), False), ((run[-2], run[-2]), True)]
+            elif w == 4:  # par estreito: 1 gema central
+                pares = [((run[1], run[2]), False)]
+            elif w == 3:  # perna larga: gema no lado interno (2px)
+                if (run[0] + run[-1]) / 2 < centro:
+                    pares = [((run[1], run[2]), False)]
+                else:
+                    pares = [((run[0], run[1]), False)]
+            elif w == 2:  # gema preenche a perna (como na arte)
+                pares = [((run[0], run[1]), False)]
+            else:         # w == 1
+                px[run[0], y] = A_T
+                if y2 is not None and run[0] in painted[y2]:
+                    px[run[0], y2] = A_t
+                continue
+            for (x0, x1), espelho in pares:
+                top = (A_T, A_t) if espelho else (A_t, A_T)
+                bot = (A_t, A_j) if espelho else (A_j, A_t)
+                px[x0, y] = top[0]
+                if x1 != x0:
+                    px[x1, y] = top[1]
+                if y2 is not None:
+                    if x0 in painted[y2]:
+                        px[x0, y2] = bot[0]
+                    if x1 != x0 and x1 in painted[y2]:
+                        px[x1, y2] = bot[1]
 
 
 def entre_orelhas_capacete(im, base_px, mask):
