@@ -10,10 +10,14 @@
 // usam o `price` da própria receita (cooking.js). Melhorar o
 // Mercado aproxima os dois lados: paga mais na venda e cobra
 // menos na compra (§2.5 — melhorar estrutura melhora o serviço).
+//
+// Equipamentos (inventory.js) são negociados aqui também — mas
+// só com o Armazém construído, e a compra respeita a capacidade
+// de espaços dele.
 // ============================================================
 const { BAL } = require('balance.js');
 const { RECIPES, byId } = require('cooking.js');
-const gear = require('gear.js');
+const inv = require('inventory.js');
 
 // Recursos negociáveis, na ordem em que aparecem na tela.
 const TRADE_RES = ['wood', 'stone', 'ore', 'food'];
@@ -35,7 +39,7 @@ function level(village) { return village.levelOf('mercado'); }
 
 /** Valor-base de uma unidade do item (antes das margens). */
 function baseValue(kind, key) {
-  if (kind === 'gear') return gear.priceOf(key);
+  if (kind === 'gear') return inv.priceOf(key);
   if (kind === 'meal') return byId(key)?.price ?? 10;
   return cfg().prices[key] ?? 1;
 }
@@ -58,25 +62,26 @@ function buyPrice(village, kind, key) {
 
 /** Quanto o jogador tem desse item. */
 function have(village, kind, key) {
-  if (kind === 'gear') return village.gear?.[key] ? 1 : 0;
+  if (kind === 'gear') return village.items?.[key] || 0;
   return kind === 'meal' ? (village.meals?.[key] || 0) : (village.res?.[key] || 0);
 }
 
 /**
  * O que está à venda / à compra, já com preço e quantidade.
- * `side` = 'sell' | 'buy'.
+ * `side` = 'sell' | 'buy'. Equipamentos só entram com Armazém.
  */
 function catalog(village, side) {
   const lv = level(village);
   const items = [
     ...TRADE_RES.map((k) => ({ kind: 'res', key: k, sprite: 'res_' + k })),
     ...RECIPES.map((r) => ({ kind: 'meal', key: r.id, sprite: r.sprite })),
-    // conjunto Avaritia: peças de armadura (compra única) — só na COMPRA
-    ...(side === 'buy' ? gear.GEAR.map((g) =>
-        ({ kind: 'gear', key: g.key, sprite: g.icon })) : []),
+    // equipamentos do Armazém (compra e revenda) — precisa do Armazém
+    ...(village.has('armazem')
+      ? inv.ITEMS.map((i) => ({ kind: 'gear', key: i.id, sprite: i.icon }))
+      : []),
   ];
   return items
-    // pratos só entram na prateleira de COMPRA conforme o mercado cresce
+    // pratos só entram na prateleira conforme o mercado cresce
     .filter((it) => (side === 'sell' || it.kind !== 'meal' || byId(it.key).reqKitchen <= lv))
     .map((it) => ({
       ...it,
@@ -93,12 +98,17 @@ function maxSell(village, kind, key) { return have(village, kind, key); }
 /** Máximo que dá para comprar com o ouro atual. */
 function maxBuy(village, kind, key) {
   const p = buyPrice(village, kind, key);
-  if (kind === 'gear') return have(village, kind, key) ? 0 : ((village.res.gold || 0) >= p ? 1 : 0);
+  if (kind === 'gear') {
+    // limitado pelo ouro E pelos espaços livres do Armazém
+    const livre = village.itemCapacity() - village.itemsCount();
+    return Math.max(0, Math.min(Math.floor((village.res.gold || 0) / p), livre));
+  }
   return Math.max(0, Math.floor((village.res.gold || 0) / p));
 }
 
 function addItem(village, kind, key, qty) {
   if (kind === 'meal') village.meals[key] = (village.meals[key] || 0) + qty;
+  else if (kind === 'gear') village.addItem(key, qty);
   else village.add(key, qty);
 }
 
@@ -106,6 +116,8 @@ function takeItem(village, kind, key, qty) {
   if (kind === 'meal') {
     village.meals[key] -= qty;
     if (village.meals[key] <= 0) delete village.meals[key];
+  } else if (kind === 'gear') {
+    village.takeItem(key, qty);
   } else {
     village.res[key] -= qty;
   }
@@ -116,7 +128,7 @@ function takeItem(village, kind, key, qty) {
  */
 function sell(village, kind, key, qty) {
   const n = Math.floor(qty);
-  if (!village.has('mercado') || n <= 0 || kind === 'gear') return 0;
+  if (!village.has('mercado') || n <= 0) return 0;
   if (have(village, kind, key) < n) return 0;
   const gold = sellPrice(village, kind, key) * n;
   takeItem(village, kind, key, n);
@@ -131,15 +143,9 @@ function buy(village, kind, key, qty) {
   const n = Math.floor(qty);
   if (!village.has('mercado') || n <= 0) return 0;
   if (kind === 'meal' && byId(key)?.reqKitchen > level(village)) return 0;
-  if (kind === 'gear') {                      // armadura: compra única
-    if (have(village, 'gear', key)) return 0;
-    const custo = buyPrice(village, 'gear', key);
-    if ((village.res.gold || 0) < custo) return 0;
-    village.res.gold -= custo;
-    village.gear = village.gear || {};
-    village.gear[key] = true;
-    gear.setOwned(village.gear);              // goblins vestem na hora
-    return custo;
+  if (kind === 'gear') {                      // equipamento: precisa de Armazém
+    if (!village.has('armazem')) return 0;
+    if (village.itemsCount() + n > village.itemCapacity()) return 0;
   }
   const cost = buyPrice(village, kind, key) * n;
   if ((village.res.gold || 0) < cost) return 0;

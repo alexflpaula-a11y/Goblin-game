@@ -349,6 +349,80 @@ check('mesmo melhorado, comprar continua mais caro que vender',
   market.buyPrice(mv, 'res', 'ore') > market.sellPrice(mv, 'res', 'ore'));
 
 // ============================================================
+section('Inventory — armazém, itens e espaços');
+// ============================================================
+const inv = req('inventory.js');
+
+check('catálogo tem os equipamentos', inv.ITEMS.length === 14, `${inv.ITEMS.length} itens`);
+check('todo item tem ícone e preço', inv.ITEMS.every((i) => i.icon && i.price > 0));
+check('10 espaços no boneco', inv.EQUIP_SLOTS.length === 10);
+check('espaços esperados',
+  ['capacete', 'peitoral', 'botas', 'calca', 'anel1', 'anel2',
+    'arma_primaria', 'arma_secundaria', 'runa', 'colar']
+    .every((k) => inv.EQUIP_SLOTS.includes(k)));
+
+const iv = new Village();
+check('sem armazém: 0 espaços de item', iv.itemCapacity() === 0);
+iv.level = 2;
+iv.res = { wood: 999, stone: 999, ore: 99, food: 99, gold: 999 };
+check('armazém liberado no nível 2', iv.canBuild('armazem'));
+check('constrói o armazém', iv.build('armazem') !== null);
+check('armazém nv1 → 16 espaços', iv.itemCapacity() === 16);
+
+iv.addItem('espada_ferro', 3);
+iv.addItem('anel_rubi', 2);
+check('conta itens guardados', iv.itemsCount() === 5);
+check('capacidade sobe com o nível', (iv.upgrade(iv.get('armazem')), iv.itemCapacity() === 24));
+
+const ig = iv.goblins[0];
+check('equipa item', inv.equip(iv, ig, 'arma_primaria', 'espada_ferro') === true);
+check('item sai do armazém', iv.itemsCount() === 4);
+check('espaço ocupado', ig.equip.arma_primaria === 'espada_ferro');
+check('tipo errado recusa', inv.equip(iv, ig, 'capacete', 'espada_ferro') === false);
+check('anel serve nos dois espaços',
+  inv.equip(iv, ig, 'anel1', 'anel_rubi') && inv.equip(iv, ig, 'anel2', 'anel_rubi'));
+check('troca devolve a peça antiga',
+  (iv.addItem('espada_ferro', 1), inv.equip(iv, ig, 'arma_primaria', 'espada_ferro'))
+  && iv.items.espada_ferro === 3);
+check('desequipar devolve ao armazém',
+  inv.unequip(iv, ig, 'anel1') === 'anel_rubi' && iv.items.anel_rubi === 1);
+check('conta peças equipadas', inv.equippedCount(ig) === 2);   // arma + anel II
+
+// migração de save antigo (gear de compra única → itens)
+const legacy = new Village({ gear: { peitoral_avaritia: true, calca_avaritia: false } });
+check('save antigo migra peças p/ o inventário',
+  legacy.items.peitoral_avaritia === 1 && !legacy.items.calca_avaritia);
+
+// persistência
+const iround = new Village(JSON.parse(JSON.stringify(iv.serialize())));
+check('itens persistem no save', iround.itemsCount() === iv.itemsCount());
+check('equipamento persiste no goblin', iround.goblins[0].equip.anel2 === 'anel_rubi');
+
+// ============================================================
+section('Abilities — habilidades por goblin');
+// ============================================================
+const abilities = req('abilities.js');
+check('catálogo tem 10 habilidades', abilities.ABILITIES.length === 10);
+check('toda habilidade tem ícone', abilities.ABILITIES.every((a) => a.icon));
+check('2 espaços por goblin', abilities.SKILL_SLOTS === 2);
+
+const ag = Goblin.roll(0);
+const specAb = abilities.ABILITIES.find((a) => a.spec === ag.specialty);
+const otherAb = abilities.ABILITIES.find((a) => a.spec && a.spec !== ag.specialty);
+const generic = abilities.byId('investida');
+check('aceita habilidade da própria especialidade', abilities.canEquip(ag, specAb));
+check('recusa habilidade de outra especialidade', !abilities.canEquip(ag, otherAb));
+check('genérica serve p/ todos', abilities.canEquip(ag, generic));
+
+check('equipa no espaço 0', abilities.equipAbility(ag, 0, specAb.id) === true);
+check('equipa genérica no espaço 1', abilities.equipAbility(ag, 1, generic.id) === true);
+check('re-equipar MOVE em vez de duplicar',
+  abilities.equipAbility(ag, 1, specAb.id) === true
+  && ag.skills.filter(Boolean).length === 1 && ag.skills[1] === specAb.id);
+check('recusa classe errada', abilities.equipAbility(ag, 0, otherAb.id) === false);
+check('remove habilidade', abilities.unequipAbility(ag, 1) === specAb.id);
+
+// ============================================================
 section('Save — o progresso novo persiste');
 // ============================================================
 const sv = new Village();

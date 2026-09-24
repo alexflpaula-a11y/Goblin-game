@@ -32,6 +32,10 @@ const BUILDINGS = {
     sprite: 'building_fazenda_1', reqLevel: 2, maxCount: 1, maxLevel: 3,
     cost: { wood: 35, stone: 15 },
   },
+  armazem: {
+    sprite: 'building_armazem_1', reqLevel: 2, maxCount: 1, maxLevel: 3,
+    cost: { wood: 40, stone: 30 },
+  },
   cozinha: {
     sprite: 'building_cozinha_1', reqLevel: 3, maxCount: 1, maxLevel: 3,
     cost: { wood: 50, stone: 40 },
@@ -71,7 +75,7 @@ const BUILDINGS = {
 };
 
 // Ordem de exibição no catálogo da Casa de Construção
-const BUILD_ORDER = ['house', 'serraria', 'fazenda', 'cozinha', 'mercado', 'mina',
+const BUILD_ORDER = ['house', 'serraria', 'fazenda', 'armazem', 'cozinha', 'mercado', 'mina',
   'estabulo', 'ferraria', 'altar', 'bazar', 'porto', 'quartel'];
 
 // Posições fixas (slots) para novas casas dentro da clareira
@@ -88,7 +92,7 @@ const STRUCT_SLOTS = {
   mina: [760, 726], estabulo: [1160, 726],
   ferraria: [850, 620], altar: [1070, 620],
   bazar: [850, 830], porto: [1070, 830],
-  quartel: [960, 590],
+  quartel: [960, 590], armazem: [960, 858],
 };
 
 class Village {
@@ -112,8 +116,15 @@ class Village {
     this.xp = data?.xp ?? 0;
     // despensa de comidas cozinhadas: { bread: 3, soup: 1, ... }
     this.meals = data?.meals || {};
-    // armaduras compradas no Mercado: { peitoral_avaritia: true, ... }
-    this.gear = data?.gear || {};
+    // itens de equipamento guardados no Armazém: { espada_ferro: 2, ... }
+    this.items = data?.items || {};
+    // migração de saves antigos: `gear` era compra única da vila inteira;
+    // agora cada peça é um item do inventário, equipável por goblin.
+    if (!data?.items && data?.gear) {
+      for (const [k, owned] of Object.entries(data.gear)) {
+        if (owned) this.items[k] = (this.items[k] || 0) + 1;
+      }
+    }
   }
 
   // ---------- Consultas ----------
@@ -173,6 +184,27 @@ class Village {
 
   add(resource, amount) {
     this.res[resource] = (this.res[resource] || 0) + amount;
+  }
+
+  // ---------- Itens de equipamento (Armazém) ----------
+  /** Espaços de item disponíveis (8 por nível do Armazém; 0 sem armazém). */
+  itemCapacity() {
+    return this.has('armazem') ? 8 * (1 + this.levelOf('armazem')) : 0;
+  }
+
+  /** Quantos itens estão guardados agora. */
+  itemsCount() {
+    return Object.values(this.items || {}).reduce((a, b) => a + b, 0);
+  }
+
+  addItem(itemId, n = 1) {
+    this.items[itemId] = (this.items[itemId] || 0) + n;
+  }
+
+  takeItem(itemId, n = 1) {
+    const left = (this.items[itemId] || 0) - n;
+    if (left > 0) this.items[itemId] = left;
+    else delete this.items[itemId];
   }
 
   costText(cost, t) {
@@ -325,7 +357,7 @@ class Village {
       level: this.level,
       xp: this.xp,
       meals: this.meals,
-      gear: this.gear,
+      items: this.items,
     };
   }
 }

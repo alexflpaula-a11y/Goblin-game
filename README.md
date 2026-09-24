@@ -4,6 +4,10 @@ Jogo mobile-first de **gerenciamento de vila + batalhas por turnos**, em HTML5 C
 
 ## ▶️ Como jogar
 
+**🎮 Jogar online (GitHub Pages):** **<https://alexflpaula-a11y.github.io/Goblin-game/>**
+Versão de arquivo único (carrega num toque, funciona offline):
+**<https://alexflpaula-a11y.github.io/Goblin-game/vila-de-goblins-jogavel.html>**
+
 **Sem instalar nada:** abra `vila-de-goblins-jogavel.html` no navegador (PC ou celular). É um build de arquivo único com sprites e textos embutidos — funciona offline.
 
 **Modo desenvolvimento:** sirva a pasta e abra `http://localhost:8080`:
@@ -20,7 +24,7 @@ python3 -m http.server 8080
 | Toque em árvore/pedra/posto | manda o goblin livre mais próximo trabalhar |
 | Toque no goblin trabalhando | chama ele de volta |
 | Toque num prédio | abre a tela dele |
-| Botões no rodapé | **Construir**, **Missões**, **Cozinha**, **Mercado**, **Vila** |
+| Botões no rodapé | **Construir**, **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
 
 ## 🔄 O ciclo do jogo
 
@@ -35,13 +39,26 @@ A **vila sobe de nível** com o XP das missões. Cada nível libera novas estrut
 | Nível | Desbloqueia |
 |---|---|
 | 1 | Casa de Construção · Casa de Goblin · Painel de Missões |
-| 2 | Serraria · Fazenda |
+| 2 | Serraria · Fazenda · **Armazém** |
 | 3 | Cozinha · Mercado |
 | 4 | Mina · Estábulo |
 | 5 | Ferraria |
 | 6 | Altar · Bazar |
 | 7 | Porto |
 | 8 | Quartel |
+
+## 🏚️ Armazém, inventário e equipamento
+
+O **Armazém** (vila nv 2) guarda tudo e abre o inventário da vila:
+
+- **Recursos** — madeira, pedra, minério, comida e ouro, mais a **despensa** de pratos cozinhados;
+- **Itens** — área separada com os equipamentos em **espaços** (slots), um item por célula. A capacidade cresce com o nível do Armazém (nv1 = 16, nv2 = 24, nv3 = 32 espaços).
+
+Os equipamentos são comprados no **Mercado** (agora em quantidade, limitados pelos espaços do Armazém) e ainda **não têm status** — isso chega com as batalhas. Cada goblin tem a própria tela de equipar, com **10 espaços rodando o personagem**: capacete, peitoral, botas, calça, **2 anéis**, arma primária, arma secundária, runa e colar. Tocar num espaço lista os itens do tipo guardados no armazém (equipar troca a peça e devolve a antiga).
+
+A mesma interface ainda tem duas abas: **Alimentos** (escolher um prato e alimentar qualquer goblin) e **Habilidades** (2 espaços por goblin; cada um usa as habilidades da própria especialidade + as genéricas).
+
+As peças **Avaritia** (capacete/peitoral/calça) continuam mudando o sprite do goblin que as veste — combinações individuais → pares → conjunto completo — e o **peitoral de ferro** tem a própria skin. Item equipado fica no corpo do goblin (sai do armazém) e pode ser passado para outro goblin a qualquer momento.
 
 ## 🗂️ Estrutura
 
@@ -63,11 +80,13 @@ js/
   quests.js         painel de missões (itens → ouro + XP da vila)
   cooking.js        receitas, pratos que curam
   market.js         mercado: vender e comprar por ouro
-  gear.js           conjunto Avaritia: armaduras da loja (compra única)
+  inventory.js      armazém: catálogo de itens, espaços, equipar/desequipar
+  abilities.js      catálogo de habilidades (2 espaços por goblin)
+  gear.js           sprites do goblin conforme o que ELE vestiu (Avaritia/ferro)
   ui.js             UI imediata no canvas + visual rústico goblin
   assetLoader.js    sprites reais ou placeholder automático
   i18n.js           PT-BR / EN em tempo real
-  save.js           localStorage + autosave
+  save.js           localStorage + autosave (desativado no dev — `SAVE_ENABLED`)
   balance.js        carrega o balance.json
 assets/
   data/             balance.json, i18n.pt-br.json, i18n.en.json
@@ -82,8 +101,9 @@ planejamento-jogo-gnomos.md   planejamento completo + log de desenvolvimento
 ```bash
 python3 tools/build_singlefile.py   # gera o vila-de-goblins-jogavel.html
 python3 tools/gen_sprites.py        # (re)gera a pixel art de prédios e comidas
+python3 tools/gen_icons.py          # (re)gera ícones 16×16 de itens/habilidades
 python3 tools/unbuild.py            # extrai a fonte de volta a partir do build
-bash    tools/test.sh               # roda as 4 suítes de teste
+bash    tools/test.sh               # roda as 7 suítes de teste
 ```
 
 > **Importante:** depois de mexer em `js/`, `css/` ou `assets/`, rode o
@@ -91,13 +111,16 @@ bash    tools/test.sh               # roda as 4 suítes de teste
 
 ## ✅ Testes
 
-192 testes automatizados, sem navegador (`bash tools/test.sh`):
+362 testes automatizados, sem navegador (`bash tools/test.sh`):
 
 | Suíte | O que cobre |
 |---|---|
-| `smoke` | lógica pura: vila, goblins, missões, cozinha, save |
-| `render` | as 6 telas desenham sem erro; traduções e sprites conferidos |
+| `smoke` | lógica pura: vila, goblins, missões, cozinha, inventário, habilidades, save |
+| `render` | as telas desenham sem erro; traduções e sprites conferidos |
 | `playthrough` | uma partida inteira — o ciclo do jogo fecha do início ao fim |
+| `gear` | armazém: prateleira, capacidade, equipar por goblin, skins, migração de save |
+| `tap` | toques reais (input → routeTap → render): equipar, alimentar, habilidades |
+| `boot` | boot real: saves desativados, save velho ignorado, estouro 17/16, recrutamento, salto de nível |
 | `build` | o arquivo único distribuído sobe sozinho |
 
 ## 🎨 Sprites
@@ -110,8 +133,17 @@ PNGs **32×32** referenciados por **nome lógico** no `manifest.json`. Se um PNG
 
 PT-BR e EN com troca em tempo real (botão no HUD). Textos em `assets/data/i18n.*.json`.
 
+## 💾 Salvamento
+
+**Desativado durante o desenvolvimento** — o jogo começa uma vila nova a cada
+partida e nada é gravado no `localStorage` (qualquer save antigo é descartado
+no boot). Quando tudo estiver pronto, basta trocar `SAVE_ENABLED` para `true`
+em `js/save.js`; o sistema (save/load/autosave a cada 10s) continua intacto.
+
 ## 📜 Status
 
-**Fase 1 concluída (1.1 → 1.8):** ilha + câmera, goblins + habitação + recrutamento 1-de-3, recursos finitos, trabalho, construção de todas as estruturas, missões, XP/nível da vila, cozinha, fontes renováveis e **Mercado** (vender o excedente por ouro, comprar o que falta) — incluindo a **loja de armaduras Avaritia**: Peitoral (120 ouro), Calça (90) e Capacete (150), compra única; cada peça adquirida veste a vila inteira (individual → pares → conjunto completo, sprites gerados por recolor em `sprites/itens/`, sem pixels novos).
+**Fase 1 concluída (1.1 → 1.8):** ilha + câmera, goblins + habitação + recrutamento 1-de-3, recursos finitos, trabalho, construção de todas as estruturas, missões, XP/nível da vila, cozinha, fontes renováveis e **Mercado** (vender o excedente por ouro, comprar o que falta).
 
-**A seguir:** Fase 2 (Ferraria, equipar, Altar, Bazar) → Fase 3 (combate por turnos). Roadmap completo em `planejamento-jogo-gnomos.md`.
+**Etapa 1.7 — Armazém & Inventário:** o **Armazém** (vila nv 2, melhorável: 16/24/32 espaços) abre o inventário da vila com todos os recursos + despensa numa área e os **itens de equipamento em slots** na outra. 14 equipamentos (sem status por enquanto): conjunto Avaritia (peitoral 120, capacete 150, calça 90 ouro), conjunto de ferro (capacete 45, peitoral 60, calça 40), botas de couro, anel de cobre/rubi, colar de presas, espada, clava, escudo e runa azul. A interface de equipar tem **10 espaços rodando o goblin** (capacete, peitoral, botas, calça, 2 anéis, arma primária, arma secundária, runa, colar) + aba **Alimentos** (alimentar goblins) + aba **Habilidades** (2 espaços por goblin, por especialidade + genéricas). Cada goblin veste o que quiser — as peças Avaritia e o peitoral de ferro mudam o sprite individualmente.
+
+**A seguir:** Fase 2 (Ferraria, Altar, Bazar) → Fase 3 (combate por turnos — quando os equipamentos ganham status). Roadmap completo em `planejamento-jogo-gnomos.md`.
