@@ -451,15 +451,15 @@ def _dome_y(base_px, W0, W1, y0, my):
 
 def restaura_orelhas(im, base_px):
     """CAPACETE FECHADO — passo 2: CONSERTA AS ORELHAS (fiéis ao sprite).
-    dome = 1ª linha em que a cabeça fica LARGA (run contíguo ≥6 de verdes).
-    ORELHA = acima do dome: o 1º e o último run de verdes da linha (os
-    externos — o run do meio é a coroa, fica preto); 1 run sozinho só é
-    orelha se sai pra FORA do run largo (ponta isolada) — em cima da
-    massa é coroa;
-             na linha do dome: runs pequenos (≤4) SEPARADOS da massa,
-             só se continuam a orelha de cima. Abaixo do dome: nada
-             (dome+1 já é rosto).
-    Devolve o verde ORIGINAL desses pixels por cima do elmo preto."""
+    dome = 1ª linha em que o crânio fica largo (run >= 6); o run largo
+    dessa linha é a MASSA do crânio.
+    ORELHA = run de verdes ACIMA do dome que sai pra FORA da massa
+    (pontuando ao lado do crânio); na linha do dome, run SEPARADO da
+    massa que continua uma orelha de cima = base da orelha.
+    A COROA (run em cima da massa, dentro do vão) fica PRETA — o elmo
+    cobre a cabeça inteira. Abaixo do dome: nada (rosto).
+    O goblin é 3/4: a orelha direita (x17-20) aparece sempre, a esquerda
+    (x10-12) só quando a cabeça vira — igual ao sprite original."""
     eyes = olhos_px(base_px)
     if not eyes:
         return set()
@@ -472,36 +472,33 @@ def restaura_orelhas(im, base_px):
     dome = _dome_y(base_px, W0, W1, y0, my)
     if dome is None:
         return set()
-    # run largo da linha do dome = a MASSA da cabeça
     xs_d = [x for x in range(W0, W1 + 1)
             if base_px[x, dome][3] >= 40 and base_px[x, dome][:3] in GREENS]
-    wr = max(_runs(xs_d), key=len) if xs_d else None
+    if not xs_d:
+        return set()
+    wr = max(_runs(xs_d), key=len)          # massa do crânio (run largo)
     px = im.load()
     ears = set()
-    prev = set()
-    for y in range(y0, dome + 1):        # dome+1 em diante é rosto — nada lá
+    ear_cols = set()                        # colunas de orelha na linha de cima
+    for y in range(y0, dome + 1):           # dome+1 em diante é rosto — nada
         xs = [x for x in range(W0, W1 + 1)
               if base_px[x, y][3] >= 40 and base_px[x, y][:3] in GREENS]
         if not xs:
+            ear_cols = set()
             continue
         runs = _runs(xs)
         if y < dome:
-            if len(runs) >= 2:              # 1º e último = orelhas
-                sel = runs[0] + runs[-1]
-            elif wr is None or runs[0][0] < wr[0] or runs[0][-1] > wr[-1]:
-                sel = runs[0]               # ponta isolada FORA da massa = orelha
-            else:
-                sel = []                    # 1 run em cima da massa = coroa (preto)
+            # orelha: run que sai pra fora da massa do crânio
+            sel = [x for r in runs if r[0] < wr[0] or r[-1] > wr[-1] for x in r]
         else:
-            # linha do dome: só pontas SEPARADAS da massa (≤4), continuação
-            # vertical da orelha da linha de cima
-            sel = [x for r in runs if len(r) <= 4 for x in r
-                   if x - 1 in prev or x in prev or x + 1 in prev]
+            # linha do dome: só base separada da massa, ligada à orelha de cima
+            sel = [x for r in runs if r != wr and len(r) <= 4 for x in r
+                   if x - 1 in ear_cols or x in ear_cols or x + 1 in ear_cols]
         for x in sel:
             p = base_px[x, y]
             px[x, y] = p[:3] + (255,)
             ears.add((x, y))
-        prev = set(sel)
+        ear_cols = set(sel)
     return ears
 
 
