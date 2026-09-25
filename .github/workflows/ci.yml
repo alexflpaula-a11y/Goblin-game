@@ -1,11 +1,17 @@
 name: Testes
 
-# Roda a bateria de testes em todo push e em cada Pull Request.
+# Roda a bateria de testes em cada Pull Request e nos pushes para a main.
+# (Evita execução dupla: branches de trabalho são cobertas pelo evento de PR.)
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
   workflow_dispatch:
+
+# Cancela execuções antigas do mesmo ref quando chega uma nova.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
