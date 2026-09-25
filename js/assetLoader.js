@@ -60,21 +60,29 @@ async function loadOne(entry) {
 }
 
 // Retorna o sprite (real, composto ou placeholder) para desenhar.
-// `composite|aparência|overlay` mantém a variação física do goblin por baixo
-// dos pixels alterados pela armadura. O canvas pronto fica no mesmo cache.
+// `composite|base|camada1|camada2|...` mantém a aparência física do goblin
+// por baixo e empilha os overlays das peças equipadas, na ordem recebida.
+// Camadas cujo PNG ainda não existe são PULADAS (nunca desenhamos um
+// placeholder por cima do goblin), então dá pra registrar uma peça antes
+// mesmo de os sprites dela estarem prontos. O canvas final fica no cache.
 function getSprite(id) {
   if (cache.has(id)) return cache.get(id);
 
   if (id?.startsWith('composite|')) {
-    const [, variantId, overlayId] = id.split('|');
-    if (variantId && overlayId) {
+    const parts = id.split('|');
+    const baseId = parts[1];
+    const layerIds = parts.slice(2);
+    if (baseId) {
       const c = document.createElement('canvas');
       c.width = 32;
       c.height = 32;
       const g = c.getContext('2d');
       g.imageSmoothingEnabled = false;
-      g.drawImage(getSprite(variantId), 0, 0);
-      g.drawImage(getSprite(overlayId), 0, 0);
+      g.drawImage(getSprite(baseId), 0, 0);
+      for (const layerId of layerIds) {
+        // só desenha a camada se o PNG dela realmente foi carregado
+        if (cache.has(layerId)) g.drawImage(cache.get(layerId), 0, 0);
+      }
       cache.set(id, c);
       return c;
     }

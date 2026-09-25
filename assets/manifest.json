@@ -15583,6 +15583,1270 @@
     {
       "id": "overlay_ferro_pei_death_14",
       "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_14.png"
+    },
+    {
+      "id": "overlay_ferro_cap_idle_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_idle_0.png"
+    },
+    {
+      "id": "overlay_ferro_cap_idle_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_idle_1.png"
+    },
+    {
+      "id": "overlay_ferro_cap_idle_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_idle_2.png"
+    },
+    {
+      "id": "overlay_ferro_cap_idle_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_idle_3.png"
+    },
+    {
+      "id": "overlay_ferro_cap_idle_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_idle_4.png"
+    },
+    {
+      "id": "overlay_ferro_cap_walk_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_walk_0.png"
+    },
+    {
+      "id": "overlay_ferro_cap_walk_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_walk_1.png"
+    },
+    {
+      "id": "overlay_ferro_cap_walk_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_walk_2.png"
+    },
+    {
+      "id": "overlay_ferro_cap_walk_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_walk_3.png"
+    },
+    {
+      "id": "overlay_ferro_cap_walk_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_walk_4.png"
+    },
+    {
+      "id": "overlay_ferro_cap_walk_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_walk_5.png"
+    },
+    {
+      "id": "overlay_ferro_cap_walk_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_walk_6.png"
+    },
+    {
+      "id": "overlay_ferro_cap_walk_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_walk_7.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_0.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_1.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_2.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_3.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_4.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_5.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_6.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_7.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_8.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_9.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_10.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_11.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_12.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_13.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_14.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_15",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_15.png"
+    },
+    {
+      "id": "overlay_ferro_cap_attack_16",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_attack_16.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_0.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_1.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_2.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_3.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_4.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_5.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_6.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_7.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_8.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_9.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_10.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_11.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_12.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_13.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_14.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_15",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_15.png"
+    },
+    {
+      "id": "overlay_ferro_cap_hurt_16",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_hurt_16.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_0.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_1.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_2.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_3.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_4.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_5.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_6.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_7.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_8.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_9.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_10.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_11.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_12.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_13.png"
+    },
+    {
+      "id": "overlay_ferro_cap_death_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_14.png"
+    },
+    {
+      "id": "overlay_ferro_cal_idle_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_idle_0.png"
+    },
+    {
+      "id": "overlay_ferro_cal_idle_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_idle_1.png"
+    },
+    {
+      "id": "overlay_ferro_cal_idle_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_idle_2.png"
+    },
+    {
+      "id": "overlay_ferro_cal_idle_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_idle_3.png"
+    },
+    {
+      "id": "overlay_ferro_cal_idle_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_idle_4.png"
+    },
+    {
+      "id": "overlay_ferro_cal_walk_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_walk_0.png"
+    },
+    {
+      "id": "overlay_ferro_cal_walk_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_walk_1.png"
+    },
+    {
+      "id": "overlay_ferro_cal_walk_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_walk_2.png"
+    },
+    {
+      "id": "overlay_ferro_cal_walk_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_walk_3.png"
+    },
+    {
+      "id": "overlay_ferro_cal_walk_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_walk_4.png"
+    },
+    {
+      "id": "overlay_ferro_cal_walk_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_walk_5.png"
+    },
+    {
+      "id": "overlay_ferro_cal_walk_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_walk_6.png"
+    },
+    {
+      "id": "overlay_ferro_cal_walk_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_walk_7.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_0.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_1.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_2.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_3.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_4.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_5.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_6.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_7.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_8.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_9.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_10.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_11.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_12.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_13.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_14.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_15",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_15.png"
+    },
+    {
+      "id": "overlay_ferro_cal_attack_16",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_attack_16.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_0.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_1.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_2.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_3.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_4.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_5.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_6.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_7.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_8.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_9.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_10.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_11.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_12.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_13.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_14.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_15",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_15.png"
+    },
+    {
+      "id": "overlay_ferro_cal_hurt_16",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_hurt_16.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_0.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_1.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_2.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_3.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_4.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_5.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_6.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_7.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_8.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_9.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_10.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_11.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_12.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_13.png"
+    },
+    {
+      "id": "overlay_ferro_cal_death_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_14.png"
+    },
+    {
+      "id": "overlay_wpn_espada_idle_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_idle_0.png"
+    },
+    {
+      "id": "overlay_wpn_espada_idle_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_idle_1.png"
+    },
+    {
+      "id": "overlay_wpn_espada_idle_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_idle_2.png"
+    },
+    {
+      "id": "overlay_wpn_espada_idle_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_idle_3.png"
+    },
+    {
+      "id": "overlay_wpn_espada_idle_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_idle_4.png"
+    },
+    {
+      "id": "overlay_wpn_espada_walk_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_walk_0.png"
+    },
+    {
+      "id": "overlay_wpn_espada_walk_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_walk_1.png"
+    },
+    {
+      "id": "overlay_wpn_espada_walk_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_walk_2.png"
+    },
+    {
+      "id": "overlay_wpn_espada_walk_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_walk_3.png"
+    },
+    {
+      "id": "overlay_wpn_espada_walk_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_walk_4.png"
+    },
+    {
+      "id": "overlay_wpn_espada_walk_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_walk_5.png"
+    },
+    {
+      "id": "overlay_wpn_espada_walk_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_walk_6.png"
+    },
+    {
+      "id": "overlay_wpn_espada_walk_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_walk_7.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_0.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_1.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_2.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_3.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_4.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_5.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_6.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_7.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_8.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_9.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_10.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_11.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_12.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_13.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_14.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_15",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_15.png"
+    },
+    {
+      "id": "overlay_wpn_espada_attack_16",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_attack_16.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_0.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_1.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_2.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_3.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_4.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_5.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_6.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_7.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_8.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_9.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_10.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_11.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_12.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_13.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_14.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_15",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_15.png"
+    },
+    {
+      "id": "overlay_wpn_espada_hurt_16",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_hurt_16.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_0.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_1.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_2.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_3.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_4.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_5.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_6.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_7.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_8.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_9.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_10.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_11.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_12.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_13.png"
+    },
+    {
+      "id": "overlay_wpn_espada_death_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_14.png"
+    },
+    {
+      "id": "overlay_wpn_clava_idle_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_idle_0.png"
+    },
+    {
+      "id": "overlay_wpn_clava_idle_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_idle_1.png"
+    },
+    {
+      "id": "overlay_wpn_clava_idle_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_idle_2.png"
+    },
+    {
+      "id": "overlay_wpn_clava_idle_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_idle_3.png"
+    },
+    {
+      "id": "overlay_wpn_clava_idle_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_idle_4.png"
+    },
+    {
+      "id": "overlay_wpn_clava_walk_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_walk_0.png"
+    },
+    {
+      "id": "overlay_wpn_clava_walk_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_walk_1.png"
+    },
+    {
+      "id": "overlay_wpn_clava_walk_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_walk_2.png"
+    },
+    {
+      "id": "overlay_wpn_clava_walk_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_walk_3.png"
+    },
+    {
+      "id": "overlay_wpn_clava_walk_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_walk_4.png"
+    },
+    {
+      "id": "overlay_wpn_clava_walk_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_walk_5.png"
+    },
+    {
+      "id": "overlay_wpn_clava_walk_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_walk_6.png"
+    },
+    {
+      "id": "overlay_wpn_clava_walk_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_walk_7.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_0.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_1.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_2.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_3.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_4.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_5.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_6.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_7.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_8.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_9.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_10.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_11.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_12.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_13.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_14.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_15",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_15.png"
+    },
+    {
+      "id": "overlay_wpn_clava_attack_16",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_attack_16.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_0.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_1.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_2.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_3.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_4.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_5.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_6.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_7.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_8.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_9.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_10.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_11.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_12.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_13.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_14.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_15",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_15.png"
+    },
+    {
+      "id": "overlay_wpn_clava_hurt_16",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_hurt_16.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_0.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_1.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_2.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_3.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_4.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_5.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_6.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_7.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_8.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_9.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_10.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_11.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_12.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_13.png"
+    },
+    {
+      "id": "overlay_wpn_clava_death_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_14.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_idle_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_idle_0.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_idle_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_idle_1.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_idle_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_idle_2.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_idle_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_idle_3.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_idle_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_idle_4.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_walk_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_walk_0.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_walk_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_walk_1.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_walk_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_walk_2.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_walk_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_walk_3.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_walk_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_walk_4.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_walk_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_walk_5.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_walk_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_walk_6.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_walk_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_walk_7.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_0.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_1.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_2.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_3.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_4.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_5.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_6.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_7.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_8.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_9.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_10.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_11.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_12.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_13.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_14.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_15",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_15.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_attack_16",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_attack_16.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_0.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_1.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_2.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_3.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_4.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_5.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_6.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_7.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_8.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_9.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_10.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_11.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_12.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_13.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_14.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_15",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_15.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_hurt_16",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_hurt_16.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_0.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_1.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_2.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_3.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_4.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_5.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_6.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_7.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_8.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_9.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_10.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_11.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_12.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_13.png"
+    },
+    {
+      "id": "overlay_wpn_escudo_death_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_14.png"
+    },
+    {
+      "id": "ui_icon_build",
+      "path": "assets/sprites/ui/ui_icon_build.png"
+    },
+    {
+      "id": "ui_icon_quests",
+      "path": "assets/sprites/ui/ui_icon_quests.png"
+    },
+    {
+      "id": "ui_icon_kitchen",
+      "path": "assets/sprites/ui/ui_icon_kitchen.png"
+    },
+    {
+      "id": "ui_icon_market",
+      "path": "assets/sprites/ui/ui_icon_market.png"
+    },
+    {
+      "id": "ui_icon_armazem",
+      "path": "assets/sprites/ui/ui_icon_armazem.png"
+    },
+    {
+      "id": "ui_icon_village",
+      "path": "assets/sprites/ui/ui_icon_village.png"
     }
   ]
 }

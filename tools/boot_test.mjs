@@ -47,6 +47,7 @@ function makeEl(id) {
   return {
     id, style: {}, textContent: '', dataset: {},
     addEventListener() {}, appendChild() {}, setAttribute() {},
+    classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
     getBoundingClientRect: () => ({ left: 0, top: 0, width: 1280, height: 720 }),
   };
 }
@@ -66,7 +67,7 @@ function step(n = 2) {
 // ---------- ambiente ----------
 globalThis.window = { EMBEDDED: null, innerWidth: 1280, innerHeight: 720, devicePixelRatio: 1, addEventListener() {} };
 globalThis.document = {
-  getElementById: (id) => elements[id],
+  getElementById: (id) => elements[id] || makeEl(id),
   createElement: (tag) => (tag === 'canvas' ? makeCanvas('dyn') : makeEl(tag)),
   addEventListener() {}, body: makeEl('body'),
 };
@@ -183,7 +184,7 @@ ok(appB.village.level === 1 && appB.village.goblins.length === 1,
   'vila NOVA (nível 1, 1 goblin) — save velho ignorado');
 ok(!appB.village.has('armazem'), 'armazém do save velho não veio');
 ok(globalThis.localStorage.getItem(SAVE_KEY) === null, 'chave do save velho foi descartada no boot');
-tap(56, 334);   // botão CONSTRUIR — interage um pouco
+tap(30, 330);   // botão CONSTRUIR (ícone) — interage um pouco
 ok(appB.state.screen === 'build', 'navegação funciona na vila nova');
 ok(globalThis.localStorage.getItem(SAVE_KEY) === null, 'nada é gravado ao jogar');
 
@@ -234,7 +235,12 @@ console.log('\x1b[1mBOOT D — mercado: compra respeita a capacidade\x1b[0m');
 const appD = await boot('?demo=market');
 ok(appD.state.screen === 'market' && appD.village.has('armazem'), 'demo abre o Mercado com Armazém');
 tapRegion('mtab_1');                       // aba COMPRAR
-appD.state.marketPage = 4;                 // página com espada/clava/escudo/runa
+// rola a prateleira (horizontal) até a espada ficar visível
+{
+  const buyItems = market.catalog(appD.village, 'buy');
+  const eIdx = buyItems.findIndex((it) => it.kind === 'gear' && it.key === 'espada_ferro');
+  appD.state.marketScroll = Math.max(0, 16 + eIdx * 153 - 200);
+}
 step(1);
 ok(has('mdo_gear:espada_ferro'), 'espada à venda na aba de compra');
 tapRegion('mmax_gear:espada_ferro');       // quantidade = máximo

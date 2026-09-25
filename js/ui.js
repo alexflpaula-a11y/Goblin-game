@@ -13,12 +13,27 @@ class UI {
 
   panel(x, y, w, h, title) {
     const c = this.ctx;
-    c.fillStyle = 'rgba(22,16,36,0.94)';
-    c.strokeStyle = 'rgba(255,255,255,0.18)';
+    // sombra suave
+    c.fillStyle = 'rgba(0,0,0,0.35)';
+    c.beginPath();
+    if (c.roundRect) c.roundRect(x + 2, y + 4, w, h, 12); else c.rect(x + 2, y + 4, w, h);
+    c.fill();
+    // corpo com leve gradiente
+    let g = null;
+    if (c.createLinearGradient) {
+      g = c.createLinearGradient(x, y, x, y + h);
+      g.addColorStop(0, 'rgba(38,28,60,0.96)');
+      g.addColorStop(1, 'rgba(20,14,34,0.96)');
+    }
+    c.fillStyle = g || 'rgba(22,16,36,0.94)';
+    c.strokeStyle = 'rgba(167,139,250,0.45)';
     c.lineWidth = 1.5;
     c.beginPath();
-    if (c.roundRect) c.roundRect(x, y, w, h, 10); else c.rect(x, y, w, h);
+    if (c.roundRect) c.roundRect(x, y, w, h, 12); else c.rect(x, y, w, h);
     c.fill(); c.stroke();
+    // brilho no topo
+    c.fillStyle = 'rgba(255,255,255,0.06)';
+    c.fillRect(x + 8, y + 2, w - 16, 2);
     if (title) this.text(x + w / 2, y + 20, title, { align: 'center', size: 13, bold: true, color: '#efeafd' });
   }
 
@@ -42,18 +57,78 @@ class UI {
 
   button(id, x, y, w, h, label, enabled = true, accent = false) {
     const c = this.ctx;
-    c.fillStyle = !enabled ? 'rgba(120,120,140,0.25)'
-      : accent ? '#a78bfa' : 'rgba(167,139,250,0.18)';
-    c.strokeStyle = enabled ? 'rgba(167,139,250,0.7)' : 'rgba(255,255,255,0.12)';
+    // sombra
+    if (enabled) {
+      c.fillStyle = 'rgba(0,0,0,0.25)';
+      c.beginPath();
+      if (c.roundRect) c.roundRect(x + 1, y + 2, w, h, 8); else c.rect(x + 1, y + 2, w, h);
+      c.fill();
+    }
+    let fill;
+    if (!enabled) {
+      fill = 'rgba(120,120,140,0.22)';
+    } else if (c.createLinearGradient) {
+      fill = c.createLinearGradient(x, y, x, y + h);
+      if (accent) { fill.addColorStop(0, '#b9a2ff'); fill.addColorStop(1, '#8b6cf0'); }
+      else { fill.addColorStop(0, 'rgba(167,139,250,0.30)'); fill.addColorStop(1, 'rgba(167,139,250,0.12)'); }
+    } else {
+      fill = accent ? '#a78bfa' : 'rgba(167,139,250,0.18)';
+    }
+    c.fillStyle = fill;
+    c.strokeStyle = enabled ? 'rgba(167,139,250,0.75)' : 'rgba(255,255,255,0.12)';
     c.lineWidth = 1.5;
     c.beginPath();
     if (c.roundRect) c.roundRect(x, y, w, h, 8); else c.rect(x, y, w, h);
     c.fill(); c.stroke();
+    if (enabled) {
+      c.fillStyle = 'rgba(255,255,255,0.16)';
+      c.fillRect(x + 5, y + 3, w - 10, 1.5);
+    }
     this.text(x + w / 2, y + h / 2, label, {
       align: 'center', size: 11, bold: true,
-      color: !enabled ? '#8a8798' : accent ? '#1b1530' : '#d9cdfa',
+      color: !enabled ? '#8a8798' : accent ? '#1b1530' : '#e4dbff',
     });
     if (enabled) this.els.push({ id, x, y, w, h });
+  }
+
+  // Botão quadrado rústico só com ícone (barra de ações do mundo)
+  iconBtn(id, x, y, s, active = false) {
+    const c = this.ctx;
+    // sombra
+    c.fillStyle = 'rgba(0,0,0,0.30)';
+    c.beginPath();
+    if (c.roundRect) c.roundRect(x + 1.5, y + 2.5, s, s, 10); else c.rect(x + 1.5, y + 2.5, s, s);
+    c.fill();
+    // corpo de madeira com gradiente
+    let g = null;
+    if (c.createLinearGradient) {
+      g = c.createLinearGradient(x, y, x, y + s);
+      if (active) { g.addColorStop(0, '#caa036'); g.addColorStop(1, '#8a5a18'); }
+      else { g.addColorStop(0, '#6f4b2a'); g.addColorStop(1, '#48301a'); }
+    }
+    c.fillStyle = g || (active ? '#a5772a' : '#573a20');
+    c.beginPath();
+    if (c.roundRect) c.roundRect(x, y, s, s, 10); else c.rect(x, y, s, s);
+    c.fill();
+    // borda
+    c.lineWidth = 2;
+    c.strokeStyle = active ? '#ffe9a8' : '#2a1b0c';
+    c.beginPath();
+    if (c.roundRect) c.roundRect(x + 1, y + 1, s - 2, s - 2, 9); else c.rect(x + 1, y + 1, s - 2, s - 2);
+    c.stroke();
+    // brilho no topo
+    c.fillStyle = 'rgba(255,255,255,0.16)';
+    c.fillRect(x + 5, y + 4, s - 10, 2);
+    this.els.push({ id, x, y, w: s, h: s });
+  }
+
+  // Selo/contador circular (badge) para cantos de botões
+  badge(cx, cy, str, color = '#4fa562', ink = '#0f2a16') {
+    const c = this.ctx;
+    c.fillStyle = color;
+    c.beginPath(); c.arc(cx, cy, 8, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = '#1b1530'; c.lineWidth = 1.5; c.stroke();
+    this.text(cx, cy + 0.5, str, { align: 'center', size: 9, bold: true, color: ink });
   }
 
   // Região clicável sem visual (cards inteiros)
@@ -187,19 +262,116 @@ class UI {
     this.els.push({ id, x, y, w, h });
   }
 
-  // X de fechar rústico
-  closeX(id, x, y, s = 22) {
+  // X de fechar rústico (maior e mais bonito)
+  closeX(id, x, y, s = 30) {
     const c = this.ctx;
-    c.fillStyle = '#8c2f1f';
-    c.fillRect(x, y, s, s);
-    c.strokeStyle = '#2a1b0c'; c.lineWidth = 1.5;
-    c.strokeRect(x + 0.5, y + 0.5, s - 1, s - 1);
-    c.strokeStyle = '#ffe9b8'; c.lineWidth = 2.5;
+    // sombra
+    c.fillStyle = 'rgba(0,0,0,0.3)';
     c.beginPath();
-    c.moveTo(x + 5, y + 5); c.lineTo(x + s - 5, y + s - 5);
-    c.moveTo(x + s - 5, y + 5); c.lineTo(x + 5, y + s - 5);
+    if (c.roundRect) c.roundRect(x + 1, y + 2, s, s, 8); else c.rect(x + 1, y + 2, s, s);
+    c.fill();
+    // corpo vermelho com gradiente
+    let g = null;
+    if (c.createLinearGradient) {
+      g = c.createLinearGradient(x, y, x, y + s);
+      g.addColorStop(0, '#c8452f'); g.addColorStop(1, '#7e2416');
+    }
+    c.fillStyle = g || '#8c2f1f';
+    c.beginPath();
+    if (c.roundRect) c.roundRect(x, y, s, s, 8); else c.rect(x, y, s, s);
+    c.fill();
+    c.strokeStyle = '#2a1b0c'; c.lineWidth = 2;
+    c.beginPath();
+    if (c.roundRect) c.roundRect(x + 1, y + 1, s - 2, s - 2, 7); else c.rect(x + 1, y + 1, s - 2, s - 2);
     c.stroke();
+    // brilho no topo
+    c.fillStyle = 'rgba(255,255,255,0.18)';
+    c.fillRect(x + 5, y + 3, s - 10, 2);
+    // X
+    const m = Math.round(s * 0.3);
+    c.strokeStyle = '#ffe9b8'; c.lineWidth = 3; c.lineCap = 'round';
+    c.beginPath();
+    c.moveTo(x + m, y + m); c.lineTo(x + s - m, y + s - m);
+    c.moveTo(x + s - m, y + m); c.lineTo(x + m, y + s - m);
+    c.stroke();
+    c.lineCap = 'butt';
     this.els.push({ id, x, y, w: s, h: s });
+  }
+
+  // Botão de seta (chevron) — usado para trocar de personagem no equipar
+  arrowBtn(id, x, y, s, dir) {
+    const c = this.ctx;
+    // sombra
+    c.fillStyle = 'rgba(0,0,0,0.3)';
+    c.beginPath();
+    if (c.roundRect) c.roundRect(x + 1, y + 2, s, s, 9); else c.rect(x + 1, y + 2, s, s);
+    c.fill();
+    // corpo madeira/acento
+    let g = null;
+    if (c.createLinearGradient) {
+      g = c.createLinearGradient(x, y, x, y + s);
+      g.addColorStop(0, '#b9a2ff'); g.addColorStop(1, '#8b6cf0');
+    }
+    c.fillStyle = g || '#a78bfa';
+    c.beginPath();
+    if (c.roundRect) c.roundRect(x, y, s, s, 9); else c.rect(x, y, s, s);
+    c.fill();
+    c.strokeStyle = '#2a1b0c'; c.lineWidth = 2;
+    c.beginPath();
+    if (c.roundRect) c.roundRect(x + 1, y + 1, s - 2, s - 2, 8); else c.rect(x + 1, y + 1, s - 2, s - 2);
+    c.stroke();
+    c.fillStyle = 'rgba(255,255,255,0.2)';
+    c.fillRect(x + 5, y + 3, s - 10, 2);
+    // chevron
+    const cx = x + s / 2, cy = y + s / 2, r = s * 0.22;
+    c.strokeStyle = '#1b1530'; c.lineWidth = 3; c.lineJoin = 'round'; c.lineCap = 'round';
+    c.beginPath();
+    if (dir < 0) {
+      c.moveTo(cx + r * 0.6, cy - r); c.lineTo(cx - r * 0.6, cy); c.lineTo(cx + r * 0.6, cy + r);
+    } else {
+      c.moveTo(cx - r * 0.6, cy - r); c.lineTo(cx + r * 0.6, cy); c.lineTo(cx - r * 0.6, cy + r);
+    }
+    c.stroke();
+    c.lineJoin = 'miter'; c.lineCap = 'butt';
+    this.els.push({ id, x, y, w: s, h: s });
+  }
+
+  // Barra de rolagem vertical (trilho fino + polegar dourado)
+  scrollbarV(x, y, h, scroll, maxScroll, viewH, contentH) {
+    if (maxScroll <= 0) return;
+    const c = this.ctx;
+    c.fillStyle = 'rgba(0,0,0,0.28)';
+    c.fillRect(x, y, 4, h);
+    const thumbH = Math.max(20, h * (viewH / contentH));
+    const t = (scroll / maxScroll) * (h - thumbH);
+    c.fillStyle = 'rgba(255,233,168,0.65)';
+    c.fillRect(x, y + t, 4, thumbH);
+  }
+
+  // Barra de rolagem horizontal
+  scrollbarH(x, y, w, scroll, maxScroll, viewW, contentW) {
+    if (maxScroll <= 0) return;
+    const c = this.ctx;
+    c.fillStyle = 'rgba(0,0,0,0.28)';
+    c.fillRect(x, y, w, 4);
+    const thumbW = Math.max(20, w * (viewW / contentW));
+    const t = (scroll / maxScroll) * (w - thumbW);
+    c.fillStyle = 'rgba(255,233,168,0.65)';
+    c.fillRect(x + t, y, thumbW, 4);
+  }
+
+  // Indicador de páginas com pontinhos (o ativo é maior/dourado)
+  pageDots(cx, cy, count, active) {
+    const c = this.ctx;
+    const gap = 11;
+    const start = cx - ((count - 1) * gap) / 2;
+    for (let i = 0; i < count; i++) {
+      const on = i === active;
+      c.fillStyle = on ? '#ffe9a8' : 'rgba(255,233,168,0.32)';
+      c.beginPath();
+      c.arc(start + i * gap, cy, on ? 3.4 : 2.4, 0, Math.PI * 2);
+      c.fill();
+    }
   }
 }
 

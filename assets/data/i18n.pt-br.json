@@ -1,6 +1,8 @@
 {
   "app.title": "Vila de Goblins",
   "app.subtitle": "Gerenciamento + Batalha por Turnos",
+  "settings.title": "Configurações",
+  "settings.language": "Idioma",
   "stage": "Fase 1.7 — Armazém & Inventário",
   "demo.hint": "1 dedo: mover • pinça: zoom • toque: prédio/nó",
   "demo.status": "Toques: {n}",
@@ -12,6 +14,7 @@
   "ui.house_n": "Casa {n}",
   "ui.max": "MÁX",
   "ui.close": "Fechar",
+  "ui.swipe_hint": "‹  arraste para o lado  ›",
   "ui.back": "Voltar",
   "ui.level": "Nv {n}",
   "ui.recruit_title": "Escolha 1 de 3 goblins",
