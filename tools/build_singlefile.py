@@ -2,7 +2,7 @@
 """
 build_singlefile.py — Gera o build jogável de ARQUIVO ÚNICO.
 
-Pega a fonte modular (index.html + css/ + js/ + assets/) e produz
+Pega a fonte modular (index-dev.html + css/ + js/ + assets/) e produz
 `vila-de-goblins-jogavel.html`: um HTML só, com CSS, sprites (base64),
 JSONs e todos os módulos JS embutidos. Funciona offline, aberto direto
 do disco (file://), sem servidor e sem dependências.
