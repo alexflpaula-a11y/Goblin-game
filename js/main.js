@@ -11,6 +11,7 @@ const { Camera } = require('camera.js');
 const { World, WORLD } = require('world.js');
 const { Village, BUILDINGS, BUILD_ORDER } = require('village.js');
 const { Nodes } = require('nodes.js');
+const { Deities } = require('deities.js');
 const { UI } = require('ui.js');
 const { loadBalance, BAL } = require('balance.js');
 const { Goblin, ATTRS } = require('goblin.js');
@@ -63,7 +64,10 @@ const state = {
   equipSel: null,         // espaço do boneco selecionado ('capacete', ...)
   equipBack: 'armazem',   // p/ onde o "voltar" da tela de equipar vai
   abSel: 0,               // espaço de habilidade selecionado
-  invSel: null,           // item selecionado na grade do armazém
+  invSel: null,            // item selecionado na grade do armazém
+  // null | {mode:'build',type,preview,cursorSeq} |
+  //        {mode:'pick'} | {mode:'move',structure,type,preview,cursorSeq}
+  placement: null,
 };
 
 // ---------- Mundo / vila / câmera / UI ----------
@@ -71,7 +75,8 @@ const world = new World(7);
 const village = new Village(saved.village);
 world.setGoblinCount(village.goblins.length);
 const nodes = new Nodes(world, saved.nodes);
-nodes.syncFacilities(village);          // postos da Fazenda/Mina
+nodes.syncFacilities(village);          // posto infinito da Fazenda
+const deities = new Deities(world, village, nodes);
 const quests = new Quests(saved.quests);
 
 const camera = new Camera(
@@ -89,6 +94,7 @@ const RARITY_COLOR = { common: '#b9aedc', uncommon: '#4fa562', rare: '#4a90d8', 
 // toda estrutura nova aparece aqui automaticamente.
 const BUILD_DEFS = BUILD_ORDER.map((id) => ({
   id, sprite: BUILDINGS[id].sprite, lv: BUILDINGS[id].reqLevel,
+  deity: !!BUILDINGS[id].deity,
 }));
 const BUILD_PANEL = { x: 56, y: 34, w: 528, h: 312 };
 const CARDS_PER_PAGE = 6;
@@ -120,8 +126,6 @@ const NODE_YIELD = {
   tree: { res: 'wood', color: '#e8c476' },
   rock: { res: 'stone', color: '#cdd3de' },
   farm: { res: 'food', color: '#8fd98a' },
-  // a mina dá pedra e, às vezes, minério (quanto melhor a mina, mais)
-  mineshaft: { res: 'stone', color: '#cdd3de', bonus: { res: 'ore', color: '#b6c2d9' } },
 };
 
 function handleChop(node, goblin) {
@@ -131,18 +135,13 @@ function handleChop(node, goblin) {
   let yield_ = 1;
   // Trabalhador rende o dobro de vez em quando
   if (goblin?.specialty === 'worker' && Math.random() < 0.35) yield_ += 1;
-  // Serraria/Mina melhoram o rendimento do recurso correspondente
+  // A Serraria melhora o rendimento de árvores naturais ou divinas.
   if (node.type === 'tree' && village.has('serraria')) {
     if (Math.random() < 0.2 * village.levelOf('serraria')) yield_ += 1;
   }
 
-  let key = def.res;
-  let color = def.color;
-  // Mina: chance de sair minério em vez de pedra, escalando com o nível
-  if (def.bonus && Math.random() < 0.18 + 0.12 * (node.level || 1)) {
-    key = def.bonus.res;
-    color = def.bonus.color;
-  }
+  const key = def.res;
+  const color = def.color;
 
   village.add(key, yield_);
   world.floats.push({
@@ -151,7 +150,7 @@ function handleChop(node, goblin) {
     color,
   });
 
-  // Postos infinitos (fazenda/mina) nunca esgotam
+  // O posto infinito da Fazenda nunca esgota.
   if (node.infinite) return;
   node.stock -= 1;
   if (node.stock <= 0) {
@@ -187,8 +186,8 @@ function celebrateLevelUps(ups) {
   }
 }
 
-/** Constrói uma estrutura pelo catálogo, com mensagem clara de erro. */
-function tryBuild(type) {
+/** Abre o modo de posicionamento; o custo só é pago no toque no terreno. */
+function beginBuildPlacement(type) {
   const why = village.blockedReason(type);
   if (why?.reason === 'level') { toast('toast.village_level', { n: why.need }); return; }
   if (why?.reason === 'count') {
@@ -196,19 +195,71 @@ function tryBuild(type) {
     return;
   }
   if (why?.reason === 'cost') { toast('toast.need'); return; }
-
-  const s = village.build(type);
-  if (!s) { toast('toast.need'); return; }
-
-  nodes.syncFacilities(village);   // Fazenda/Mina ganham posto de trabalho
-  if (type === 'house') {
-    world.setGoblinCount(village.goblins.length);
-    toast('toast.built');
-    openRecruit();                 // casa nova → escolher 1 de 3
-  } else {
-    toast('toast.built_x', { name: i18n.t('bld.' + type) });
-  }
+  state.placement = {
+    mode: 'build', type,
+    preview: { x: camera.x, y: camera.y },
+    cursorSeq: input.cursorSeq,
+  };
+  state.screen = 'world';
+  toast('toast.place_choose', { name: i18n.t('bld.' + type) });
 }
+
+function beginMoveSelection() {
+  state.placement = { mode: 'pick', cursorSeq: input.cursorSeq };
+  state.screen = 'world';
+  toast('toast.move_pick');
+}
+
+/** Retorna null para uma posição válida ou a chave do erro. */
+function placementReason(x, y, ignore = null) {
+  const samples = [[0, -3], [-22, -5], [22, -5], [0, -22]];
+  if (samples.some(([dx, dy]) => world.tileAtPx(x + dx, y + dy) !== 3)) {
+    return 'toast.place_terrain';
+  }
+  if (village.structures.some((s) => s !== ignore && Math.hypot(x - s.x, y - s.y) < 72)) {
+    return 'toast.place_overlap';
+  }
+  if (nodes.list.some((n) => !n.depleted && !n.infinite && Math.hypot(x - n.x, y - n.y) < 52)) {
+    return 'toast.place_node';
+  }
+  return null;
+}
+
+function finishPlacement(x, y) {
+  const p = state.placement;
+  if (!p || (p.mode !== 'build' && p.mode !== 'move')) return false;
+  const reason = placementReason(x, y, p.structure || null);
+  if (reason) { toast(reason); return false; }
+
+  if (p.mode === 'build') {
+    const s = village.buildAt(p.type, x, y);
+    if (!s) { toast('toast.need'); return false; }
+    state.placement = null;
+    nodes.syncFacilities(village);
+    deities.sync();
+    if (p.type === 'house') {
+      world.setGoblinCount(village.goblins.length);
+      toast('toast.built');
+      openRecruit();
+    } else if (BUILDINGS[p.type]?.deity) {
+      toast('toast.built_activate', { name: i18n.t('bld.' + p.type) });
+    } else {
+      toast('toast.built_x', { name: i18n.t('bld.' + p.type) });
+    }
+    return true;
+  }
+
+  if (BUILDINGS[p.type]?.deity) deities.deactivate(p.type);
+  village.move(p.structure, x, y);
+  state.placement = null;
+  nodes.syncFacilities(village);
+  deities.sync();
+  toast('toast.moved', { name: i18n.t('bld.' + p.type) });
+  return true;
+}
+
+/** Compatibilidade interna: agora construir significa escolher a posição. */
+function tryBuild(type) { beginBuildPlacement(type); }
 
 // ---------- Mercado (etapa 1.6) ----------
 /** Abre a tela do Mercado — só se ele já estiver construído. */
@@ -304,6 +355,8 @@ function routeTap(id) {
   switch (id) {
     case 'close': state.screen = 'world'; break;
     case 'build_btn': state.screen = 'build'; break;
+    case 'move_btn': beginMoveSelection(); break;
+    case 'placement_cancel': state.placement = null; toast('toast.place_cancelled'); break;
     case 'close_build': state.screen = 'world'; break;
     case 'tab_0': state.buildTab = 0; state.buildScroll = 0; break;
     case 'tab_1': state.buildTab = 1; state.upgradeScroll = 0; break;
@@ -358,6 +411,7 @@ function routeTap(id) {
           toast('toast.village_level', { n: s.level + 1 });
         } else if (village.upgrade(s)) {
           nodes.syncFacilities(village);
+          deities.sync();
           toast('toast.upgraded');
         } else toast('toast.need');
         break;
@@ -493,6 +547,13 @@ function update(dt) {
   const g = input.consume();
   if (g.tap) { state.taps += 1; updateStatus(); }
 
+  // No desktop o fantasma acompanha o mouse; no celular acompanha o dedo.
+  if (state.placement && state.placement.mode !== 'pick'
+      && input.cursor && input.cursorSeq > (state.placement.cursorSeq ?? -1)) {
+    state.placement.preview = camera.screenToWorld(input.cursor.x, input.cursor.y);
+    state.placement.cursorSeq = input.cursorSeq;
+  }
+
   if (state.screen === 'world') {
     if (g.pan) camera.panByScreen(g.pan.dx, g.pan.dy);
     if (g.pinch) camera.zoomAt(g.pinch.mx, g.pinch.my, g.pinch.factor);
@@ -501,23 +562,39 @@ function update(dt) {
       const uiHit = ui.hit(g.tap);
       if (uiHit) { routeTap(uiHit); return; }
       const w = camera.screenToWorld(g.tap.x, g.tap.y);
-      // tocar em goblin trabalhando → chamar de volta
+
+      // Construção/mudança de lugar sempre tem prioridade sobre interações.
+      if (state.placement) {
+        if (state.placement.mode === 'pick') {
+          const picked = village.hitTest(w.x, w.y);
+          if (!picked) { toast('toast.move_pick'); return; }
+          state.placement = {
+            mode: 'move', type: picked.type, structure: picked,
+            preview: { x: picked.x, y: picked.y }, cursorSeq: input.cursorSeq,
+          };
+          toast('toast.move_choose', { name: i18n.t('bld.' + picked.type) });
+          return;
+        }
+        finishPlacement(w.x, w.y);
+        return;
+      }
+
+      // tocar em goblin trabalhando/louvando → chamar de volta
       for (const wk of world.goblins) {
         if (wk.job && Math.abs(w.x - wk.x) < 12 && Math.abs(w.y - (wk.y - 14)) < 20) {
-          wk.job.node.worker = null;
-          wk.job = null;
-          wk.wait = 0.3;
-          toast('toast.recalled');
+          if (wk.job.deityType) {
+            deities.releaseByWalker(wk);
+            toast('toast.deity_stopped');
+          } else {
+            if (wk.job.node) wk.job.node.worker = null;
+            wk.job = null;
+            wk.wait = 0.3;
+            toast('toast.recalled');
+          }
           return;
         }
       }
-      const node = nodes.hitTest(w.x, w.y);
-      if (node) {
-        if (node.worker != null) toast('toast.node_busy');
-        else if (!nodes.assign(node, world.goblins)) toast('toast.no_idle');
-        return;
-      }
-      // tocar numa estrutura abre a tela dela
+      // Estruturas têm prioridade sobre recursos que estejam atrás delas.
       const s = village.hitTest(w.x, w.y);
       if (s) {
         if (s.type === 'construction') state.screen = 'build';
@@ -526,7 +603,26 @@ function update(dt) {
         else if (s.type === 'cozinha') state.screen = 'kitchen';
         else if (s.type === 'mercado') openMarket();
         else if (s.type === 'armazem') state.screen = 'armazem';
-        else toast('toast.soon');
+        else if (BUILDINGS[s.type]?.deity) {
+          if (deities.isActive(s.type)) {
+            deities.deactivate(s.type);
+            toast('toast.deity_stopped');
+          } else {
+            const result = deities.activate(s.type, world.goblins);
+            if (!result.ok) toast(result.reason === 'no_idle' ? 'toast.no_idle' : 'toast.soon');
+            else {
+              const name = village.goblins[result.walker.i]?.name || i18n.t('ui.goblin');
+              toast('toast.deity_activating', { name, deity: i18n.t('bld.' + s.type) });
+            }
+          }
+        } else toast('toast.soon');
+        return;
+      }
+      const node = nodes.hitTest(w.x, w.y);
+      if (node) {
+        if (node.worker != null) toast('toast.node_busy');
+        else if (!nodes.assign(node, world.goblins)) toast('toast.no_idle');
+        return;
       }
     }
   } else {
@@ -554,14 +650,43 @@ function update(dt) {
     }
   }
 
-  // missões renovam sozinhas com o tempo
+  // missões e milagres continuam acontecendo com o tempo.
   quests.update(dt, village.level);
+  nodes.update(dt);
+  deities.update(dt);
 
   world.update(dt, {
     village,
     onChop: handleChop,
     workPeriod: BAL.nodes?.workPeriod ?? 1.2,
   });
+}
+
+function placementDrawList() {
+  const p = state.placement;
+  if (!p || p.mode === 'pick' || !p.preview) return [];
+  const { x, y } = p.preview;
+  const valid = !placementReason(x, y, p.structure || null);
+  const sprite = BUILDINGS[p.type]?.sprite || 'building_house_1';
+  return [{
+    y,
+    draw: (c) => {
+      c.save();
+      c.globalAlpha = 0.68;
+      c.drawImage(getSprite(sprite), x - 32, y - 60, 64, 64);
+      c.globalAlpha = 0.9;
+      c.strokeStyle = valid ? '#75e083' : '#ff6b5e';
+      c.lineWidth = 2;
+      c.beginPath();
+      c.ellipse(x, y + 1, 34, 12, 0, 0, Math.PI * 2);
+      c.stroke();
+      c.fillStyle = valid ? '#9ff0a9' : '#ff9a90';
+      c.font = 'bold 10px monospace';
+      c.textAlign = 'center';
+      c.fillText(valid ? '✓' : '✕', x, y - 66);
+      c.restore();
+    },
+  }];
 }
 
 // ---------- Render ----------
@@ -572,7 +697,10 @@ function render(time) {
   ctx.fillRect(0, 0, CONFIG.LOGICAL_WIDTH, CONFIG.LOGICAL_HEIGHT);
 
   camera.applyTransform(ctx, scaleFactor);
-  world.draw(ctx, time, camera.visible(), [...village.drawList(), ...nodes.drawList()]);
+  world.draw(ctx, time, camera.visible(), [
+    ...village.drawList(), ...nodes.drawList(), ...deities.drawList(time),
+    ...placementDrawList(),
+  ]);
 
   ctx.setTransform(scaleFactor, 0, 0, scaleFactor, 0, 0);
   drawOverlay(time);
@@ -673,8 +801,16 @@ function drawOverlay(time) {
 }
 
 function drawWorldButtons() {
-  // Barra de ações do mundo — agora só com ÍCONES (sem texto).
-  // Cada ação vira um botão quadrado rústico com o respectivo ícone.
+  if (state.placement) {
+    const p = state.placement;
+    const key = p.mode === 'pick' ? 'ui.move_pick' : (p.mode === 'move' ? 'ui.move_choose' : 'ui.place_choose');
+    const params = p.type ? { name: i18n.t('bld.' + p.type) } : {};
+    ui.woodSign(118, 302, 390, 24, i18n.t(key, params), 10);
+    ui.button('placement_cancel', 516, 302, 112, 28, i18n.t('ui.cancel'), true);
+    return;
+  }
+
+  // Barra de ações do mundo — ícones de telas + opção universal de mover.
   const ready = quests.list.filter((q) => q.canDeliver(village)).length;
 
   const acts = [
@@ -685,6 +821,7 @@ function drawWorldButtons() {
   if (village.has('cozinha')) acts.push({ id: 'kitchen_btn', icon: 'ui_icon_kitchen' });
   if (village.has('mercado')) acts.push({ id: 'market_btn', icon: 'ui_icon_market' });
   if (village.has('armazem')) acts.push({ id: 'armazem_btn', icon: 'ui_icon_armazem' });
+  acts.push({ id: 'move_btn', glyph: '↔' });
   acts.push({
     id: 'roster_btn', icon: 'ui_icon_village', active: true,
     badge: { text: String(village.goblins.length), color: '#a78bfa', ink: '#1b1530' },
@@ -694,7 +831,13 @@ function drawWorldButtons() {
   let x = 8;
   for (const a of acts) {
     ui.iconBtn(a.id, x, y, s, !!a.active);
-    ctx.drawImage(getSprite(a.icon), x + (s - iconSize) / 2, y + (s - iconSize) / 2, iconSize, iconSize);
+    if (a.icon) {
+      ctx.drawImage(getSprite(a.icon), x + (s - iconSize) / 2, y + (s - iconSize) / 2, iconSize, iconSize);
+    } else {
+      ui.text(x + s / 2, y + s / 2 + 2, a.glyph || '?', {
+        align: 'center', size: 23, bold: true, color: '#ffe9a8',
+      });
+    }
     if (a.badge) ui.badge(x + s - 6, y + 6, a.badge.text, a.badge.color, a.badge.ink);
     x += s + gap;
   }
@@ -757,6 +900,11 @@ function drawStructureCards(P) {
 
     ui.woodSign(x + 4, y + 3, w - 8, 14, i18n.t('bld.' + def.id), 8);
     const cx = x + w / 2;
+    if (def.deity) {
+      ui.text(cx, y + 27, i18n.t('ui.deity'), {
+        align: 'center', size: 7, bold: true, color: '#9b5f16',
+      });
+    }
     const locked = def.lv > vLv;
     const built = village.countOf(def.id);
     const maxCount = BUILDINGS[def.id].maxCount;
@@ -1661,6 +1809,15 @@ async function init() {
     village.goblins[0].hp = Math.max(1, Math.floor(village.goblins[0].maxHp * 0.3));
     openEquip(0, 'armazem');
   }
+  else if (demo === 'deities') {
+    // Mostra as duas divindades lado a lado, já prontas para animar.
+    village.level = Math.max(village.level, 3);
+    village.res.wood += 999; village.res.stone += 999; village.res.gold += 999;
+    if (!village.has('grande_arvore')) village.build('grande_arvore');
+    if (!village.has('golem_pedra')) village.build('golem_pedra');
+    deities.sync();
+    camera.x = world.clearing.x; camera.y = world.clearing.y; camera.zoom = 1.2;
+  }
   else if (demo === 'nodes' || demo === 'work' || demo === 'stumps') {
     const t = nodes.list.find((n) => n.type === 'tree' && !n.depleted);
     if (t) {
@@ -1693,5 +1850,9 @@ init();
 module.exports = {
   get state() { return state; },
   get village() { return village; },
+  get world() { return world; },
+  get nodes() { return nodes; },
+  get deities() { return deities; },
+  get camera() { return camera; },
   get quests() { return quests; },
 };

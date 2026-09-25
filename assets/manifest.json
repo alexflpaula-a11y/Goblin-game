@@ -1785,10 +1785,6 @@
       "path": "assets/sprites/buildings/building_mercado_1.png"
     },
     {
-      "id": "building_mina_1",
-      "path": "assets/sprites/buildings/building_mina_1.png"
-    },
-    {
       "id": "building_porto_1",
       "path": "assets/sprites/buildings/building_porto_1.png"
     },
@@ -16847,6 +16843,18 @@
     {
       "id": "ui_icon_village",
       "path": "assets/sprites/ui/ui_icon_village.png"
+    },
+    {
+      "id": "building_grande_arvore_1",
+      "path": "assets/sprites/deities/building_grande_arvore_1.png"
+    },
+    {
+      "id": "building_golem_pedra_1",
+      "path": "assets/sprites/deities/building_golem_pedra_1.png"
+    },
+    {
+      "id": "fx_pedra_divina",
+      "path": "assets/sprites/deities/fx_pedra_divina.png"
     }
   ]
 }

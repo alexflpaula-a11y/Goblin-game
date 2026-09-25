@@ -44,9 +44,13 @@ const BUILDINGS = {
     sprite: 'building_mercado_1', reqLevel: 3, maxCount: 1, maxLevel: 3,
     cost: { wood: 60, stone: 30, gold: 50 },
   },
-  mina: {
-    sprite: 'building_mina_1', reqLevel: 4, maxCount: 1, maxLevel: 3,
-    cost: { wood: 70, stone: 60 },
+  grande_arvore: {
+    sprite: 'building_grande_arvore_1', reqLevel: 3, maxCount: 1, maxLevel: 3,
+    deity: true, cost: { wood: 75, stone: 35, gold: 25 },
+  },
+  golem_pedra: {
+    sprite: 'building_golem_pedra_1', reqLevel: 3, maxCount: 1, maxLevel: 3,
+    deity: true, cost: { wood: 35, stone: 90, gold: 25 },
   },
   estabulo: {
     sprite: 'building_estabulo_1', reqLevel: 4, maxCount: 1, maxLevel: 3,
@@ -75,8 +79,8 @@ const BUILDINGS = {
 };
 
 // Ordem de exibição no catálogo da Casa de Construção
-const BUILD_ORDER = ['house', 'serraria', 'fazenda', 'armazem', 'cozinha', 'mercado', 'mina',
-  'estabulo', 'ferraria', 'altar', 'bazar', 'porto', 'quartel'];
+const BUILD_ORDER = ['house', 'serraria', 'fazenda', 'armazem', 'cozinha', 'mercado',
+  'grande_arvore', 'golem_pedra', 'estabulo', 'ferraria', 'altar', 'bazar', 'porto', 'quartel'];
 
 // Posições fixas (slots) para novas casas dentro da clareira
 const HOUSE_SLOTS = [
@@ -89,8 +93,8 @@ const HOUSE_SLOTS = [
 const STRUCT_SLOTS = {
   serraria: [790, 660], fazenda: [1130, 660],
   cozinha: [790, 790], mercado: [1130, 790],
-  mina: [760, 726], estabulo: [1160, 726],
-  ferraria: [850, 620], altar: [1070, 620],
+  grande_arvore: [760, 726], golem_pedra: [1160, 726],
+  estabulo: [1205, 650], ferraria: [850, 620], altar: [1070, 620],
   bazar: [850, 830], porto: [1070, 830],
   quartel: [960, 590], armazem: [960, 858],
 };
@@ -101,11 +105,13 @@ class Village {
     for (const k of ['wood', 'stone', 'ore', 'food', 'gold']) {
       if (this.res[k] == null) this.res[k] = 0;
     }
-    this.structures = data?.structures || [
+    const initialStructures = data?.structures || [
       { type: 'construction', level: 1, x: 920, y: 706 },
       { type: 'quest', level: 1, x: 960, y: 630 },
       { type: 'house', level: 1, x: 1000, y: 706, slot: 0 },
     ];
+    // Migração transparente: a Mina foi retirada do jogo.
+    this.structures = initialStructures.filter((s) => s.type !== 'mina');
     this.goblins = (data?.goblins || []).map((d) => new Goblin(d));
     if (this.goblins.length === 0) this.goblins.push(Goblin.roll(0));
     this.recruitedCount = data?.recruitedCount ?? this.goblins.length;
@@ -262,17 +268,24 @@ class Village {
 
   // ---------- Construir ----------
   /**
-   * Constrói uma estrutura. Retorna a estrutura criada ou null.
-   * Casas usam HOUSE_SLOTS; as demais têm um ponto fixo na clareira.
+   * Constrói uma estrutura. `position` permite ao jogador escolher o ponto;
+   * sem ele, os slots antigos continuam servindo aos testes/demos e saves.
    */
-  build(type) {
+  build(type, position = null) {
     if (!this.canBuild(type)) return null;
     const cost = this.buildCost(type);
 
     let x;
     let y;
     let slot;
-    if (type === 'house') {
+    if (position && Number.isFinite(position.x) && Number.isFinite(position.y)) {
+      x = Math.round(position.x);
+      y = Math.round(position.y);
+      if (type === 'house') {
+        slot = this.nextSlot;
+        this.nextSlot += 1;
+      }
+    } else if (type === 'house') {
       if (this.nextSlot >= HOUSE_SLOTS.length) return null;
       slot = this.nextSlot;
       [x, y] = HOUSE_SLOTS[slot];
@@ -286,6 +299,17 @@ class Village {
     if (slot != null) s.slot = slot;
     this.structures.push(s);
     return s;
+  }
+
+  buildAt(type, x, y) { return this.build(type, { x, y }); }
+
+  /** Move sem custo uma estrutura já construída. */
+  move(structure, x, y) {
+    if (!structure || !this.structures.includes(structure)) return false;
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return false;
+    structure.x = Math.round(x);
+    structure.y = Math.round(y);
+    return true;
   }
 
   /** Compatibilidade com o código antigo. */
@@ -326,18 +350,22 @@ class Village {
 
   // ---------- Render / hit-test no mundo ----------
   drawList() {
-    return this.structures.map((s) => ({
-      y: s.y,
-      draw: (ctx) => {
-        const spr = getSprite(BUILDINGS[s.type]?.sprite || 'building_house_1');
-        ctx.drawImage(spr, s.x - 32, s.y - 60, 64, 64);
-        // pips de nível
-        for (let i = 0; i < s.level; i++) {
-          ctx.fillStyle = '#e8b23a';
-          ctx.fillRect(s.x - 10 + i * 7, s.y - 66, 4, 4);
-        }
-      },
-    }));
+    // Divindades são desenhadas pelo deities.js, pois seus sprites respiram,
+    // cantam/arremessam e têm um acólito. Aqui ficam os prédios estáticos.
+    return this.structures
+      .filter((s) => !BUILDINGS[s.type]?.deity)
+      .map((s) => ({
+        y: s.y,
+        draw: (ctx) => {
+          const spr = getSprite(BUILDINGS[s.type]?.sprite || 'building_house_1');
+          ctx.drawImage(spr, s.x - 32, s.y - 60, 64, 64);
+          // pips de nível
+          for (let i = 0; i < s.level; i++) {
+            ctx.fillStyle = '#e8b23a';
+            ctx.fillRect(s.x - 10 + i * 7, s.y - 66, 4, 4);
+          }
+        },
+      }));
   }
 
   hitTest(wx, wy) {

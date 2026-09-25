@@ -95,10 +95,42 @@ class GoblinWalker {
     // qual goblin do roster este walker representa (p/ vestir o equip dele)
     this.goblin = api.village?.goblins?.[this.i] ?? this.goblin ?? null;
 
+    // ----- louvando uma divindade (ativação manual) -----
+    if (this.job?.deityType) {
+      const target = this.job.target;
+      if (this.job.type === 'worship-goto') {
+        const dx = target.x - this.x, dy = target.y - this.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 3) {
+          this.x = target.x; this.y = target.y;
+          this.face = target.face;
+          this.job.type = 'worship';
+          this.anim = 'idle'; this.frame = 0; this.animT = 0;
+        } else {
+          this.x += (dx / Math.max(0.001, dist)) * this.speed * 1.3 * dt;
+          this.y += (dy / Math.max(0.001, dist)) * this.speed * 1.3 * dt;
+          this.face = dx >= 0 ? 1 : -1;
+          this.anim = 'walk';
+          this.animT += dt;
+          if (this.animT > 0.09) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
+        }
+      } else {
+        // Reverência em 12 poses por ciclo usando os quadros idle existentes.
+        this.x = target.x; this.y = target.y; this.face = target.face;
+        this.anim = 'idle';
+        this.animT += dt;
+        if (this.animT > 0.12) { this.animT = 0; this.frame = (this.frame + 1) % 12; }
+      }
+      return;
+    }
+
     // ----- trabalhando -----
     if (this.job) {
       const node = this.job.node;
-      if (node.depleted) { this.job = null; node.worker = null; this.wait = 0.4; }
+      if (!node || node.depleted) {
+        if (node) node.worker = null;
+        this.job = null; this.wait = 0.4;
+      }
       else if (this.job.type === 'goto') {
         const dx = node.x - this.x, dy = (node.y + 6) - this.y;
         const dist = Math.hypot(dx, dy);
@@ -176,11 +208,24 @@ class GoblinWalker {
     // this.frame é compartilhado entre animações de tamanhos diferentes.
     const frame = this.frame % (ANIM_FRAMES[this.anim] || 1);
     const spr = getSprite(gear.spriteForGoblin(this.goblin, this.anim, frame));
+    const worship = this.job?.type === 'worship';
+    const worshipPhase = (this.frame % 12) / 12 * Math.PI * 2;
     ctx.save();
     ctx.translate(this.x, this.y);
-    ctx.scale(this.face, 1);
+    const bow = worship ? 0.76 + Math.abs(Math.sin(worshipPhase)) * 0.10 : 1;
+    ctx.scale(this.face, bow);
+    ctx.rotate(worship ? Math.sin(worshipPhase) * 0.035 * this.face : 0);
     ctx.drawImage(spr, -16, -30, 32, 32);
     ctx.restore();
+    if (worship) {
+      ctx.save();
+      ctx.globalAlpha = 0.58 + Math.sin(worshipPhase) * 0.22;
+      ctx.fillStyle = this.job.deityType === 'grande_arvore' ? '#b7ef78' : '#f1c85a';
+      ctx.font = 'bold 9px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('✦', this.x, this.y - 34 - Math.abs(Math.sin(worshipPhase)) * 3);
+      ctx.restore();
+    }
   }
 }
 

@@ -8,6 +8,8 @@
  *   D. mercado: compra respeita a capacidade do armazém (UI real)
  *   E. recrutamento de verdade: construir casa → escolher 1 de 3
  *   F. subir 2+ níveis de uma vez anuncia TODOS os desbloqueios
+ *   G. divindades começam vazias e só animam após toque do jogador
+ *   H. estruturas podem ser movidas para um ponto escolhido no mapa
  *
  * Uso:  node tools/boot_test.mjs
  */
@@ -262,7 +264,10 @@ const appE = await boot('');
 tapRegion('build_btn');
 ok(has('bcard_house'), 'catálogo mostra a Casa');
 tapRegion('bcard_house');
-ok(['card_0', 'card_1', 'card_2'].every(has), 'construir casa abre a escolha de 1 de 3');
+ok(appE.state.placement?.mode === 'build', 'Casa entra no modo de escolher posição');
+const houseSpot = appE.camera.worldToScreen(860, 760);
+tap(houseSpot.x, houseSpot.y);
+ok(['card_0', 'card_1', 'card_2'].every(has), 'colocar a casa abre a escolha de 1 de 3');
 const before = appE.village.goblins.length;
 tapRegion('card_1');
 ok(appE.village.goblins.length === before + 1, 'goblin recrutado entrou na vila');
@@ -279,6 +284,51 @@ ok(appE.village.level >= 3, `vila subiu vários níveis (agora nível ${appE.vil
 const msg = appE.state.toast?.msg || '';
 ok(msg.includes('Serraria') && msg.includes('Cozinha') && msg.includes('Ferraria'),
   'toast anuncia desbloqueios do nível 2, 3 E 5 (salto múltiplo)', msg);
+
+// ============================================================
+console.log('\x1b[1mBOOT G — divindades exigem ativação manual\x1b[0m');
+const appG = await boot('?demo=deities');
+ok(appG.village.has('grande_arvore') && appG.village.has('golem_pedra'),
+  'demo constrói as duas divindades de nível 3');
+ok(!appG.deities.isActive('grande_arvore') && !appG.deities.isActive('golem_pedra')
+  && appG.world.goblins.every((w) => !w.job),
+  'nenhum goblin começa preso às estruturas');
+const treePos = appG.camera.worldToScreen(appG.village.get('grande_arvore').x, appG.village.get('grande_arvore').y - 20);
+tap(treePos.x, treePos.y);
+ok(appG.deities.isActive('grande_arvore'), 'tocar na Grande Árvore envia um goblin');
+for (let i = 0; i < 100; i++) appG.world.update(0.1, { village: appG.village });
+ok(appG.world.goblins[0].job?.type === 'worship', 'goblin caminha até a árvore e começa a louvar');
+for (let i = 0; i < 28; i++) { appG.nodes.update(0.1); appG.deities.update(0.1); }
+ok(appG.deities.states.grande_arvore.mode === 'chant', 'Grande Árvore canta após o goblin chegar');
+appG.deities.deactivate('grande_arvore');
+const golemPos = appG.camera.worldToScreen(appG.village.get('golem_pedra').x, appG.village.get('golem_pedra').y - 20);
+tap(golemPos.x, golemPos.y);
+ok(appG.deities.isActive('golem_pedra'), 'tocar no Golem envia o goblin agora livre');
+for (let i = 0; i < 120; i++) appG.world.update(0.1, { village: appG.village });
+ok(appG.world.goblins[0].job?.type === 'worship', 'goblin caminha até o Golem e começa a louvar');
+for (let i = 0; i < 40; i++) { appG.nodes.update(0.1); appG.deities.update(0.1); }
+ok(appG.deities.projectiles.length > 0, 'pedra rúnica está voando em arco');
+ok(appG.deities.drawList(4).length >= 4, 'render inclui divindades, sombra e projétil polido');
+step(2);
+ok(true, 'frame animado desenha sem erro');
+
+// ============================================================
+console.log('\x1b[1mBOOT H — mover qualquer estrutura\x1b[0m');
+appG.deities.deactivate('golem_pedra');
+step(1);
+tapRegion('move_btn');
+ok(appG.state.placement?.mode === 'pick', 'botão Mover pede uma estrutura');
+const oldTree = { x: appG.village.get('grande_arvore').x, y: appG.village.get('grande_arvore').y };
+const oldTreeScreen = appG.camera.worldToScreen(oldTree.x, oldTree.y - 20);
+tap(oldTreeScreen.x, oldTreeScreen.y);
+ok(appG.state.placement?.mode === 'move', 'estrutura escolhida vira um fantasma móvel');
+const newTree = { x: 850, y: 780 };
+const newTreeScreen = appG.camera.worldToScreen(newTree.x, newTree.y);
+tap(newTreeScreen.x, newTreeScreen.y);
+ok(appG.state.placement === null
+  && appG.village.get('grande_arvore').x === newTree.x
+  && appG.village.get('grande_arvore').y === newTree.y,
+  'novo local escolhido é salvo na estrutura');
 
 console.log(`\n  ${passes} passaram · ${fails} falharam`);
 process.exit(fails ? 1 : 0);

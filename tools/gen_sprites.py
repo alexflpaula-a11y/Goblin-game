@@ -283,36 +283,6 @@ def armazem():
     return g
 
 
-def mina():
-    """Mina: encosta de pedra com entrada escorada e vagonete."""
-    g = blank()
-    # morro
-    for i, y in enumerate(range(8, 28)):
-        w = 4 + i
-        rect(g, 16 - w // 2 - 2, y, 16 + w // 2 + 2, y, STONE)
-    for x, y in ((10, 14), (21, 17), (13, 22), (24, 23), (8, 20)):
-        disc(g, x, y, 1, STONE_D)
-    hline(g, 4, 28, 12, STONE_L)
-    # entrada
-    rect(g, 12, 18, 20, 27, DARK)
-    for i in range(4):                                       # arco
-        px(g, 12 + i, 17 - (1 if i > 1 else 0), DARK)
-        px(g, 20 - i, 17 - (1 if i > 1 else 0), DARK)
-    rect(g, 13, 16, 19, 17, DARK)
-    # escoras de madeira
-    vline(g, 11, 17, 27, WOOD_D)
-    vline(g, 21, 17, 27, WOOD_D)
-    rect(g, 10, 15, 22, 16, WOOD)
-    # vagonete
-    rect(g, 23, 24, 28, 26, WOOD_X)
-    px(g, 24, 23, STONE_L)
-    px(g, 26, 23, STONE_L)
-    disc(g, 24, 27, 1, DARK)
-    disc(g, 27, 27, 1, DARK)
-    hline(g, 4, 29, 28, STONE_D)
-    outline(g)
-    return g
-
 
 def estabulo():
     """Estábulo: celeiro largo com porta em arco e cerca."""
@@ -543,7 +513,6 @@ BUILDINGS = {
     'building_armazem_1': armazem,
     'building_cozinha_1': cozinha,
     'building_mercado_1': mercado,
-    'building_mina_1': mina,
     'building_estabulo_1': estabulo,
     'building_ferraria_1': ferraria,
     'building_altar_1': altar,

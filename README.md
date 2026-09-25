@@ -4,7 +4,7 @@
 [![Jogar online](https://img.shields.io/badge/jogar-online-2ea44f?logo=itch.io&logoColor=white)](https://alexflpaula-a11y.github.io/Goblin-game/)
 [![Licença: MIT](https://img.shields.io/badge/licença-MIT-blue.svg)](LICENSE)
 
-Jogo mobile-first de **gerenciamento de vila + batalhas por turnos**, em HTML5 Canvas + JavaScript puro (sem dependências). Você controla uma vila de goblins: corte madeira, minere, construa estruturas, cumpra missões, cozinhe, recrute goblins (escolhendo 1 entre 3, com **45 variações visuais**) e — nas próximas fases — invada outras vilas.
+Jogo mobile-first de **gerenciamento de vila + batalhas por turnos**, em HTML5 Canvas + JavaScript puro (sem dependências). Você controla uma vila de goblins: corte madeira, colete pedras, erga divindades, cumpra missões, cozinhe, recrute goblins (escolhendo 1 entre 3, com **45 variações visuais**) e — nas próximas fases — invada outras vilas.
 
 > ### 🎮 [**Clique aqui para jogar agora →**](https://alexflpaula-a11y.github.io/Goblin-game/)
 > A raiz publicada serve a versão de arquivo único (carrega num toque, funciona offline). O GitHub Pages republica sozinho a cada push na `main`.
@@ -45,8 +45,11 @@ python3 -m http.server 8080
 | Pinça (2 dedos) / roda do mouse | zoom (0.7x–3x) |
 | Toque em árvore/pedra/posto | manda o goblin livre mais próximo trabalhar |
 | Toque no goblin trabalhando | chama ele de volta |
-| Toque num prédio | abre a tela dele |
-| Botões no rodapé | **Construir**, **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
+| Toque numa divindade | envia/retira um goblin para ativar o culto |
+| Construir → toque no mapa | escolhe exatamente onde colocar a estrutura |
+| Botão ↔ → estrutura → mapa | move qualquer estrutura já construída |
+| Toque nos outros prédios | abre a tela correspondente |
+| Botões no rodapé | **Construir**, **Mover**, **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
 
 ## 🔄 O ciclo do jogo
 
@@ -62,12 +65,14 @@ A **vila sobe de nível** com o XP das missões. Cada nível libera novas estrut
 |---|---|
 | 1 | Casa de Construção · Casa de Goblin · Painel de Missões |
 | 2 | Serraria · Fazenda · **Armazém** |
-| 3 | Cozinha · Mercado |
-| 4 | Mina · Estábulo |
+| 3 | Cozinha · Mercado · **Grande Árvore** · **Golem de Pedra** |
+| 4 | Estábulo |
 | 5 | Ferraria |
 | 6 | Altar · Bazar |
 | 7 | Porto |
 | 8 | Quartel |
+
+No nível 3, a **Grande Árvore** canta e faz árvores brotarem do chão, enquanto o **Golem de Pedra** cria e arremessa rochas rúnicas que caem e permanecem coletáveis na ilha. As divindades começam vazias: toque nelas para enviar um goblin livre e iniciar o culto; toque novamente para liberá-lo. A ilha nunca ultrapassa **40 árvores e 40 pedras no total**, e os novos recursos divinos só surgem longe das estruturas.
 
 ## 🏚️ Armazém, inventário e equipamento
 
@@ -97,7 +102,8 @@ js/
   input.js          gestos multi-toque (pan/pinch/tap) + mouse
   camera.js         câmera livre com clamp na ilha
   world.js          ilha procedural + goblins que passeiam/trabalham
-  nodes.js          postos de trabalho: nós finitos + fazenda/mina infinitas
+  nodes.js          nós naturais + árvores/rochas divinas renováveis
+  deities.js        cantos, arremessos, acólitos e limite dos milagres
   village.js        recursos, catálogo de estruturas, XP/nível da vila
   goblin.js         entidade: 6 atributos, especialidade, raridade, XP
   quests.js         painel de missões (itens → ouro + XP da vila)
@@ -114,7 +120,7 @@ js/
 assets/
   data/             balance.json, i18n.pt-br.json, i18n.en.json
   manifest.json     lista de sprites (nomes lógicos → caminhos)
-  sprites/          PNGs 32×32 por categoria
+  sprites/          PNGs por categoria (inclui divindades 64×64 geradas por IA)
 tools/              build, testes e geração de sprites
 docs/               documentação
   planejamento-jogo-gnomos.md  planejamento completo + log de desenvolvimento
@@ -130,7 +136,7 @@ art-source/         arte-fonte do autor (NÃO carregada em runtime)
 ## 🤖 Automação (CI/CD)
 
 - **Testes automáticos** — o fluxo `.github/workflows/ci.yml` roda as 7 suítes (`bash tools/test.sh`) em cada Pull Request e em pushes para a `main`, bloqueando merges que quebrem algo. O status aparece no badge no topo.
-- **Publicação automática** — o GitHub Pages republica sozinho a cada push na `main`. A raiz `index.html` apenas **redireciona para `vila-de-goblins-jogavel.html`** (o build de arquivo único), então o link online sempre carrega a versão rápida — sem os 4212 pedidos de sprite da versão de desenvolvimento.
+- **Publicação automática** — o GitHub Pages republica sozinho a cada push na `main`. A raiz `index.html` apenas **redireciona para `vila-de-goblins-jogavel.html`** (o build de arquivo único), então o link online sempre carrega a versão rápida — sem milhares de pedidos de sprite da versão de desenvolvimento.
 
 > **Fluxo recomendado:** trabalhe numa branch → abra um PR (o CI roda os testes) → depois de aprovado, dê merge na `main`. Lembre-se de rodar `python3 tools/build_singlefile.py` e commitar o `vila-de-goblins-jogavel.html` sempre que mexer em `js/`, `css/` ou `assets/`.
 
@@ -181,7 +187,7 @@ em `js/save.js`; o sistema (save/load/autosave a cada 10s) continua intacto.
 
 ## 📜 Status
 
-**Fase 1 concluída (1.1 → 1.8):** ilha + câmera, goblins + habitação + recrutamento 1-de-3, recursos finitos, trabalho, construção de todas as estruturas, missões, XP/nível da vila, cozinha, fontes renováveis e **Mercado** (vender o excedente por ouro, comprar o que falta).
+**Fase 1 concluída (1.1 → 1.8):** ilha + câmera, goblins + habitação + recrutamento 1-de-3, recursos finitos, trabalho, construção de todas as estruturas, missões, XP/nível da vila, cozinha, **Mercado** e as duas divindades renováveis (Grande Árvore e Golem de Pedra).
 
 **Etapa 1.7 — Armazém & Inventário:** o **Armazém** (vila nv 2, melhorável: 16/24/32 espaços) abre o inventário da vila com todos os recursos + despensa numa área e os **itens de equipamento em slots** na outra. 14 equipamentos (sem status por enquanto): conjunto Avaritia (peitoral 120, capacete 150, calça 90 ouro), conjunto de ferro (capacete 45, peitoral 60, calça 40), botas de couro, anel de cobre/rubi, colar de presas, espada, clava, escudo e runa azul. A interface de equipar tem **10 espaços rodando o goblin** (capacete, peitoral, botas, calça, 2 anéis, arma primária, arma secundária, runa, colar) + aba **Alimentos** (alimentar goblins) + aba **Habilidades** (2 espaços por goblin, por especialidade + genéricas). Cada goblin veste o que quiser — as peças Avaritia e o peitoral de ferro mudam o sprite individualmente.
 
