@@ -116,11 +116,13 @@ ok(inv.equip(v, g0, 'anel1', 'anel_cobre') && inv.equip(v, g0, 'anel2', 'anel_co
 ok(g0.equip.anel1 === 'anel_cobre' && g0.equip.anel2 === 'anel_cobre', 'anel I e anel II ocupados');
 
 // ---------- sprites por goblin ----------
-ok(gear.spriteForGoblin(g0, 'idle', 0) === 'goblin_idle_0',
-  'sem peças com skin: sprite base (espada não muda sprite)');
+ok(gear.spriteForGoblin(g0, 'idle', 0) === `variant_${g0.variation}_idle_0`,
+  'sem peças com skin: mantém a variação física (espada não muda sprite)');
 v.addItem('peitoral_ferro', 1);
 ok(inv.equip(v, g0, 'peitoral', 'peitoral_ferro'), 'g0 veste peitoral de ferro');
-ok(gear.spriteForGoblin(g0, 'attack', 5) === 'ferro_pei_attack_5', 'peitoral de ferro sozinho → skin ferro_pei');
+ok(gear.spriteForGoblin(g0, 'attack', 5) ===
+  `composite|variant_${g0.variation}_attack_5|overlay_ferro_pei_attack_5`,
+  'peitoral de ferro preserva a variação física');
 ok(gear.spriteForGoblin(g1, 'idle', 0) === 'goblin_idle_0', 'g1 continua de sprite base');
 
 v.res.gold = 100000;
@@ -140,6 +142,14 @@ v.addItem('peitoral_ferro', 1);
 inv.equip(v, g1, 'peitoral', 'peitoral_ferro');
 ok(gear.spriteForGoblin(g1, 'idle', 0) === 'av_cap_cal_idle_0',
   'mistura: avaritia vence sobre ferro');
+
+const varied = new Goblin({ name: 'Ruk', variation: '07_cicatriz' });
+ok(gear.spriteForGoblin(varied, 'walk', 4) === 'variant_07_cicatriz_walk_4',
+  'variação física escolhe seu próprio quadro');
+varied.equip.peitoral = 'peitoral_ferro';
+ok(gear.spriteForGoblin(varied, 'idle', 2) ===
+  'composite|variant_07_cicatriz_idle_2|overlay_ferro_pei_idle_2',
+  'variação e armadura são compostas sem apagar a aparência');
 
 // ---------- desequipar ----------
 const volta = inv.unequip(v, g0, 'arma_primaria');

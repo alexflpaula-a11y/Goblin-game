@@ -7,6 +7,11 @@
 // para todas as combinações, e o peitoral de FERRO tem a própria
 // skin quando usado sozinho (sem peças avaritia por cima).
 //
+// Goblins recrutados também têm uma das 45 variações físicas. Quando há
+// equipamento e variação ao mesmo tempo, retornamos um id `composite|...`;
+// assetLoader.js desenha a aparência e o overlay da armadura em um canvas
+// cacheado. Assim marcas, tons de pele e acessórios não somem ao equipar.
+//
 // Os sprites seguem a mesma convenção do base:
 //   av_pei_idle_0, av_cap_pei_walk_3, av_full_death_7, ferro_pei_attack_5...
 // ============================================================
@@ -36,10 +41,19 @@ function versionForEquip(equip) {
   return null;
 }
 
-/** Id do sprite DESTE goblin vestindo o que ele equipou. */
+/** Id do sprite DESTE goblin, combinando aparência e equipamento. */
 function spriteForGoblin(goblin, anim, frame) {
   const ver = goblin?.equip ? versionForEquip(goblin.equip) : null;
-  return ver ? `${ver}_${anim}_${frame}` : `goblin_${anim}_${frame}`;
+  const variant = goblin?.variation
+    ? `variant_${goblin.variation}_${anim}_${frame}`
+    : null;
+
+  if (!ver) return variant || `goblin_${anim}_${frame}`;
+  if (!variant) return `${ver}_${anim}_${frame}`;
+
+  // O overlay contém apenas pixels que a skin muda em relação ao goblin base.
+  // `getSprite` compõe e memoriza o resultado na primeira utilização.
+  return `composite|${variant}|overlay_${ver}_${anim}_${frame}`;
 }
 
 module.exports = { VERSIONS, versionForEquip, spriteForGoblin };

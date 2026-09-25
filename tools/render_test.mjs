@@ -230,12 +230,14 @@ check('prefixos dinâmicos têm traduções', orphanPrefix.length === 0, orphanP
 const { BUILD_ORDER } = req('village.js');
 const inventory = req('inventory.js');
 const abilities = req('abilities.js');
+const { VARIATIONS } = req('goblin.js');
 const dyn = [
   ...BUILD_ORDER.map((id) => 'bld.' + id),
   ...['wood', 'stone', 'ore', 'food', 'gold'].map((r) => 'res.' + r),
   ...cookingMeals(),
   ...['warrior', 'mage', 'healer', 'cook', 'worker', 'runner', 'common'].map((s) => 'spec.' + s),
   ...['common', 'uncommon', 'rare', 'epic'].map((r) => 'rarity.' + r),
+  ...VARIATIONS.map((v) => 'variation.' + v),
   ...inventory.EQUIP_SLOTS.map((s) => 'slot.' + s),
   ...inventory.SLOT_TYPES.map((s) => 'slot.' + s),
   ...inventory.ITEMS.map((i) => 'item.' + i.id),
@@ -276,6 +278,31 @@ for (const ver of ['ferro_pei', 'av_full', 'av_cap_pei', 'av_pei_cal', 'av_cap_c
 }
 check('todas as skins de equipamento existem no manifest', skinMissing.length === 0,
   skinMissing.slice(0, 4).join(', '));
+
+const variationMissing = [];
+for (const variant of VARIATIONS) {
+  for (const [anim, n] of anims) {
+    for (let i = 0; i < n; i++) {
+      const id = `variant_${variant}_${anim}_${i}`;
+      if (!haveSprites.has(id)) variationMissing.push(id);
+    }
+  }
+}
+check('as 45 variações cobrem os 62 quadros', variationMissing.length === 0,
+  variationMissing.slice(0, 4).join(', '));
+
+const overlayMissing = [];
+for (const ver of ['ferro_pei', 'av_full', 'av_cap_pei', 'av_pei_cal', 'av_cap_cal', 'av_pei', 'av_cap', 'av_cal']) {
+  for (const [anim, n] of anims) {
+    for (let i = 0; i < n; i++) {
+      const id = `overlay_${ver}_${anim}_${i}`;
+      if (!haveSprites.has(id)) overlayMissing.push(id);
+    }
+  }
+}
+check('overlays preservam variações sob equipamento', overlayMissing.length === 0,
+  overlayMissing.slice(0, 4).join(', '));
+
 const missingFiles = manifest.sprites.filter((s) => !fs.existsSync(path.join(ROOT, s.path)));
 check('todo sprite do manifest existe em disco', missingFiles.length === 0,
   missingFiles.map((s) => s.path).join(', '));

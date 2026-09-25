@@ -205,10 +205,10 @@ check('equipa espada no goblin', inv.equip(v, lutador, 'arma_primaria', 'espada_
 check('equipa capacete no goblin', inv.equip(v, lutador, 'capacete', 'capacete_ferro'));
 check('itens saíram do armazém', v.itemsCount() === 0);
 check('goblin veste 2 peças', inv.equippedCount(lutador) === 2);
-check('capacete de ferro não tem skin própria (sprite base)',
-  gear.spriteForGoblin(lutador, 'idle', 0) === 'goblin_idle_0');
-check('outro goblin segue sem nada',
-  gear.spriteForGoblin(v.goblins[1], 'idle', 0) === 'goblin_idle_0');
+check('capacete de ferro não apaga a variação física',
+  gear.spriteForGoblin(lutador, 'idle', 0) === `variant_${lutador.variation}_idle_0`);
+check('outro goblin mantém sua própria variação',
+  gear.spriteForGoblin(v.goblins[1], 'idle', 0) === `variant_${v.goblins[1].variation}_idle_0`);
 
 check('aprimora o armazém p/ mais espaços', v.upgrade(v.get('armazem')) === true);
 check('armazém nv2 → 24 espaços', v.itemCapacity() === 24);

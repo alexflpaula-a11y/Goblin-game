@@ -25,6 +25,8 @@ SRC = os.path.join(ROOT, 'vila-de-goblins-jogavel.html')
 SPRITE_DIRS = {
     'goblin': 'goblins',
     'gnome': 'goblins',
+    'variant': 'goblins',
+    'overlay': 'goblin-gear-overlays',
     'building': 'buildings',
     'item': 'items',
     'res': 'resources',

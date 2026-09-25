@@ -59,9 +59,28 @@ async function loadOne(entry) {
   }
 }
 
-// Retorna o sprite (real ou placeholder) para desenhar
+// Retorna o sprite (real, composto ou placeholder) para desenhar.
+// `composite|aparência|overlay` mantém a variação física do goblin por baixo
+// dos pixels alterados pela armadura. O canvas pronto fica no mesmo cache.
 function getSprite(id) {
-  return cache.get(id) || makePlaceholder(id);
+  if (cache.has(id)) return cache.get(id);
+
+  if (id?.startsWith('composite|')) {
+    const [, variantId, overlayId] = id.split('|');
+    if (variantId && overlayId) {
+      const c = document.createElement('canvas');
+      c.width = 32;
+      c.height = 32;
+      const g = c.getContext('2d');
+      g.imageSmoothingEnabled = false;
+      g.drawImage(getSprite(variantId), 0, 0);
+      g.drawImage(getSprite(overlayId), 0, 0);
+      cache.set(id, c);
+      return c;
+    }
+  }
+
+  return makePlaceholder(id);
 }
 
 // ---------------- Placeholders ----------------

@@ -12,6 +12,21 @@ const RARITIES = ['common', 'uncommon', 'rare', 'epic'];
 const ATTRS = ['poderDestrutivo', 'potencialMagico', 'vitalidade',
   'velocidade', 'precisao', 'potencialEvolucao'];
 
+// As 45 aparências fornecidas pelo autor, mantidas na ordem numérica dos GIFs.
+// Cada uma possui os 62 quadros: idle, walk, attack, hurt e death.
+const VARIATIONS = [
+  '01_dente_dourado', '02_tapa_olho', '04_orelha_furada', '07_cicatriz', '08_albinismo',
+  '09_queimaduras', '10_corsario', '13_sobrevivente', '14_anel', '15_marca_de_nascenca',
+  '16_sem_orelha', '17_enfaixado', '18_ileso', '19_olho_cego', '20_verruga',
+  '21_sardas', '22_tatuagem_facial', '23_presas_duplas', '24_olho_rubi', '26_veterano',
+  '27_queimado_enfaixado', '28_albino_rubi', '29_guerreiro_marcado', '30_sobrevivente_ferido', '31_mistico',
+  '32_brigao', '33_amaldicoado', '34_sardento', '35_cacador_marcado', '36_pirata_queimado',
+  '37_albino_cicatrizado', '38_guerreiro_enfaixado', '39_oraculo_rubi', '40_presas_douradas', '41_veterano_enfaixado',
+  '42_queimado_tatuado', '43_albino_sardento', '44_brigao_cego', '45_fanatico', '46_marcado_rubi',
+  '47_sobrevivente_sujo', '48_corsario_tatuado', '49_guerreiro_dourado', '50_amaldicoado_enfaixado', '51_mutilado',
+];
+const VARIATION_SET = new Set(VARIATIONS);
+
 const RARITY_SPEC_WEIGHTS = {
   common:   [8, 5, 5, 6, 10, 6, 20],
   uncommon: [12, 8, 8, 8, 12, 8, 10],
@@ -33,6 +48,7 @@ class Goblin {
   constructor(data) {
     Object.assign(this, {
       name: '?', rarity: 'common', specialty: 'common',
+      variation: null, // aparência física; null preserva goblins de saves antigos
       level: 1, xp: 0,
       poderDestrutivo: 1, potencialMagico: 1, vitalidade: 1,
       velocidade: 1, precisao: 1, potencialEvolucao: 1,
@@ -42,6 +58,7 @@ class Goblin {
     }, data);
     this.equip = this.equip || {};
     this.skills = this.skills || [];
+    if (!VARIATION_SET.has(this.variation)) this.variation = null;
     this.recalc();
   }
 
@@ -89,7 +106,7 @@ class Goblin {
     return RARITIES[i];
   }
 
-  static roll(recruitedCount, existingNames = [], rng = Math.random) {
+  static roll(recruitedCount, existingNames = [], rng = Math.random, excludedVariations = []) {
     const rarity = Goblin.rollRarity(recruitedCount, rng);
     const [lo, hi] = (BAL.recruit?.attrRange || {})[rarity] || [1, 6];
     const attrs = {};
@@ -104,20 +121,28 @@ class Goblin {
       name = `${name} ·${n}`;
     }
 
-    return new Goblin({ name, rarity, specialty: spec, ...attrs });
+    // Evita repetir aparência entre os três candidatos quando possível.
+    const blocked = new Set(excludedVariations);
+    const available = VARIATIONS.filter((id) => !blocked.has(id));
+    const pool = available.length ? available : VARIATIONS;
+    const variation = pool[Math.floor(rng() * pool.length)];
+
+    return new Goblin({ name, rarity, specialty: spec, variation, ...attrs });
   }
 
   // Os 3 candidatos da tela de recrutamento
-  static candidates(recruitedCount, existingNames = []) {
+  static candidates(recruitedCount, existingNames = [], rng = Math.random) {
     const out = [];
     const names = [...existingNames];
+    const variations = [];
     for (let i = 0; i < 3; i++) {
-      const g = Goblin.roll(recruitedCount, names);
+      const g = Goblin.roll(recruitedCount, names, rng, variations);
       names.push(g.name);
+      variations.push(g.variation);
       out.push(g);
     }
     return out;
   }
 }
 
-module.exports = { SPECS, RARITIES, ATTRS, Goblin };
+module.exports = { SPECS, RARITIES, ATTRS, VARIATIONS, Goblin };
