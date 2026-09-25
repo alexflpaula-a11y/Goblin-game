@@ -1,0 +1,24 @@
+name: Testes
+
+# Roda a bateria de testes em todo push e em cada Pull Request.
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Suítes de teste
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Rodar as 7 suítes (smoke, render, playthrough, gear, tap, boot, build)
+        run: bash tools/test.sh

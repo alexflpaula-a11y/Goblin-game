@@ -75,5 +75,6 @@ frames deitados). As **zonas** disponíveis:
 - `cabeca` — coroa (topo da cabeça, ≥2px acima dos olhos) / alto da cabeça (deitado)
 - `pernas` — tanga marrom + pernas verdes abaixo do torso
 
-Os previews de referência estão na raiz do repo:
-`preview-item-peitoral-ferro.html` e `preview-conjunto-avaritia.html`.
+Os previews de referência ficam em `art-source/`:
+`art-source/peitoral-ferro/preview-item-peitoral-ferro.html` e
+`art-source/avaritia/preview-conjunto-avaritia.html`.
