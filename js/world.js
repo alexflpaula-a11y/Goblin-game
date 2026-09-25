@@ -62,6 +62,12 @@ function makeNoise(seed, cell) {
   };
 }
 
+// Quantos quadros cada animação realmente tem no atlas de sprites.
+// Usado para nunca pedir um quadro que não existe (ex.: sair do 'walk'
+// no quadro 7 e cair no 'idle', que só vai até 4) — o que fazia aparecer
+// o placeholder "VAR" piscando entre uma ação e outra.
+const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 15 };
+
 // ---------- Goblin que passeia / trabalha ----------
 class GoblinWalker {
   constructor(x, y, clearing) {
@@ -165,8 +171,11 @@ class GoblinWalker {
       ctx.fillStyle = '#e8b23a';
       ctx.fillRect(this.x - 9, this.y - 40, 18 * this.jobProgress, 3);
     }
-    // sprite (ancorado pelos pés), espelhado quando olha p/ esquerda
-    const spr = getSprite(gear.spriteForGoblin(this.goblin, this.anim, this.frame));
+    // sprite (ancorado pelos pés), espelhado quando olha p/ esquerda.
+    // O quadro é limitado à quantidade real da animação atual, pois
+    // this.frame é compartilhado entre animações de tamanhos diferentes.
+    const frame = this.frame % (ANIM_FRAMES[this.anim] || 1);
+    const spr = getSprite(gear.spriteForGoblin(this.goblin, this.anim, frame));
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.scale(this.face, 1);

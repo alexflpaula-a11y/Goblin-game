@@ -41,6 +41,7 @@ function makeEl(id) {
   return {
     id, style: {}, textContent: '', dataset: {},
     addEventListener() {}, appendChild() {}, setAttribute() {},
+    classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
     getBoundingClientRect: () => ({ left: 0, top: 0, width: 1280, height: 720 }),
   };
 }
@@ -61,7 +62,7 @@ function step(n = 2) {
 // ---------- ambiente ----------
 globalThis.window = { EMBEDDED: null, innerWidth: 1280, innerHeight: 720, devicePixelRatio: 1, addEventListener() {} };
 globalThis.document = {
-  getElementById: (id) => elements[id],
+  getElementById: (id) => elements[id] || makeEl(id),
   createElement: (tag) => (tag === 'canvas' ? makeCanvas('dyn') : makeEl(tag)),
   addEventListener() {},
   body: makeEl('body'),

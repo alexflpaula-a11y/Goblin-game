@@ -25,10 +25,18 @@ const viewport = document.getElementById('viewport');
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
-const langBtn = document.getElementById('langBtn');
 const titleEl = document.getElementById('title');
 const subtitleEl = document.getElementById('subtitle');
 const statusEl = document.getElementById('status');
+
+// Configurações (modal) — por enquanto só idioma
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsModal = document.getElementById('settingsModal');
+const settingsClose = document.getElementById('settingsClose');
+const settingsTitleEl = document.getElementById('settingsTitle');
+const settingsLangLabelEl = document.getElementById('settingsLangLabel');
+const langPtBtn = document.getElementById('langPt');
+const langEnBtn = document.getElementById('langEn');
 
 // ---------- Estado ----------
 const saved = loadGame() || {};
@@ -38,15 +46,16 @@ const state = {
   // world | build | recruit | roster | detail | quests | kitchen | market | armazem | equip
   screen: 'world',
   buildTab: 0,            // 0 estruturas | 1 melhorias
-  buildPage: 0,           // catálogo paginado (13 estruturas)
+  buildScroll: 0,         // rolagem vertical do catálogo de estruturas
   candidates: null,       // 3 goblins p/ recrutamento
   detailIdx: 0,
   feedIdx: null,          // prato escolhido p/ alimentar um goblin
   marketTab: 0,           // 0 vender | 1 comprar
-  marketPage: 0,          // prateleira paginada
+  marketScroll: 0,        // rolagem horizontal da prateleira
   marketQty: {},          // quantidade escolhida por item ("res:wood" → 3)
   upgradeIdx: 0,          // casa sendo melhorada (aba Melhorias)
-  upgradePage: 0,         // paginação da aba Melhorias
+  upgradeScroll: 0,       // rolagem vertical da aba Melhorias
+  rosterScroll: 0,        // rolagem vertical da lista de goblins
   toast: null,            // {msg, until}
   levelUp: null,          // {level, until} — banner de nível da vila
   equipIdx: 0,            // goblin sendo equipado
@@ -206,7 +215,7 @@ function tryBuild(type) {
 function openMarket() {
   if (!village.has('mercado')) { toast('toast.market_closed'); return; }
   state.screen = 'market';
-  state.marketPage = 0;
+  state.marketScroll = 0;
 }
 
 // ---------- Armazém / equipamento ----------
@@ -296,13 +305,9 @@ function routeTap(id) {
     case 'close': state.screen = 'world'; break;
     case 'build_btn': state.screen = 'build'; break;
     case 'close_build': state.screen = 'world'; break;
-    case 'tab_0': state.buildTab = 0; state.buildPage = 0; break;
-    case 'tab_1': state.buildTab = 1; break;
-    case 'page_prev': state.buildPage = Math.max(0, state.buildPage - 1); break;
-    case 'page_next': state.buildPage += 1; break;
-    case 'upage_prev': state.upgradePage = Math.max(0, (state.upgradePage || 0) - 1); break;
-    case 'upage_next': state.upgradePage = (state.upgradePage || 0) + 1; break;
-    case 'roster_btn': state.screen = 'roster'; break;
+    case 'tab_0': state.buildTab = 0; state.buildScroll = 0; break;
+    case 'tab_1': state.buildTab = 1; state.upgradeScroll = 0; break;
+    case 'roster_btn': state.screen = 'roster'; state.rosterScroll = 0; break;
     case 'back_roster': state.screen = 'roster'; break;
     case 'back_world': state.screen = 'world'; state.feedIdx = null; break;
     case 'quests_btn': state.screen = 'quests'; break;
@@ -330,10 +335,8 @@ function routeTap(id) {
       state.screen = state.equipBack === 'detail' ? 'detail' : 'armazem';
       break;
     case 'open_equip': openEquip(state.detailIdx, 'detail'); break;
-    case 'mtab_0': state.marketTab = 0; state.marketPage = 0; break;
-    case 'mtab_1': state.marketTab = 1; state.marketPage = 0; break;
-    case 'mpage_prev': state.marketPage = Math.max(0, state.marketPage - 1); break;
-    case 'mpage_next': state.marketPage += 1; break;
+    case 'mtab_0': state.marketTab = 0; state.marketScroll = 0; break;
+    case 'mtab_1': state.marketTab = 1; state.marketScroll = 0; break;
     case 'build_house': tryBuild('house'); break;
     case 'upgrade_house':
       if (village.upgradeHouse(state.upgradeIdx || 0)) {
@@ -526,13 +529,27 @@ function update(dt) {
         else toast('toast.soon');
       }
     }
-  } else if (g.tap) {
-    const uiHit = ui.hit(g.tap);
-    if (uiHit) routeTap(uiHit);
-    else if (state.screen === 'build') {
-      const P = BUILD_PANEL;
-      if (g.tap.x < P.x || g.tap.x > P.x + P.w || g.tap.y < P.y || g.tap.y > P.y + P.h) {
-        state.screen = 'world';
+  } else {
+    // Telas de UI (não-mundo): arrastar ROLA o conteúdo (não pagina).
+    if (g.pan) {
+      if (state.screen === 'build') {
+        if (state.buildTab === 0) state.buildScroll -= g.pan.dy;
+        else state.upgradeScroll -= g.pan.dy;
+      } else if (state.screen === 'roster') {
+        state.rosterScroll -= g.pan.dy;
+      } else if (state.screen === 'market') {
+        state.marketScroll -= g.pan.dx;   // prateleira rola para o lado
+      }
+      // os limites (min/max) são reajustados no draw de cada tela
+    }
+    if (g.tap) {
+      const uiHit = ui.hit(g.tap);
+      if (uiHit) routeTap(uiHit);
+      else if (state.screen === 'build') {
+        const P = BUILD_PANEL;
+        if (g.tap.x < P.x || g.tap.x > P.x + P.w || g.tap.y < P.y || g.tap.y > P.y + P.h) {
+          state.screen = 'world';
+        }
       }
     }
   }
@@ -656,61 +673,31 @@ function drawOverlay(time) {
 }
 
 function drawWorldButtons() {
-  // botão rústico de CONSTRUIR no canto inferior esquerdo
-  ui.rusticPanel(8, 316, 96, 36);
-  ctx.fillStyle = '#9aa0ad'; ctx.fillRect(20, 326, 12, 6);
-  ctx.fillStyle = '#6e4626'; ctx.fillRect(24, 332, 4, 12);
-  ui.text(58, 334, i18n.t('ui.build_btn'), { align: 'center', size: 11, bold: true, color: '#ffe9b8' });
-  ui.region('build_btn', 8, 316, 96, 36);
-
-  // MISSÕES — mostra quantas estão prontas para entregar
+  // Barra de ações do mundo — agora só com ÍCONES (sem texto).
+  // Cada ação vira um botão quadrado rústico com o respectivo ícone.
   const ready = quests.list.filter((q) => q.canDeliver(village)).length;
-  ui.rusticPanel(112, 316, 104, 36);
-  ui.text(164, 334, i18n.t('ui.quests_btn'),
-    { align: 'center', size: 11, bold: true, color: '#ffe9b8' });
-  ui.region('quests_btn', 112, 316, 104, 36);
-  if (ready > 0) {
-    ctx.fillStyle = '#4fa562';
-    ctx.beginPath(); ctx.arc(208, 322, 7, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = '#1b1530'; ctx.lineWidth = 1.5; ctx.stroke();
-    ui.text(208, 323, String(ready), { align: 'center', size: 9, bold: true, color: '#0f2a16' });
-  }
 
-  // COZINHA — só aparece depois de construída
-  if (village.has('cozinha')) {
-    ui.rusticPanel(224, 316, 100, 36);
-    ui.text(274, 334, i18n.t('ui.kitchen_btn'),
-      { align: 'center', size: 11, bold: true, color: '#ffe9b8' });
-    ui.region('kitchen_btn', 224, 316, 100, 36);
-  }
+  const acts = [
+    { id: 'build_btn', icon: 'ui_icon_build' },
+    { id: 'quests_btn', icon: 'ui_icon_quests',
+      badge: ready > 0 ? { text: String(ready), color: '#4fa562', ink: '#0f2a16' } : null },
+  ];
+  if (village.has('cozinha')) acts.push({ id: 'kitchen_btn', icon: 'ui_icon_kitchen' });
+  if (village.has('mercado')) acts.push({ id: 'market_btn', icon: 'ui_icon_market' });
+  if (village.has('armazem')) acts.push({ id: 'armazem_btn', icon: 'ui_icon_armazem' });
+  acts.push({
+    id: 'roster_btn', icon: 'ui_icon_village', active: true,
+    badge: { text: String(village.goblins.length), color: '#a78bfa', ink: '#1b1530' },
+  });
 
-  // MERCADO — só aparece depois de construído
-  if (village.has('mercado')) {
-    ui.rusticPanel(332, 316, 100, 36);
-    ctx.drawImage(getSprite('res_gold'), 342, 326, 14, 14);
-    ui.text(392, 334, i18n.t('ui.market_btn'),
-      { align: 'center', size: 11, bold: true, color: '#ffe9b8' });
-    ui.region('market_btn', 332, 316, 100, 36);
+  const s = 44, gap = 8, y = 308, iconSize = 34;
+  let x = 8;
+  for (const a of acts) {
+    ui.iconBtn(a.id, x, y, s, !!a.active);
+    ctx.drawImage(getSprite(a.icon), x + (s - iconSize) / 2, y + (s - iconSize) / 2, iconSize, iconSize);
+    if (a.badge) ui.badge(x + s - 6, y + 6, a.badge.text, a.badge.color, a.badge.ink);
+    x += s + gap;
   }
-
-  // ARMAZÉM — inventário de recursos e itens
-  if (village.has('armazem')) {
-    ui.rusticPanel(440, 316, 100, 36);
-    // caixote de madeira (X de tábuas)
-    ctx.fillStyle = '#a9713d'; ctx.fillRect(449, 326, 15, 13);
-    ctx.strokeStyle = '#3c2712'; ctx.lineWidth = 1;
-    ctx.strokeRect(449.5, 326.5, 14, 12);
-    ctx.beginPath();
-    ctx.moveTo(449, 326); ctx.lineTo(464, 339);
-    ctx.moveTo(464, 326); ctx.lineTo(449, 339);
-    ctx.stroke();
-    ui.text(498, 334, i18n.t('ui.armazem_btn'),
-      { align: 'center', size: 11, bold: true, color: '#ffe9b8' });
-    ui.region('armazem_btn', 440, 316, 100, 36);
-  }
-
-  ui.button('roster_btn', 548, 316, 84, 34,
-    `${i18n.t('ui.village_btn')} ${village.goblins.length}/${village.capacity}`, true, true);
 }
 
 // ---------- Tela: Casa de Construção (painel rústico c/ abas) ----------
@@ -718,7 +705,7 @@ function drawBuildScreen() {
   const P = BUILD_PANEL;
   ui.rusticPanel(P.x, P.y, P.w, P.h);
   ui.woodSign(P.x + 8, P.y + 6, P.w - 46, 22, i18n.t('ui.build_title'), 12);
-  ui.closeX('close_build', P.x + P.w - 28, P.y + 8);
+  ui.closeX('close_build', P.x + P.w - 36, P.y + 6);
 
   ui.tab('tab_0', P.x + 14, P.y + 34, 130, 20, i18n.t('ui.tab_structures'), state.buildTab === 0);
   ui.tab('tab_1', P.x + 152, P.y + 34, 110, 20, i18n.t('ui.tab_upgrades'), state.buildTab === 1);
@@ -746,16 +733,26 @@ function drawCostRow(cost, xRight, y) {
 
 function drawStructureCards(P) {
   const vLv = village.level;
-  // O catálogo mostra TODAS as estruturas, paginadas de 6 em 6.
-  const pages = Math.ceil(BUILD_DEFS.length / CARDS_PER_PAGE);
-  state.buildPage = Math.max(0, Math.min(state.buildPage, pages - 1));
-  const from = state.buildPage * CARDS_PER_PAGE;
-  const slots = BUILD_DEFS.slice(from, from + CARDS_PER_PAGE);
+  // O catálogo mostra TODAS as estruturas em 3 colunas; arrasta p/ CIMA/BAIXO.
+  const cols = 3, w = 164, h = 118, rowH = 122;
+  const rows = Math.ceil(BUILD_DEFS.length / cols);
+  const viewTop = P.y + 60, viewBot = P.y + P.h - 10, viewH = viewBot - viewTop;
+  const contentH = rows * rowH;
+  const maxScroll = Math.max(0, contentH - viewH);
+  state.buildScroll = Math.max(0, Math.min(state.buildScroll, maxScroll));
 
-  slots.forEach((def, i) => {
-    const col = i % 3, row = Math.floor(i / 3);
-    const x = P.x + 10 + col * 172, y = P.y + 60 + row * 122;
-    const w = 164, h = 118;
+  const c = ctx;
+  c.save();
+  c.beginPath();
+  c.rect(P.x, viewTop, P.w, viewH);
+  c.clip();
+
+  BUILD_DEFS.forEach((def, i) => {
+    const col = i % cols, row = Math.floor(i / cols);
+    const x = P.x + 10 + col * 172;
+    const y = viewTop + row * rowH - state.buildScroll;
+    // culling: fora da janela visível → não desenha nem registra clique
+    if (y + h < viewTop - 2 || y > viewBot + 2) return;
     ui.parchment(x, y, w, h);
 
     ui.woodSign(x + 4, y + 3, w - 8, 14, i18n.t('bld.' + def.id), 8);
@@ -799,14 +796,9 @@ function drawStructureCards(P) {
     }
   });
 
-  // paginação
-  if (pages > 1) {
-    const py = P.y + P.h - 16;
-    if (state.buildPage > 0) ui.button('page_prev', P.x + 210, py - 8, 36, 18, '‹', true);
-    ui.text(P.x + 264, py, `${state.buildPage + 1}/${pages}`,
-      { align: 'center', size: 9, bold: true, color: '#ffe9b8' });
-    if (state.buildPage < pages - 1) ui.button('page_next', P.x + 282, py - 8, 36, 18, '›', true);
-  }
+  c.restore();
+  // barra de rolagem vertical
+  ui.scrollbarV(P.x + P.w - 8, viewTop, viewH, state.buildScroll, maxScroll, viewH, contentH);
 }
 
 function drawUpgradeRows(P) {
@@ -823,13 +815,22 @@ function drawUpgradeRows(P) {
       .map((s) => ({ s, label: i18n.t('bld.' + s.type), id: 'upf_' + s.type })),
   ];
 
-  const perPage = 3;
-  const pages = Math.max(1, Math.ceil(rows.length / perPage));
-  state.upgradePage = Math.max(0, Math.min(state.upgradePage || 0, pages - 1));
-  const slice = rows.slice(state.upgradePage * perPage, state.upgradePage * perPage + perPage);
+  // Lista rolável (arrasta p/ CIMA/BAIXO).
+  const rowH = 62;
+  const viewTop = P.y + 74, viewBot = P.y + P.h - 10, viewH = viewBot - viewTop;
+  const contentH = rows.length * rowH;
+  const maxScroll = Math.max(0, contentH - viewH);
+  state.upgradeScroll = Math.max(0, Math.min(state.upgradeScroll || 0, maxScroll));
 
-  slice.forEach((row, i) => {
-    const y = P.y + 76 + i * 62;
+  const c = ctx;
+  c.save();
+  c.beginPath();
+  c.rect(P.x, viewTop, P.w, viewH);
+  c.clip();
+
+  rows.forEach((row, i) => {
+    const y = viewTop + 2 + i * rowH - state.upgradeScroll;
+    if (y + 54 < viewTop - 2 || y > viewBot + 2) return;
     const { s } = row;
     ui.parchment(P.x + 10, y, P.w - 20, 54);
     ui.text(P.x + 22, y + 15, `${row.label} • ${i18n.t('ui.level', { n: s.level })}`,
@@ -851,13 +852,8 @@ function drawUpgradeRows(P) {
       !hardMax && !gated && village.canAfford(cost));
   });
 
-  if (pages > 1) {
-    const py = P.y + P.h - 16;
-    if (state.upgradePage > 0) ui.button('upage_prev', P.x + 210, py - 8, 36, 18, '‹', true);
-    ui.text(P.x + 264, py, `${state.upgradePage + 1}/${pages}`,
-      { align: 'center', size: 9, bold: true, color: '#ffe9b8' });
-    if (state.upgradePage < pages - 1) ui.button('upage_next', P.x + 282, py - 8, 36, 18, '›', true);
-  }
+  c.restore();
+  ui.scrollbarV(P.x + P.w - 8, viewTop, viewH, state.upgradeScroll, maxScroll, viewH, contentH);
 }
 
 // ---------- Tela: Recrutamento (escolher 1 de 3) ----------
@@ -899,9 +895,25 @@ function RARITIES_IDX(r) { return ['common', 'uncommon', 'rare', 'epic'].indexOf
 function drawRosterScreen() {
   ui.rusticPanel(8, 40, 624, 286);
   ui.woodSign(16, 46, 300, 22, i18n.t('ui.roster_title', { n: village.goblins.length, cap: village.capacity }), 11);
-  village.goblins.slice(0, 6).forEach((g, i) => {
+
+  // Lista rolável (arrasta p/ CIMA/BAIXO) — mostra TODOS os goblins.
+  const rowH = 60;
+  const rows = Math.ceil(village.goblins.length / 2);
+  const viewTop = 72, viewBot = 292, viewH = viewBot - viewTop;
+  const contentH = rows * rowH;
+  const maxScroll = Math.max(0, contentH - viewH);
+  state.rosterScroll = Math.max(0, Math.min(state.rosterScroll, maxScroll));
+
+  const c = ctx;
+  c.save();
+  c.beginPath();
+  c.rect(8, viewTop, 624, viewH);
+  c.clip();
+
+  village.goblins.forEach((g, i) => {
     const col = i % 2, row = Math.floor(i / 2);
-    const x = 16 + col * 308, y = 76 + row * 60, w = 300, h = 56;
+    const x = 16 + col * 308, y = viewTop + 4 + row * rowH - state.rosterScroll, w = 300, h = 56;
+    if (y + h < viewTop - 2 || y > viewBot + 2) return;
     ui.parchment(x, y, w, h);
     ui.region('g_' + i, x, y, w, h);
     ctx.drawImage(getSprite(gear.spriteForGoblin(g, 'idle', 0)), x + 8, y + 10, 36, 36);
@@ -910,9 +922,9 @@ function drawRosterScreen() {
     ui.bar(x + 212, y + 14, 78, 8, g.hp / g.maxHp, '#4fa562');
     ui.text(x + 212, y + 34, `HP ${g.hp}/${g.maxHp}`, { size: 8, color: '#6e4626' });
   });
-  if (village.goblins.length > 6) {
-    ui.text(560, 76 + 3 * 60 + 6, `+${village.goblins.length - 6} …`, { size: 9, color: '#ffe9b8' });
-  }
+
+  c.restore();
+  ui.scrollbarV(626, viewTop, viewH, state.rosterScroll, maxScroll, viewH, contentH);
   ui.button('back_world', 272, 298, 96, 24, i18n.t('ui.close'), true, true);
 }
 
@@ -952,7 +964,7 @@ function drawQuestScreen() {
   ui.woodSign(16, 46, 300, 22, i18n.t('ui.quests_title'), 11);
   ui.text(330, 57, i18n.t('ui.quests_sub', { n: quests.completed }),
     { size: 9, color: '#ffe9b8' });
-  ui.closeX('back_world', 604, 46);
+  ui.closeX('back_world', 598, 44);
 
   const slots = quests.slots;
   for (let i = 0; i < slots; i++) {
@@ -1000,7 +1012,7 @@ function drawKitchenScreen() {
   ui.rusticPanel(8, 40, 624, 286);
   const lv = village.levelOf('cozinha');
   ui.woodSign(16, 46, 260, 22, `${i18n.t('bld.cozinha')} • ${i18n.t('ui.level', { n: lv })}`, 11);
-  ui.closeX('back_world', 604, 46);
+  ui.closeX('back_world', 598, 44);
 
   // ----- receitas -----
   ui.text(20, 84, i18n.t('ui.recipes'), { size: 10, bold: true, color: '#ffe9b8' });
@@ -1089,7 +1101,7 @@ function drawMarketScreen() {
     ui.text(268, 57, i18n.t('ui.market_sub', { n: lv, gold: village.res.gold }),
       { size: 9, color: '#ffe9b8' });
   }
-  ui.closeX('back_world', 604, 46);
+  ui.closeX('back_world', 598, 44);
 
   // mercado ainda não construído (só acontece por save antigo/atalho)
   if (lv <= 0) {
@@ -1112,13 +1124,22 @@ function drawMarketScreen() {
     return;
   }
 
-  const pages = Math.max(1, Math.ceil(items.length / MARKET_PER_PAGE));
-  state.marketPage = Math.max(0, Math.min(state.marketPage, pages - 1));
-  const from = state.marketPage * MARKET_PER_PAGE;
-  const slice = items.slice(from, from + MARKET_PER_PAGE);
+  // Prateleira rolável na HORIZONTAL (arrasta para o lado).
+  const w = 145, h = 176, colW = 153;
+  const viewLeft = 12, viewRight = 628, viewW = viewRight - viewLeft;
+  const contentW = items.length * colW;
+  const maxScroll = Math.max(0, contentW - viewW);
+  state.marketScroll = Math.max(0, Math.min(state.marketScroll, maxScroll));
 
-  slice.forEach((it, i) => {
-    const x = 16 + i * 153, y = 102, w = 145, h = 176;
+  const cc = ctx;
+  cc.save();
+  cc.beginPath();
+  cc.rect(viewLeft, 100, viewW, h + 6);
+  cc.clip();
+
+  items.forEach((it, i) => {
+    const x = 16 + i * colW - state.marketScroll, y = 102;
+    if (x + w < viewLeft - 2 || x > viewRight + 2) return;
     const slot = `${it.kind}:${it.key}`;
     const name = it.kind === 'meal' ? i18n.t('meal.' + it.key)
       : it.kind === 'gear' ? i18n.t('item.' + it.key)
@@ -1156,12 +1177,8 @@ function drawMarketScreen() {
       limit > 0, limit > 0);
   });
 
-  if (pages > 1) {
-    if (state.marketPage > 0) ui.button('mpage_prev', 250, 292, 36, 18, '‹', true);
-    ui.text(320, 301, `${state.marketPage + 1}/${pages}`,
-      { align: 'center', size: 9, bold: true, color: '#ffe9b8' });
-    if (state.marketPage < pages - 1) ui.button('mpage_next', 354, 292, 36, 18, '›', true);
-  }
+  cc.restore();
+  ui.scrollbarH(viewLeft, 292, viewW, state.marketScroll, maxScroll, viewW, contentW);
 }
 
 // ---------- Tela: Armazém / Inventário ----------
@@ -1170,7 +1187,7 @@ function drawArmazemScreen() {
   ui.rusticPanel(8, 40, 624, 286);
   const lv = village.levelOf('armazem');
   ui.woodSign(16, 46, 236, 22, `${i18n.t('bld.armazem')} • ${i18n.t('ui.level', { n: lv })}`, 11);
-  ui.closeX('back_world', 604, 46);
+  ui.closeX('back_world', 598, 44);
 
   // ----- área 1: recursos da vila -----
   ui.text(20, 84, i18n.t('ui.res_section'), { size: 10, bold: true, color: '#ffe9b8' });
@@ -1298,19 +1315,19 @@ function drawEquipScreen() {
   if (!g) { state.screen = 'armazem'; return; }
   ui.rusticPanel(8, 40, 624, 286);
   ui.woodSign(16, 46, 150, 22, i18n.t('ui.equip_title'), 11);
-  ui.closeX('back_eq', 604, 46);
+  ui.closeX('back_eq', 598, 45);
 
-  // ----- seletor de goblin (‹ nome ›) -----
+  // ----- seletor de goblin (‹ nome ›) — setas grandes flanqueando o nome -----
   const n = village.goblins.length;
-  if (n > 1) {
-    ui.button('eq_prev', 388, 50, 24, 16, '‹', true);
-    ui.button('eq_next', 576, 50, 24, 16, '›', true);
-  }
-  const midW = 160;
+  const midW = 168, midX = 348;
   ctx.fillStyle = 'rgba(0,0,0,0.35)';
-  ctx.fillRect(320 - midW / 2 + 36, 48, midW, 20);
-  ui.text(320 + 36, 58, `${g.name}  ${i18n.t('ui.level', { n: g.level })} (${state.equipIdx + 1}/${n})`,
+  ctx.fillRect(midX - midW / 2, 47, midW, 22);
+  ui.text(midX, 58, `${g.name}  ${i18n.t('ui.level', { n: g.level })} (${state.equipIdx + 1}/${n})`,
     { align: 'center', size: 10, bold: true, color: '#ffe9a8' });
+  if (n > 1) {
+    ui.arrowBtn('eq_prev', midX - midW / 2 - 36, 44, 30, -1);
+    ui.arrowBtn('eq_next', midX + midW / 2 + 6, 44, 30, 1);
+  }
 
   // ----- abas -----
   ui.tab('eqtab_0', 22, 74, 110, 20, i18n.t('ui.tab_equipment'), state.equipTab === 0);
@@ -1527,9 +1544,14 @@ function drawEquipTabSkills(g) {
 
 // ---------- Textos DOM ----------
 function applyTexts() {
-  titleEl.textContent = i18n.t('app.title');
-  subtitleEl.textContent = i18n.t('app.subtitle');
-  langBtn.textContent = i18n.lang === 'pt-BR' ? 'EN' : 'PT';
+  if (titleEl) titleEl.textContent = i18n.t('app.title');
+  if (subtitleEl) subtitleEl.textContent = i18n.t('app.subtitle');
+  if (settingsTitleEl) settingsTitleEl.textContent = i18n.t('settings.title');
+  if (settingsLangLabelEl) settingsLangLabelEl.textContent = i18n.t('settings.language');
+  // destaca o idioma ativo no seletor
+  const pt = i18n.lang === 'pt-BR';
+  langPtBtn?.classList.toggle('active', pt);
+  langEnBtn?.classList.toggle('active', !pt);
   updateStatus();
 }
 
@@ -1547,12 +1569,24 @@ function loop(now) {
 }
 
 // ---------- Boot ----------
-langBtn.addEventListener('click', () => {
-  i18n.setLang(i18n.lang === 'pt-BR' ? 'en' : 'pt-BR');
+function openSettings() { settingsModal.classList.remove('hidden'); }
+function closeSettings() { settingsModal.classList.add('hidden'); }
+
+function chooseLang(lang) {
+  i18n.setLang(lang);
   state.language = i18n.lang;
   saveGame(currentSave());
   applyTexts();
+}
+
+settingsBtn?.addEventListener('click', openSettings);
+settingsClose?.addEventListener('click', closeSettings);
+// fecha ao tocar fora do painel
+settingsModal?.addEventListener('click', (e) => {
+  if (e.target === settingsModal) closeSettings();
 });
+langPtBtn?.addEventListener('click', () => chooseLang('pt-BR'));
+langEnBtn?.addEventListener('click', () => chooseLang('en'));
 
 function currentSave() {
   return {

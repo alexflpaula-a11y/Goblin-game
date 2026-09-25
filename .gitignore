@@ -37,4 +37,13 @@ previas/
 # Saída das prévias de tela (tools/render_preview.mjs)
 tools/preview/
 
+# Cópia servida do preview (duplicata do single-file já versionado)
+.preview_dist/
+
+# Pasta publicada pelo workflow do GitHub Pages
+_site/
+
+# Intermediários crus/processados da geração de sprites por IA (não carregados pelo jogo)
+assets/sprites/_ai/
+
 __pycache__/

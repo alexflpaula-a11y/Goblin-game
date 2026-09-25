@@ -86,12 +86,25 @@ function __require(n) {
 <div id="viewport">
   <canvas id="game"></canvas>
   <header id="hud">
-    <div id="titleBox">
-      <div id="title">Vila de Goblins</div>
-      <div id="subtitle">Gerenciamento + Batalha por Turnos</div>
-    </div>
-    <button id="langBtn" type="button">EN</button>
+    <button id="settingsBtn" type="button" aria-label="Configurações">⚙️</button>
   </header>
+
+  <div id="settingsModal" class="hidden" role="dialog" aria-modal="true">
+    <div id="settingsPanel">
+      <div id="settingsHead">
+        <span id="settingsTitle">Configurações</span>
+        <button id="settingsClose" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="settings-row">
+        <span id="settingsLangLabel">Idioma</span>
+        <div id="langToggle">
+          <button id="langPt" type="button" class="lang-opt">🇧🇷 PT</button>
+          <button id="langEn" type="button" class="lang-opt">🇬🇧 EN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="status"></div>
 </div>
 <script>

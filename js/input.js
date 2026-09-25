@@ -20,6 +20,7 @@ class Input {
     this.pinch = null;   // {factor, mx, my}
     this.tap = null;     // {x, y}
     this.wheel = null;   // {factor, x, y}
+    this.swipe = null;   // {dir: -1|+1} — arrasto horizontal (paginar)
 
     this._bind();
   }
@@ -79,6 +80,14 @@ class Input {
       if (ptr && !this.pinchActive && !ptr.moved && performance.now() - ptr.t0 < 350) {
         this.tap = { x: ptr.x, y: ptr.y };
       }
+      // arrasto horizontal rápido → swipe (usado para paginar telas)
+      if (ptr && !this.pinchActive && ptr.moved) {
+        const dx = ptr.x - ptr.x0;
+        const dy = ptr.y - ptr.y0;
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+          this.swipe = { dir: dx < 0 ? 1 : -1 };
+        }
+      }
     };
     this.canvas.addEventListener('pointerup', up, { passive: true });
     this.canvas.addEventListener('pointercancel', up, { passive: true });
@@ -107,11 +116,13 @@ class Input {
       pinch: this.pinch,
       tap: this.tap,
       wheel: this.wheel,
+      swipe: this.swipe,
     };
     this.pan = { dx: 0, dy: 0 };
     this.pinch = null;
     this.tap = null;
     this.wheel = null;
+    this.swipe = null;
     return out;
   }
 }

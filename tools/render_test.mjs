@@ -61,6 +61,7 @@ function makeEl(id) {
     id, style: {}, textContent: '', dataset: {},
     addEventListener(type, fn) { (this._h ||= {})[type] = fn; },
     click() { this._h?.click?.(); },
+    classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
     appendChild() {}, setAttribute() {}, getBoundingClientRect: () => ({ left: 0, top: 0 }),
   };
 }
@@ -302,6 +303,20 @@ for (const ver of ['ferro_pei', 'av_full', 'av_cap_pei', 'av_pei_cal', 'av_cap_c
 }
 check('overlays preservam variações sob equipamento', overlayMissing.length === 0,
   overlayMissing.slice(0, 4).join(', '));
+
+// peças de ferro e armas só têm OVERLAY (sem sprite completo): todas devem
+// cobrir os 62 quadros para aparecerem em qualquer animação.
+const gearOverlayMissing = [];
+for (const ver of ['ferro_cap', 'ferro_cal', 'wpn_espada', 'wpn_clava', 'wpn_escudo']) {
+  for (const [anim, n] of anims) {
+    for (let i = 0; i < n; i++) {
+      const id = `overlay_${ver}_${anim}_${i}`;
+      if (!haveSprites.has(id)) gearOverlayMissing.push(id);
+    }
+  }
+}
+check('capacete/calça de ferro e armas têm overlay em todos os quadros',
+  gearOverlayMissing.length === 0, gearOverlayMissing.slice(0, 4).join(', '));
 
 const missingFiles = manifest.sprites.filter((s) => !fs.existsSync(path.join(ROOT, s.path)));
 check('todo sprite do manifest existe em disco', missingFiles.length === 0,

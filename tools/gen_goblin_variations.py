@@ -25,6 +25,7 @@ import sys
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
+GIF_DIR = ROOT / 'art-source' / 'goblins'   # GIFs de origem das 45 variações
 GOBLIN_DIR = ROOT / 'assets' / 'sprites' / 'goblins'
 OVERLAY_DIR = ROOT / 'assets' / 'sprites' / 'goblin-gear-overlays'
 MANIFEST = ROOT / 'assets' / 'manifest.json'
@@ -66,7 +67,7 @@ GEAR_VERSIONS = [
 def gif_sources():
     """Retorna somente os GIFs numerados de variação, em ordem numérica."""
     found = []
-    for path in ROOT.glob('*.gif'):
+    for path in GIF_DIR.glob('*.gif'):
         match = re.match(r'^(\d{2})_([a-z0-9_]+)\.gif$', path.name)
         if match:
             found.append((int(match.group(1)), match.group(2), path))

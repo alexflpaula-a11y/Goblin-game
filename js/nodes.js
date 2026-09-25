@@ -146,7 +146,10 @@ class Nodes {
         const id = n.depleted
           ? (n.type === 'tree' ? 'node_tree_stump' : 'node_rock_rubble')
           : (n.type === 'tree' ? 'node_tree_0' : 'node_rock_0');
-        ctx.drawImage(getSprite(id), n.x - 16, n.y - 30, 32, 32);
+        // Nós ativos usam a arte 64px (desenhada em 48px, ancorada pela base);
+        // tocos/entulho continuam pequenos (32px).
+        const size = n.depleted ? 24 : 48;
+        ctx.drawImage(getSprite(id), n.x - size / 2, n.y + 2 - size, size, size);
         // barra de estoque (quando já foi coletado ou tem trabalhador)
         if (!n.depleted && (n.stock < n.max || n.worker != null)) {
           ctx.fillStyle = 'rgba(0,0,0,0.55)';

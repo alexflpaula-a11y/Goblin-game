@@ -1,11 +1,33 @@
 # 🧌 Vila de Goblins
 
+[![Testes](https://github.com/alexflpaula-a11y/Goblin-game/actions/workflows/ci.yml/badge.svg)](https://github.com/alexflpaula-a11y/Goblin-game/actions/workflows/ci.yml)
+[![Deploy GitHub Pages](https://github.com/alexflpaula-a11y/Goblin-game/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/alexflpaula-a11y/Goblin-game/actions/workflows/deploy-pages.yml)
+[![Jogar online](https://img.shields.io/badge/jogar-online-2ea44f?logo=itch.io&logoColor=white)](https://alexflpaula-a11y.github.io/Goblin-game/)
+[![Licença: MIT](https://img.shields.io/badge/licença-MIT-blue.svg)](LICENSE)
+
 Jogo mobile-first de **gerenciamento de vila + batalhas por turnos**, em HTML5 Canvas + JavaScript puro (sem dependências). Você controla uma vila de goblins: corte madeira, minere, construa estruturas, cumpra missões, cozinhe, recrute goblins (escolhendo 1 entre 3, com **45 variações visuais**) e — nas próximas fases — invada outras vilas.
+
+> ### 🎮 [**Clique aqui para jogar agora →**](https://alexflpaula-a11y.github.io/Goblin-game/)
+> Publicado automaticamente pelo GitHub Actions a cada mudança na `main` — sempre a versão de arquivo único (carrega num toque, funciona offline).
+
+## 📑 Índice
+
+- [▶️ Como jogar](#️-como-jogar)
+- [🔄 O ciclo do jogo](#-o-ciclo-do-jogo)
+- [🏚️ Armazém, inventário e equipamento](#️-armazém-inventário-e-equipamento)
+- [🗂️ Estrutura do projeto](#️-estrutura-do-projeto)
+- [🤖 Automação (CI/CD)](#-automação-cicd)
+- [🔧 Ferramentas](#-ferramentas)
+- [✅ Testes](#-testes)
+- [🎨 Sprites](#-sprites)
+- [🌐 Idiomas](#-idiomas)
+- [💾 Salvamento](#-salvamento)
+- [📜 Status](#-status)
 
 ## ▶️ Como jogar
 
 **🎮 Jogar online (GitHub Pages):** **<https://alexflpaula-a11y.github.io/Goblin-game/>**
-Versão de arquivo único (carrega num toque, funciona offline):
+O link publica a **versão de arquivo único** (carrega num toque, funciona offline). Link direto do arquivo:
 **<https://alexflpaula-a11y.github.io/Goblin-game/vila-de-goblins-jogavel.html>**
 
 **Sem instalar nada:** abra `vila-de-goblins-jogavel.html` no navegador (PC ou celular). É um build de arquivo único com sprites e textos embutidos — funciona offline.
@@ -60,7 +82,7 @@ A mesma interface ainda tem duas abas: **Alimentos** (escolher um prato e alimen
 
 As peças **Avaritia** (capacete/peitoral/calça) continuam mudando o sprite do goblin que as veste — combinações individuais → pares → conjunto completo — e o **peitoral de ferro** tem a própria skin. As características físicas de cada goblin são preservadas sob a armadura por overlays compostos em tempo de execução. Item equipado fica no corpo do goblin (sai do armazém) e pode ser passado para outro goblin a qualquer momento.
 
-## 🗂️ Estrutura
+## 🗂️ Estrutura do projeto
 
 ```
 index.html          versão de desenvolvimento (carrega js/ por HTTP)
@@ -93,8 +115,27 @@ assets/
   manifest.json     lista de sprites (nomes lógicos → caminhos)
   sprites/          PNGs 32×32 por categoria
 tools/              build, testes e geração de sprites
-planejamento-jogo-gnomos.md   planejamento completo + log de desenvolvimento
+docs/               documentação
+  planejamento-jogo-gnomos.md  planejamento completo + log de desenvolvimento
+  rascunho-inicial.md          primeiro rascunho do projeto (arquivo histórico)
+art-source/         arte-fonte do autor (NÃO carregada em runtime)
+  goblins/          os 45 GIFs de variação usados por gen_goblin_variations.py
+  avaritia/         sprite sheet / gif / zip / preview do conjunto Avaritia
+  peitoral-ferro/   sprite sheet / zip / preview do peitoral de ferro
+  misc/             imagens e sprites avulsos de referência
+.github/workflows/  automação (testes + deploy no GitHub Pages)
 ```
+
+## 🤖 Automação (CI/CD)
+
+Dois fluxos de trabalho do **GitHub Actions** cuidam de tudo — nada precisa ser feito à mão:
+
+| Fluxo | Arquivo | Quando roda | O que faz |
+|---|---|---|---|
+| **Testes** | `.github/workflows/ci.yml` | todo push e Pull Request | roda as 7 suítes (`bash tools/test.sh`); bloqueia PR se algo quebrar |
+| **Deploy Pages** | `.github/workflows/deploy-pages.yml` | push na `main` (ou manual) | reconstrói o arquivo único, confere que os testes passam e **publica no GitHub Pages** |
+
+Ou seja: **basta dar merge na `main`** que o jogo online se atualiza sozinho, sempre com a versão mais recente do build de arquivo único (rápido, sem os 4212 pedidos de sprite da versão de desenvolvimento). O status de cada fluxo aparece nos badges no topo deste README.
 
 ## 🔧 Ferramentas
 
@@ -147,4 +188,4 @@ em `js/save.js`; o sistema (save/load/autosave a cada 10s) continua intacto.
 
 **Etapa 1.7 — Armazém & Inventário:** o **Armazém** (vila nv 2, melhorável: 16/24/32 espaços) abre o inventário da vila com todos os recursos + despensa numa área e os **itens de equipamento em slots** na outra. 14 equipamentos (sem status por enquanto): conjunto Avaritia (peitoral 120, capacete 150, calça 90 ouro), conjunto de ferro (capacete 45, peitoral 60, calça 40), botas de couro, anel de cobre/rubi, colar de presas, espada, clava, escudo e runa azul. A interface de equipar tem **10 espaços rodando o goblin** (capacete, peitoral, botas, calça, 2 anéis, arma primária, arma secundária, runa, colar) + aba **Alimentos** (alimentar goblins) + aba **Habilidades** (2 espaços por goblin, por especialidade + genéricas). Cada goblin veste o que quiser — as peças Avaritia e o peitoral de ferro mudam o sprite individualmente.
 
-**A seguir:** Fase 2 (Ferraria, Altar, Bazar) → Fase 3 (combate por turnos — quando os equipamentos ganham status). Roadmap completo em `planejamento-jogo-gnomos.md`.
+**A seguir:** Fase 2 (Ferraria, Altar, Bazar) → Fase 3 (combate por turnos — quando os equipamentos ganham status). Roadmap completo em [`docs/planejamento-jogo-gnomos.md`](docs/planejamento-jogo-gnomos.md).

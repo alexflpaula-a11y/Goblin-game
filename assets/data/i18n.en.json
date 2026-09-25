@@ -1,6 +1,8 @@
 {
   "app.title": "Goblin Village",
   "app.subtitle": "Village management + turn-based battles",
+  "settings.title": "Settings",
+  "settings.language": "Language",
   "stage": "Stage 1.7 — Warehouse & Inventory",
   "demo.hint": "1 finger: pan • pinch: zoom • tap: building/node",
   "demo.status": "Taps: {n}",
@@ -12,6 +14,7 @@
   "ui.house_n": "House {n}",
   "ui.max": "MAX",
   "ui.close": "Close",
+  "ui.swipe_hint": "‹  swipe to see more  ›",
   "ui.back": "Back",
   "ui.level": "Lv {n}",
   "ui.recruit_title": "Choose 1 of 3 goblins",

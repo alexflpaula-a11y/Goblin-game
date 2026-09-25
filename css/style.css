@@ -61,45 +61,136 @@ canvas {
 
 #hud {
   position: absolute;
-  top: 0;
   left: 0;
   right: 0;
-  height: 36px;
+  bottom: 0;
+  height: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 8px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Botão de configurações (engrenagem) — flutua no canto inferior direito,
+   longe dos botões de fechar (que ficam no topo dos painéis) */
+#settingsBtn {
+  pointer-events: auto;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(38, 28, 60, 0.92), rgba(22, 16, 34, 0.9));
+  color: var(--text);
+  border: 1.5px solid rgba(167, 139, 250, 0.6);
+  border-radius: 10px;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: background 0.12s, transform 0.12s;
+}
+
+#settingsBtn:hover { background: rgba(167, 139, 250, 0.32); }
+#settingsBtn:active { transform: scale(0.9) rotate(45deg); }
+
+/* Modal de configurações */
+#settingsModal {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 8, 18, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+#settingsModal.hidden { display: none; }
+
+#settingsPanel {
+  width: min(300px, 82%);
+  background: linear-gradient(180deg, #241b3c, #1b1430);
+  border: 1px solid rgba(167, 139, 250, 0.55);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  padding: 14px 16px 16px;
+  animation: settingsPop 0.14s ease-out;
+}
+
+@keyframes settingsPop {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+#settingsHead {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
-  background: var(--panel);
-  backdrop-filter: blur(4px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-#title {
-  color: var(--text);
-  font-size: 12px;
-  font-weight: 700;
+#settingsTitle {
+  color: #ffe9a8;
+  font-size: 15px;
+  font-weight: 800;
   letter-spacing: 0.3px;
 }
 
-#subtitle {
+#settingsClose {
+  width: 26px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.06);
   color: var(--muted);
-  font-size: 9px;
-  font-weight: 400;
-}
-
-#langBtn {
-  background: var(--accent);
-  color: var(--accent-ink);
   border: none;
-  border-radius: 8px;
-  padding: 5px 12px;
-  font-weight: 700;
-  font-size: 11px;
+  border-radius: 7px;
+  font-size: 13px;
   cursor: pointer;
 }
+#settingsClose:hover { background: rgba(255, 90, 90, 0.25); color: #fff; }
 
-#langBtn:active {
-  transform: scale(0.94);
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+#settingsLangLabel {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+#langToggle {
+  display: flex;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.28);
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.lang-opt {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.lang-opt.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* em paisagem o status vive dentro do canvas p/ economizar espaço */

@@ -1,0 +1,30 @@
+name: Testes
+
+# Roda a bateria de testes em cada Pull Request e nos pushes para a main.
+# (Evita execução dupla: branches de trabalho são cobertas pelo evento de PR.)
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Cancela execuções antigas do mesmo ref quando chega uma nova.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Suítes de teste
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Rodar as 7 suítes (smoke, render, playthrough, gear, tap, boot, build)
+        run: bash tools/test.sh

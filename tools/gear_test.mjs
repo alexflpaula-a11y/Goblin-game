@@ -116,13 +116,16 @@ ok(inv.equip(v, g0, 'anel1', 'anel_cobre') && inv.equip(v, g0, 'anel2', 'anel_co
 ok(g0.equip.anel1 === 'anel_cobre' && g0.equip.anel2 === 'anel_cobre', 'anel I e anel II ocupados');
 
 // ---------- sprites por goblin ----------
-ok(gear.spriteForGoblin(g0, 'idle', 0) === `variant_${g0.variation}_idle_0`,
-  'sem peças com skin: mantém a variação física (espada não muda sprite)');
+// a espada agora aparece (overlay wpn_espada) por cima da variação física.
+ok(gear.spriteForGoblin(g0, 'idle', 0) ===
+  `composite|variant_${g0.variation}_idle_0|overlay_wpn_espada_idle_0`,
+  'a espada equipada aparece sobre a variação física');
 v.addItem('peitoral_ferro', 1);
 ok(inv.equip(v, g0, 'peitoral', 'peitoral_ferro'), 'g0 veste peitoral de ferro');
+// peitoral (camada 20) desenhado antes da espada (camada 50); variação por baixo.
 ok(gear.spriteForGoblin(g0, 'attack', 5) ===
-  `composite|variant_${g0.variation}_attack_5|overlay_ferro_pei_attack_5`,
-  'peitoral de ferro preserva a variação física');
+  `composite|variant_${g0.variation}_attack_5|overlay_ferro_pei_attack_5|overlay_wpn_espada_attack_5`,
+  'peitoral de ferro e espada empilham preservando a variação física');
 ok(gear.spriteForGoblin(g1, 'idle', 0) === 'goblin_idle_0', 'g1 continua de sprite base');
 
 v.res.gold = 100000;
@@ -137,11 +140,39 @@ inv.equip(v, g1, 'calca', 'calca_avaritia');
 ok(gear.spriteForGoblin(g1, 'death', 7) === 'av_full_death_7', 'conjunto completo → av_full');
 ok(gear.spriteForGoblin(g1, 'idle', 2) === 'av_full_idle_2', 'g1 em idle com conjunto');
 
-// ferro + avaritia: avaritia vence (não há skin mista)
+// mistura de conjuntos: peitoral de ferro + capacete/calça avaritia.
+// Agora AS DUAS aparecem (o combo av_cap_cal empilhado com o ferro_pei),
+// em vez de uma peça sumir como acontecia antes.
 v.addItem('peitoral_ferro', 1);
 inv.equip(v, g1, 'peitoral', 'peitoral_ferro');
-ok(gear.spriteForGoblin(g1, 'idle', 0) === 'av_cap_cal_idle_0',
-  'mistura: avaritia vence sobre ferro');
+ok(gear.spriteForGoblin(g1, 'idle', 0) ===
+  'composite|goblin_idle_0|overlay_av_cap_cal_idle_0|overlay_ferro_pei_idle_0',
+  'mistura: capacete+calça avaritia E peitoral de ferro aparecem juntos');
+
+// mistura mínima: só peitoral de ferro + calça de avaritia (o caso do bug
+// relatado — antes só a calça aparecia). Camadas: calça embaixo, peitoral acima.
+const gmix = new Goblin({ name: 'Mix', specialty: 'warrior' });
+gmix.variation = null;
+gmix.equip = { peitoral: 'peitoral_ferro', calca: 'calca_avaritia' };
+ok(gear.spriteForGoblin(gmix, 'idle', 0) ===
+  'composite|goblin_idle_0|overlay_av_cal_idle_0|overlay_ferro_pei_idle_0',
+  'peitoral de ferro + calça de avaritia: as duas peças aparecem');
+
+// a mesma mistura, agora numa variação física: aparência preservada + 2 peças.
+const gmixVar = new Goblin({ name: 'MixVar', variation: '07_cicatriz' });
+gmixVar.equip = { peitoral: 'peitoral_ferro', calca: 'calca_avaritia' };
+ok(gear.spriteForGoblin(gmixVar, 'walk', 2) ===
+  'composite|variant_07_cicatriz_walk_2|overlay_av_cal_walk_2|overlay_ferro_pei_walk_2',
+  'mistura preserva a variação física por baixo das duas peças');
+
+// registrar uma peça nova é trivial (a "função para adicionar peças").
+gear.registerPiece('capacete_ferro', 'ferro_cap', gear.LAYER.capacete);
+const gnew = new Goblin({ name: 'New', specialty: 'worker' });
+gnew.variation = null;
+gnew.equip = { capacete: 'capacete_ferro', peitoral: 'peitoral_ferro' };
+ok(gear.spriteForGoblin(gnew, 'idle', 0) ===
+  'composite|goblin_idle_0|overlay_ferro_pei_idle_0|overlay_ferro_cap_idle_0',
+  'peça registrada em runtime já entra na pilha, na sua camada');
 
 const varied = new Goblin({ name: 'Ruk', variation: '07_cicatriz' });
 ok(gear.spriteForGoblin(varied, 'walk', 4) === 'variant_07_cicatriz_walk_4',

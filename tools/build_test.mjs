@@ -66,6 +66,7 @@ function makeCtx() {
 const makeEl = (id) => ({
   id, style: {}, textContent: '', dataset: {},
   addEventListener() {}, appendChild() {}, setAttribute() {},
+  classList: { add() {}, remove() {}, toggle() {}, contains() { return false; } },
   getContext: () => makeCtx(),
   getBoundingClientRect: () => ({ left: 0, top: 0, width: 1280, height: 720 }),
   width: 1280, height: 720,
