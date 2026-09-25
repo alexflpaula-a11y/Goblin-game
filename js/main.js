@@ -878,10 +878,14 @@ function drawRecruitScreen() {
     ui.text(cx, y + 84, g.name, { align: 'center', size: 12, bold: true, color: '#3c2712' });
     ui.text(cx, y + 100, `${i18n.t('spec.' + g.specialty)} • ${i18n.t('rarity.' + g.rarity)} ${'★'.repeat(RARITIES_IDX(g.rarity) + 1)}`,
       { align: 'center', size: 9, color: '#6e4626' });
+    if (g.variation) {
+      ui.text(cx, y + 114, i18n.t('variation.' + g.variation),
+        { align: 'center', size: 8, bold: true, color: '#8c4f32' });
+    }
 
     ATTRS.forEach((a, ai) => {
       const col = ai % 2, row = Math.floor(ai / 2);
-      const bx = x + 12 + col * 100, by = y + 122 + row * 24;
+      const bx = x + 12 + col * 100, by = y + 132 + row * 24;
       ui.text(bx, by, i18n.t('attr.short.' + a), { size: 8, color: '#6e4626' });
       ui.bar(bx + 26, by - 4, 46, 8, g[a] / 10, RARITY_COLOR[g.rarity]);
       ui.text(bx + 76, by, String(g[a]), { size: 8, bold: true, color: '#3c2712' });
@@ -922,8 +926,11 @@ function drawDetailScreen() {
   ctx.drawImage(getSprite(gear.spriteForGoblin(g, 'idle', 0)), 94, 84, 72, 72);
   ui.text(94, 172, i18n.t('spec.' + g.specialty), { size: 11, bold: true, color: '#ffe9b8' });
   ui.text(94, 188, `${i18n.t('rarity.' + g.rarity)} ${'★'.repeat(RARITIES_IDX(g.rarity) + 1)}`, { size: 9, color: '#ffe9b8' });
-  ui.text(94, 204, i18n.t('ui.level', { n: g.level }), { size: 10, color: '#ffe9b8' });
-  ui.bar(94, 212, 140, 8, g.xp / g.xpNext(), '#e8b23a');
+  if (g.variation) {
+    ui.text(94, 204, i18n.t('variation.' + g.variation), { size: 8, bold: true, color: '#d9cdfa' });
+  }
+  ui.text(94, 220, i18n.t('ui.level', { n: g.level }), { size: 10, color: '#ffe9b8' });
+  ui.bar(94, 228, 140, 8, g.xp / g.xpNext(), '#e8b23a');
 
   ATTRS.forEach((a, i) => {
     const col = i % 2, row = Math.floor(i / 2);

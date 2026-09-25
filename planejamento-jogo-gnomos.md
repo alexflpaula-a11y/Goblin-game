@@ -17,7 +17,7 @@
 | Orientação | **Paisagem (landscape)** — resolução lógica **640×360**, escala automática; `screen.orientation.lock('landscape')` quando suportado |
 | Salvamento | `localStorage` (JSON) com auto-save |
 | Empacotamento futuro | PWA (instalar no celular) e depois APK via Capacitor |
-| Raça jogável | **Goblins** (antes "gnomos") — sprites base fornecidos pelo usuário (GIF com idle/walk/attack/hurt/death), variantes futuras: espada, armadura, pistola, tapa-olho |
+| Raça jogável | **Goblins** (antes "gnomos") — 45 variações fornecidas pelo usuário, todas animadas em idle/walk/attack/hurt/death; equipamentos são combinados por overlay |
 | Mundo | **Ilha grande** (1920×1440 px, 120×90 tiles de 16px) com **câmera livre**: 1 dedo = pan, pinça = zoom (0.7–3x), roda do mouse = zoom |
 | Prévias | Como o usuário **não abre o preview ao vivo**, cada etapa gera **screenshots PNG reais** em `/home/user/previas/` (Playwright headless) |
 | Arte | **Sem placeholders visíveis**: todos os sprites do manifest atual existem como PNG real (goblins extraídos do GIF + pixel art autoral de prédios/recursos/nós) |
@@ -852,6 +852,9 @@ Melhorar estrutura: desbloqueia equipamentos e comidas melhores.
 | 1.4 Cozinha: comida que cura | ✅ | (testes automatizados) |
 | 1.6 Mercado: vender e comprar | ✅ | (testes automatizados) |
 | Fazenda e Mina como postos de trabalho infinitos | ✅ | (testes automatizados) |
+| 45 variações visuais de goblin (9 lotes de 5) | ✅ | (testes automatizados + GIFs-fonte) |
+
+**Notas das variações de goblin:** os 45 GIFs numerados do autor agora viram sprites jogáveis, cada um com os 62 quadros de `idle/walk/attack/hurt/death`. `tools/gen_goblin_variations.py` faz a extração reproduzível em **9 lotes de 5**; o recrutamento sorteia uma aparência e evita repetir entre os 3 candidatos. A variação aparece no mundo e nas telas de recrutamento/roster/detalhe, persiste no save e continua visível sob Avaritia/peitoral de ferro por meio de overlays compostos e cacheados em tempo de execução.
 
 **Notas da UI de construção:** botão rústico "Construir" no canto inferior esquerdo abre o painel da Casa de Construção em qualquer lugar do mapa (estilo inspirado na referência do usuário: painel de pranchas com pregos/lascas, placa de título, abas, cards de pergaminho com ícone brilhando, contagem construída e custo com ícones). Aba **Estruturas**: catálogo `BUILD_DEFS` — casas + futuras estruturas travadas por nível da vila (Serraria/Fazenda nv2 … Quartel nv8) mostradas com placa "?" + "Vila nv X"; slot "…em breve…". Aba **Melhorias**: melhorar casas (+1 capacidade). Tocar fora do painel fecha. Novas estruturas implementadas futuramente **aparecem automaticamente nesse catálogo**.
 
@@ -875,7 +878,7 @@ Melhorar estrutura: desbloqueia equipamentos e comidas melhores.
 
 **Notas da Fazenda/Mina (§2.6):** as duas viram **postos de trabalho infinitos** (`nodes.syncFacilities`), reaproveitando o mesmo sistema de trabalho dos nós naturais — o goblin caminha até lá e produz em ciclos. Fazenda → comida; Mina → pedra com chance crescente de minério conforme o nível. A Serraria aumenta o rendimento de madeira dos nós de árvore. Postos infinitos não são salvos: nascem das estruturas no boot.
 
-**Testes (`bash tools/test.sh`):** o Playwright não instala neste ambiente (sem binário de navegador e download bloqueado), então as prévias PNG deram lugar a **192 testes automatizados** em 4 suítes: `smoke` (lógica), `render` (as 6 telas desenham, traduções e sprites conferidos), `playthrough` (uma partida inteira: nv1 → nv3 desbloqueando e cozinhando) e `build` (o arquivo único distribuído sobe sozinho). O `playthrough` é o que pega "o jogo trava no meio" — exatamente o problema que o nível fixo causava.
+**Testes (`bash tools/test.sh`):** são **370 testes automatizados** em 7 suítes: `smoke` (lógica), `render` (telas, traduções e cobertura dos sprites), `playthrough` (partida inteira), `gear` (inventário/skins/variações), `tap` (interações), `boot` (inicialização real) e `build` (arquivo único). A cobertura confere individualmente os 45 × 62 quadros de variação e todos os overlays de equipamento.
 
 ---
 

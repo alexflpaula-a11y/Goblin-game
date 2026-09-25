@@ -60,12 +60,14 @@ Object.assign(BAL, BALANCE);
 // ============================================================
 section('Goblin — atributos, XP, raridade');
 // ============================================================
-const { Goblin, ATTRS, SPECS, RARITIES } = req('goblin.js');
+const { Goblin, ATTRS, SPECS, RARITIES, VARIATIONS } = req('goblin.js');
 
 const g = Goblin.roll(0);
 check('goblin tem nome', typeof g.name === 'string' && g.name.length > 0);
 check('goblin tem especialidade válida', SPECS.includes(g.specialty), g.specialty);
 check('goblin tem raridade válida', RARITIES.includes(g.rarity), g.rarity);
+check('catálogo tem as 45 variações', VARIATIONS.length === 45 && new Set(VARIATIONS).size === 45);
+check('goblin recebe uma variação válida', VARIATIONS.includes(g.variation), g.variation);
 check('6 atributos presentes', ATTRS.every((a) => typeof g[a] === 'number'));
 check('atributos entre 1 e 10', ATTRS.every((a) => g[a] >= 1 && g[a] <= 10));
 check('HP derivado da vitalidade', g.maxHp === 20 + g.vitalidade * 4 + g.level * 6);
@@ -80,6 +82,7 @@ check('HP recalculado após subir', g.maxHp === 20 + g.vitalidade * 4 + g.level 
 const cands = Goblin.candidates(0, []);
 check('recrutamento gera 3 candidatos', cands.length === 3);
 check('candidatos têm nomes distintos', new Set(cands.map((c) => c.name)).size === 3);
+check('candidatos têm variações distintas', new Set(cands.map((c) => c.variation)).size === 3);
 
 // sorte crescente: com muitos recrutas, raridade média deve subir
 const rarityScore = (r) => RARITIES.indexOf(r);
@@ -136,6 +139,7 @@ const round = new Village(JSON.parse(JSON.stringify(v.serialize())));
 check('serialize/restore preserva recursos', round.res.wood === v.res.wood);
 check('serialize/restore preserva casas', round.houses.length === v.houses.length);
 check('serialize/restore reconstrói Goblins', round.goblins[0] instanceof Goblin);
+check('serialize/restore preserva variação', round.goblins[0].variation === v.goblins[0].variation);
 
 // ============================================================
 section('Village — XP, nível e desbloqueios (etapa 1.8)');
@@ -406,7 +410,7 @@ check('catálogo tem 10 habilidades', abilities.ABILITIES.length === 10);
 check('toda habilidade tem ícone', abilities.ABILITIES.every((a) => a.icon));
 check('2 espaços por goblin', abilities.SKILL_SLOTS === 2);
 
-const ag = Goblin.roll(0);
+const ag = new Goblin({ name: 'Grak', specialty: 'warrior', variation: '01_dente_dourado' });
 const specAb = abilities.ABILITIES.find((a) => a.spec === ag.specialty);
 const otherAb = abilities.ABILITIES.find((a) => a.spec && a.spec !== ag.specialty);
 const generic = abilities.byId('investida');

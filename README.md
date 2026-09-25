@@ -1,6 +1,6 @@
 # 🧌 Vila de Goblins
 
-Jogo mobile-first de **gerenciamento de vila + batalhas por turnos**, em HTML5 Canvas + JavaScript puro (sem dependências). Você controla uma vila de goblins: corte madeira, minere, construa estruturas, cumpra missões, cozinhe, recrute goblins (escolhendo 1 entre 3) e — nas próximas fases — invada outras vilas.
+Jogo mobile-first de **gerenciamento de vila + batalhas por turnos**, em HTML5 Canvas + JavaScript puro (sem dependências). Você controla uma vila de goblins: corte madeira, minere, construa estruturas, cumpra missões, cozinhe, recrute goblins (escolhendo 1 entre 3, com **45 variações visuais**) e — nas próximas fases — invada outras vilas.
 
 ## ▶️ Como jogar
 
@@ -58,7 +58,7 @@ Os equipamentos são comprados no **Mercado** (agora em quantidade, limitados pe
 
 A mesma interface ainda tem duas abas: **Alimentos** (escolher um prato e alimentar qualquer goblin) e **Habilidades** (2 espaços por goblin; cada um usa as habilidades da própria especialidade + as genéricas).
 
-As peças **Avaritia** (capacete/peitoral/calça) continuam mudando o sprite do goblin que as veste — combinações individuais → pares → conjunto completo — e o **peitoral de ferro** tem a própria skin. Item equipado fica no corpo do goblin (sai do armazém) e pode ser passado para outro goblin a qualquer momento.
+As peças **Avaritia** (capacete/peitoral/calça) continuam mudando o sprite do goblin que as veste — combinações individuais → pares → conjunto completo — e o **peitoral de ferro** tem a própria skin. As características físicas de cada goblin são preservadas sob a armadura por overlays compostos em tempo de execução. Item equipado fica no corpo do goblin (sai do armazém) e pode ser passado para outro goblin a qualquer momento.
 
 ## 🗂️ Estrutura
 
@@ -99,9 +99,10 @@ planejamento-jogo-gnomos.md   planejamento completo + log de desenvolvimento
 ## 🔧 Ferramentas
 
 ```bash
-python3 tools/build_singlefile.py   # gera o vila-de-goblins-jogavel.html
-python3 tools/gen_sprites.py        # (re)gera a pixel art de prédios e comidas
-python3 tools/gen_icons.py          # (re)gera ícones 16×16 de itens/habilidades
+python3 tools/build_singlefile.py          # gera o vila-de-goblins-jogavel.html
+python3 tools/gen_sprites.py               # (re)gera a pixel art de prédios e comidas
+python3 tools/gen_icons.py                 # (re)gera ícones 16×16 de itens/habilidades
+python3 tools/gen_goblin_variations.py     # extrai as 45 variações em lotes de 5
 python3 tools/unbuild.py            # extrai a fonte de volta a partir do build
 bash    tools/test.sh               # roda as 7 suítes de teste
 ```
@@ -111,7 +112,7 @@ bash    tools/test.sh               # roda as 7 suítes de teste
 
 ## ✅ Testes
 
-362 testes automatizados, sem navegador (`bash tools/test.sh`):
+370 testes automatizados, sem navegador (`bash tools/test.sh`):
 
 | Suíte | O que cobre |
 |---|---|
@@ -127,7 +128,7 @@ bash    tools/test.sh               # roda as 7 suítes de teste
 
 O conjunto **Avaritia** (peitoral, calça, capacete + 3 pares + conjunto completo, 62 frames cada) vive em `sprites/itens/` e é gerado por `sprites/itens/gerar_item.py` / `gerar_conjunto.py` a partir dos frames do goblin no `window.EMBEDDED` do jogo — apenas recolor de pixels existentes.
 
-PNGs **32×32** referenciados por **nome lógico** no `manifest.json`. Se um PNG não existir, um placeholder é desenhado automaticamente (o jogo nunca quebra). Os goblins vieram de um GIF do autor (idle/walk/attack/hurt/death); prédios, recursos e comidas são pixel art autoral gerada por `tools/gen_sprites.py`.
+PNGs **32×32** referenciados por **nome lógico** no `manifest.json`. Se um PNG não existir, um placeholder é desenhado automaticamente (o jogo nunca quebra). Os goblins têm **45 variações físicas** vindas dos GIFs do autor — dente dourado, tapa-olho, cicatrizes, albinismo, tatuagens e combinações — cada uma com os 62 quadros de `idle/walk/attack/hurt/death`. `tools/gen_goblin_variations.py` extrai todas em **9 lotes de 5** e também gera os overlays que mantêm a variação sob a armadura. Prédios, recursos e comidas são pixel art autoral gerada por `tools/gen_sprites.py`.
 
 ## 🌐 Idiomas
 
