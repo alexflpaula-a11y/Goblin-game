@@ -5,36 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#16121f" />
 <title>Vila de Goblins</title>
-<link rel="stylesheet" href="css/style.css" />
+<!-- A raiz publicada no GitHub Pages serve a versão RÁPIDA (arquivo único,
+     sprites e textos embutidos). O código-fonte de desenvolvimento fica em
+     index-dev.html (carrega js/ por HTTP). -->
+<meta http-equiv="refresh" content="0; url=vila-de-goblins-jogavel.html" />
+<link rel="canonical" href="vila-de-goblins-jogavel.html" />
+<style>
+  html, body { margin: 0; height: 100%; background: #16121f; color: #ffe9b8;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+  .wrap { height: 100%; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px; text-align: center; }
+  a { color: #7bd88f; font-weight: 700; }
+</style>
 </head>
 <body>
-<div id="viewport">
-  <div id="bootMsg">Carregando os sprites…<br>A primeira vez pode demorar um pouco</div>
-  <canvas id="game"></canvas>
-  <header id="hud">
-    <button id="settingsBtn" type="button" aria-label="Configurações">⚙️</button>
-  </header>
-
-  <!-- Modal de configurações (por enquanto só idioma) -->
-  <div id="settingsModal" class="hidden" role="dialog" aria-modal="true">
-    <div id="settingsPanel">
-      <div id="settingsHead">
-        <span id="settingsTitle">Configurações</span>
-        <button id="settingsClose" type="button" aria-label="Fechar">✕</button>
-      </div>
-      <div class="settings-row">
-        <span id="settingsLangLabel">Idioma</span>
-        <div id="langToggle">
-          <button id="langPt" type="button" class="lang-opt">🇧🇷 PT</button>
-          <button id="langEn" type="button" class="lang-opt">🇬🇧 EN</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="status"></div>
+<div class="wrap">
+  <div style="font-size:42px">🧌</div>
+  <div>Carregando a Vila de Goblins…</div>
+  <div><a href="vila-de-goblins-jogavel.html">Clique aqui se não for redirecionado automaticamente.</a></div>
 </div>
-<!-- O loader busca js/_order.json e carrega os módulos na ordem certa. -->
-<script src="js/loader.js"></script>
+<script>
+  // Redirecionamento imediato (substitui o histórico para o "voltar" funcionar).
+  location.replace('vila-de-goblins-jogavel.html');
+</script>
 </body>
 </html>

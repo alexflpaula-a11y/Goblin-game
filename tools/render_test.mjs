@@ -323,10 +323,14 @@ check('todo sprite do manifest existe em disco', missingFiles.length === 0,
   missingFiles.map((s) => s.path).join(', '));
 
 // ---------- a versão de DESENVOLVIMENTO está completa? ----------
-// (o build tem seu próprio teste; aqui garantimos que index.html abre)
+// (o build tem seu próprio teste; aqui garantimos que index-dev.html abre)
 check('js/loader.js existe', fs.existsSync(path.join(ROOT, 'js/loader.js')));
-const indexHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-check('index.html carrega o loader', indexHtml.includes('js/loader.js'));
+const indexHtml = fs.readFileSync(path.join(ROOT, 'index-dev.html'), 'utf8');
+check('index-dev.html carrega o loader', indexHtml.includes('js/loader.js'));
+// A raiz index.html deve redirecionar para a versão rápida (arquivo único).
+const rootHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+check('index.html redireciona para o arquivo único',
+  rootHtml.includes('vila-de-goblins-jogavel.html'));
 const orderFiles = JSON.parse(fs.readFileSync(path.join(ROOT, 'js/_order.json'), 'utf8'));
 const missingMods = orderFiles.filter((n) => !fs.existsSync(path.join(ROOT, 'js', n)));
 check('todo módulo do _order.json existe', missingMods.length === 0, missingMods.join(', '));

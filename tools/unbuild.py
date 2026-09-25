@@ -7,7 +7,7 @@ O `release/vila-de-goblins-jogavel.html` é um build gerado por
 os módulos JS num HTML só. Este script faz o caminho inverso, recriando a
 árvore de código descrita no planejamento:
 
-    index.html · css/style.css · js/*.js
+    index-dev.html · css/style.css · js/*.js
     assets/manifest.json · assets/data/*.json · assets/sprites/**/*.png
 
 Uso (uma vez só, para recuperar a fonte):  python3 tools/unbuild.py
@@ -121,7 +121,7 @@ def main():
         print(f'  js/{name}')
     write('js/_order.json', json.dumps(order, indent=2) + '\n')
 
-    # ---------- 4. index.html ----------
+    # ---------- 4. index-dev.html (bootstrap de desenvolvimento) ----------
     head = html[:html.index('<style>')]
     body = html[html.index('</style>') + len('</style>'):html.index('<script>')]
     body = body.replace('</head>\n', '')
@@ -132,8 +132,8 @@ def main():
              + '<script src="js/loader.js"></script>\n'
              + scripts
              + '\n<script>__require(\'main.js\');</script>\n</body>\n</html>\n')
-    write('index.html', index)
-    print('  index.html')
+    write('index-dev.html', index)
+    print('  index-dev.html')
     print(f'\nOK — {len(order)} módulos recuperados.')
 
 

@@ -1,14 +1,13 @@
 # 🧌 Vila de Goblins
 
 [![Testes](https://github.com/alexflpaula-a11y/Goblin-game/actions/workflows/ci.yml/badge.svg)](https://github.com/alexflpaula-a11y/Goblin-game/actions/workflows/ci.yml)
-[![Deploy GitHub Pages](https://github.com/alexflpaula-a11y/Goblin-game/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/alexflpaula-a11y/Goblin-game/actions/workflows/deploy-pages.yml)
 [![Jogar online](https://img.shields.io/badge/jogar-online-2ea44f?logo=itch.io&logoColor=white)](https://alexflpaula-a11y.github.io/Goblin-game/)
 [![Licença: MIT](https://img.shields.io/badge/licença-MIT-blue.svg)](LICENSE)
 
 Jogo mobile-first de **gerenciamento de vila + batalhas por turnos**, em HTML5 Canvas + JavaScript puro (sem dependências). Você controla uma vila de goblins: corte madeira, minere, construa estruturas, cumpra missões, cozinhe, recrute goblins (escolhendo 1 entre 3, com **45 variações visuais**) e — nas próximas fases — invada outras vilas.
 
 > ### 🎮 [**Clique aqui para jogar agora →**](https://alexflpaula-a11y.github.io/Goblin-game/)
-> Publicado automaticamente pelo GitHub Actions a cada mudança na `main` — sempre a versão de arquivo único (carrega num toque, funciona offline).
+> A raiz publicada serve a versão de arquivo único (carrega num toque, funciona offline). O GitHub Pages republica sozinho a cada push na `main`.
 
 ## 📑 Índice
 
@@ -27,12 +26,13 @@ Jogo mobile-first de **gerenciamento de vila + batalhas por turnos**, em HTML5 C
 ## ▶️ Como jogar
 
 **🎮 Jogar online (GitHub Pages):** **<https://alexflpaula-a11y.github.io/Goblin-game/>**
-O link publica a **versão de arquivo único** (carrega num toque, funciona offline). Link direto do arquivo:
+A raiz redireciona para a **versão de arquivo único** (carrega num toque, funciona offline). Link direto do arquivo:
 **<https://alexflpaula-a11y.github.io/Goblin-game/vila-de-goblins-jogavel.html>**
 
 **Sem instalar nada:** abra `vila-de-goblins-jogavel.html` no navegador (PC ou celular). É um build de arquivo único com sprites e textos embutidos — funciona offline.
 
-**Modo desenvolvimento:** sirva a pasta e abra `http://localhost:8080`:
+**Modo desenvolvimento:** sirva a pasta e abra `http://localhost:8080/index-dev.html`
+(o `index-dev.html` carrega os módulos de `js/` por HTTP; o `index.html` da raiz é só o redirecionamento para o build):
 
 ```bash
 python3 -m http.server 8080
@@ -85,7 +85,8 @@ As peças **Avaritia** (capacete/peitoral/calça) continuam mudando o sprite do 
 ## 🗂️ Estrutura do projeto
 
 ```
-index.html          versão de desenvolvimento (carrega js/ por HTTP)
+index.html          redireciona para o build (é o que o GitHub Pages serve na raiz)
+index-dev.html      versão de desenvolvimento (carrega js/ por HTTP)
 vila-de-goblins-jogavel.html   build de arquivo único (é o que se distribui)
 
 css/style.css       HUD e layout DOM
@@ -128,14 +129,10 @@ art-source/         arte-fonte do autor (NÃO carregada em runtime)
 
 ## 🤖 Automação (CI/CD)
 
-Dois fluxos de trabalho do **GitHub Actions** cuidam de tudo — nada precisa ser feito à mão:
+- **Testes automáticos** — o fluxo `.github/workflows/ci.yml` roda as 7 suítes (`bash tools/test.sh`) em cada Pull Request e em pushes para a `main`, bloqueando merges que quebrem algo. O status aparece no badge no topo.
+- **Publicação automática** — o GitHub Pages republica sozinho a cada push na `main`. A raiz `index.html` apenas **redireciona para `vila-de-goblins-jogavel.html`** (o build de arquivo único), então o link online sempre carrega a versão rápida — sem os 4212 pedidos de sprite da versão de desenvolvimento.
 
-| Fluxo | Arquivo | Quando roda | O que faz |
-|---|---|---|---|
-| **Testes** | `.github/workflows/ci.yml` | todo push e Pull Request | roda as 7 suítes (`bash tools/test.sh`); bloqueia PR se algo quebrar |
-| **Deploy Pages** | `.github/workflows/deploy-pages.yml` | push na `main` (ou manual) | reconstrói o arquivo único, confere que os testes passam e **publica no GitHub Pages** |
-
-Ou seja: **basta dar merge na `main`** que o jogo online se atualiza sozinho, sempre com a versão mais recente do build de arquivo único (rápido, sem os 4212 pedidos de sprite da versão de desenvolvimento). O status de cada fluxo aparece nos badges no topo deste README.
+> **Fluxo recomendado:** trabalhe numa branch → abra um PR (o CI roda os testes) → depois de aprovado, dê merge na `main`. Lembre-se de rodar `python3 tools/build_singlefile.py` e commitar o `vila-de-goblins-jogavel.html` sempre que mexer em `js/`, `css/` ou `assets/`.
 
 ## 🔧 Ferramentas
 
