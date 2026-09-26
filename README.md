@@ -49,7 +49,8 @@ python3 -m http.server 8080
 | Construir → toque no mapa | escolhe exatamente onde colocar a estrutura |
 | Botão ↔ → estrutura → mapa | move qualquer estrutura já construída |
 | Toque nos outros prédios | abre a tela correspondente |
-| Botões no rodapé | **Construir**, **Mover**, **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
+| Botões no rodapé | **Construir**, **Mover**, **Área dos Goblins**, **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
+| Área dos Goblins | defina cada goblin como **Livre**, **Madeira**, **Pedra** ou **Comida**; ele busca o próximo posto disponível automaticamente |
 
 ## 🔄 O ciclo do jogo
 
@@ -60,6 +61,10 @@ coletar recursos → construir → cumprir missões → XP da vila
 ```
 
 A **vila sobe de nível** com o XP das missões. Cada nível libera novas estruturas *e* eleva o teto de melhoria de todas elas. Melhorar a Cozinha, por exemplo, desbloqueia pratos melhores.
+
+### Obras
+
+Colocar ou melhorar uma estrutura cria uma **lona branca cercada**. Um goblin livre vai até ela, trabalha levantando poeira e o cronômetro só avança enquanto ele está na obra. A duração segue o nível de desbloqueio da estrutura: casas (nível 1) levam **10 / 20 / 30 s** nos níveis 1–3; estruturas desbloqueadas no nível 2 levam **20 / 30 / 40 s**; as do nível 3 levam **30 / 40 / 50 s**, e assim sucessivamente. Quando acabar, a lona brilha: toque nela para recolher a construção pronta.
 
 | Nível | Desbloqueia |
 |---|---|

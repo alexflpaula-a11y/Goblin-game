@@ -17,6 +17,11 @@ const { Goblin } = require('goblin.js');
 // reqLevel  = nível da vila para desbloquear (planejamento §6)
 // maxCount  = quantas podem existir (casas: várias; o resto: 1)
 // maxLevel  = teto de melhoria da própria estrutura
+//
+// Tempo de obra: uma construção desbloqueada no nível N começa em
+// 10 × N segundos e cada nível da estrutura acrescenta mais 10 s.
+// Casa (req. 1) = 10/20/30 s; Serraria (req. 2) = 20/30/40 s;
+// Cozinha (req. 3) = 30/40/50 s, e assim por diante.
 const BUILDINGS = {
   construction: { sprite: 'building_construction_1', reqLevel: 1, maxCount: 1, maxLevel: 3, cost: null },
   quest: { sprite: 'building_questboard_1', reqLevel: 1, maxCount: 1, maxLevel: 3, cost: null },
@@ -134,23 +139,36 @@ class Village {
   }
 
   // ---------- Consultas ----------
-  get houses() { return this.structures.filter((s) => s.type === 'house'); }
+  /** Uma obra só passa a valer depois de o jogador recolhê-la na lona. */
+  isReady(structure) { return !!structure && !structure.construction; }
+
+  get houses() { return this.structures.filter((s) => s.type === 'house' && this.isReady(s)); }
   get capacity() { return this.houses.reduce((a, h) => a + h.level, 0); }
 
-  /** Estruturas que não são casas (uma de cada, no máximo). */
+  /** Estruturas prontas que não são casas (uma de cada, no máximo). */
   get facilities() {
-    return this.structures.filter((s) => s.type !== 'house');
+    return this.structures.filter((s) => s.type !== 'house' && this.isReady(s));
   }
 
-  /** Retorna a estrutura desse tipo (ou null). Casas: use `houses`. */
-  get(type) { return this.structures.find((s) => s.type === type) || null; }
+  /** Retorna a estrutura pronta desse tipo (ou null). Casas: use `houses`. */
+  get(type) { return this.structures.find((s) => s.type === type && this.isReady(s)) || null; }
 
   /** Nível de uma estrutura construída; 0 se ainda não existe. */
   levelOf(type) { return this.get(type)?.level || 0; }
 
   has(type) { return this.levelOf(type) > 0; }
 
+  /** Conta também a obra pendente para não permitir duplicatas na construção. */
   countOf(type) { return this.structures.filter((s) => s.type === type).length; }
+
+  /** Obras ainda aguardando trabalho ou prontas para serem recolhidas. */
+  get constructionSites() { return this.structures.filter((s) => !!s.construction); }
+
+  /** Segundos de trabalho para alcançar `targetLevel` nesta estrutura. */
+  constructionSeconds(type, targetLevel = 1) {
+    const req = BUILDINGS[type]?.reqLevel ?? 1;
+    return 10 * Math.max(1, req + Math.max(1, targetLevel) - 1);
+  }
 
   // ---------- XP e nível da vila ----------
   /** XP total para ir do nível N ao N+1 (planejamento §8: 100 × N^1.6). */
@@ -303,6 +321,23 @@ class Village {
 
   buildAt(type, x, y) { return this.build(type, { x, y }); }
 
+  /**
+   * Cria uma obra no mapa. `build()` continua instantâneo para preservar a
+   * API de saves antigos, testes de lógica e prévias; a UI usa este método
+   * para que toda construção ganhe lona, construtor e cronômetro.
+   */
+  beginBuildAt(type, x, y) {
+    const structure = this.buildAt(type, x, y);
+    if (!structure) return null;
+    const seconds = this.constructionSeconds(type, 1);
+    structure.construction = {
+      kind: 'build', targetLevel: 1,
+      total: seconds, remaining: seconds,
+      status: 'building', worker: null, working: false,
+    };
+    return structure;
+  }
+
   /** Move sem custo uma estrutura já construída. */
   move(structure, x, y) {
     if (!structure || !this.structures.includes(structure)) return false;
@@ -331,6 +366,31 @@ class Village {
     return true;
   }
 
+  /** Paga uma melhoria, mas só aplica o novo nível quando a obra terminar. */
+  beginUpgrade(structure) {
+    if (!structure || !this.isReady(structure)) return false;
+    if (structure.level >= this.maxUpgradeLevel(structure.type)) return false;
+    const cost = this.upgradeCost(structure);
+    if (!this.canAfford(cost)) return false;
+    this.pay(cost);
+    const targetLevel = structure.level + 1;
+    const seconds = this.constructionSeconds(structure.type, targetLevel);
+    structure.construction = {
+      kind: 'upgrade', targetLevel,
+      total: seconds, remaining: seconds,
+      status: 'building', worker: null, working: false,
+    };
+    return true;
+  }
+
+  /** Recolhe uma obra concluída: ela passa a funcionar na vila. */
+  completeConstruction(structure) {
+    if (!structure?.construction || structure.construction.status !== 'ready') return false;
+    structure.level = structure.construction.targetLevel;
+    delete structure.construction;
+    return true;
+  }
+
   /** Melhora a casa pelo índice (usado pela aba Melhorias). */
   upgradeHouse(index) { return this.upgrade(this.houses[index]); }
 
@@ -349,14 +409,72 @@ class Village {
   }
 
   // ---------- Render / hit-test no mundo ----------
-  drawList() {
-    // Divindades são desenhadas pelo deities.js, pois seus sprites respiram,
-    // cantam/arremessam e têm um acólito. Aqui ficam os prédios estáticos.
+  drawList(time = 0) {
+    // Divindades prontas são desenhadas pelo deities.js; uma divindade em
+    // obra ainda precisa mostrar a lona nesta lista.
     return this.structures
-      .filter((s) => !BUILDINGS[s.type]?.deity)
+      .filter((s) => !BUILDINGS[s.type]?.deity || s.construction)
       .map((s) => ({
         y: s.y,
         draw: (ctx) => {
+          const work = s.construction;
+          if (work) {
+            // A lona branca cercada é um sprite próprio. Poeira e brilho são
+            // animados aqui para reagirem ao trabalho e ao relógio da obra.
+            ctx.drawImage(getSprite('building_construction_site'), s.x - 32, s.y - 60, 64, 64);
+
+            if (work.status === 'building') {
+              if (work.working) {
+                ctx.save();
+                for (let i = 0; i < 9; i++) {
+                  const phase = time * (2.4 + i * 0.11) + i * 1.73;
+                  const rise = (Math.sin(phase) + 1) * 0.5;
+                  const px = s.x - 16 + ((i * 13) % 31) + Math.sin(phase * 1.7) * 3;
+                  const py = s.y - 9 - rise * (9 + (i % 3) * 4);
+                  ctx.globalAlpha = 0.18 + rise * 0.26;
+                  ctx.fillStyle = i % 2 ? '#c8ae7b' : '#e4d0a0';
+                  ctx.fillRect(Math.round(px), Math.round(py), i % 3 === 0 ? 3 : 2, i % 3 === 0 ? 3 : 2);
+                }
+                ctx.restore();
+              }
+              const seconds = Math.max(0, Math.ceil(work.remaining));
+              ctx.fillStyle = 'rgba(20,14,27,0.82)';
+              ctx.fillRect(s.x - 20, s.y - 73, 40, 11);
+              ctx.strokeStyle = 'rgba(255,233,168,0.75)';
+              ctx.lineWidth = 1;
+              ctx.strokeRect(s.x - 19.5, s.y - 72.5, 39, 10);
+              ctx.fillStyle = '#ffe9a8';
+              ctx.font = 'bold 8px monospace';
+              ctx.textAlign = 'center';
+              ctx.fillText(`${seconds}s`, s.x, s.y - 65);
+              const progress = 1 - work.remaining / Math.max(1, work.total);
+              ctx.fillStyle = 'rgba(0,0,0,0.48)';
+              ctx.fillRect(s.x - 17, s.y + 5, 34, 3);
+              ctx.fillStyle = '#e8b23a';
+              ctx.fillRect(s.x - 17, s.y + 5, 34 * Math.max(0, progress), 3);
+              ctx.textAlign = 'left';
+            } else {
+              // Terminou: o cronômetro some e a lona chama o toque com brilho.
+              const pulse = 0.45 + (Math.sin(time * 5) + 1) * 0.18;
+              ctx.save();
+              ctx.globalAlpha = pulse;
+              ctx.strokeStyle = '#fff3a8';
+              ctx.lineWidth = 1.5;
+              ctx.beginPath();
+              ctx.arc(s.x, s.y - 29, 28 + Math.sin(time * 4) * 2, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.fillStyle = '#fff7bf';
+              for (let i = 0; i < 4; i++) {
+                const a = time * 1.8 + i * Math.PI / 2;
+                const px = s.x + Math.cos(a) * 25;
+                const py = s.y - 29 + Math.sin(a) * 19;
+                ctx.fillRect(Math.round(px) - 1, Math.round(py) - 1, 3, 3);
+              }
+              ctx.restore();
+            }
+            return;
+          }
+
           const spr = getSprite(BUILDINGS[s.type]?.sprite || 'building_house_1');
           ctx.drawImage(spr, s.x - 32, s.y - 60, 64, 64);
           // pips de nível

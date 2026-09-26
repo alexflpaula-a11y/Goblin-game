@@ -259,7 +259,7 @@ step(1);
 ok(has('mdo_gear:espada_ferro'), 'vender 1 devolve o botão de compra');
 
 // ============================================================
-console.log('\x1b[1mBOOT E — recrutamento de verdade (construir casa → 1 de 3)\x1b[0m');
+console.log('\x1b[1mBOOT E — obra de verdade (lona → concluir → recrutar)\x1b[0m');
 const appE = await boot('');
 tapRegion('build_btn');
 ok(has('bcard_house'), 'catálogo mostra a Casa');
@@ -267,11 +267,35 @@ tapRegion('bcard_house');
 ok(appE.state.placement?.mode === 'build', 'Casa entra no modo de escolher posição');
 const houseSpot = appE.camera.worldToScreen(860, 760);
 tap(houseSpot.x, houseSpot.y);
-ok(['card_0', 'card_1', 'card_2'].every(has), 'colocar a casa abre a escolha de 1 de 3');
+const houseWork = appE.village.structures.find((s) => s.type === 'house' && s.construction);
+ok(houseWork?.construction?.total === 10 && appE.village.capacity === 1,
+  'Casa cria uma obra de 10s e só dá capacidade quando for recolhida');
+ok(houseWork?.construction?.status === 'building' && houseWork.construction.worker === 0,
+  'lona recebeu o goblin livre como construtor');
+// Simula o fim do cronômetro; o toque na lona, e não o término do tempo,
+// é que libera a estrutura e a tela de recrutamento.
+houseWork.construction.remaining = 0;
+houseWork.construction.status = 'ready';
+houseWork.construction.worker = null;
+const finishedSpot = appE.camera.worldToScreen(houseWork.x, houseWork.y - 20);
+tap(finishedSpot.x, finishedSpot.y);
+ok(['card_0', 'card_1', 'card_2'].every(has), 'tocar na lona brilhante abre a escolha de 1 de 3');
 const before = appE.village.goblins.length;
 tapRegion('card_1');
 ok(appE.village.goblins.length === before + 1, 'goblin recrutado entrou na vila');
 ok(appE.state.screen === 'world', 'voltou para o mundo após recrutar');
+
+// A Área dos Goblins cria tarefas persistentes e ocupa automaticamente o
+// goblin em uma árvore disponível.
+tapRegion('jobs_btn');
+ok(has('job_0_wood') && has('job_1_wood'), 'Área dos Goblins lista tarefas para cada goblin');
+tapRegion('job_1_wood');
+ok(appE.village.goblins[1].assignment === 'wood' && !!appE.world.goblins[1].job?.node,
+  'tarefa Madeira manda o goblin coletar automaticamente');
+tapRegion('job_1_idle');
+ok(appE.village.goblins[1].assignment === null && !appE.world.goblins[1].job,
+  'Livre remove a tarefa automática e chama o goblin de volta');
+tapRegion('close_jobs');
 
 // ============================================================
 console.log('\x1b[1mBOOT F — subir 2+ níveis anuncia todos os desbloqueios\x1b[0m');

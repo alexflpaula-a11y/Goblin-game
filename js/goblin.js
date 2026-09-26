@@ -55,9 +55,13 @@ class Goblin {
       hp: null, mp: null,
       equip: {},   // { capacete: 'capacete_ferro', anel1: 'anel_rubi', ... }
       skills: [],  // [ 'investida', 'golpe_brutal' ] (2 espaços)
+      // tarefa persistente escolhida na Área dos Goblins:
+      // null | wood | stone | food
+      assignment: null,
     }, data);
     this.equip = this.equip || {};
     this.skills = this.skills || [];
+    if (!['wood', 'stone', 'food'].includes(this.assignment)) this.assignment = null;
     if (!VARIATION_SET.has(this.variation)) this.variation = null;
     this.recalc();
   }

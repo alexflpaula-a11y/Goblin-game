@@ -213,6 +213,21 @@ class Nodes {
     return null;
   }
 
+  /** Próximo nó desocupado para uma tarefa automática da Área dos Goblins. */
+  findAvailable(task, x, y) {
+    const type = task === 'wood' ? 'tree' : task === 'stone' ? 'rock'
+      : task === 'food' ? 'farm' : null;
+    if (!type) return null;
+    let best = null;
+    let bestD = Infinity;
+    for (const node of this.list) {
+      if (node.type !== type || node.depleted || node.worker != null) continue;
+      const d = Math.hypot((x ?? node.x) - node.x, (y ?? node.y) - node.y);
+      if (d < bestD) { bestD = d; best = node; }
+    }
+    return best;
+  }
+
   // Manda o walker livre mais próximo trabalhar no nó
   assign(node, walkers) {
     if (!node || node.depleted || node.worker != null) return null;

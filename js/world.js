@@ -95,6 +95,51 @@ class GoblinWalker {
     // qual goblin do roster este walker representa (p/ vestir o equip dele)
     this.goblin = api.village?.goblins?.[this.i] ?? this.goblin ?? null;
 
+    // ----- construindo / melhorando uma estrutura -----
+    if (this.job?.construction) {
+      const structure = this.job.construction;
+      const work = structure?.construction;
+      // Se a obra já foi recolhida/concluída ou ganhou outro construtor,
+      // este goblin volta a ficar disponível sem deixar referências órfãs.
+      if (!work || work.status !== 'building' || work.worker !== this.i) {
+        if (work?.worker === this.i) work.working = false;
+        this.job = null; this.wait = 0.35;
+      } else if (this.job.type === 'build-goto') {
+        const target = { x: structure.x - 15, y: structure.y + 4 };
+        const dx = target.x - this.x, dy = target.y - this.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 3) {
+          this.x = target.x; this.y = target.y;
+          this.face = 1;
+          this.job.type = 'build';
+          work.working = true;
+          this.anim = 'attack'; this.frame = 0; this.animT = 0;
+        } else {
+          this.x += (dx / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
+          this.y += (dy / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
+          this.face = dx >= 0 ? 1 : -1;
+          this.anim = 'walk';
+          this.animT += dt;
+          if (this.animT > 0.10) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
+        }
+        return;
+      } else {
+        // Martela na frente da lona; o controlador principal desconta o
+        // relógio para que Village continue sendo a dona do estado da obra.
+        this.x = structure.x - 15; this.y = structure.y + 4;
+        this.face = 1;
+        this.anim = 'attack';
+        this.animT += dt;
+        if (this.animT > 0.09) { this.animT = 0; this.frame = (this.frame + 1) % 10; }
+        api.onBuild?.(structure, this.goblin, dt);
+        if (structure.construction?.status !== 'building') {
+          if (structure.construction) structure.construction.working = false;
+          this.job = null; this.wait = 0.45;
+        }
+        return;
+      }
+    }
+
     // ----- louvando uma divindade (ativação manual) -----
     if (this.job?.deityType) {
       const target = this.job.target;
@@ -376,7 +421,12 @@ class World {
   }
 
   update(dt, api) {
-    for (const gb of this.goblins) gb.update(dt, api);
+    for (const gb of this.goblins) {
+      gb.update(dt, api);
+      // Tarefas automáticas só ocupam quem realmente está livre. Assim uma
+      // construção recebe prioridade e um posto esgotado procura outro nó.
+      if (!gb.job) api.onAutoTask?.(gb);
+    }
     // textos flutuantes (+1 madeira etc.)
     for (const f of this.floats) { f.ttl -= dt; f.y -= 14 * dt; }
     this.floats = this.floats.filter((f) => f.ttl > 0);

@@ -190,6 +190,37 @@ check('teto sobe junto com a vila', v5.maxUpgradeLevel('house') === 3);
 check('agora melhora', v5.upgrade(v5.houses[0]) === true);
 
 // ============================================================
+section('Village — obras com tempo, lona e recolhimento');
+// ============================================================
+const buildV = new Village();
+buildV.level = 3;
+buildV.res = { wood: 9999, stone: 9999, ore: 9999, food: 9999, gold: 9999 };
+check('tempos seguem 10 × (nível da vila exigido + nível da estrutura - 1)',
+  buildV.constructionSeconds('house', 1) === 10
+  && buildV.constructionSeconds('house', 2) === 20
+  && buildV.constructionSeconds('house', 3) === 30
+  && buildV.constructionSeconds('serraria', 1) === 20
+  && buildV.constructionSeconds('serraria', 3) === 40
+  && buildV.constructionSeconds('cozinha', 1) === 30
+  && buildV.constructionSeconds('cozinha', 3) === 50);
+const pendingHouse = buildV.beginBuildAt('house', 840, 760);
+check('construir pelo fluxo do jogo cria uma obra pendente',
+  pendingHouse?.construction?.status === 'building' && pendingHouse.construction.total === 10);
+check('obra pendente não aumenta capacidade nem fica funcional',
+  buildV.capacity === 1 && buildV.countOf('house') === 2 && buildV.houses.length === 1);
+check('não recolhe lona antes de terminar', buildV.completeConstruction(pendingHouse) === false);
+pendingHouse.construction.status = 'ready'; pendingHouse.construction.remaining = 0;
+check('recolher lona pronta finaliza estrutura e libera capacidade',
+  buildV.completeConstruction(pendingHouse) && buildV.capacity === 2 && buildV.houses.length === 2);
+const upgradingHouse = buildV.houses[0];
+check('melhoria cria obra de 20 segundos sem subir o nível na hora',
+  buildV.beginUpgrade(upgradingHouse) && upgradingHouse.level === 1
+  && upgradingHouse.construction?.total === 20);
+upgradingHouse.construction.status = 'ready';
+check('recolher melhoria aplica o nível alvo',
+  buildV.completeConstruction(upgradingHouse) && upgradingHouse.level === 2);
+
+// ============================================================
 section('Quests — painel de missões (etapa 1.7)');
 // ============================================================
 const { Quests, Quest } = req('quests.js');
