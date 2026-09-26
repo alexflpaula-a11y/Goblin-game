@@ -427,6 +427,103 @@ check('recusa classe errada', abilities.equipAbility(ag, 0, otherAb.id) === fals
 check('remove habilidade', abilities.unequipAbility(ag, 1) === specAb.id);
 
 // ============================================================
+section('Divindades — canto, arremesso, distância e limite');
+// ============================================================
+const { Nodes } = req('nodes.js');
+const { Deities, ISLAND_NODE_CAP, ANIMATION_FRAMES } = req('deities.js');
+const deityVillage = new Village();
+deityVillage.level = 3;
+deityVillage.res = { wood: 9999, stone: 9999, ore: 0, food: 0, gold: 9999 };
+check('nível 3 libera a Grande Árvore', deityVillage.canBuild('grande_arvore'));
+check('nível 3 libera o Golem de Pedra', deityVillage.canBuild('golem_pedra'));
+check('Mina não existe mais no catálogo', !('mina' in req('village.js').BUILDINGS));
+deityVillage.build('grande_arvore');
+deityVillage.build('golem_pedra');
+
+const deityWorld = {
+  clearing: { x: 960, y: 720, r: 160 },
+  tiles: new Uint8Array(120 * 90).fill(3),
+  floats: [],
+  goblins: [
+    { i: 0, x: 960, y: 720, job: null, target: null },
+    { i: 1, x: 970, y: 720, job: null, target: null },
+  ],
+};
+const deityNodes = new Nodes(deityWorld, [
+  { type: 'tree', x: 80, y: 80, stock: 15, max: 15, depleted: false },
+]);
+let seed = 123456;
+const deityRng = () => {
+  seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+  return seed / 4294967296;
+};
+const gods = new Deities(deityWorld, deityVillage, deityNodes, deityRng);
+check('divindades começam sem goblins e desligadas',
+  !gods.isActive('grande_arvore') && !gods.isActive('golem_pedra')
+  && deityWorld.goblins.every((w) => !w.job));
+const treeActivation = gods.activate('grande_arvore');
+const golemActivation = gods.activate('golem_pedra');
+check('jogador ativa cada divindade com um goblin livre', treeActivation.ok && golemActivation.ok);
+// O world.js transforma worship-goto em worship ao chegar; aqui avançamos
+// diretamente porque este é um teste puro sem GoblinWalker.
+deityWorld.goblins.forEach((w) => { w.job.type = 'worship'; });
+check('animações possuem mais quadros',
+  ANIMATION_FRAMES.treeChant >= 24 && ANIMATION_FRAMES.golemForge >= 24);
+let sawChant = false, sawForge = false, sawProjectile = false;
+let sawTreeRise = false, sawRockLand = false;
+for (let i = 0; i < 5200; i++) {
+  deityNodes.update(0.1);
+  gods.update(0.1);
+  sawChant ||= gods.states.grande_arvore.mode === 'chant';
+  sawForge ||= gods.states.golem_pedra.mode === 'forge';
+  sawProjectile ||= gods.projectiles.length > 0;
+  sawTreeRise ||= deityNodes.list.some((n) => n.divine && n.type === 'tree' && n.growth < 1);
+  sawRockLand ||= deityNodes.list.some((n) => n.divine && n.type === 'rock');
+}
+check('Grande Árvore entra na animação de canto', sawChant);
+check('Golem entra na animação de criação/arremesso', sawForge && sawProjectile);
+check('árvore divina surge do chão', sawTreeRise);
+check('pedra arremessada cai e permanece como nó', sawRockLand);
+let deityDrawError = null;
+try {
+  gods.states.grande_arvore.mode = 'chant'; gods.states.grande_arvore.time = 1.1;
+  gods.states.golem_pedra.mode = 'forge'; gods.states.golem_pedra.time = 0.5;
+  gods.states.golem_pedra.launched = false;
+  gods.projectiles.push({
+    type: 'rock', x: 900, y: 500, groundY: 620, spin: 1.2,
+    trail: [{ x: 895, y: 505, spin: 1 }], progress: 0.5,
+  });
+  const noop = () => {};
+  const drawCtx = new Proxy({ globalAlpha: 1 }, {
+    get: (target, key) => (key in target ? target[key] : noop),
+    set: (target, key, value) => { target[key] = value; return true; },
+  });
+  for (const drawable of gods.drawList(123)) drawable.draw(drawCtx);
+  for (const drawable of deityNodes.drawList()) drawable.draw(drawCtx);
+} catch (error) { deityDrawError = error; }
+check('divindades, acólitos e nós animados desenham sem erro',
+  deityDrawError === null, deityDrawError?.message);
+check('ilha respeita teto TOTAL de 40 árvores',
+  deityNodes.countActive('tree') === ISLAND_NODE_CAP,
+  String(deityNodes.countActive('tree')));
+check('ilha respeita teto TOTAL de 40 pedras',
+  deityNodes.countActive('rock') === ISLAND_NODE_CAP,
+  String(deityNodes.countActive('rock')));
+const spawned = deityNodes.list.filter((n) => n.divine);
+check('todos os milagres ficam a pelo menos 190px das estruturas',
+  spawned.every((n) => deityVillage.structures.every((s) => Math.hypot(n.x - s.x, n.y - s.y) >= 190)));
+const divineRound = new Nodes(deityWorld, JSON.parse(JSON.stringify(deityNodes.serialize())));
+check('árvores e pedras persistem no save sem ultrapassar 40',
+  divineRound.countActive('tree') === 40 && divineRound.countActive('rock') === 40);
+check('desativar libera o goblin novamente',
+  gods.deactivate('grande_arvore') && deityWorld.goblins[0].job === null);
+const migratedVillage = new Village({ structures: [
+  { type: 'mina', level: 2, x: 700, y: 700 },
+  { type: 'house', level: 1, x: 1000, y: 706, slot: 0 },
+] });
+check('save antigo remove a Mina automaticamente', !migratedVillage.has('mina'));
+
+// ============================================================
 section('Save — o progresso novo persiste');
 // ============================================================
 const sv = new Village();

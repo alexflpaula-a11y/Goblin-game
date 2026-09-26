@@ -321,6 +321,22 @@ check('capacete/calça de ferro e armas têm overlay em todos os quadros',
 const missingFiles = manifest.sprites.filter((s) => !fs.existsSync(path.join(ROOT, s.path)));
 check('todo sprite do manifest existe em disco', missingFiles.length === 0,
   missingFiles.map((s) => s.path).join(', '));
+const deitySpriteIds = ['building_grande_arvore_1', 'building_golem_pedra_1'];
+const deitySizes = deitySpriteIds.map((id) => {
+  const entry = manifest.sprites.find((s) => s.id === id);
+  if (!entry) return [id, 0, 0];
+  const png = fs.readFileSync(path.join(ROOT, entry.path));
+  return [id, png.readUInt32BE(16), png.readUInt32BE(20)];
+});
+check('sprites das duas divindades são PNG 64×64 exatos',
+  deitySizes.every(([, w, h]) => w === 64 && h === 64),
+  deitySizes.map(([id, w, h]) => `${id}=${w}x${h}`).join(', '));
+const rockFx = manifest.sprites.find((s) => s.id === 'fx_pedra_divina');
+const rockPng = rockFx && fs.readFileSync(path.join(ROOT, rockFx.path));
+check('projétil rúnico polido é PNG 32×32',
+  !!rockPng && rockPng.readUInt32BE(16) === 32 && rockPng.readUInt32BE(20) === 32);
+check('sprite e tradução da Mina foram removidos',
+  !haveSprites.has('building_mina_1') && !('bld.mina' in pt) && !('bld.mina' in en));
 
 // ---------- a versão de DESENVOLVIMENTO está completa? ----------
 // (o build tem seu próprio teste; aqui garantimos que index-dev.html abre)

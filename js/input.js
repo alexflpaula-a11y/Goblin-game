@@ -21,6 +21,8 @@ class Input {
     this.tap = null;     // {x, y}
     this.wheel = null;   // {factor, x, y}
     this.swipe = null;   // {dir: -1|+1} — arrasto horizontal (paginar)
+    this.cursor = null;  // último ponto lógico (prévia de posicionamento)
+    this.cursorSeq = 0;  // muda a cada down/move
 
     this._bind();
   }
@@ -36,6 +38,7 @@ class Input {
   _bind() {
     this.canvas.addEventListener('pointerdown', (e) => {
       const p = this._toLogical(e.clientX, e.clientY);
+      this.cursor = p; this.cursorSeq += 1;
       this.pointers.set(e.pointerId, { x: p.x, y: p.y, x0: p.x, y0: p.y, t0: performance.now(), moved: false });
       if (this.pointers.size === 2) {
         this.pinchActive = true;
@@ -48,6 +51,7 @@ class Input {
       const ptr = this.pointers.get(e.pointerId);
       if (!ptr) return;
       const p = this._toLogical(e.clientX, e.clientY);
+      this.cursor = p; this.cursorSeq += 1;
 
       if (this.pointers.size === 1) {
         // pan com 1 dedo

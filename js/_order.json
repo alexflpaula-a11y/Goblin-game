@@ -10,6 +10,7 @@
   "world.js",
   "village.js",
   "nodes.js",
+  "deities.js",
   "ui.js",
   "quests.js",
   "cooking.js",
