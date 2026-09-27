@@ -83,6 +83,10 @@ const cands = Goblin.candidates(0, []);
 check('recrutamento gera 3 candidatos', cands.length === 3);
 check('candidatos têm nomes distintos', new Set(cands.map((c) => c.name)).size === 3);
 check('candidatos têm variações distintas', new Set(cands.map((c) => c.variation)).size === 3);
+const cookSave = new Goblin({ ...g, assignment: 'cook' });
+const oldUnknownJob = new Goblin({ ...g, assignment: 'made_up_old_role' });
+check('save preserva a função Cozinheiro', cookSave.assignment === 'cook');
+check('função antiga/desconhecida ainda migra para Livre', oldUnknownJob.assignment === null);
 
 // sorte crescente: com muitos recrutas, raridade média deve subir
 const rarityScore = (r) => RARITIES.indexOf(r);
@@ -190,6 +194,37 @@ check('teto sobe junto com a vila', v5.maxUpgradeLevel('house') === 3);
 check('agora melhora', v5.upgrade(v5.houses[0]) === true);
 
 // ============================================================
+section('Village — obras com tempo, lona e recolhimento');
+// ============================================================
+const buildV = new Village();
+buildV.level = 3;
+buildV.res = { wood: 9999, stone: 9999, ore: 9999, food: 9999, gold: 9999 };
+check('tempos seguem 10 × (nível da vila exigido + nível da estrutura - 1)',
+  buildV.constructionSeconds('house', 1) === 10
+  && buildV.constructionSeconds('house', 2) === 20
+  && buildV.constructionSeconds('house', 3) === 30
+  && buildV.constructionSeconds('serraria', 1) === 20
+  && buildV.constructionSeconds('serraria', 3) === 40
+  && buildV.constructionSeconds('cozinha', 1) === 30
+  && buildV.constructionSeconds('cozinha', 3) === 50);
+const pendingHouse = buildV.beginBuildAt('house', 840, 760);
+check('construir pelo fluxo do jogo cria uma obra pendente',
+  pendingHouse?.construction?.status === 'building' && pendingHouse.construction.total === 10);
+check('obra pendente não aumenta capacidade nem fica funcional',
+  buildV.capacity === 1 && buildV.countOf('house') === 2 && buildV.houses.length === 1);
+check('não recolhe lona antes de terminar', buildV.completeConstruction(pendingHouse) === false);
+pendingHouse.construction.status = 'ready'; pendingHouse.construction.remaining = 0;
+check('recolher lona pronta finaliza estrutura e libera capacidade',
+  buildV.completeConstruction(pendingHouse) && buildV.capacity === 2 && buildV.houses.length === 2);
+const upgradingHouse = buildV.houses[0];
+check('melhoria cria obra de 20 segundos sem subir o nível na hora',
+  buildV.beginUpgrade(upgradingHouse) && upgradingHouse.level === 1
+  && upgradingHouse.construction?.total === 20);
+upgradingHouse.construction.status = 'ready';
+check('recolher melhoria aplica o nível alvo',
+  buildV.completeConstruction(upgradingHouse) && upgradingHouse.level === 2);
+
+// ============================================================
 section('Quests — painel de missões (etapa 1.7)');
 // ============================================================
 const { Quests, Quest } = req('quests.js');
@@ -250,9 +285,25 @@ check('cozinhou pão', out !== null && out.id === 'bread');
 check('consumiu comida crua', cv.res.food === foodBefore - 3);
 check('pão foi para a despensa', cv.meals.bread >= 1);
 
-check('receita travada pelo nível da cozinha', cooking.cook(cv, 'feast') === null);
+  check('receita travada pelo nível da cozinha', cooking.cook(cv, 'feast') === null);
 
-const hurtGoblin = cv.goblins[0];
+  // A interface separa os ingredientes ao iniciar, mas o prato só entra na
+  // despensa depois de o cozinheiro terminar seu cronômetro.
+  const rawBefore = cv.res.food;
+  const prep = cooking.beginCook(cv, 'soup');
+  check('preparo cria trabalho de 10 segundos', prep?.total === 10 && prep.remaining === 10);
+  check('preparo reserva ingredientes sem entregar prato',
+    cv.res.food === rawBefore - 5 && !cv.meals.soup);
+  check('não abre segundo preparo enquanto a panela está ocupada', cooking.beginCook(cv, 'bread') === null);
+  const restoredPrep = new Village(cv.serialize());
+  check('preparo pendente persiste no save', restoredPrep.cookingJob?.recipeId === 'soup' && restoredPrep.cookingJob.remaining === 10);
+  prep.status = 'ready';
+  const prepared = cooking.finishCook(cv, () => 0.99);
+  check('prato só é entregue ao completar o preparo', prepared?.id === 'soup' && cv.meals.soup === 1 && !cv.cookingJob);
+  check('tempos seguem 10/20/30 por nível de receita',
+    cooking.cookingSeconds('bread') === 10 && cooking.cookingSeconds('stew') === 20 && cooking.cookingSeconds('feast') === 30);
+
+  const hurtGoblin = cv.goblins[0];
 hurtGoblin.hp = 1;
 const healed = cooking.feed(cv, hurtGoblin, 'bread');
 check('comer cura HP', healed > 0, `curou ${healed}`);
