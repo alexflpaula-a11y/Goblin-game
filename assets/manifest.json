@@ -1757,6 +1757,10 @@
       "path": "assets/sprites/buildings/building_bazar_1.png"
     },
     {
+      "id": "building_construction_site",
+      "path": "assets/sprites/buildings/building_construction_site.png"
+    },
+    {
       "id": "building_construction_1",
       "path": "assets/sprites/buildings/building_construction_1.png"
     },
