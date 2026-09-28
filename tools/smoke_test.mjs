@@ -83,6 +83,10 @@ const cands = Goblin.candidates(0, []);
 check('recrutamento gera 3 candidatos', cands.length === 3);
 check('candidatos têm nomes distintos', new Set(cands.map((c) => c.name)).size === 3);
 check('candidatos têm variações distintas', new Set(cands.map((c) => c.variation)).size === 3);
+const cookSave = new Goblin({ ...g, assignment: 'cook' });
+const oldUnknownJob = new Goblin({ ...g, assignment: 'made_up_old_role' });
+check('save preserva a função Cozinheiro', cookSave.assignment === 'cook');
+check('função antiga/desconhecida ainda migra para Livre', oldUnknownJob.assignment === null);
 
 // sorte crescente: com muitos recrutas, raridade média deve subir
 const rarityScore = (r) => RARITIES.indexOf(r);
@@ -101,19 +105,31 @@ const { Village } = req('village.js');
 const v = new Village();
 
 check('recursos iniciais do balance', v.res.wood === BALANCE.startResources.wood);
-check('começa com 3 estruturas', v.structures.length === 3, String(v.structures.length));
-check('começa com 1 casa', v.houses.length === 1);
-check('começa com 1 goblin', v.goblins.length === 1);
-check('capacidade = soma dos níveis das casas', v.capacity === 1);
+check('começa sem estruturas no mapa', v.structures.length === 0, String(v.structures.length));
+check('começa sem casas e sem capacidade', v.houses.length === 0 && v.capacity === 0);
+check('mantém 1 goblin inicial para erguer a fundação', v.goblins.length === 1);
+
+const startWood = v.res.wood, startStone = v.res.stone;
+const foundation = v.build('construction');
+const board = v.build('quest');
+check('Casa de Construção e Painel são fundações grátis',
+  foundation?.type === 'construction' && board?.type === 'quest'
+  && v.res.wood === startWood && v.res.stone === startStone);
+const firstHouse = v.beginBuildAt('house', 1000, 706);
+check('primeira Casa grátis fica pronta na hora',
+  firstHouse?.type === 'house' && !firstHouse.construction && v.capacity === 1);
+check('primeira Casa não consumiu recursos', v.res.wood === startWood && v.res.stone === startStone);
+check('a segunda e a terceira Casa também são grátis', v.buildHouse() && v.buildHouse()
+  && v.houses.length === 3 && v.res.wood === startWood && v.res.stone === startStone);
 
 const woodBefore = v.res.wood;
 const built = v.buildHouse();
-check('constrói casa com recursos', built === true);
-check('pagou o custo em madeira', v.res.wood === woodBefore - BALANCE.house.buildCost.wood);
-check('capacidade subiu p/ 2', v.capacity === 2);
+check('quarta Casa passa a custar recursos', built === true);
+check('pagou o custo em madeira depois das três grátis', v.res.wood === woodBefore - BALANCE.house.buildCost.wood);
+check('capacidade cresce com as Casas', v.capacity === 4);
 
 v.res.wood = 0; v.res.stone = 0;
-check('bloqueia construção sem recursos', v.buildHouse() === false);
+check('bloqueia construção paga sem recursos', v.buildHouse() === false);
 
 v.res.wood = 9999; v.res.stone = 9999;
 // A partir da etapa 1.8 a melhoria é limitada pelo nível da vila (§2.5),
@@ -130,6 +146,7 @@ check('respeita maxLevel da casa', v.houses[0].level === BALANCE.house.maxLevel,
 
 // recrutamento respeita capacidade
 const v2 = new Village();
+v2.buildHouse(); // primeira casa de fundação, instantânea e gratuita
 let guard = 0;
 while (v2.goblins.length < v2.capacity && guard++ < 50) v2.recruit(Goblin.roll(0));
 check('não recruta acima da capacidade', v2.recruit(Goblin.roll(0)) === false);
@@ -181,6 +198,7 @@ check('sem recursos → motivo cost', v4.blockedReason('cozinha')?.reason === 'c
 
 // ---------- melhoria limitada pelo nível da vila ----------
 const v5 = new Village();
+v5.buildHouse();
 v5.res = { wood: 9999, stone: 9999, ore: 9999, food: 9999, gold: 9999 };
 v5.level = 1;
 check('teto de melhoria = nível da vila', v5.maxUpgradeLevel('house') === 1);
@@ -188,6 +206,38 @@ check('não melhora além do nível da vila', v5.upgrade(v5.houses[0]) === false
 v5.level = 3;
 check('teto sobe junto com a vila', v5.maxUpgradeLevel('house') === 3);
 check('agora melhora', v5.upgrade(v5.houses[0]) === true);
+
+// ============================================================
+section('Village — obras com tempo, lona e recolhimento');
+// ============================================================
+const buildV = new Village();
+buildV.buildHouse(); // a segunda casa é a primeira obra cronometrada
+buildV.level = 3;
+buildV.res = { wood: 9999, stone: 9999, ore: 9999, food: 9999, gold: 9999 };
+check('tempos seguem 10 × (nível da vila exigido + nível da estrutura - 1)',
+  buildV.constructionSeconds('house', 1) === 10
+  && buildV.constructionSeconds('house', 2) === 20
+  && buildV.constructionSeconds('house', 3) === 30
+  && buildV.constructionSeconds('serraria', 1) === 20
+  && buildV.constructionSeconds('serraria', 3) === 40
+  && buildV.constructionSeconds('cozinha', 1) === 30
+  && buildV.constructionSeconds('cozinha', 3) === 50);
+const pendingHouse = buildV.beginBuildAt('house', 840, 760);
+check('construir pelo fluxo do jogo cria uma obra pendente',
+  pendingHouse?.construction?.status === 'building' && pendingHouse.construction.total === 10);
+check('obra pendente não aumenta capacidade nem fica funcional',
+  buildV.capacity === 1 && buildV.countOf('house') === 2 && buildV.houses.length === 1);
+check('não recolhe lona antes de terminar', buildV.completeConstruction(pendingHouse) === false);
+pendingHouse.construction.status = 'ready'; pendingHouse.construction.remaining = 0;
+check('recolher lona pronta finaliza estrutura e libera capacidade',
+  buildV.completeConstruction(pendingHouse) && buildV.capacity === 2 && buildV.houses.length === 2);
+const upgradingHouse = buildV.houses[0];
+check('melhoria cria obra de 20 segundos sem subir o nível na hora',
+  buildV.beginUpgrade(upgradingHouse) && upgradingHouse.level === 1
+  && upgradingHouse.construction?.total === 20);
+upgradingHouse.construction.status = 'ready';
+check('recolher melhoria aplica o nível alvo',
+  buildV.completeConstruction(upgradingHouse) && upgradingHouse.level === 2);
 
 // ============================================================
 section('Quests — painel de missões (etapa 1.7)');
@@ -250,9 +300,25 @@ check('cozinhou pão', out !== null && out.id === 'bread');
 check('consumiu comida crua', cv.res.food === foodBefore - 3);
 check('pão foi para a despensa', cv.meals.bread >= 1);
 
-check('receita travada pelo nível da cozinha', cooking.cook(cv, 'feast') === null);
+  check('receita travada pelo nível da cozinha', cooking.cook(cv, 'feast') === null);
 
-const hurtGoblin = cv.goblins[0];
+  // A interface separa os ingredientes ao iniciar, mas o prato só entra na
+  // despensa depois de o cozinheiro terminar seu cronômetro.
+  const rawBefore = cv.res.food;
+  const prep = cooking.beginCook(cv, 'soup');
+  check('preparo cria trabalho de 10 segundos', prep?.total === 10 && prep.remaining === 10);
+  check('preparo reserva ingredientes sem entregar prato',
+    cv.res.food === rawBefore - 5 && !cv.meals.soup);
+  check('não abre segundo preparo enquanto a panela está ocupada', cooking.beginCook(cv, 'bread') === null);
+  const restoredPrep = new Village(cv.serialize());
+  check('preparo pendente persiste no save', restoredPrep.cookingJob?.recipeId === 'soup' && restoredPrep.cookingJob.remaining === 10);
+  prep.status = 'ready';
+  const prepared = cooking.finishCook(cv, () => 0.99);
+  check('prato só é entregue ao completar o preparo', prepared?.id === 'soup' && cv.meals.soup === 1 && !cv.cookingJob);
+  check('tempos seguem 10/20/30 por nível de receita',
+    cooking.cookingSeconds('bread') === 10 && cooking.cookingSeconds('stew') === 20 && cooking.cookingSeconds('feast') === 30);
+
+  const hurtGoblin = cv.goblins[0];
 hurtGoblin.hp = 1;
 const healed = cooking.feed(cv, hurtGoblin, 'bread');
 check('comer cura HP', healed > 0, `curou ${healed}`);

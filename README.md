@@ -49,7 +49,10 @@ python3 -m http.server 8080
 | Construir → toque no mapa | escolhe exatamente onde colocar a estrutura |
 | Botão ↔ → estrutura → mapa | move qualquer estrutura já construída |
 | Toque nos outros prédios | abre a tela correspondente |
-| Botões no rodapé | **Construir**, **Mover**, **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
+| Botões no rodapé | **Construir**, **Mover**, **Área dos Goblins**, **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
+| Área dos Goblins | defina cada goblin como **Livre**, **Madeira**, **Pedra** ou **Comida**; ele busca o próximo posto disponível automaticamente |
+| Casa de Construção → **Construtores** | nomeie goblins **Construtores**; eles recebem prioridade ao iniciar obras |
+| Cozinha → **Cozinheiros** | nomeie quem prepara as receitas; ingredientes são reservados e o prato só fica pronto ao fim do cronômetro |
 
 ## 🔄 O ciclo do jogo
 
@@ -60,6 +63,18 @@ coletar recursos → construir → cumprir missões → XP da vila
 ```
 
 A **vila sobe de nível** com o XP das missões. Cada nível libera novas estruturas *e* eleva o teto de melhoria de todas elas. Melhorar a Cozinha, por exemplo, desbloqueia pratos melhores.
+
+### Fundação da vila
+
+Uma partida nova começa com o mapa **sem prédios posicionados**. O primeiro painel pede o local da **Casa de Construção**, que é gratuita. Depois que ela estiver pronta, o **Painel de Missões** e as **três primeiras Casas de Goblin** também podem ser posicionados sem custo. A primeira Casa é concluída no próprio toque — ela dá abrigo imediato ao goblin inicial —; as outras duas continuam sendo obras normais com lona e cronômetro.
+
+### Obras
+
+Colocar ou melhorar uma estrutura cria uma **lona branca cercada**. Um goblin livre vai até ela, trabalha levantando poeira e o cronômetro só avança enquanto ele está na obra. A duração segue o nível de desbloqueio da estrutura: casas (nível 1) levam **10 / 20 / 30 s** nos níveis 1–3; estruturas desbloqueadas no nível 2 levam **20 / 30 / 40 s**; as do nível 3 levam **30 / 40 / 50 s**, e assim sucessivamente. Quando houver um goblin marcado como **Construtor** na Casa de Construção, ele é enviado primeiro. Ao acabar, a lona brilha: toque nela para recolher a construção pronta.
+
+### Cozinha e cozinheiros
+
+Abra a **Cozinha** e use a aba **Cozinheiros** para designar um goblin. A aba **Cozinhar** mostra a duração antes de iniciar: receitas de cozinha nível 1 levam **10 s**, nível 2 levam **20 s** e nível 3 levam **30 s**. Os ingredientes saem do estoque no início, mas a porção só entra na despensa depois que o cozinheiro chega à panela e completa o trabalho. O vapor e o cronômetro acima da Cozinha permitem acompanhar o preparo no mapa.
 
 | Nível | Desbloqueia |
 |---|---|
@@ -156,7 +171,7 @@ bash    tools/test.sh               # roda as 7 suítes de teste
 
 ## ✅ Testes
 
-370 testes automatizados, sem navegador (`bash tools/test.sh`):
+451 testes automatizados, sem navegador (`bash tools/test.sh`):
 
 | Suíte | O que cobre |
 |---|---|
