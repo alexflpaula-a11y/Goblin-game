@@ -67,14 +67,36 @@ console.log('\x1b[1mPartida simulada — o ciclo do jogo fecha?\x1b[0m\n');
 
 const v = new Village();
 const q = new Quests();
-q.ensure(v.level);
 
 console.log(`  início: vila nv${v.level} · ${v.goblins.length} goblin · ` +
   `${v.res.wood} madeira, ${v.res.stone} pedra, ${v.res.gold} ouro`);
 
-// ---------- 1. o jogador começa travado? ----------
-check('no começo só dá para construir casa',
-  v.canBuild('house') && !v.canBuild('serraria'));
+// ---------- 1. fundação inicial ----------
+check('começa no terreno vazio, sem goblins, com a fundação disponível',
+  v.structures.length === 0 && v.goblins.length === 0
+  && v.canBuild('construction') && !v.canBuild('serraria'));
+const startingWood = v.res.wood;
+const foundation = v.beginBuildAt('construction', 920, 706);
+check('Casa de Construção grátis cria lona já brilhando',
+  foundation?.construction?.status === 'ready' && foundation.construction.total === 0
+  && !v.has('construction') && v.res.wood === startingWood);
+v.completeConstruction(foundation);
+const board = v.beginBuildAt('quest', 960, 650);
+const starterHome = v.beginBuildAt('house', 1000, 706);
+check('primeira Casa grátis também aguarda o toque na lona, sem tempo',
+  starterHome?.construction?.status === 'ready' && starterHome.construction.total === 0
+  && v.capacity === 0 && v.goblins.length === 0);
+v.completeConstruction(starterHome);
+const { Goblin } = req('goblin.js');
+v.recruit(Goblin.roll(v.recruitedCount));
+check('primeira Casa concluída libera o primeiro recruta',
+  v.goblins.length === 1 && v.capacity === 1);
+check('Painel não cria missões enquanto é obra', q.list.length === 0 && board?.construction?.status === 'building');
+board.construction.status = 'ready'; board.construction.remaining = 0;
+v.completeConstruction(board);
+q.ensure(v.level);
+check('Painel concluído libera missões', v.has('quest') && q.list.length > 0
+  && v.res.wood === startingWood);
 
 // ---------- 2. coletar recursos (trabalho nos nós) ----------
 // Simula o que handleChop faz: cada ciclo rende 1 recurso.
@@ -83,7 +105,6 @@ for (let i = 0; i < 90; i++) v.add('stone', 1);
 check('coleta acumula recursos', v.res.wood > 150, `${v.res.wood} madeira`);
 
 // ---------- 3. construir casas e recrutar ----------
-const { Goblin } = req('goblin.js');
 let built = 0;
 while (v.canBuild('house') && built < 3) {
   v.build('house');
