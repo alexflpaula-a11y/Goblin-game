@@ -507,7 +507,55 @@ def item_feast():
     return g
 
 
+def construction_site():
+    """Lona universal vista de frente e um pouco de cima.
+
+    A cobertura domina o sprite e esconde qualquer estrutura que esteja
+    sendo erguida; por isso a mesma lona funciona para casas e prédios grandes.
+    """
+    g = blank()
+    CANVAS = (232, 223, 194)
+    CANVAS_HI = (249, 241, 212)
+    CANVAS_S = (181, 160, 119)
+    CANVAS_D = (143, 119, 81)
+    EARTH = (126, 85, 48)
+    EARTH_D = (79, 51, 28)
+    STAKE = (157, 101, 54)
+
+    # chão / pequenos montes, na linha de base das outras estruturas
+    rect(g, 3, 26, 28, 29, EARTH)
+    hline(g, 4, 27, 29, EARTH_D)
+    px(g, 5, 25, WOOD_D); px(g, 26, 25, WOOD_D)
+    px(g, 9, 28, WOOD_L); px(g, 22, 28, WOOD_L)
+
+    # Lona alta: o trapezoide é a superfície vista de leve por cima.
+    trapez_roof(g, 9, 17, 13, 18, 5, 26, CANVAS, CANVAS_S)
+    hline(g, 11, 20, 10, CANVAS_HI)       # brilho na crista
+    vline(g, 16, 10, 17, CANVAS_S)        # costura central
+    hline(g, 7, 25, 17, CANVAS_D)          # borda pesada da lona
+
+    # Frente caída da lona: cobre a obra inteira, sem revelar paredes.
+    rect(g, 5, 18, 26, 25, CANVAS)
+    hline(g, 6, 25, 19, CANVAS_HI)
+    hline(g, 5, 26, 25, CANVAS_S)
+    vline(g, 15, 19, 24, CANVAS_S)
+    hline(g, 8, 13, 22, CANVAS_HI)
+    hline(g, 18, 23, 22, CANVAS_D)
+
+    # Estacas só aparecem nas bordas; não parecem uma estrutura pronta.
+    for x, top in ((4, 18), (7, 15), (25, 15), (28, 18)):
+        vline(g, x, top, 28, STAKE)
+        px(g, x, top - 1, WOOD_L)
+    hline(g, 2, 5, 28, WOOD_D)
+    hline(g, 27, 30, 28, WOOD_D)
+    px(g, 3, 26, STONE_D); px(g, 28, 26, STONE_D)
+
+    outline(g)
+    return g
+
+
 BUILDINGS = {
+    'building_construction_site': construction_site,
     'building_serraria_1': serraria,
     'building_fazenda_1': fazenda,
     'building_armazem_1': armazem,

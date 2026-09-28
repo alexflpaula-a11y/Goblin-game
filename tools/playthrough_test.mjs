@@ -72,9 +72,16 @@ q.ensure(v.level);
 console.log(`  início: vila nv${v.level} · ${v.goblins.length} goblin · ` +
   `${v.res.wood} madeira, ${v.res.stone} pedra, ${v.res.gold} ouro`);
 
-// ---------- 1. o jogador começa travado? ----------
-check('no começo só dá para construir casa',
-  v.canBuild('house') && !v.canBuild('serraria'));
+// ---------- 1. fundação inicial ----------
+check('começa no terreno vazio, com a fundação disponível',
+  v.structures.length === 0 && v.canBuild('construction') && !v.canBuild('serraria'));
+const startingWood = v.res.wood;
+const foundation = v.beginBuildAt('construction', 920, 706);
+v.build('quest');
+const starterHome = v.beginBuildAt('house', 1000, 706);
+check('posiciona Casa de Construção, Painel e primeira Casa sem custo',
+  v.has('construction') && !foundation.construction && v.has('quest') && starterHome && !starterHome.construction
+  && v.res.wood === startingWood && v.capacity === 1);
 
 // ---------- 2. coletar recursos (trabalho nos nós) ----------
 // Simula o que handleChop faz: cada ciclo rende 1 recurso.
