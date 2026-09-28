@@ -507,7 +507,67 @@ def item_feast():
     return g
 
 
+def construction_site():
+    """Cobertura de obra ampla, no mesmo volume 2D dos prédios da vila.
+
+    A lona ocupa fachada e topo, deixando só estacas, cordas e entulho à
+    mostra. Assim ela comunica "obra em andamento" sem sugerir uma casa
+    específica sob a cobertura.
+    """
+    g = blank()
+    CANVAS = STRAW
+    CANVAS_L = (249, 231, 169)
+    CANVAS_M = (216, 190, 125)
+    CANVAS_D = (164, 128, 73)
+    EARTH = (126, 85, 48)
+    EARTH_D = (79, 51, 28)
+
+    # Sombra, chão e entulho: mesma base pesada das demais estruturas.
+    hline(g, 3, 28, 29, EARTH_D)
+    rect(g, 4, 25, 27, 28, EARTH)
+    hline(g, 5, 26, 27, EARTH_D)
+    px(g, 7, 25, WOOD_D); px(g, 11, 27, WOOD_L)
+    px(g, 21, 27, WOOD_L); px(g, 25, 25, WOOD_D)
+    px(g, 4, 26, STONE_D); px(g, 28, 26, STONE_D)
+
+    # Topo da lona: largo e trapezoidal como os telhados frontais da vila.
+    # É uma única peça grande, vista levemente de cima, que cobre a obra.
+    trapez_roof(g, 7, 16, 11, 20, 3, 28, CANVAS, CANVAS_D)
+    hline(g, 12, 19, 7, CANVAS_L)          # crista iluminada
+    hline(g, 10, 21, 10, CANVAS_M)         # dobra longa do tecido
+    hline(g, 7, 25, 13, CANVAS_L)
+    hline(g, 5, 27, 16, CANVAS_D)          # aba espessa da lona
+    vline(g, 16, 8, 16, CANVAS_D)          # costura central
+    px(g, 12, 11, CANVAS_L); px(g, 20, 12, CANVAS_L)
+    px(g, 9, 14, CANVAS_M); px(g, 23, 15, CANVAS_M)
+
+    # Lona frontal caída: sem porta ou janela, portanto serve a qualquer obra.
+    rect(g, 5, 17, 26, 25, CANVAS)
+    hline(g, 6, 25, 18, CANVAS_L)
+    hline(g, 5, 26, 25, CANVAS_D)
+    vline(g, 10, 19, 24, CANVAS_M)
+    vline(g, 16, 18, 25, CANVAS_D)
+    vline(g, 22, 19, 24, CANVAS_M)
+    hline(g, 7, 14, 22, CANVAS_L)
+    hline(g, 18, 24, 22, CANVAS_M)
+    px(g, 8, 20, CANVAS_M); px(g, 13, 24, CANVAS_L)
+    px(g, 20, 20, CANVAS_L); px(g, 24, 24, CANVAS_D)
+
+    # Estacas curtas e corda ao redor do tecido, apenas nas extremidades.
+    for x, top in ((4, 17), (7, 14), (25, 14), (28, 17)):
+        vline(g, x, top, 28, WOOD)
+        px(g, x, top - 1, WOOD_L)
+    hline(g, 4, 7, 24, WOOD_D)
+    hline(g, 25, 28, 24, WOOD_D)
+    hline(g, 2, 6, 28, WOOD_D)
+    hline(g, 26, 30, 28, WOOD_D)
+
+    outline(g)
+    return g
+
+
 BUILDINGS = {
+    'building_construction_site': construction_site,
     'building_serraria_1': serraria,
     'building_fazenda_1': fazenda,
     'building_armazem_1': armazem,

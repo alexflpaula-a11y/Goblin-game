@@ -163,7 +163,7 @@ const ui = null; // acessamos pelo estado interno via main? não exportado.
 const input = req('input.js');
 
 // O jeito mais direto e realista: usar as telas pelo hook ?demo=
-const SCREENS = ['world', 'build', 'recruit', 'roster', 'quests', 'kitchen', 'market', 'armazem', 'equip'];
+const SCREENS = ['world', 'build', 'construction', 'jobs', 'recruit', 'roster', 'quests', 'kitchen', 'market', 'armazem', 'equip'];
 for (const scr of SCREENS) {
   // recria o jogo com a tela pedida
   for (const k of Object.keys(cache)) delete cache[k];
@@ -201,7 +201,7 @@ check('PT e EN têm as mesmas chaves',
 // tradução ('toast.…', 'ui.…', …) — isso pega também chaves em ternários
 // e argumentos do helper toast(). Prefixos dinâmicos (t('res.' + k))
 // terminam em ponto e são conferidos à parte.
-const KEY_RE = /^(?:app|stage|demo|ui|res|bld|meal|item|slot|ab|abd|spec|rarity|attr|toast|gear)\.[a-z_0-9]+$/;
+const KEY_RE = /^(?:app|stage|demo|ui|res|bld|meal|item|slot|ab|abd|spec|rarity|attr|toast|gear|job)\.[a-z_0-9]+$/;
 const allSrc = fs.readdirSync(path.join(ROOT, 'js'))
   .filter((f) => f.endsWith('.js'))
   .map((f) => fs.readFileSync(path.join(ROOT, 'js', f), 'utf8').split('\n')
@@ -259,6 +259,7 @@ const haveSprites = new Set(manifest.sprites.map((s) => s.id));
 const { BUILDINGS } = req('village.js');
 const missingB = Object.values(BUILDINGS).map((b) => b.sprite).filter((s) => !haveSprites.has(s));
 check('todo prédio tem sprite no manifest', missingB.length === 0, missingB.join(', '));
+check('lona de construção cercada tem sprite no manifest', haveSprites.has('building_construction_site'));
 const cooking = req('cooking.js');
 const missingM = cooking.RECIPES.map((r) => r.sprite).filter((s) => !haveSprites.has(s));
 check('toda comida tem sprite no manifest', missingM.length === 0, missingM.join(', '));
