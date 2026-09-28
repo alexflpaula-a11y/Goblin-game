@@ -132,6 +132,15 @@ function tapRegion(id) {
   if (!r) throw new Error('região não encontrada: ' + id);
   tap(r.x + r.w / 2, r.y + r.h / 2);
 }
+async function hold(x, y, ms = 740) {
+  const h = elements.game._handlers;
+  const ev = { pointerId: 8, clientX: x * 2, clientY: y * 2 };
+  h.pointerdown(ev);
+  await new Promise((r) => setTimeout(r, ms));
+  step(2);                 // frames com o dedo ainda pressionado: fecha o círculo
+  h.pointerup(ev);
+  step(1);
+}
 
 const SAVE_KEY = 'gnome-village-save-v1';
 const drawnTexts = () => textLog.splice(0, textLog.length).join(' | ');
@@ -182,12 +191,12 @@ globalThis.localStorage.setItem(SAVE_KEY, JSON.stringify({
   },
 }));
 const appB = await boot('');
-ok(appB.village.level === 1 && appB.village.goblins.length === 1,
-  'vila NOVA (nível 1, 1 goblin) — save velho ignorado');
+ok(appB.village.level === 1 && appB.village.goblins.length === 0,
+  'vila NOVA (nível 1, ilha sem goblins) — save velho ignorado');
 ok(!appB.village.has('armazem'), 'armazém do save velho não veio');
 ok(globalThis.localStorage.getItem(SAVE_KEY) === null, 'chave do save velho foi descartada no boot');
-tap(30, 330);   // botão CONSTRUIR (ícone) — interage um pouco
-ok(appB.state.screen === 'build', 'navegação funciona na vila nova');
+ok(appB.state.screen === 'build' && has('bcard_construction'),
+  'vila nova abre a navegação da fundação');
 ok(globalThis.localStorage.getItem(SAVE_KEY) === null, 'nada é gravado ao jogar');
 
 // ============================================================
@@ -259,19 +268,122 @@ step(1);
 ok(has('mdo_gear:espada_ferro'), 'vender 1 devolve o botão de compra');
 
 // ============================================================
-console.log('\x1b[1mBOOT E — recrutamento de verdade (construir casa → 1 de 3)\x1b[0m');
+console.log('\x1b[1mBOOT E — fundação vazia, obras e recruta\x1b[0m');
 const appE = await boot('');
+ok(appE.village.structures.length === 0 && appE.state.screen === 'build',
+  'novo jogo abre o terreno vazio no catálogo da fundação');
+ok(has('bcard_construction') && !has('bcard_house'),
+  'antes da Casa de Construção o catálogo só libera a fundação');
+const starterWood = appE.village.res.wood;
+ok(appE.village.goblins.length === 0 && appE.quests.list.length === 0,
+  'ilha nova não tem goblins nem missões antes das fundações');
+tapRegion('bcard_construction');
+const constructionSpot = appE.camera.worldToScreen(920, 706);
+tap(constructionSpot.x, constructionSpot.y);
+const constructionHouse = appE.village.structures.find((s) => s.type === 'construction');
+ok(constructionHouse?.construction?.status === 'ready' && constructionHouse.construction.total === 0
+  && appE.village.res.wood === starterWood && !appE.village.has('construction'),
+'Casa de Construção grátis vira lona brilhante de tempo zero');
+tap(constructionSpot.x, constructionSpot.y);
+ok(appE.village.has('construction') && appE.state.screen === 'world',
+  'tocar na lona pronta conclui a Casa de Construção');
+
 tapRegion('build_btn');
-ok(has('bcard_house'), 'catálogo mostra a Casa');
+ok(has('bcard_quest') && has('bcard_house'), 'Casa de Construção concluída libera Painel e Casas grátis');
+tapRegion('bcard_quest');
+const questSpot = appE.camera.worldToScreen(960, 630);
+tap(questSpot.x, questSpot.y);
+const questWork = appE.village.structures.find((s) => s.type === 'quest');
+ok(questWork?.construction?.status === 'building' && appE.village.res.wood === starterWood
+  && appE.quests.list.length === 0,
+  'Painel gratuito fica em obra e ainda não cria missões');
+
+tapRegion('build_btn');
 tapRegion('bcard_house');
-ok(appE.state.placement?.mode === 'build', 'Casa entra no modo de escolher posição');
+ok(appE.state.placement?.mode === 'build', 'primeira Casa entra no modo de escolher posição');
+const starterHouseSpot = appE.camera.worldToScreen(1000, 706);
+tap(starterHouseSpot.x, starterHouseSpot.y);
+const starterHouse = appE.village.structures.find((s) => s.type === 'house');
+ok(starterHouse?.construction?.status === 'ready' && starterHouse.construction.total === 0
+  && appE.village.capacity === 0 && appE.village.goblins.length === 0,
+  'primeira Casa grátis também mostra lona brilhante sem cronômetro');
+tap(starterHouseSpot.x, starterHouseSpot.y);
+ok(['card_0', 'card_1', 'card_2'].every(has), 'primeira Casa concluída abre a escolha do primeiro goblin');
+tapRegion('card_1');
+ok(appE.village.goblins.length === 1, 'primeiro goblin só entra após a primeira Casa');
+
+questWork.construction.remaining = 0; questWork.construction.status = 'ready'; questWork.construction.worker = null;
+const questDoneSpot = appE.camera.worldToScreen(questWork.x, questWork.y - 20);
+tap(questDoneSpot.x, questDoneSpot.y);
+ok(appE.village.has('quest') && appE.quests.list.length > 0,
+  'Painel concluído é que cria as missões');
+
+tapRegion('build_btn');
+tapRegion('bcard_house');
 const houseSpot = appE.camera.worldToScreen(860, 760);
 tap(houseSpot.x, houseSpot.y);
-ok(['card_0', 'card_1', 'card_2'].every(has), 'colocar a casa abre a escolha de 1 de 3');
+const houseWork = appE.village.structures.find((s) => s.type === 'house' && s.construction);
+ok(houseWork?.construction?.total === 10 && appE.village.capacity === 1,
+  'segunda Casa grátis cria obra de 10s e só dá capacidade quando for recolhida');
+ok(houseWork?.construction?.status === 'building' && houseWork.construction.worker == null,
+  'lona aguarda um Construtor nomeado; não captura goblin livre');
+tapRegion('jobs_btn');
+ok(has('job_0_builder'), 'Área dos Goblins permite nomear o primeiro goblin como Construtor');
+tapRegion('job_0_builder');
+step(2);
+ok(houseWork.construction.worker === 0,
+  'goblin só vai até a lona depois de ser nomeado Construtor');
+appE.state.screen = 'world';
+// Simula o fim do cronômetro; o toque na lona, e não o término do tempo,
+// é que libera a estrutura e a tela de recrutamento.
+houseWork.construction.remaining = 0;
+houseWork.construction.status = 'ready';
+houseWork.construction.worker = null;
+const finishedSpot = appE.camera.worldToScreen(houseWork.x, houseWork.y - 20);
+tap(finishedSpot.x, finishedSpot.y);
+ok(['card_0', 'card_1', 'card_2'].every(has), 'tocar na lona brilhante abre a escolha de 1 de 3');
 const before = appE.village.goblins.length;
 tapRegion('card_1');
 ok(appE.village.goblins.length === before + 1, 'goblin recrutado entrou na vila');
 ok(appE.state.screen === 'world', 'voltou para o mundo após recrutar');
+
+// A Área dos Goblins cria tarefas persistentes e ocupa automaticamente o
+// goblin em uma árvore disponível.
+tapRegion('jobs_btn');
+ok(has('job_0_wood') && has('job_1_wood'), 'Área dos Goblins lista tarefas para cada goblin');
+tapRegion('job_1_wood');
+ok(appE.village.goblins[1].assignment === 'wood' && !!appE.world.goblins[1].job?.node,
+  'tarefa Madeira manda o goblin coletar automaticamente');
+tapRegion('job_1_idle');
+ok(appE.village.goblins[1].assignment === null && !appE.world.goblins[1].job,
+  'Livre remove a tarefa automática e chama o goblin de volta');
+tapRegion('close_jobs');
+
+// A Área dos Goblins reúne também a função de Construtor.
+appE.world.goblins.forEach((w) => { w.job = null; });
+appE.state.screen = 'jobs'; step(2);
+ok(has('job_1_builder'), 'Área dos Goblins mostra a tarefa Construtor');
+tapRegion('job_1_builder');
+ok(appE.village.goblins[1].assignment === 'builder', 'Área dos Goblins designa um Construtor');
+
+// A Cozinha possui uma escala própria e só inicia prato após nomear cozinheiro.
+appE.village.level = 3;
+appE.village.res = { wood: 999, stone: 999, ore: 999, food: 999, gold: 999 };
+appE.village.build('cozinha');
+appE.state.screen = 'kitchen'; appE.state.kitchenTab = 0; step(2);
+ok(has('ktab_1') && has('cook_bread'), 'Cozinha mostra abas de receitas e cozinheiros');
+tapRegion('ktab_1');
+ok(has('cookrole_0_cook'), 'aba Cozinheiros permite escolher cada goblin');
+tapRegion('cookrole_0_cook');
+ok(appE.village.goblins[0].assignment === 'cook', 'Cozinha designa um Cozinheiro');
+tapRegion('ktab_0');
+tapRegion('cook_bread');
+ok(appE.village.cookingJob?.recipeId === 'bread' && appE.village.cookingJob.remaining > 0
+  && appE.village.cookingJob.total === 10 && !appE.village.meals.bread,
+'ingredientes viram preparo de pão de 10s, não comida imediata');
+appE.state.screen = 'world'; step(2);
+// As verificações a seguir testam o salto desde o nível inicial.
+appE.village.level = 1; appE.village.xp = 0;
 
 // ============================================================
 console.log('\x1b[1mBOOT F — subir 2+ níveis anuncia todos os desbloqueios\x1b[0m');
@@ -316,12 +428,10 @@ ok(true, 'frame animado desenha sem erro');
 console.log('\x1b[1mBOOT H — mover qualquer estrutura\x1b[0m');
 appG.deities.deactivate('golem_pedra');
 step(1);
-tapRegion('move_btn');
-ok(appG.state.placement?.mode === 'pick', 'botão Mover pede uma estrutura');
 const oldTree = { x: appG.village.get('grande_arvore').x, y: appG.village.get('grande_arvore').y };
 const oldTreeScreen = appG.camera.worldToScreen(oldTree.x, oldTree.y - 20);
-tap(oldTreeScreen.x, oldTreeScreen.y);
-ok(appG.state.placement?.mode === 'move', 'estrutura escolhida vira um fantasma móvel');
+await hold(oldTreeScreen.x, oldTreeScreen.y);
+ok(appG.state.placement?.mode === 'move', 'toque longo completa o círculo e libera mover a estrutura');
 const newTree = { x: 850, y: 780 };
 const newTreeScreen = appG.camera.worldToScreen(newTree.x, newTree.y);
 tap(newTreeScreen.x, newTreeScreen.y);

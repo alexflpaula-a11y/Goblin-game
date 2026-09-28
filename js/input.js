@@ -53,14 +53,17 @@ class Input {
       const p = this._toLogical(e.clientX, e.clientY);
       this.cursor = p; this.cursorSeq += 1;
 
-      if (this.pointers.size === 1) {
-        // pan com 1 dedo
-        this.pan.dx += p.x - ptr.x;
-        this.pan.dy += p.y - ptr.y;
-      }
-
+      const dx = p.x - ptr.x;
+      const dy = p.y - ptr.y;
       ptr.x = p.x; ptr.y = p.y;
       if (Math.hypot(p.x - ptr.x0, p.y - ptr.y0) > 10) ptr.moved = true;
+
+      if (this.pointers.size === 1 && ptr.moved) {
+        // Pan só começa depois de um arrasto real. Isso deixa o toque longo
+        // imóvel para mover uma estrutura sem deslocar a câmera por acidente.
+        this.pan.dx += dx;
+        this.pan.dy += dy;
+      }
 
       if (this.pointers.size === 2) {
         // pinça: zoom pela razão das distâncias + pan pelo ponto médio
@@ -111,6 +114,22 @@ class Input {
   _mid() {
     const [a, b] = [...this.pointers.values()];
     return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  }
+
+  /**
+   * Retorna o toque longo atual sem consumi-lo. Um gesto parado de `ms`
+   * milissegundos é usado no mundo para iniciar o reposicionamento de uma
+   * estrutura; ao arrastar ou usar pinça, deixa imediatamente de valer.
+   */
+  holdProgress(ms = 700) {
+    if (this.pointers.size !== 1 || this.pinchActive) return null;
+    const ptr = this.pointers.values().next().value;
+    if (!ptr || ptr.moved) return null;
+    const elapsed = performance.now() - ptr.t0;
+    return {
+      x: ptr.x, y: ptr.y,
+      progress: Math.max(0, Math.min(1, elapsed / ms)),
+    };
   }
 
   // O loop chama 1x por frame e limpa os agregados

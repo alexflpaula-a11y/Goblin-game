@@ -44,19 +44,22 @@ const saved = loadGame() || {};
 const state = {
   language: saved.language || 'pt-BR',
   taps: saved.taps || 0,
-  // world | build | recruit | roster | detail | quests | kitchen | market | armazem | equip
+  // world | build | jobs | recruit | roster | detail | quests | kitchen | market | armazem | equip
   screen: 'world',
   buildTab: 0,            // 0 estruturas | 1 melhorias
   buildScroll: 0,         // rolagem vertical do catálogo de estruturas
   candidates: null,       // 3 goblins p/ recrutamento
   detailIdx: 0,
   feedIdx: null,          // prato escolhido p/ alimentar um goblin
+  kitchenTab: 0,          // 0 receitas | 1 cozinheiros
+  cookScroll: 0,          // rolagem da lista de cozinheiros
   marketTab: 0,           // 0 vender | 1 comprar
   marketScroll: 0,        // rolagem horizontal da prateleira
   marketQty: {},          // quantidade escolhida por item ("res:wood" → 3)
   upgradeIdx: 0,          // casa sendo melhorada (aba Melhorias)
   upgradeScroll: 0,       // rolagem vertical da aba Melhorias
   rosterScroll: 0,        // rolagem vertical da lista de goblins
+  jobsScroll: 0,          // rolagem vertical da Área dos Goblins
   toast: null,            // {msg, until}
   levelUp: null,          // {level, until} — banner de nível da vila
   equipIdx: 0,            // goblin sendo equipado
@@ -66,8 +69,11 @@ const state = {
   abSel: 0,               // espaço de habilidade selecionado
   invSel: null,            // item selecionado na grade do armazém
   // null | {mode:'build',type,preview,cursorSeq} |
-  //        {mode:'pick'} | {mode:'move',structure,type,preview,cursorSeq}
+  //        {mode:'move',structure,type,preview,cursorSeq}
   placement: null,
+  // {structure, progress}: círculo amarelo enquanto o dedo fica pressionado
+  // sobre uma estrutura; ao completar, entra no modo de reposicionamento.
+  holdMove: null,
 };
 
 // ---------- Mundo / vila / câmera / UI ----------
@@ -153,10 +159,7 @@ function handleChop(node, goblin) {
   // O posto infinito da Fazenda nunca esgota.
   if (node.infinite) return;
   node.stock -= 1;
-  if (node.stock <= 0) {
-    node.depleted = true;
-    node.worker = null;
-  }
+  if (node.stock <= 0) nodes.deplete(node);
 }
 
 // ---------- Toast ----------
@@ -204,10 +207,37 @@ function beginBuildPlacement(type) {
   toast('toast.place_choose', { name: i18n.t('bld.' + type) });
 }
 
-function beginMoveSelection() {
-  state.placement = { mode: 'pick', cursorSeq: input.cursorSeq };
-  state.screen = 'world';
-  toast('toast.move_pick');
+/** Atualiza o círculo de toque longo que libera o reposicionamento. */
+function updateStructureHold() {
+  if (state.screen !== 'world' || state.placement) {
+    state.holdMove = null;
+    return;
+  }
+  const hold = input.holdProgress();
+  if (!hold) {
+    state.holdMove = null;
+    return;
+  }
+
+  let held = state.holdMove?.structure || null;
+  if (!held) {
+    const w = camera.screenToWorld(hold.x, hold.y);
+    const candidate = village.hitTest(w.x, w.y);
+    // Uma lona em obra não pode ser deslocada; estruturas prontas, sim.
+    if (!candidate || candidate.construction) return;
+    held = candidate;
+    state.holdMove = { structure: held, progress: 0 };
+  }
+  state.holdMove.progress = hold.progress;
+
+  if (hold.progress >= 1) {
+    state.placement = {
+      mode: 'move', type: held.type, structure: held,
+      preview: { x: held.x, y: held.y }, cursorSeq: input.cursorSeq,
+    };
+    state.holdMove = null;
+    toast('toast.move_choose', { name: i18n.t('bld.' + held.type) });
+  }
 }
 
 /** Retorna null para uma posição válida ou a chave do erro. */
@@ -232,20 +262,15 @@ function finishPlacement(x, y) {
   if (reason) { toast(reason); return false; }
 
   if (p.mode === 'build') {
-    const s = village.buildAt(p.type, x, y);
+    const s = village.beginBuildAt(p.type, x, y);
     if (!s) { toast('toast.need'); return false; }
     state.placement = null;
-    nodes.syncFacilities(village);
-    deities.sync();
-    if (p.type === 'house') {
-      world.setGoblinCount(village.goblins.length);
-      toast('toast.built');
-      openRecruit();
-    } else if (BUILDINGS[p.type]?.deity) {
-      toast('toast.built_activate', { name: i18n.t('bld.' + p.type) });
-    } else {
-      toast('toast.built_x', { name: i18n.t('bld.' + p.type) });
-    }
+    // Toda estrutura passa pela lona. As duas fundações sem tempo já chegam
+    // nela como "prontas", portanto brilham imediatamente e aguardam o toque.
+    assignBuilder(s);
+    toast('toast.construction_started', {
+      name: i18n.t('bld.' + p.type), seconds: s.construction.total,
+    });
     return true;
   }
 
@@ -260,6 +285,176 @@ function finishPlacement(x, y) {
 
 /** Compatibilidade interna: agora construir significa escolher a posição. */
 function tryBuild(type) { beginBuildPlacement(type); }
+
+// ---------- Obras com goblins ----------
+/** Envia um goblin realmente livre para uma lona de obra, se houver um. */
+function assignBuilder(structure) {
+  const work = structure?.construction;
+  if (!work || work.status !== 'building') return null;
+  const current = work.worker == null ? null : world.goblins[work.worker];
+  if (current?.job?.construction === structure) return current;
+  work.worker = null;
+  work.working = false;
+  const free = world.goblins.filter((w) => !w.job);
+  // Obra nunca captura um morador automaticamente: o jogador escolhe o
+  // Construtor ao tocar na Casa de Construção. Sem alguém nomeado, a lona
+  // permanece aguardando, mesmo que haja goblins livres na ilha.
+  const walker = free.find((w) => village.goblins[w.i]?.assignment === 'builder');
+  if (!walker) return null;
+  walker.job = { type: 'build-goto', construction: structure };
+  work.worker = walker.i;
+  return walker;
+}
+
+/** Obras têm prioridade sobre tarefas automáticas quando há alguém livre. */
+function dispatchBuilders() {
+  for (const structure of village.constructionSites) assignBuilder(structure);
+}
+
+/** Desconta o cronômetro somente enquanto o construtor está martelando. */
+function handleConstructionWork(structure, goblin, dt) {
+  const work = structure?.construction;
+  if (!work || work.status !== 'building') return;
+  // A tabela de duração é fixa: especialidade não altera os 10/20/30… s.
+  work.remaining = Math.max(0, work.remaining - dt);
+  if (work.remaining <= 0) {
+    work.status = 'ready';
+    work.worker = null;
+    work.working = false;
+    world.floats.push({
+      x: structure.x, y: structure.y - 46, ttl: 1.5,
+      text: '✦ ' + i18n.t('ui.construction_done'), color: '#fff3a8',
+    });
+  }
+}
+
+// ---------- Cozinha com goblin designado ----------
+/** Envia somente um goblin marcado como Cozinheiro até a Cozinha. */
+function assignCook() {
+  const meal = village.cookingJob;
+  const kitchen = village.get('cozinha');
+  if (!meal || meal.status !== 'cooking' || !kitchen) return null;
+  const current = meal.worker == null ? null : world.goblins[meal.worker];
+  if (current?.job?.cooking === meal) return current;
+  meal.worker = null;
+  meal.working = false;
+  const cook = world.goblins.find((w) => !w.job && village.goblins[w.i]?.assignment === 'cook');
+  if (!cook) return null;
+  cook.job = { type: 'cook-goto', cooking: meal, kitchen };
+  meal.worker = cook.i;
+  return cook;
+}
+
+/** Tempo só passa enquanto o cozinheiro designado está mexendo a panela. */
+function handleCookingWork(meal, goblin, dt) {
+  if (!meal || meal !== village.cookingJob || meal.status !== 'cooking') return;
+  meal.remaining = Math.max(0, meal.remaining - dt);
+  if (meal.remaining <= 0) {
+    meal.status = 'ready';
+    meal.worker = null;
+    meal.working = false;
+    const out = cooking.finishCook(village);
+    if (out) {
+      const kitchen = village.get('cozinha');
+      world.floats.push({
+        x: kitchen?.x ?? world.clearing.x, y: (kitchen?.y ?? world.clearing.y) - 46, ttl: 1.4,
+        text: `+${out.qty} ${i18n.t('meal.' + out.id)}`, color: '#ffcf70',
+      });
+      toast('toast.cooked', { n: out.qty, name: i18n.t('meal.' + out.id) });
+    }
+  }
+}
+
+function beginCooking(recipeId) {
+  if (village.cookingJob) { toast('toast.cook_busy'); return; }
+  const hasCook = village.goblins.some((g) => g.assignment === 'cook');
+  if (!hasCook) { toast('toast.no_cook'); return; }
+  const meal = cooking.beginCook(village, recipeId);
+  if (!meal) { toast('toast.need'); return; }
+  assignCook();
+  toast('toast.cooking_started', {
+    name: i18n.t('meal.' + recipeId), seconds: meal.total,
+  });
+}
+
+/** Aplica os efeitos de uma estrutura que acabou de ficar disponível. */
+function completePlacedStructure(structure) {
+  nodes.syncFacilities(village);
+  deities.sync();
+  // Missões só passam a existir quando o Painel foi realmente recolhido da
+  // lona. Uma obra pendente nunca libera a lista nem a renovação.
+  if (structure.type === 'quest') quests.ensure(village.level);
+  const name = i18n.t('bld.' + structure.type);
+  if (structure.type === 'house') {
+    world.setGoblinCount(village.goblins.length);
+    toast('toast.built');
+    // A primeira Casa apenas regulariza a moradia do goblin inicial; casas
+    // seguintes abrem a escolha de recruta porque há uma vaga nova.
+    if (village.goblins.length < village.capacity) openRecruit();
+  } else {
+    toast('toast.built_x', { name });
+  }
+}
+
+/** Ativa uma obra pronta ao tocar na lona brilhante. */
+function collectConstruction(structure) {
+  if (!village.completeConstruction(structure)) return false;
+  completePlacedStructure(structure);
+  return true;
+}
+
+/** Começa uma melhoria com lona e construtor, em vez de aplicá-la na hora. */
+function beginUpgradeConstruction(structure) {
+  if (!structure) return false;
+  if (structure.level >= village.maxUpgradeLevel(structure.type)) {
+    toast('toast.village_level', { n: structure.level + 1 });
+    return false;
+  }
+  if (!village.beginUpgrade(structure)) {
+    toast('toast.need');
+    return false;
+  }
+  assignBuilder(structure);
+  toast('toast.construction_started', {
+    name: i18n.t('bld.' + structure.type),
+    seconds: structure.construction.total,
+  });
+  return true;
+}
+
+// ---------- Área dos Goblins: tarefas automáticas ----------
+const RESOURCE_TASKS = ['wood', 'stone', 'food'];
+const TASKS = [...RESOURCE_TASKS, 'builder', 'cook'];
+
+function autoAssignWalker(walker) {
+  if (!walker || walker.job) return false;
+  const goblin = village.goblins[walker.i];
+  const task = goblin?.assignment;
+  if (!RESOURCE_TASKS.includes(task)) return false;
+  const node = nodes.findAvailable(task, walker.x, walker.y);
+  if (!node) return false;
+  return !!nodes.assign(node, [walker]);
+}
+
+function setGoblinAssignment(index, task) {
+  const goblin = village.goblins[index];
+  const walker = world.goblins[index];
+  if (!goblin || !walker) return;
+  // Um construtor/cozinheiro/adorador não pode ser removido por acidente.
+  if (walker.job?.construction || walker.job?.cooking || walker.job?.deityType) {
+    toast('toast.builder_busy');
+    return;
+  }
+  if (walker.job?.node) walker.job.node.worker = null;
+  walker.job = null;
+  walker.wait = 0.2;
+  goblin.assignment = TASKS.includes(task) ? task : null;
+  if (goblin.assignment) autoAssignWalker(walker);
+  toast(goblin.assignment ? 'toast.job_assigned' : 'toast.job_cleared', {
+    name: goblin.name,
+    job: i18n.t('job.' + goblin.assignment),
+  });
+}
 
 // ---------- Mercado (etapa 1.6) ----------
 /** Abre a tela do Mercado — só se ele já estiver construído. */
@@ -295,6 +490,14 @@ function ensureArmazem() {
   village.level = Math.max(village.level, BUILDINGS.armazem.reqLevel);
   village.res.wood += 999; village.res.stone += 999;
   village.build('armazem');
+}
+
+/** Ganchos de demonstração podem ter um morador sem alterar o jogo novo. */
+function ensureDemoGoblin() {
+  if (village.goblins.length) return;
+  village.goblins.push(Goblin.roll(village.recruitedCount));
+  village.recruitedCount += 1;
+  world.setGoblinCount(village.goblins.length);
 }
 
 /** "res:wood" → {kind:'res', key:'wood'} */
@@ -355,7 +558,8 @@ function routeTap(id) {
   switch (id) {
     case 'close': state.screen = 'world'; break;
     case 'build_btn': state.screen = 'build'; break;
-    case 'move_btn': beginMoveSelection(); break;
+    case 'jobs_btn': state.screen = 'jobs'; state.jobsScroll = 0; break;
+    case 'close_jobs': state.screen = 'world'; break;
     case 'placement_cancel': state.placement = null; toast('toast.place_cancelled'); break;
     case 'close_build': state.screen = 'world'; break;
     case 'tab_0': state.buildTab = 0; state.buildScroll = 0; break;
@@ -363,19 +567,19 @@ function routeTap(id) {
     case 'roster_btn': state.screen = 'roster'; state.rosterScroll = 0; break;
     case 'back_roster': state.screen = 'roster'; break;
     case 'back_world': state.screen = 'world'; state.feedIdx = null; break;
-    case 'quests_btn': state.screen = 'quests'; break;
-    case 'kitchen_btn': state.screen = 'kitchen'; break;
+    case 'quests_btn':
+      if (village.has('quest')) state.screen = 'quests';
+      else toast('toast.quest_closed');
+      break;
+    case 'kitchen_btn': state.screen = 'kitchen'; state.kitchenTab = 0; break;
+    case 'ktab_0': state.kitchenTab = 0; break;
+    case 'ktab_1': state.kitchenTab = 1; state.cookScroll = 0; break;
     case 'market_btn': openMarket(); break;
     case 'armazem_btn': state.screen = 'armazem'; break;
     case 'back_armazem': state.screen = 'world'; break;
     case 'inv_upgrade': {
       const s = village.get('armazem');
-      if (!s) break;
-      if (s.level >= village.maxUpgradeLevel(s.type)) {
-        toast('toast.village_level', { n: s.level + 1 });
-      } else if (village.upgrade(s)) {
-        toast('toast.upgraded');
-      } else toast('toast.need');
+      if (s) beginUpgradeConstruction(s);
       break;
     }
     case 'inv_equip': openEquip(0, 'armazem'); break;
@@ -392,10 +596,7 @@ function routeTap(id) {
     case 'mtab_1': state.marketTab = 1; state.marketScroll = 0; break;
     case 'build_house': tryBuild('house'); break;
     case 'upgrade_house':
-      if (village.upgradeHouse(state.upgradeIdx || 0)) {
-        toast('toast.upgraded');
-        openRecruit();             // melhorar casa também recruta (§1.1)
-      } else toast('toast.need');
+      beginUpgradeConstruction(village.houses[state.upgradeIdx || 0]);
       break;
     default:
       // ----- catálogo de construção -----
@@ -405,15 +606,7 @@ function routeTap(id) {
       }
       // ----- melhorar estrutura (aba Melhorias) -----
       if (id?.startsWith('upf_')) {
-        const s = village.get(id.slice(4));
-        if (!s) break;
-        if (s.level >= village.maxUpgradeLevel(s.type)) {
-          toast('toast.village_level', { n: s.level + 1 });
-        } else if (village.upgrade(s)) {
-          nodes.syncFacilities(village);
-          deities.sync();
-          toast('toast.upgraded');
-        } else toast('toast.need');
+        beginUpgradeConstruction(village.get(id.slice(4)));
         break;
       }
       // ----- entregar missão -----
@@ -426,11 +619,9 @@ function routeTap(id) {
         } else toast('toast.quest_missing');
         break;
       }
-      // ----- cozinhar -----
+      // ----- cozinhar (tempo real com um cozinheiro designado) -----
       if (id?.startsWith('cook_')) {
-        const out = cooking.cook(village, id.slice(5));
-        if (out) toast('toast.cooked', { n: out.qty, name: i18n.t('meal.' + out.id) });
-        else toast('toast.need');
+        beginCooking(id.slice(5));
         break;
       }
       // ----- mercado: +/-, tudo/máx e confirmar -----
@@ -446,6 +637,18 @@ function routeTap(id) {
       }
       if (id?.startsWith('mdo_')) {         // mdo_<kind>:<key>
         marketConfirm(id.slice(4));
+        break;
+      }
+      // ----- Cozinha: função especializada -----
+      if (id?.startsWith('cookrole_')) {
+        const [, idx, task] = id.split('_');
+        setGoblinAssignment(Number(idx), task === 'idle' ? null : 'cook');
+        break;
+      }
+      // ----- Área dos Goblins: job_<índice>_<tarefa> -----
+      if (id?.startsWith('job_')) {
+        const [, idx, task] = id.split('_');
+        setGoblinAssignment(Number(idx), task === 'idle' ? null : task);
         break;
       }
       // ----- escolher prato e alimentar goblin -----
@@ -548,11 +751,11 @@ function update(dt) {
   if (g.tap) { state.taps += 1; updateStatus(); }
 
   // No desktop o fantasma acompanha o mouse; no celular acompanha o dedo.
-  if (state.placement && state.placement.mode !== 'pick'
-      && input.cursor && input.cursorSeq > (state.placement.cursorSeq ?? -1)) {
+  if (state.placement && input.cursor && input.cursorSeq > (state.placement.cursorSeq ?? -1)) {
     state.placement.preview = camera.screenToWorld(input.cursor.x, input.cursor.y);
     state.placement.cursorSeq = input.cursorSeq;
   }
+  updateStructureHold();
 
   if (state.screen === 'world') {
     if (g.pan) camera.panByScreen(g.pan.dx, g.pan.dy);
@@ -565,16 +768,6 @@ function update(dt) {
 
       // Construção/mudança de lugar sempre tem prioridade sobre interações.
       if (state.placement) {
-        if (state.placement.mode === 'pick') {
-          const picked = village.hitTest(w.x, w.y);
-          if (!picked) { toast('toast.move_pick'); return; }
-          state.placement = {
-            mode: 'move', type: picked.type, structure: picked,
-            preview: { x: picked.x, y: picked.y }, cursorSeq: input.cursorSeq,
-          };
-          toast('toast.move_choose', { name: i18n.t('bld.' + picked.type) });
-          return;
-        }
         finishPlacement(w.x, w.y);
         return;
       }
@@ -582,11 +775,17 @@ function update(dt) {
       // tocar em goblin trabalhando/louvando → chamar de volta
       for (const wk of world.goblins) {
         if (wk.job && Math.abs(w.x - wk.x) < 12 && Math.abs(w.y - (wk.y - 14)) < 20) {
-          if (wk.job.deityType) {
+          if (wk.job.construction || wk.job.cooking) {
+            toast('toast.builder_busy');
+          } else if (wk.job.deityType) {
             deities.releaseByWalker(wk);
             toast('toast.deity_stopped');
           } else {
             if (wk.job.node) wk.job.node.worker = null;
+            // Um toque no trabalhador também interrompe a ordem automática;
+            // caso contrário ele voltaria à árvore no frame seguinte.
+            const goblin = village.goblins[wk.i];
+            if (goblin) goblin.assignment = null;
             wk.job = null;
             wk.wait = 0.3;
             toast('toast.recalled');
@@ -597,10 +796,14 @@ function update(dt) {
       // Estruturas têm prioridade sobre recursos que estejam atrás delas.
       const s = village.hitTest(w.x, w.y);
       if (s) {
-        if (s.type === 'construction') state.screen = 'build';
+        if (s.construction?.status === 'ready') {
+          collectConstruction(s);
+        } else if (s.construction) {
+          toast('toast.construction_busy');
+        } else if (s.type === 'construction') state.screen = 'build';
         else if (s.type === 'house') state.screen = 'roster';
         else if (s.type === 'quest') state.screen = 'quests';
-        else if (s.type === 'cozinha') state.screen = 'kitchen';
+        else if (s.type === 'cozinha') { state.screen = 'kitchen'; state.kitchenTab = 0; }
         else if (s.type === 'mercado') openMarket();
         else if (s.type === 'armazem') state.screen = 'armazem';
         else if (BUILDINGS[s.type]?.deity) {
@@ -633,6 +836,10 @@ function update(dt) {
         else state.upgradeScroll -= g.pan.dy;
       } else if (state.screen === 'roster') {
         state.rosterScroll -= g.pan.dy;
+      } else if (state.screen === 'jobs') {
+        state.jobsScroll -= g.pan.dy;
+      } else if (state.screen === 'kitchen' && state.kitchenTab === 1) {
+        state.cookScroll -= g.pan.dy;
       } else if (state.screen === 'market') {
         state.marketScroll -= g.pan.dx;   // prateleira rola para o lado
       }
@@ -650,21 +857,54 @@ function update(dt) {
     }
   }
 
-  // missões e milagres continuam acontecendo com o tempo.
-  quests.update(dt, village.level);
+  // Missões só avançam após o Painel concluído. Obras só recebem moradores
+  // nomeados como Construtores; os demais retomam suas tarefas.
+  if (village.has('quest')) quests.update(dt, village.level);
   nodes.update(dt);
   deities.update(dt);
+  dispatchBuilders();
+  assignCook();
 
   world.update(dt, {
     village,
     onChop: handleChop,
+    onBuild: handleConstructionWork,
+    onCook: handleCookingWork,
+    onAutoTask: autoAssignWalker,
     workPeriod: BAL.nodes?.workPeriod ?? 1.2,
   });
 }
 
+function holdMoveDrawList() {
+  const hold = state.holdMove;
+  if (!hold?.structure) return [];
+  const s = hold.structure;
+  return [{
+    y: s.y + 5,
+    draw: (c) => {
+      const cx = s.x, cy = s.y - 29, radius = 35;
+      c.save();
+      c.lineWidth = 3;
+      c.strokeStyle = 'rgba(40, 28, 10, 0.62)';
+      c.beginPath();
+      c.arc(cx, cy, radius, 0, Math.PI * 2);
+      c.stroke();
+      c.strokeStyle = '#f4cf4c';
+      c.beginPath();
+      c.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * hold.progress);
+      c.stroke();
+      c.fillStyle = 'rgba(255, 229, 110, 0.2)';
+      c.beginPath();
+      c.arc(cx, cy, radius - 3, 0, Math.PI * 2);
+      c.fill();
+      c.restore();
+    },
+  }];
+}
+
 function placementDrawList() {
   const p = state.placement;
-  if (!p || p.mode === 'pick' || !p.preview) return [];
+  if (!p || !p.preview) return [];
   const { x, y } = p.preview;
   const valid = !placementReason(x, y, p.structure || null);
   const sprite = BUILDINGS[p.type]?.sprite || 'building_house_1';
@@ -698,8 +938,8 @@ function render(time) {
 
   camera.applyTransform(ctx, scaleFactor);
   world.draw(ctx, time, camera.visible(), [
-    ...village.drawList(), ...nodes.drawList(), ...deities.drawList(time),
-    ...placementDrawList(),
+    ...village.drawList(time), ...nodes.drawList(), ...deities.drawList(time),
+    ...holdMoveDrawList(), ...placementDrawList(),
   ]);
 
   ctx.setTransform(scaleFactor, 0, 0, scaleFactor, 0, 0);
@@ -707,6 +947,7 @@ function render(time) {
 
   ui.begin();
   if (state.screen === 'build') drawBuildScreen();
+  else if (state.screen === 'jobs') drawJobsScreen();
   else if (state.screen === 'recruit') drawRecruitScreen();
   else if (state.screen === 'roster') drawRosterScreen();
   else if (state.screen === 'detail') drawDetailScreen();
@@ -803,25 +1044,28 @@ function drawOverlay(time) {
 function drawWorldButtons() {
   if (state.placement) {
     const p = state.placement;
-    const key = p.mode === 'pick' ? 'ui.move_pick' : (p.mode === 'move' ? 'ui.move_choose' : 'ui.place_choose');
+    const key = p.mode === 'move' ? 'ui.move_choose' : 'ui.place_choose';
     const params = p.type ? { name: i18n.t('bld.' + p.type) } : {};
     ui.woodSign(118, 302, 390, 24, i18n.t(key, params), 10);
     ui.button('placement_cancel', 516, 302, 112, 28, i18n.t('ui.cancel'), true);
     return;
   }
 
-  // Barra de ações do mundo — ícones de telas + opção universal de mover.
+  // Barra de ações do mundo. Mover estruturas é gesto de toque longo, não
+  // ocupa mais um botão na interface.
   const ready = quests.list.filter((q) => q.canDeliver(village)).length;
 
   const acts = [
     { id: 'build_btn', icon: 'ui_icon_build' },
-    { id: 'quests_btn', icon: 'ui_icon_quests',
-      badge: ready > 0 ? { text: String(ready), color: '#4fa562', ink: '#0f2a16' } : null },
   ];
+  if (village.has('quest')) {
+    acts.push({ id: 'quests_btn', icon: 'ui_icon_quests',
+      badge: ready > 0 ? { text: String(ready), color: '#4fa562', ink: '#0f2a16' } : null });
+  }
   if (village.has('cozinha')) acts.push({ id: 'kitchen_btn', icon: 'ui_icon_kitchen' });
   if (village.has('mercado')) acts.push({ id: 'market_btn', icon: 'ui_icon_market' });
   if (village.has('armazem')) acts.push({ id: 'armazem_btn', icon: 'ui_icon_armazem' });
-  acts.push({ id: 'move_btn', glyph: '↔' });
+  acts.push({ id: 'jobs_btn', glyph: '⚒' });
   acts.push({
     id: 'roster_btn', icon: 'ui_icon_village', active: true,
     badge: { text: String(village.goblins.length), color: '#a78bfa', ink: '#1b1530' },
@@ -850,6 +1094,16 @@ function drawBuildScreen() {
   ui.woodSign(P.x + 8, P.y + 6, P.w - 46, 22, i18n.t('ui.build_title'), 12);
   ui.closeX('close_build', P.x + P.w - 36, P.y + 6);
 
+  // Antes da Casa de Construção ficar pronta, o catálogo só oferece a
+  // fundação dela. Assim a vila realmente começa em terreno vazio.
+  if (!village.has('construction')) {
+    state.buildTab = 0;
+    ui.text(P.x + 16, P.y + 48, i18n.t('ui.foundation_first'),
+      { size: 8, color: '#ffe9b8' });
+    drawStructureCards(P);
+    return;
+  }
+
   ui.tab('tab_0', P.x + 14, P.y + 34, 130, 20, i18n.t('ui.tab_structures'), state.buildTab === 0);
   ui.tab('tab_1', P.x + 152, P.y + 34, 110, 20, i18n.t('ui.tab_upgrades'), state.buildTab === 1);
 
@@ -876,9 +1130,12 @@ function drawCostRow(cost, xRight, y) {
 
 function drawStructureCards(P) {
   const vLv = village.level;
-  // O catálogo mostra TODAS as estruturas em 3 colunas; arrasta p/ CIMA/BAIXO.
+  // Até a Casa de Construção estar de pé, só ela pode ser escolhida.
+  const defs = village.has('construction')
+    ? BUILD_DEFS : BUILD_DEFS.filter((def) => def.id === 'construction');
+  // O catálogo mostra as estruturas em 3 colunas; arrasta p/ CIMA/BAIXO.
   const cols = 3, w = 164, h = 118, rowH = 122;
-  const rows = Math.ceil(BUILD_DEFS.length / cols);
+  const rows = Math.ceil(defs.length / cols);
   const viewTop = P.y + 60, viewBot = P.y + P.h - 10, viewH = viewBot - viewTop;
   const contentH = rows * rowH;
   const maxScroll = Math.max(0, contentH - viewH);
@@ -890,7 +1147,7 @@ function drawStructureCards(P) {
   c.rect(P.x, viewTop, P.w, viewH);
   c.clip();
 
-  BUILD_DEFS.forEach((def, i) => {
+  defs.forEach((def, i) => {
     const col = i % cols, row = Math.floor(i / cols);
     const x = P.x + 10 + col * 172;
     const y = viewTop + row * rowH - state.buildScroll;
@@ -935,11 +1192,19 @@ function drawStructureCards(P) {
       ui.text(cx, y + h - 10, i18n.t('ui.built_ok'),
         { align: 'center', size: 9, bold: true, color: '#2f6b3c' });
     } else {
+      const freeStarter = village.isStarterFree(def.id);
+      const zeroTimeStarter = village.isZeroTimeStarter(def.id);
+      ui.text(cx, y + 94, zeroTimeStarter ? i18n.t('ui.build_zero_time')
+        : i18n.t('ui.build_time', { s: village.constructionSeconds(def.id, 1) }),
+      { align: 'center', size: 7, bold: true, color: zeroTimeStarter ? '#2f6b3c' : '#6e4626' });
       if (maxCount > 1) {
         ui.text(x + 6, y + h - 9, i18n.t('ui.built_count', { n: built, max: maxCount }),
           { size: 8, bold: true, color: '#6e4626' });
       }
-      drawCostRow(village.buildCost(def.id), x + w - 8, y + h - 9);
+      if (freeStarter) {
+        ui.text(x + w - 8, y + h - 9, i18n.t('ui.free'),
+          { align: 'right', size: 8, bold: true, color: '#2f6b3c' });
+      } else drawCostRow(village.buildCost(def.id), x + w - 8, y + h - 9);
       ui.region('bcard_' + def.id, x, y, w, h);
     }
   });
@@ -1002,6 +1267,60 @@ function drawUpgradeRows(P) {
 
   c.restore();
   ui.scrollbarV(P.x + P.w - 8, viewTop, viewH, state.upgradeScroll, maxScroll, viewH, contentH);
+}
+
+// ---------- Tela: Área dos Goblins (tarefas automáticas) ----------
+function drawJobsScreen() {
+  const P = { x: 16, y: 30, w: 608, h: 300 };
+  ui.rusticPanel(P.x, P.y, P.w, P.h);
+  ui.woodSign(P.x + 8, P.y + 6, 244, 22, i18n.t('ui.jobs_title'), 12);
+  ui.closeX('close_jobs', P.x + P.w - 38, P.y + 6);
+  ui.text(P.x + 16, P.y + 64, i18n.t('ui.jobs_sub'), { size: 9, color: '#ffe9b8' });
+
+  const rowH = 64;
+  const viewTop = P.y + 76, viewBot = P.y + P.h - 10, viewH = viewBot - viewTop;
+  const contentH = village.goblins.length * rowH;
+  const maxScroll = Math.max(0, contentH - viewH);
+  state.jobsScroll = Math.max(0, Math.min(state.jobsScroll || 0, maxScroll));
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(P.x + 4, viewTop, P.w - 12, viewH);
+  ctx.clip();
+  village.goblins.forEach((goblin, i) => {
+    const y = viewTop + i * rowH - state.jobsScroll;
+    if (y + rowH < viewTop || y > viewBot) return;
+    const walker = world.goblins[i];
+    const isBuilder = !!walker?.job?.construction;
+    const isCook = !!walker?.job?.cooking;
+    const isWorshipper = !!walker?.job?.deityType;
+    const task = goblin.assignment;
+    const status = isBuilder ? i18n.t('ui.job_building')
+      : isCook ? i18n.t('ui.cooking')
+        : isWorshipper ? i18n.t('ui.job_worshipping')
+          : task ? i18n.t('ui.job_auto', { job: i18n.t('job.' + task) })
+            : i18n.t('ui.job_idle');
+
+    ui.parchment(P.x + 8, y + 2, P.w - 22, 58);
+    ctx.drawImage(getSprite(gear.spriteForGoblin(goblin, 'idle', i % 5)), P.x + 13, y + 10, 40, 40);
+    ui.text(P.x + 59, y + 21, goblin.name, { size: 10, bold: true, color: '#3c2712' });
+    ui.text(P.x + 59, y + 38, status, {
+      size: 8, color: isBuilder ? '#8c2f1f' : '#6e4626',
+    });
+
+    // Todas as funções vivem nesta área — inclusive Construtor. Ele só fica
+    // disponível após existir uma Casa de Construção concluída.
+    const bx = P.x + 204, by = y + 17, bw = 70, gap = 5, bh = 26;
+    const locked = isBuilder || isCook || isWorshipper;
+    ui.button('job_' + i + '_idle', bx, by, bw, bh, i18n.t('job.idle'), !locked && !!task);
+    ui.button('job_' + i + '_wood', bx + (bw + gap), by, bw, bh, i18n.t('job.wood'), !locked && task !== 'wood');
+    ui.button('job_' + i + '_stone', bx + (bw + gap) * 2, by, bw, bh, i18n.t('job.stone'), !locked && task !== 'stone');
+    ui.button('job_' + i + '_food', bx + (bw + gap) * 3, by, bw, bh, i18n.t('job.food'), !locked && task !== 'food');
+    ui.button('job_' + i + '_builder', bx + (bw + gap) * 4, by, bw, bh,
+      i18n.t('job.builder'), !locked && village.has('construction') && task !== 'builder');
+  });
+  ctx.restore();
+  ui.scrollbarV(P.x + P.w - 8, viewTop, viewH, state.jobsScroll, maxScroll, viewH, contentH);
 }
 
 // ---------- Tela: Recrutamento (escolher 1 de 3) ----------
@@ -1161,11 +1480,18 @@ function drawKitchenScreen() {
   const lv = village.levelOf('cozinha');
   ui.woodSign(16, 46, 260, 22, `${i18n.t('bld.cozinha')} • ${i18n.t('ui.level', { n: lv })}`, 11);
   ui.closeX('back_world', 598, 44);
+  ui.tab('ktab_0', 284, 48, 112, 20, i18n.t('ui.tab_cook'), state.kitchenTab === 0);
+  ui.tab('ktab_1', 404, 48, 132, 20, i18n.t('ui.tab_cooks'), state.kitchenTab === 1);
+
+  if (state.kitchenTab === 1) {
+    drawCookRoster();
+    return;
+  }
 
   // ----- receitas -----
-  ui.text(20, 84, i18n.t('ui.recipes'), { size: 10, bold: true, color: '#ffe9b8' });
+  ui.text(20, 92, i18n.t('ui.recipes'), { size: 10, bold: true, color: '#ffe9b8' });
   cooking.RECIPES.forEach((r, i) => {
-    const x = 16 + i * 116, y = 92, w = 108, h = 128;
+    const x = 16 + i * 116, y = 100, w = 108, h = 128;
     ui.parchment(x, y, w, h);
     const cx = x + w / 2;
     const locked = r.reqKitchen > lv;
@@ -1184,11 +1510,17 @@ function drawKitchenScreen() {
     ctx.drawImage(getSprite(r.sprite), cx - 18, y + 30, 36, 36);
     ui.text(cx, y + 74, `+${r.heal} HP`,
       { align: 'center', size: 10, bold: true, color: '#2f6b3c' });
-    ui.text(x + 6, y + 88, `${i18n.t('ui.have')}: ${village.meals[r.id] || 0}`,
-      { size: 8, bold: true, color: '#6e4626' });
-    drawCostRow(r.cost, x + w - 6, y + 88);
-    ui.button('cook_' + r.id, x + 8, y + 96, w - 16, 24, i18n.t('ui.cook'),
-      village.canAfford(r.cost), village.canAfford(r.cost));
+    const activeMeal = village.cookingJob?.recipeId === r.id ? village.cookingJob : null;
+    ui.text(x + 6, y + 88, activeMeal
+      ? i18n.t('ui.cooking_timer', { s: Math.ceil(activeMeal.remaining) })
+      : `${i18n.t('ui.have')}: ${village.meals[r.id] || 0}`,
+    { size: 8, bold: true, color: activeMeal ? '#8c2f1f' : '#6e4626' });
+    if (!activeMeal) drawCostRow(r.cost, x + w - 6, y + 88);
+    ui.text(cx, y + 99, i18n.t('ui.cook_time', { s: cooking.cookingSeconds(r) }),
+      { align: 'center', size: 7, bold: true, color: '#6e4626' });
+    const canStart = !village.cookingJob && village.canAfford(r.cost);
+    ui.button('cook_' + r.id, x + 8, y + 104, w - 16, 18,
+      activeMeal ? i18n.t('ui.cooking') : i18n.t('ui.cook'), canStart, canStart);
   });
 
   // ----- alimentar goblins -----
@@ -1233,6 +1565,41 @@ function drawKitchenScreen() {
       ui.region('feed_' + i, x, 244, 78, 62);
     });
   }
+}
+
+// ---------- Aba: Cozinheiros da Cozinha ----------
+function drawCookRoster() {
+  ui.text(20, 88, i18n.t('ui.cooks_sub'), { size: 9, color: '#ffe9b8' });
+  const active = village.cookingJob;
+  if (active) {
+    ui.woodSign(378, 76, 204, 20,
+      i18n.t('ui.cooking_active', { name: i18n.t('meal.' + active.recipeId), s: Math.ceil(active.remaining) }), 8);
+  }
+  const rowH = 54;
+  const viewTop = 98, viewBot = 316, viewH = viewBot - viewTop;
+  const contentH = village.goblins.length * rowH;
+  const maxScroll = Math.max(0, contentH - viewH);
+  state.cookScroll = Math.max(0, Math.min(state.cookScroll || 0, maxScroll));
+  ctx.save();
+  ctx.beginPath(); ctx.rect(12, viewTop, 600, viewH); ctx.clip();
+  village.goblins.forEach((goblin, i) => {
+    const y = viewTop + i * rowH - state.cookScroll;
+    if (y + 48 < viewTop || y > viewBot) return;
+    const walker = world.goblins[i];
+    const busy = !!walker?.job?.cooking;
+    const assigned = goblin.assignment === 'cook';
+    ui.parchment(16, y, 592, 48);
+    ctx.drawImage(getSprite(gear.spriteForGoblin(goblin, 'idle', i % 5)), 22, y + 6, 36, 36);
+    ui.text(65, y + 17, goblin.name, { size: 10, bold: true, color: '#3c2712' });
+    ui.text(65, y + 34, busy ? i18n.t('ui.cooking')
+      : assigned ? i18n.t('ui.role_assigned', { role: i18n.t('job.cook') }) : i18n.t('ui.job_idle'),
+    { size: 8, color: busy ? '#8c2f1f' : '#6e4626' });
+    const bx = 416;
+    ui.button('cookrole_' + i + '_cook', bx, y + 13, 100, 25, i18n.t('ui.assign_cook'), !busy && !assigned);
+    ui.button('cookrole_' + i + '_idle', bx + 106, y + 13, 70, 25, i18n.t('job.idle'), !busy && assigned);
+  });
+  ctx.restore();
+  ui.scrollbarV(618, viewTop, viewH, state.cookScroll, maxScroll, viewH, contentH);
 }
 
 // ---------- Tela: Mercado (etapa 1.6) ----------
@@ -1763,17 +2130,44 @@ async function init() {
   await loadBalance();
   await loadAssets();
 
-  // o balance só existe depois do loadBalance(): agora as missões
-  // podem ler slots/tempo de renovação e preencher o painel.
+  // O balance só existe depois do loadBalance(). A lista, porém, só nasce
+  // depois que o Painel de Missões está pronto no mapa.
   quests.configure();
-  quests.ensure(village.level);
+  if (village.has('quest')) quests.ensure(village.level);
+
+  // Ganchos de screenshot mantêm um morador apenas nas cenas que precisam
+  // mostrar trabalho/equipamento; uma partida normal continua vazia.
+  const demo = new URLSearchParams(location.search).get('demo');
+  if (['construction', 'jobs', 'roster', 'kitchen', 'market', 'armazem', 'equip',
+    'deities', 'nodes', 'work', 'stumps'].includes(demo)) ensureDemoGoblin();
 
   // ganchos de screenshot (?demo=...)
-  const demo = new URLSearchParams(location.search).get('demo');
   if (demo === 'recruit') openRecruit();
   else if (demo === 'roster') state.screen = 'roster';
   else if (demo === 'build') state.screen = 'build';
-  else if (demo === 'quests') state.screen = 'quests';
+  else if (demo === 'construction') {
+    // A primeira Casa é instantânea; a prévia precisa criar a segunda para
+    // mostrar a lona, poeira e cronômetro da construção cronometrada.
+    village.build('house');
+    // Prévia visual da lona: o construtor já está no canteiro para que a
+    // poeira e o cronômetro possam ser vistos em screenshots/testes.
+    const site = village.beginBuildAt('house', 850, 760);
+    if (site) {
+      const builder = assignBuilder(site);
+      if (builder) {
+        builder.x = site.x - 15; builder.y = site.y + 4;
+        builder.job.type = 'build';
+        site.construction.working = true;
+      }
+      camera.x = site.x; camera.y = site.y - 4; camera.zoom = 1.4;
+    }
+  }
+  else if (demo === 'jobs') state.screen = 'jobs';
+  else if (demo === 'quests') {
+    if (!village.has('quest')) village.build('quest');
+    quests.ensure(village.level);
+    state.screen = 'quests';
+  }
   else if (demo === 'kitchen') state.screen = 'kitchen';
   else if (demo === 'market') {
     // a prévia precisa do Mercado de pé: destrava e constrói na hora
@@ -1833,6 +2227,13 @@ async function init() {
         }
       }
     }
+  }
+
+  // Primeira abertura: leva direto à fundação gratuita, pois não há nenhum
+  // prédio pré-posicionado no mapa.
+  if (!demo && village.countOf('construction') === 0) {
+    state.screen = 'build';
+    toast('toast.foundation_start');
   }
 
   startAutosave(currentSave, 10000);

@@ -47,9 +47,11 @@ python3 -m http.server 8080
 | Toque no goblin trabalhando | chama ele de volta |
 | Toque numa divindade | envia/retira um goblin para ativar o culto |
 | Construir → toque no mapa | escolhe exatamente onde colocar a estrutura |
-| Botão ↔ → estrutura → mapa | move qualquer estrutura já construída |
+| Toque longo numa estrutura pronta | preenche um anel amarelo; ao completar, escolhe o novo local |
 | Toque nos outros prédios | abre a tela correspondente |
-| Botões no rodapé | **Construir**, **Mover**, **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
+| Botões no rodapé | **Construir**, **Área dos Goblins**, **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
+| Área dos Goblins | defina cada goblin como **Livre**, **Madeira**, **Pedra**, **Comida** ou **Construtor**; somente Construtores iniciam obras |
+| Cozinha → **Cozinheiros** | nomeie quem prepara as receitas; ingredientes são reservados e o prato só fica pronto ao fim do cronômetro |
 
 ## 🔄 O ciclo do jogo
 
@@ -60,6 +62,20 @@ coletar recursos → construir → cumprir missões → XP da vila
 ```
 
 A **vila sobe de nível** com o XP das missões. Cada nível libera novas estruturas *e* eleva o teto de melhoria de todas elas. Melhorar a Cozinha, por exemplo, desbloqueia pratos melhores.
+
+### Fundação da vila
+
+Uma partida nova começa com a ilha **sem prédios e sem goblins**. O primeiro painel pede o local da **Casa de Construção**, que é gratuita. Ela ainda passa pela lona de fabricação, mas como tem duração zero a lona aparece brilhando e basta tocá-la para concluir. Só então o catálogo normal é liberado.
+
+O **Painel de Missões** e as **três primeiras Casas de Goblin** também não custam recursos. Não existem missões antes de o Painel ter sido concluído. A primeira Casa, como a Casa de Construção, tem duração zero mas ainda exige recolher a lona brilhante; ao concluir a Casa, abre-se a escolha do primeiro goblin. A segunda e a terceira Casas continuam sendo obras normais com cronômetro.
+
+### Obras
+
+Colocar ou melhorar uma estrutura cria uma **lona de obra**. A lona aguarda até que o jogador abra a **Área dos Goblins** e nomeie um goblin como **Construtor**; somente um construtor nomeado vai até ela, trabalha levantando poeira e faz o cronômetro avançar. A duração segue o nível de desbloqueio da estrutura: casas (nível 1) levam **10 / 20 / 30 s** nos níveis 1–3; estruturas desbloqueadas no nível 2 levam **20 / 30 / 40 s**; as do nível 3 levam **30 / 40 / 50 s**, e assim sucessivamente. Ao acabar — ou imediatamente nas fundações de duração zero — a lona brilha: toque nela para recolher a construção pronta.
+
+### Cozinha e cozinheiros
+
+Abra a **Cozinha** e use a aba **Cozinheiros** para designar um goblin. A aba **Cozinhar** mostra a duração antes de iniciar: receitas de cozinha nível 1 levam **10 s**, nível 2 levam **20 s** e nível 3 levam **30 s**. Os ingredientes saem do estoque no início, mas a porção só entra na despensa depois que o cozinheiro chega à panela e completa o trabalho. O vapor e o cronômetro acima da Cozinha permitem acompanhar o preparo no mapa.
 
 | Nível | Desbloqueia |
 |---|---|
@@ -72,7 +88,7 @@ A **vila sobe de nível** com o XP das missões. Cada nível libera novas estrut
 | 7 | Porto |
 | 8 | Quartel |
 
-No nível 3, a **Grande Árvore** canta e faz árvores brotarem do chão, enquanto o **Golem de Pedra** cria e arremessa rochas rúnicas que caem e permanecem coletáveis na ilha. As divindades começam vazias: toque nelas para enviar um goblin livre e iniciar o culto; toque novamente para liberá-lo. A ilha nunca ultrapassa **40 árvores e 40 pedras no total**, e os novos recursos divinos só surgem longe das estruturas.
+No nível 3, a **Grande Árvore** canta e faz árvores brotarem do chão, enquanto o **Golem de Pedra** cria e arremessa rochas rúnicas que caem e permanecem coletáveis na ilha. As divindades começam vazias: toque nelas para enviar um goblin livre e iniciar o culto; toque novamente para liberá-lo. A ilha nunca ultrapassa **80 árvores e 80 pedras no total** — inclusive a produção divina — e os novos recursos divinos só surgem longe das estruturas. Tocos e entulho de pedra somem após **10 segundos**, mantendo o terreno limpo.
 
 ## 🏚️ Armazém, inventário e equipamento
 
@@ -156,7 +172,7 @@ bash    tools/test.sh               # roda as 7 suítes de teste
 
 ## ✅ Testes
 
-370 testes automatizados, sem navegador (`bash tools/test.sh`):
+453 testes automatizados, sem navegador (`bash tools/test.sh`):
 
 | Suíte | O que cobre |
 |---|---|
