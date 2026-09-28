@@ -8,23 +8,25 @@
 // ============================================================
 const { BAL } = require('balance.js');
 
-// reqKitchen = nível mínimo da Cozinha para liberar a receita
+// reqKitchen = nível mínimo da Cozinha para liberar a receita.
+// O tempo segue a mesma cadência das casas: receitas de nível 1 levam
+// 10 s, as de nível 2 levam 20 s e as de nível 3 levam 30 s.
 const RECIPES = [
   {
     id: 'bread', sprite: 'item_bread', reqKitchen: 1,
-    cost: { food: 3 }, heal: 18, price: 12, time: 4,
+    cost: { food: 3 }, heal: 18, price: 12, time: 10,
   },
   {
     id: 'soup', sprite: 'item_soup', reqKitchen: 1,
-    cost: { food: 5, wood: 2 }, heal: 34, price: 20, time: 6,
+    cost: { food: 5, wood: 2 }, heal: 34, price: 20, time: 10,
   },
   {
     id: 'stew', sprite: 'item_stew', reqKitchen: 2,
-    cost: { food: 9, ore: 1 }, heal: 62, price: 34, time: 9,
+    cost: { food: 9, ore: 1 }, heal: 62, price: 34, time: 20,
   },
   {
     id: 'feast', sprite: 'item_feast', reqKitchen: 3,
-    cost: { food: 16, gold: 10 }, heal: 120, price: 70, time: 14,
+    cost: { food: 16, gold: 10 }, heal: 120, price: 70, time: 30,
   },
 ];
 
@@ -46,23 +48,56 @@ function cookBonus(village) {
   return Math.min(0.6, best);
 }
 
+/** Tempo de preparo de uma receita (10 / 20 / 30 s por faixa). */
+function cookingSeconds(recipeId) {
+  const r = typeof recipeId === 'string' ? byId(recipeId) : recipeId;
+  return r ? 10 * r.reqKitchen : 0;
+}
+
+/** Finaliza uma receita cujo custo já foi separado. */
+function produce(village, recipe, rng = Math.random) {
+  let qty = 1;
+  if (rng() < cookBonus(village)) qty += 1;
+  village.meals[recipe.id] = (village.meals[recipe.id] || 0) + qty;
+  return { id: recipe.id, qty };
+}
+
 /**
- * Cozinha um prato. Retorna {id, qty, healed} ou null se não deu.
- * O bônus de `cook` pode render 2 porções de uma vez.
+ * Cozinha instantaneamente — API mantida para os testes de lógica e rotinas
+ * antigas. A interface usa beginCook()/finishCook() para mostrar o preparo.
  */
 function cook(village, recipeId, rng = Math.random) {
   const r = byId(recipeId);
   if (!r) return null;
   const kitchen = village.levelOf('cozinha');
-  if (kitchen < r.reqKitchen) return null;
-  if (!village.canAfford(r.cost)) return null;
-
+  if (kitchen < r.reqKitchen || !village.canAfford(r.cost)) return null;
   village.pay(r.cost);
-  let qty = 1;
-  if (rng() < cookBonus(village)) qty += 1;
+  return produce(village, r, rng);
+}
 
-  village.meals[r.id] = (village.meals[r.id] || 0) + qty;
-  return { id: r.id, qty };
+/** Separa os ingredientes e abre um preparo cronometrado. */
+function beginCook(village, recipeId) {
+  const r = byId(recipeId);
+  if (!r || village.cookingJob) return null;
+  const kitchen = village.levelOf('cozinha');
+  if (kitchen < r.reqKitchen || !village.canAfford(r.cost)) return null;
+  village.pay(r.cost);
+  const total = cookingSeconds(r);
+  village.cookingJob = {
+    recipeId: r.id, total, remaining: total,
+    status: 'cooking', worker: null, working: false,
+  };
+  return village.cookingJob;
+}
+
+/** Entrega o prato terminado à despensa e fecha o preparo ativo. */
+function finishCook(village, rng = Math.random) {
+  const job = village.cookingJob;
+  const recipe = byId(job?.recipeId);
+  if (!job || !recipe || job.status !== 'ready') return null;
+  const out = produce(village, recipe, rng);
+  village.cookingJob = null;
+  return out;
 }
 
 /**
@@ -89,4 +124,7 @@ function totalMeals(village) {
   return Object.values(village.meals || {}).reduce((a, b) => a + b, 0);
 }
 
-module.exports = { RECIPES, available, cook, feed, byId, totalMeals, cookBonus };
+module.exports = {
+  RECIPES, available, cook, beginCook, finishCook, cookingSeconds,
+  feed, byId, totalMeals, cookBonus,
+};

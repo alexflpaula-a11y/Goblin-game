@@ -507,7 +507,39 @@ def item_feast():
     return g
 
 
+def construction_site():
+    """Lona branca de obra cercada, usada durante construções e melhorias."""
+    g = blank()
+    CANVAS = (238, 238, 226)
+    CANVAS_S = (205, 211, 202)
+    FENCE = (158, 102, 55)
+    FENCE_D = (92, 57, 30)
+    # base de terra sob a lona
+    rect(g, 4, 25, 27, 28, (117, 85, 50))
+    hline(g, 5, 26, 28, (79, 55, 31))
+    # lona dobrada, bem clara, presa ao chão
+    tri_roof(g, 16, 8, 10, 14, CANVAS, CANVAS_S)
+    rect(g, 7, 19, 25, 24, CANVAS)
+    hline(g, 7, 25, 24, CANVAS_S)
+    vline(g, 16, 10, 24, CANVAS_S)        # dobra central
+    hline(g, 10, 22, 15, (250, 248, 235)) # reflexo da lona
+    # cerca de tábuas em primeiro plano e nas laterais
+    for x in (4, 9, 23, 28):
+        vline(g, x, 18, 28, FENCE)
+        px(g, x, 18, WOOD_L)
+    hline(g, 4, 28, 22, FENCE)
+    hline(g, 4, 28, 26, FENCE)
+    hline(g, 4, 28, 22, FENCE_D)
+    # aberturas e pontas de tábuas
+    vline(g, 9, 23, 26, FENCE_D)
+    vline(g, 23, 23, 26, FENCE_D)
+    hline(g, 3, 29, 29, FENCE_D)
+    outline(g)
+    return g
+
+
 BUILDINGS = {
+    'building_construction_site': construction_site,
     'building_serraria_1': serraria,
     'building_fazenda_1': fazenda,
     'building_armazem_1': armazem,
