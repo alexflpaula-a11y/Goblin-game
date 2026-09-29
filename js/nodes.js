@@ -14,7 +14,7 @@
 const { getSprite } = require('assetLoader.js');
 const { BAL } = require('balance.js');
 const { WORLD } = require('world.js');
-const ISLAND_NODE_CAP = 80;
+const ISLAND_NODE_CAP = 200;
 const REMNANT_LIFETIME = 10;
 const REMNANT_FADE_SECONDS = 1.5;
 const GROWTH_FRAMES = { tree: 24, rock: 16 };

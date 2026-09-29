@@ -565,7 +565,7 @@ check('animações possuem mais quadros',
   ANIMATION_FRAMES.treeChant >= 24 && ANIMATION_FRAMES.golemForge >= 24);
 let sawChant = false, sawForge = false, sawProjectile = false;
 let sawTreeRise = false, sawRockLand = false;
-// Tempo suficiente para as duas divindades preencherem o novo teto de 80.
+// Tempo para observar ciclos, crescimento e o projétil sem depender do teto.
 for (let i = 0; i < 12000; i++) {
   deityNodes.update(0.1);
   gods.update(0.1);
@@ -598,18 +598,30 @@ try {
 } catch (error) { deityDrawError = error; }
 check('divindades, acólitos e nós animados desenham sem erro',
   deityDrawError === null, deityDrawError?.message);
-check('ilha respeita teto TOTAL de 80 árvores',
-  deityNodes.countActive('tree') === ISLAND_NODE_CAP,
-  String(deityNodes.countActive('tree')));
-check('ilha respeita teto TOTAL de 80 pedras',
-  deityNodes.countActive('rock') === ISLAND_NODE_CAP,
-  String(deityNodes.countActive('rock')));
+check('teto por tipo da ilha é 200', ISLAND_NODE_CAP === 200, String(ISLAND_NODE_CAP));
+const freshNodes = new Nodes(deityWorld);
+check('ilha nova começa com 200 árvores e 200 pedras',
+  freshNodes.countActive('tree') === 200 && freshNodes.countActive('rock') === 200,
+  `${freshNodes.countActive('tree')} árvores, ${freshNodes.countActive('rock')} pedras`);
+const cappedNodes = new Nodes(deityWorld, [
+  ...Array.from({ length: 205 }, (_, i) => ({ type: 'tree', x: i * 3, y: 10, stock: 1, max: 1, depleted: false })),
+  ...Array.from({ length: 205 }, (_, i) => ({ type: 'rock', x: i * 3, y: 50, stock: 1, max: 1, depleted: false })),
+]);
+check('save acima do teto é limitado a 200 árvores e 200 pedras',
+  cappedNodes.countActive('tree') === ISLAND_NODE_CAP && cappedNodes.countActive('rock') === ISLAND_NODE_CAP);
 const spawned = deityNodes.list.filter((n) => n.divine);
 check('todos os milagres ficam a pelo menos 190px das estruturas',
   spawned.every((n) => deityVillage.structures.every((s) => Math.hypot(n.x - s.x, n.y - s.y) >= 190)));
 const divineRound = new Nodes(deityWorld, JSON.parse(JSON.stringify(deityNodes.serialize())));
-check('árvores e pedras persistem no save sem ultrapassar 80',
-  divineRound.countActive('tree') === ISLAND_NODE_CAP && divineRound.countActive('rock') === ISLAND_NODE_CAP);
+check('árvores e pedras persistem no save sem ultrapassar 200',
+  divineRound.countActive('tree') <= ISLAND_NODE_CAP && divineRound.countActive('rock') <= ISLAND_NODE_CAP);
+// O teto só limita nós do mapa. Mesmo com a ilha cheia, a recompensa
+// direta da Grande Árvore não é estoque finito e continua acumulando.
+deityNodes.list = cappedNodes.list;
+const directWood = deityVillage.res.wood || 0;
+for (let i = 0; i < 9; i++) gods.grantProduction('grande_arvore');
+check('Grande Árvore continua produzindo materiais com ilha no teto',
+  (deityVillage.res.wood || 0) > directWood);
 
 // Até três acólitos dividem o santuário, aceleram a produção e enchem o XP
 // persistente da divindade (não do nível físico do prédio).
@@ -628,10 +640,22 @@ shrineWorld.goblins.forEach((w) => { w.job.type = 'worship'; });
 check('santuário aceita até três acólitos',
   sent.every((r) => r.ok) && shrine.status('grande_arvore').worshippers.length === MAX_WORSHIPPERS);
 check('quarto acólito é recusado', shrine.activate('grande_arvore', shrineWorld.goblins).reason === 'full');
-for (let i = 0; i < 90; i++) shrine.update(0.1);
-check('três acólitos enchem XP e evoluem a Grande Árvore', shrine.status('grande_arvore').level >= 2);
-for (let i = 0; i < 90; i++) shrine.update(0.1);
-check('árvore evoluída produz madeira especial direta', (shrineVillage.res.hardwood || 0) > 0);
+const materialsBefore = { wood: shrineVillage.res.wood || 0, hardwood: shrineVillage.res.hardwood || 0,
+  ancient: shrineVillage.res.ancient_wood || 0 };
+shrine.grantProduction('grande_arvore');
+shrine.grantProduction('grande_arvore');
+shrine.grantProduction('grande_arvore');
+check('todos os graus de madeira divina surgem já no nível 1',
+  shrine.status('grande_arvore').level === 1
+  && shrineVillage.res.wood > materialsBefore.wood
+  && shrineVillage.res.hardwood > materialsBefore.hardwood
+  && shrineVillage.res.ancient_wood > materialsBefore.ancient);
+for (let i = 0; i < 500; i++) shrine.update(0.1);
+check('três acólitos ainda não evoluem a divindade antes de um minuto',
+  shrine.status('grande_arvore').level === 1 && shrine.status('grande_arvore').xp > 0,
+  `${shrine.status('grande_arvore').xp.toFixed(1)} XP`);
+for (let i = 0; i < 110; i++) shrine.update(0.1);
+check('três acólitos evoluem após um minuto de louvor contínuo', shrine.status('grande_arvore').level >= 2);
 check('velocidade de produção aparece no status da divindade', shrine.status('grande_arvore').perMinute > 0);
 
 const remnants = new Nodes(deityWorld, [

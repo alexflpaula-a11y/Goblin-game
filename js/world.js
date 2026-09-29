@@ -375,11 +375,13 @@ class GoblinWalker {
     if (this.dragged) {
       // Segurado, ele não deixa rastros nem ganha efeitos estranhos: apenas
       // continua sendo o goblin real, flutuando e balançando suavemente.
-      const phase = time * 4.2;
-      const frame = Math.floor(phase) % ANIM_FRAMES.idle;
+      // Uma oscilação longa e macia, sem trilha ou impulso: o movimento
+      // parece sustentado pela mão, não uma animação acelerada.
+      const phase = time * 1.45;
+      const frame = Math.floor(time * 1.65) % ANIM_FRAMES.idle;
       const spr = getSprite(gear.spriteForGoblin(this.goblin, 'idle', frame));
-      const sway = Math.sin(phase) * 0.075;
-      const lift = this.y - 19 + Math.sin(phase * 1.4) * 1.4;
+      const sway = Math.sin(phase) * 0.042 + Math.sin(phase * 0.5) * 0.012;
+      const lift = this.y - 19 + Math.sin(phase * 0.9) * 0.85;
       ctx.save();
       ctx.translate(this.x, lift);
       ctx.scale(this.face, 1);

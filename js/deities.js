@@ -17,9 +17,8 @@ const ANIMATION_FRAMES = {
   projectileSpin: 20,
 };
 
-// Produção especial das divindades. Os materiais de grau alto não entram
-// ainda no Mercado: o painel do santuário já os guarda para o futuro altar
-// de runas, sem reintroduzir slots de runa nos goblins.
+// Materiais divinos giram desde o começo; subir de nível não libera matéria
+// nova. A evolução fica reservada para as futuras receitas/runa do Altar.
 const DEITY_RESOURCES = {
   grande_arvore: [
     { key: 'wood', amount: 2 },
@@ -71,26 +70,30 @@ class Deities {
     const profile = structure.deity || {};
     profile.level = Math.max(1, Math.min(MAX_DEITY_LEVEL, Math.round(profile.level || 1)));
     profile.xp = Math.max(0, Number(profile.xp) || 0);
+    profile.outputIndex = Math.max(0, Math.floor(Number(profile.outputIndex) || 0));
     structure.deity = profile;
     return profile;
   }
 
   xpNext(type) {
     const level = this.profile(type)?.level || 1;
-    return 24 + (level - 1) * 28;
+    // Um acólito leva minutos; com os três postos ocupados o primeiro nível
+    // ainda pede um minuto inteiro de louvor contínuo.
+    return 180 + (level - 1) * 150;
   }
 
   /** Duração de um ciclo completo com os acólitos presentes. */
   cycleSeconds(type) {
-    const profile = this.profile(type) || { level: 1 };
     const power = Math.max(1, this.poweredCount(type));
     const base = type === 'grande_arvore' ? 12 : 9.5;
-    return Math.max(3, (base - (profile.level - 1) * 1.5) / power);
+    // Quem acelera a coleta são os acólitos; nível é reservado às runas.
+    return Math.max(3, base / power);
   }
 
   production(type) {
-    const profile = this.profile(type) || { level: 1 };
-    return DEITY_RESOURCES[type][profile.level - 1];
+    const profile = this.profile(type) || { outputIndex: 0 };
+    const pool = DEITY_RESOURCES[type] || [];
+    return pool[profile.outputIndex % Math.max(1, pool.length)] || null;
   }
 
   /** Valida acólitos sem jamais preencher uma estrutura automaticamente. */
@@ -258,8 +261,10 @@ class Deities {
   }
 
   grantProduction(type) {
+    const profile = this.profile(type);
     const output = this.production(type);
-    if (!output) return null;
+    if (!profile || !output) return null;
+    profile.outputIndex += 1;
     this.village.res[output.key] = (this.village.res[output.key] || 0) + output.amount;
     const deity = this.village.get(type);
     this.world.floats.push({

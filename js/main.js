@@ -574,11 +574,25 @@ function autoAssignWalker(walker) {
   return !!nodes.assign(node, [walker]);
 }
 
+/** Texto de estado real: um coletor/constructor nunca aparece como livre. */
+function workerActivityLabel(walker, goblin) {
+  if (walker?.job?.construction) return i18n.t('ui.job_building');
+  if (walker?.job?.cooking) return i18n.t('ui.cooking');
+  if (walker?.job?.deityType) return i18n.t('ui.job_worshipping');
+  const nodeType = walker?.job?.node?.type;
+  if (nodeType === 'tree') return i18n.t('job.wood');
+  if (nodeType === 'rock') return i18n.t('job.stone');
+  if (nodeType === 'farm') return i18n.t('job.food');
+  if (goblin?.assignment) return i18n.t('job.' + goblin.assignment);
+  return i18n.t('job.idle');
+}
+
 function setGoblinAssignment(index, task) {
   const goblin = village.goblins[index];
   const walker = world.goblins[index];
   if (!goblin || !walker) return;
-  // Um construtor/cozinheiro/adorador não pode ser removido por acidente.
+  // Obras, cozinha e culto são tarefas exclusivas. Coletores podem receber
+  // uma ordem nova aqui: o antigo nó é liberado antes da troca.
   if (walker.job?.construction || walker.job?.cooking || walker.job?.deityType) {
     toast('toast.builder_busy');
     return;
@@ -1487,13 +1501,7 @@ function drawJobsScreen() {
     if (y + rowH < viewTop || y > viewBot) return;
     const walker = world.goblins[i];
     const isBuilder = !!walker?.job?.construction;
-    const isCook = !!walker?.job?.cooking;
-    const isWorshipper = !!walker?.job?.deityType;
-    const task = goblin.assignment;
-    const status = isBuilder ? i18n.t('ui.job_building')
-      : isCook ? i18n.t('ui.cooking')
-        : isWorshipper ? i18n.t('ui.job_worshipping')
-          : task ? i18n.t('job.' + task) : i18n.t('job.idle');
+    const status = workerActivityLabel(walker, goblin);
     const held = state.jobDrag?.index === i;
 
     ui.parchment(P.x + 8, y + 2, P.w - 22, 50);
@@ -1501,9 +1509,14 @@ function drawJobsScreen() {
     ctx.drawImage(getSprite(gear.spriteForGoblin(goblin, 'idle', i % 5)), P.x + 16, y + 8, 38, 38);
     ui.text(P.x + 64, y + 19, goblin.name, { size: 10, bold: true, color: '#3c2712' });
     ui.text(P.x + 64, y + 36, status, { size: 8, color: isBuilder ? '#8c4f1f' : '#6e4626' });
-    ui.text(P.x + P.w - 46, y + 29, '↗', { align: 'center', size: 16, bold: true, color: '#8a6b4a' });
+    // Só a alça à direita inicia o arraste. Assim o resto do cartão continua
+    // rolando normalmente e os últimos goblins da lista podem receber cargo.
+    const handleX = P.x + P.w - 86;
+    ctx.fillStyle = 'rgba(90,67,44,0.18)';
+    ctx.fillRect(handleX, y + 5, 52, 44);
+    ui.text(handleX + 26, y + 29, '↗', { align: 'center', size: 16, bold: true, color: '#8a6b4a' });
     ctx.globalAlpha = 1;
-    ui.region('jobdrag_' + i, P.x + 8, y + 2, P.w - 22, 50);
+    ui.region('jobdrag_' + i, handleX, y + 5, 52, 44);
   });
   ctx.restore();
   ui.scrollbarV(P.x + P.w - 8, viewTop, viewH, state.jobsScroll, maxScroll, viewH, contentH);
@@ -1595,7 +1608,7 @@ function drawDeityScreen() {
     ctx.drawImage(getSprite(gear.spriteForGoblin(goblin, 'idle', i % 5)), P.x + 18, y + 4, 29, 29);
     ui.text(P.x + 55, y + 16, goblin.name, { size: 9, bold: true, color: '#3c2712' });
     ui.text(P.x + 55, y + 28, worshipsHere ? i18n.t('ui.job_worshipping')
-      : busy ? i18n.t('ui.deity_busy') : i18n.t('job.idle'),
+      : busy ? workerActivityLabel(walker, goblin) : i18n.t('job.idle'),
     { size: 7, color: worshipsHere ? '#4f742f' : '#7a5633' });
     const label = worshipsHere ? i18n.t('ui.deity_release')
       : busy ? i18n.t('ui.deity_busy') : i18n.t('ui.deity_send');
@@ -1614,31 +1627,31 @@ function drawDeityMaterials(type, info, P) {
   { size: 9, color: '#ffe9b8' });
   keys.forEach((key, i) => {
     const y = P.y + 101 + i * 38;
-    const unlocked = i < info.level;
-    ctx.fillStyle = unlocked ? 'rgba(34,45,32,0.7)' : 'rgba(20,16,32,0.38)';
+    const next = info.output?.key === key;
+    ctx.fillStyle = next ? 'rgba(50,74,42,0.82)' : 'rgba(34,45,32,0.7)';
     ctx.fillRect(P.x + 18, y, P.w - 36, 31);
-    ctx.strokeStyle = unlocked ? (type === 'grande_arvore' ? '#72b45c' : '#c8973f') : 'rgba(255,233,168,0.22)';
+    ctx.strokeStyle = next ? (type === 'grande_arvore' ? '#a9ea86' : '#ffd56d')
+      : (type === 'grande_arvore' ? '#72b45c' : '#c8973f');
     ctx.strokeRect(P.x + 18.5, y + .5, P.w - 37, 30);
     ui.text(P.x + 32, y + 19, i18n.t('res.' + key), {
-      size: 10, bold: unlocked, color: unlocked ? '#ffe9a8' : '#898290',
+      size: 10, bold: next, color: '#ffe9a8',
     });
-    ui.text(P.x + P.w - 34, y + 19, unlocked ? `×${village.res[key] || 0}` : 'LV ' + (i + 1), {
-      align: 'right', size: 10, bold: true, color: unlocked ? '#d9cdfa' : '#898290',
+    ui.text(P.x + P.w - 34, y + 19, `×${village.res[key] || 0}`, {
+      align: 'right', size: 10, bold: true, color: '#d9cdfa',
     });
   });
-  if (type === 'golem_pedra') {
-    ctx.fillStyle = 'rgba(23,18,37,0.7)';
-    ctx.fillRect(P.x + 18, P.y + 225, P.w - 36, 45);
-    ctx.strokeStyle = 'rgba(167,139,250,0.45)';
-    ctx.strokeRect(P.x + 18.5, P.y + 225.5, P.w - 37, 44);
-    ui.text(P.x + P.w / 2, P.y + 251, i18n.t('ui.runes_future'), {
-      align: 'center', size: 10, bold: true, color: '#c6b7ea',
-    });
-  } else {
-    ui.text(P.x + 18, P.y + 252, i18n.t('ui.deity_speed', { rate: info.perMinute.toFixed(1) }), {
-      size: 10, color: '#a9ea86', bold: true,
-    });
-  }
+  // Níveis ficam reservados para a futura camada de runas; materiais e
+  // velocidade já existem desde o primeiro nível para as duas divindades.
+  ctx.fillStyle = 'rgba(23,18,37,0.7)';
+  ctx.fillRect(P.x + 18, P.y + 225, P.w - 36, 45);
+  ctx.strokeStyle = 'rgba(167,139,250,0.45)';
+  ctx.strokeRect(P.x + 18.5, P.y + 225.5, P.w - 37, 44);
+  ui.text(P.x + P.w / 2, P.y + 243, i18n.t('ui.runes_future'), {
+    align: 'center', size: 9, bold: true, color: '#c6b7ea',
+  });
+  ui.text(P.x + P.w / 2, P.y + 260, i18n.t('ui.deity_speed', { rate: info.perMinute.toFixed(1) }), {
+    align: 'center', size: 9, bold: true, color: type === 'grande_arvore' ? '#a9ea86' : '#ffd56d',
+  });
 }
 
 // ---------- Tela: Recrutamento (escolher 1 de 3) ----------
@@ -1904,13 +1917,16 @@ function drawCookRoster() {
     const y = viewTop + i * rowH - state.cookScroll;
     if (y + 48 < viewTop || y > viewBot) return;
     const walker = world.goblins[i];
-    const busy = !!walker?.job?.cooking;
+    // Qualquer tarefa ativa ocupa o goblin, não só o ato de cozinhar.
+    const busy = !!walker?.job;
+    const cookingNow = !!walker?.job?.cooking;
     const assigned = goblin.assignment === 'cook';
     ui.parchment(16, y, 592, 48);
     ctx.drawImage(getSprite(gear.spriteForGoblin(goblin, 'idle', i % 5)), 22, y + 6, 36, 36);
     ui.text(65, y + 17, goblin.name, { size: 10, bold: true, color: '#3c2712' });
-    ui.text(65, y + 34, busy ? i18n.t('ui.cooking')
-      : assigned ? i18n.t('ui.role_assigned', { role: i18n.t('job.cook') }) : i18n.t('ui.job_idle'),
+    ui.text(65, y + 34, cookingNow ? i18n.t('ui.cooking')
+      : busy ? workerActivityLabel(walker, goblin)
+        : assigned ? i18n.t('ui.role_assigned', { role: i18n.t('job.cook') }) : i18n.t('ui.job_idle'),
     { size: 8, color: busy ? '#8c2f1f' : '#6e4626' });
     const bx = 416;
     ui.button('cookrole_' + i + '_cook', bx, y + 13, 100, 25, i18n.t('ui.assign_cook'), !busy && !assigned);

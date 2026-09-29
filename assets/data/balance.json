@@ -46,8 +46,8 @@
     }
   },
   "nodes": {
-    "treeCount": 24,
-    "rockCount": 24,
+    "treeCount": 200,
+    "rockCount": 200,
     "treeStock": 15,
     "rockStock": 12,
     "workPeriod": 1.2
