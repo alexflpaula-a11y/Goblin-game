@@ -55,9 +55,16 @@ class Goblin {
       hp: null, mp: null,
       equip: {},   // { capacete: 'capacete_ferro', anel1: 'anel_rubi', ... }
       skills: [],  // [ 'investida', 'golpe_brutal' ] (2 espaços)
+      // tarefa persistente escolhida na Área/prédios dos Goblins:
+      // null | wood | stone | food | builder | cook
+      assignment: null,
     }, data);
     this.equip = this.equip || {};
+    // A interface não possui mais espaço de runa; saves antigos descartam
+    // somente o vínculo equipado, sem deixar um slot invisível no boneco.
+    delete this.equip.runa;
     this.skills = this.skills || [];
+    if (!['wood', 'stone', 'food', 'builder', 'cook'].includes(this.assignment)) this.assignment = null;
     if (!VARIATION_SET.has(this.variation)) this.variation = null;
     this.recalc();
   }

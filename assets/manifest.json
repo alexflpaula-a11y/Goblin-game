@@ -1757,6 +1757,10 @@
       "path": "assets/sprites/buildings/building_bazar_1.png"
     },
     {
+      "id": "building_construction_site",
+      "path": "assets/sprites/buildings/building_construction_site.png"
+    },
+    {
       "id": "building_construction_1",
       "path": "assets/sprites/buildings/building_construction_1.png"
     },
@@ -2131,10 +2135,6 @@
     {
       "id": "item_escudo_madeira",
       "path": "assets/sprites/items/item_escudo_madeira.png"
-    },
-    {
-      "id": "item_runa_azul",
-      "path": "assets/sprites/items/item_runa_azul.png"
     },
     {
       "id": "item_colar_presas",

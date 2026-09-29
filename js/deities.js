@@ -9,10 +9,28 @@ const { getSprite } = require('assetLoader.js');
 const { ISLAND_NODE_CAP } = require('nodes.js');
 
 const DEITY_TYPES = ['grande_arvore', 'golem_pedra'];
+const MAX_WORSHIPPERS = 3;
+const MAX_DEITY_LEVEL = 3;
 const ANIMATION_FRAMES = {
   treeChant: 24,
   golemForge: 28,
   projectileSpin: 20,
+};
+
+// Produção especial das divindades. Os materiais de grau alto não entram
+// ainda no Mercado: o painel do santuário já os guarda para o futuro altar
+// de runas, sem reintroduzir slots de runa nos goblins.
+const DEITY_RESOURCES = {
+  grande_arvore: [
+    { key: 'wood', amount: 2 },
+    { key: 'hardwood', amount: 1 },
+    { key: 'ancient_wood', amount: 1 },
+  ],
+  golem_pedra: [
+    { key: 'ore', amount: 2 },
+    { key: 'refined_ore', amount: 1 },
+    { key: 'arcane_ore', amount: 1 },
+  ],
 };
 
 const clamp01 = (n) => Math.max(0, Math.min(1, n));
@@ -33,17 +51,46 @@ class Deities {
     this.projectiles = [];
     this.states = {
       grande_arvore: {
-        active: false, worshipper: null,
+        active: false, worshippers: [], worshipper: null,
         mode: 'idle', time: 0, cooldown: 1.8,
         duration: 4.2, site: null,
       },
       golem_pedra: {
-        active: false, worshipper: null,
+        active: false, worshippers: [], worshipper: null,
         mode: 'idle', time: 0, cooldown: 2.2,
         duration: 3.1, site: null, launched: false,
       },
     };
     this.sync();
+  }
+
+  /** Perfil persistente da divindade, migrado sem quebrar saves antigos. */
+  profile(type) {
+    const structure = this.village.get(type);
+    if (!structure) return null;
+    const profile = structure.deity || {};
+    profile.level = Math.max(1, Math.min(MAX_DEITY_LEVEL, Math.round(profile.level || 1)));
+    profile.xp = Math.max(0, Number(profile.xp) || 0);
+    structure.deity = profile;
+    return profile;
+  }
+
+  xpNext(type) {
+    const level = this.profile(type)?.level || 1;
+    return 24 + (level - 1) * 28;
+  }
+
+  /** Duração de um ciclo completo com os acólitos presentes. */
+  cycleSeconds(type) {
+    const profile = this.profile(type) || { level: 1 };
+    const power = Math.max(1, this.poweredCount(type));
+    const base = type === 'grande_arvore' ? 12 : 9.5;
+    return Math.max(3, (base - (profile.level - 1) * 1.5) / power);
+  }
+
+  production(type) {
+    const profile = this.profile(type) || { level: 1 };
+    return DEITY_RESOURCES[type][profile.level - 1];
   }
 
   /** Valida acólitos sem jamais preencher uma estrutura automaticamente. */
@@ -54,83 +101,112 @@ class Deities {
         if (state.active) this.deactivate(type);
         continue;
       }
-      if (!state.active) continue;
-      const walker = this.world.goblins[state.worshipper];
-      if (!walker || walker.job?.deityType !== type) {
-        state.active = false;
-        state.worshipper = null;
+      // Migra o único acólito do formato antigo e remove referências que não
+      // correspondem mais a um goblin realmente louvando esta divindade.
+      if (!Array.isArray(state.worshippers)) state.worshippers = [];
+      if (state.worshipper != null && !state.worshippers.includes(state.worshipper)) {
+        state.worshippers.push(state.worshipper);
+      }
+      state.worshippers = state.worshippers.filter((idx) => {
+        const walker = this.world.goblins[idx];
+        return !!walker && walker.job?.deityType === type;
+      }).slice(0, MAX_WORSHIPPERS);
+      state.active = state.worshippers.length > 0;
+      state.worshipper = state.worshippers[0] ?? null; // compatibilidade
+      if (!state.active) {
         state.mode = 'idle';
         state.time = 0;
         state.site = null;
+        state.launched = false;
       }
     }
   }
 
-  worshipPosition(type, structure) {
-    return type === 'grande_arvore'
-      ? { x: structure.x + 39, y: structure.y + 12, face: -1 }
-      : { x: structure.x - 39, y: structure.y + 12, face: 1 };
+  worshipPosition(type, structure, slot = 0) {
+    const side = type === 'grande_arvore' ? 1 : -1;
+    const positions = [
+      { x: 39, y: 12 }, { x: 18, y: 25 }, { x: 55, y: 27 },
+    ];
+    const p = positions[slot % MAX_WORSHIPPERS];
+    return { x: structure.x + side * p.x, y: structure.y + p.y, face: -side };
   }
 
-  /** Envia o goblin livre mais próximo para ativar a divindade. */
-  activate(type, walkers = this.world.goblins) {
+  /** Envia um goblin livre para um dos três postos de louvor. */
+  activate(type, walkers = this.world.goblins, preferredIndex = null) {
     const structure = this.village.get(type);
     const state = this.states[type];
     if (!structure || !state) return { ok: false, reason: 'missing' };
-    if (state.active) return { ok: true, already: true, walker: walkers[state.worshipper] };
+    this.sync();
+    if (state.worshippers.length >= MAX_WORSHIPPERS) return { ok: false, reason: 'full' };
 
-    const target = this.worshipPosition(type, structure);
-    let best = null;
-    let bestDistance = Infinity;
-    for (const walker of walkers) {
-      if (walker.job) continue;
-      const d = Math.hypot(walker.x - target.x, walker.y - target.y);
-      if (d < bestDistance) { best = walker; bestDistance = d; }
+    let best = preferredIndex == null ? null : walkers[preferredIndex];
+    if (best?.job) return { ok: false, reason: 'busy' };
+    if (!best) {
+      const target = this.worshipPosition(type, structure, state.worshippers.length);
+      let bestDistance = Infinity;
+      for (const walker of walkers) {
+        if (walker.job) continue;
+        const d = Math.hypot(walker.x - target.x, walker.y - target.y);
+        if (d < bestDistance) { best = walker; bestDistance = d; }
+      }
     }
     if (!best) return { ok: false, reason: 'no_idle' };
 
+    const target = this.worshipPosition(type, structure, state.worshippers.length);
     best.target = null;
     best.job = { type: 'worship-goto', deityType: type, target };
+    state.worshippers.push(best.i);
     state.active = true;
-    state.worshipper = best.i;
+    state.worshipper = state.worshippers[0];
     state.mode = 'idle';
     state.time = 0;
     state.site = null;
-    state.cooldown = type === 'grande_arvore' ? 1.8 : 2.2;
+    state.cooldown = Math.min(state.cooldown, type === 'grande_arvore' ? 1.8 : 2.2);
     return { ok: true, walker: best };
   }
 
-  deactivate(type) {
+  /** Libera todos, ou apenas o acólito informado, sem apagar o XP acumulado. */
+  deactivate(type, onlyIndex = null) {
     const state = this.states[type];
     if (!state) return false;
-    const walker = this.world.goblins[state.worshipper];
-    if (walker?.job?.deityType === type) {
-      walker.job = null;
-      walker.wait = 0.3;
-      walker.target = null;
+    const leaving = onlyIndex == null ? [...state.worshippers] : [onlyIndex];
+    for (const index of leaving) {
+      const walker = this.world.goblins[index];
+      if (walker?.job?.deityType === type) {
+        walker.job = null;
+        walker.wait = 0.3;
+        walker.target = null;
+      }
     }
-    const wasActive = state.active;
-    state.active = false;
-    state.worshipper = null;
-    state.mode = 'idle';
-    state.time = 0;
-    state.site = null;
-    state.launched = false;
-    return wasActive;
+    state.worshippers = state.worshippers.filter((i) => !leaving.includes(i));
+    state.active = state.worshippers.length > 0;
+    state.worshipper = state.worshippers[0] ?? null;
+    if (!state.active) {
+      state.mode = 'idle';
+      state.time = 0;
+      state.site = null;
+      state.launched = false;
+    }
+    return leaving.length > 0;
   }
 
   releaseByWalker(walker) {
     const type = walker?.job?.deityType;
-    return type ? this.deactivate(type) : false;
+    return type ? this.deactivate(type, walker.i) : false;
   }
 
   isActive(type) { return !!this.states[type]?.active; }
 
-  isPowered(type) {
+  poweredCount(type) {
     const state = this.states[type];
-    const walker = state?.active ? this.world.goblins[state.worshipper] : null;
-    return !!walker && walker.job?.deityType === type && walker.job.type === 'worship';
+    if (!state) return 0;
+    return state.worshippers.filter((idx) => {
+      const walker = this.world.goblins[idx];
+      return walker?.job?.deityType === type && walker.job.type === 'worship';
+    }).length;
   }
+
+  isPowered(type) { return this.poweredCount(type) > 0; }
 
   countFor(type) {
     const nodeType = type === 'grande_arvore' ? 'tree' : 'rock';
@@ -139,19 +215,58 @@ class Deities {
 
   status(type) {
     const state = this.states[type];
+    const profile = this.profile(type) || { level: 1, xp: 0 };
+    const output = this.production(type);
+    const powered = this.poweredCount(type);
+    const seconds = this.cycleSeconds(type);
     return {
       count: this.countFor(type), max: ISLAND_NODE_CAP,
-      active: !!state?.active, powered: this.isPowered(type),
+      active: !!state?.active, powered: powered > 0, poweredCount: powered,
       worshipper: state?.worshipper ?? null,
+      worshippers: [...(state?.worshippers || [])], slots: MAX_WORSHIPPERS,
+      level: profile.level, xp: profile.xp, xpNext: this.xpNext(type),
+      output, perMinute: powered ? output.amount * 60 / seconds : 0,
     };
   }
 
   update(dt) {
     this.clock += dt;
     this.sync();
+    this.updateWorshipXp(dt);
     this.updateTree(dt);
     this.updateGolem(dt);
     this.updateProjectiles(dt);
+  }
+
+  /** Cada goblin que chegou ao posto alimenta a barra de evolução. */
+  updateWorshipXp(dt) {
+    for (const type of DEITY_TYPES) {
+      const profile = this.profile(type);
+      const power = this.poweredCount(type);
+      if (!profile || power <= 0 || profile.level >= MAX_DEITY_LEVEL) continue;
+      profile.xp += dt * power;
+      const needed = this.xpNext(type);
+      if (profile.xp >= needed) {
+        profile.xp -= needed;
+        profile.level += 1;
+        this.world.floats.push({
+          x: this.village.get(type)?.x ?? 0, y: (this.village.get(type)?.y ?? 0) - 72,
+          ttl: 2.2, text: `✦ LV ${profile.level}`, color: '#ffe27a',
+        });
+      }
+    }
+  }
+
+  grantProduction(type) {
+    const output = this.production(type);
+    if (!output) return null;
+    this.village.res[output.key] = (this.village.res[output.key] || 0) + output.amount;
+    const deity = this.village.get(type);
+    this.world.floats.push({
+      x: deity?.x ?? 0, y: (deity?.y ?? 0) - 62, ttl: 1.8,
+      text: `+${output.amount} ${output.key}`, color: type === 'grande_arvore' ? '#8fe06f' : '#f1c85a',
+    });
+    return output;
   }
 
   updateTree(dt) {
@@ -159,17 +274,19 @@ class Deities {
     if (!this.isPowered('grande_arvore')) return;
 
     if (state.mode === 'idle') {
-      if (this.countFor('grande_arvore') >= ISLAND_NODE_CAP) return;
       state.cooldown -= dt;
       if (state.cooldown > 0) return;
 
       const deity = this.village.get('grande_arvore');
-      const site = this.nodes.findDivineSite(
-        'tree', this.village.structures, this.rng, deity, { minFromOrigin: 210 }
-      );
+      // Mesmo quando a ilha já está cheia de nós, a benção continua rendendo
+      // materiais; só a árvore decorativa deixa de nascer naquele ciclo.
+      const site = this.countFor('grande_arvore') < ISLAND_NODE_CAP
+        ? this.nodes.findDivineSite('tree', this.village.structures, this.rng, deity, { minFromOrigin: 210 })
+        : { x: deity.x, y: deity.y };
       if (!site) { state.cooldown = 2; return; }
       state.mode = 'chant';
       state.time = 0;
+      state.duration = this.cycleSeconds('grande_arvore');
       state.site = site;
       return;
     }
@@ -177,20 +294,20 @@ class Deities {
     state.time += dt;
     if (state.time < state.duration) return;
 
+    this.grantProduction('grande_arvore');
     if (this.countFor('grande_arvore') < ISLAND_NODE_CAP) {
       const node = this.nodes.spawnDivine('tree', state.site);
       if (node) {
         this.world.floats.push({
           x: node.x, y: node.y - 18, ttl: 1.8,
-          text: '♬  +1', color: '#8fe06f',
+          text: '♬', color: '#8fe06f',
         });
       }
     }
     state.mode = 'idle';
     state.time = 0;
     state.site = null;
-    const level = this.village.levelOf('grande_arvore');
-    state.cooldown = Math.max(5.2, 9.5 - level * 1.1);
+    state.cooldown = Math.max(1.4, this.cycleSeconds('grande_arvore') * 0.22);
   }
 
   updateGolem(dt) {
@@ -198,19 +315,19 @@ class Deities {
     if (!this.isPowered('golem_pedra')) return;
 
     if (state.mode === 'idle') {
-      const inFlight = this.projectiles.length;
-      if (this.countFor('golem_pedra') + inFlight >= ISLAND_NODE_CAP) return;
       state.cooldown -= dt;
       if (state.cooldown > 0) return;
 
       const deity = this.village.get('golem_pedra');
-      const site = this.nodes.findDivineSite(
-        'rock', this.village.structures, this.rng, deity,
-        { minFromOrigin: 220, maxFromOrigin: 560 }
-      );
+      const canSpawn = this.countFor('golem_pedra') + this.projectiles.length < ISLAND_NODE_CAP;
+      const site = canSpawn
+        ? this.nodes.findDivineSite('rock', this.village.structures, this.rng, deity,
+          { minFromOrigin: 220, maxFromOrigin: 560 })
+        : { x: deity.x + 20, y: deity.y };
       if (!site) { state.cooldown = 2; return; }
       state.mode = 'forge';
       state.time = 0;
+      state.duration = this.cycleSeconds('golem_pedra');
       state.site = site;
       state.launched = false;
       return;
@@ -218,7 +335,7 @@ class Deities {
 
     state.time += dt;
     // 28 poses: condensação, levantamento, antecipação e soltura.
-    if (!state.launched && state.time >= 1.55) {
+    if (!state.launched && state.time >= state.duration * 0.5) {
       const deity = this.village.get('golem_pedra');
       if (deity && state.site) {
         this.projectiles.push({
@@ -234,11 +351,11 @@ class Deities {
     }
 
     if (state.time >= state.duration) {
+      this.grantProduction('golem_pedra');
       state.mode = 'idle';
       state.time = 0;
       state.site = null;
-      const level = this.village.levelOf('golem_pedra');
-      state.cooldown = Math.max(5.8, 10.5 - level * 1.2);
+      state.cooldown = Math.max(1.7, this.cycleSeconds('golem_pedra') * 0.24);
     }
   }
 
@@ -343,7 +460,8 @@ class Deities {
     ctx.drawImage(getSprite(spriteId), -36, -72, 72, 72);
     ctx.restore();
 
-    for (let i = 0; i < s.level; i++) {
+    const deityLevel = this.profile(type)?.level || 1;
+    for (let i = 0; i < deityLevel; i++) {
       ctx.fillStyle = '#f2c94c';
       ctx.fillRect(s.x - 10 + i * 7, s.y - 76, 4, 4);
     }
@@ -450,4 +568,7 @@ class Deities {
   }
 }
 
-module.exports = { Deities, DEITY_TYPES, ISLAND_NODE_CAP, ANIMATION_FRAMES };
+module.exports = {
+  Deities, DEITY_TYPES, ISLAND_NODE_CAP, ANIMATION_FRAMES,
+  MAX_WORSHIPPERS, MAX_DEITY_LEVEL, DEITY_RESOURCES,
+};

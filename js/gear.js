@@ -45,7 +45,6 @@ const LAYER = {
   capacete: 30,
   arma_secundaria: 40,
   arma_primaria: 50,
-  runa: 55,
   anel: 60,
 };
 
