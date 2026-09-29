@@ -17,19 +17,11 @@ const ANIMATION_FRAMES = {
   projectileSpin: 20,
 };
 
-// Materiais divinos giram desde o começo; subir de nível não libera matéria
-// nova. A evolução fica reservada para as futuras receitas/runa do Altar.
+// Por enquanto, os santuários produzem apenas o material-base. Os outros
+// graus permanecem reservados para o futuro sistema de runas/forja.
 const DEITY_RESOURCES = {
-  grande_arvore: [
-    { key: 'wood', amount: 2 },
-    { key: 'hardwood', amount: 1 },
-    { key: 'ancient_wood', amount: 1 },
-  ],
-  golem_pedra: [
-    { key: 'ore', amount: 2 },
-    { key: 'refined_ore', amount: 1 },
-    { key: 'arcane_ore', amount: 1 },
-  ],
+  grande_arvore: { key: 'wood', amount: 2 },
+  golem_pedra: { key: 'ore', amount: 2 },
 };
 
 const clamp01 = (n) => Math.max(0, Math.min(1, n));
@@ -70,7 +62,6 @@ class Deities {
     const profile = structure.deity || {};
     profile.level = Math.max(1, Math.min(MAX_DEITY_LEVEL, Math.round(profile.level || 1)));
     profile.xp = Math.max(0, Number(profile.xp) || 0);
-    profile.outputIndex = Math.max(0, Math.floor(Number(profile.outputIndex) || 0));
     structure.deity = profile;
     return profile;
   }
@@ -84,17 +75,14 @@ class Deities {
 
   /** Duração de um ciclo completo com os acólitos presentes. */
   cycleSeconds(type) {
+    const profile = this.profile(type) || { level: 1 };
     const power = Math.max(1, this.poweredCount(type));
     const base = type === 'grande_arvore' ? 12 : 9.5;
-    // Quem acelera a coleta são os acólitos; nível é reservado às runas.
-    return Math.max(3, base / power);
+    // Acólitos e evolução aceleram a geração, sem liberar materiais novos.
+    return Math.max(3, (base - (profile.level - 1) * 1.5) / power);
   }
 
-  production(type) {
-    const profile = this.profile(type) || { outputIndex: 0 };
-    const pool = DEITY_RESOURCES[type] || [];
-    return pool[profile.outputIndex % Math.max(1, pool.length)] || null;
-  }
+  production(type) { return DEITY_RESOURCES[type] || null; }
 
   /** Valida acólitos sem jamais preencher uma estrutura automaticamente. */
   sync() {
@@ -222,13 +210,14 @@ class Deities {
     const output = this.production(type);
     const powered = this.poweredCount(type);
     const seconds = this.cycleSeconds(type);
+    const hasSpace = this.countFor(type) < ISLAND_NODE_CAP;
     return {
       count: this.countFor(type), max: ISLAND_NODE_CAP,
       active: !!state?.active, powered: powered > 0, poweredCount: powered,
       worshipper: state?.worshipper ?? null,
       worshippers: [...(state?.worshippers || [])], slots: MAX_WORSHIPPERS,
       level: profile.level, xp: profile.xp, xpNext: this.xpNext(type),
-      output, perMinute: powered ? output.amount * 60 / seconds : 0,
+      output, hasSpace, perMinute: powered && hasSpace && output ? output.amount * 60 / seconds : 0,
     };
   }
 
@@ -260,11 +249,10 @@ class Deities {
     }
   }
 
-  grantProduction(type) {
-    const profile = this.profile(type);
+  /** Material-base só é entregue junto de um novo nó dentro do teto da ilha. */
+  grantProduction(type, nodeProduced = false) {
     const output = this.production(type);
-    if (!profile || !output) return null;
-    profile.outputIndex += 1;
+    if (!output || !nodeProduced) return null;
     this.village.res[output.key] = (this.village.res[output.key] || 0) + output.amount;
     const deity = this.village.get(type);
     this.world.floats.push({
@@ -282,12 +270,15 @@ class Deities {
       state.cooldown -= dt;
       if (state.cooldown > 0) return;
 
+      // Cada milagre ocupa uma vaga real na ilha. Quando as 200 árvores
+      // estão ativas, o culto aguarda alguém colher uma antes de gerar outra.
+      if (this.countFor('grande_arvore') >= ISLAND_NODE_CAP) {
+        state.cooldown = 2;
+        return;
+      }
       const deity = this.village.get('grande_arvore');
-      // Mesmo quando a ilha já está cheia de nós, a benção continua rendendo
-      // materiais; só a árvore decorativa deixa de nascer naquele ciclo.
-      const site = this.countFor('grande_arvore') < ISLAND_NODE_CAP
-        ? this.nodes.findDivineSite('tree', this.village.structures, this.rng, deity, { minFromOrigin: 210 })
-        : { x: deity.x, y: deity.y };
+      const site = this.nodes.findDivineSite('tree', this.village.structures, this.rng, deity,
+        { minFromOrigin: 210 });
       if (!site) { state.cooldown = 2; return; }
       state.mode = 'chant';
       state.time = 0;
@@ -299,15 +290,13 @@ class Deities {
     state.time += dt;
     if (state.time < state.duration) return;
 
-    this.grantProduction('grande_arvore');
-    if (this.countFor('grande_arvore') < ISLAND_NODE_CAP) {
-      const node = this.nodes.spawnDivine('tree', state.site);
-      if (node) {
-        this.world.floats.push({
-          x: node.x, y: node.y - 18, ttl: 1.8,
-          text: '♬', color: '#8fe06f',
-        });
-      }
+    const node = this.nodes.spawnDivine('tree', state.site);
+    if (node) {
+      this.grantProduction('grande_arvore', true);
+      this.world.floats.push({
+        x: node.x, y: node.y - 18, ttl: 1.8,
+        text: '♬', color: '#8fe06f',
+      });
     }
     state.mode = 'idle';
     state.time = 0;
@@ -323,12 +312,15 @@ class Deities {
       state.cooldown -= dt;
       if (state.cooldown > 0) return;
 
+      // O Golem também espera uma vaga real: não há pedra/produto extra
+      // enquanto a ilha já estiver no teto de rochas ativas.
+      if (this.countFor('golem_pedra') + this.projectiles.length >= ISLAND_NODE_CAP) {
+        state.cooldown = 2;
+        return;
+      }
       const deity = this.village.get('golem_pedra');
-      const canSpawn = this.countFor('golem_pedra') + this.projectiles.length < ISLAND_NODE_CAP;
-      const site = canSpawn
-        ? this.nodes.findDivineSite('rock', this.village.structures, this.rng, deity,
-          { minFromOrigin: 220, maxFromOrigin: 560 })
-        : { x: deity.x + 20, y: deity.y };
+      const site = this.nodes.findDivineSite('rock', this.village.structures, this.rng, deity,
+        { minFromOrigin: 220, maxFromOrigin: 560 });
       if (!site) { state.cooldown = 2; return; }
       state.mode = 'forge';
       state.time = 0;
@@ -356,7 +348,6 @@ class Deities {
     }
 
     if (state.time >= state.duration) {
-      this.grantProduction('golem_pedra');
       state.mode = 'idle';
       state.time = 0;
       state.site = null;
@@ -386,6 +377,7 @@ class Deities {
       if (this.countFor('golem_pedra') >= ISLAND_NODE_CAP) continue;
       const node = this.nodes.spawnDivine('rock', { x: p.x1, y: p.y1 });
       if (node) {
+        this.grantProduction('golem_pedra', true);
         this.world.floats.push({
           x: node.x, y: node.y - 18, ttl: 1.5,
           text: '◆  +1', color: '#f1c85a',

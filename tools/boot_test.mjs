@@ -468,6 +468,10 @@ ok(appG.village.has('grande_arvore') && appG.village.has('golem_pedra'),
 ok(!appG.deities.isActive('grande_arvore') && !appG.deities.isActive('golem_pedra')
   && appG.world.goblins.every((w) => !w.job),
   'nenhum goblin começa preso às estruturas');
+// A ilha de demonstração já nasce lotada (200/200). Abrimos uma vaga de
+// cada tipo para testar o ciclo divino que só repõe recursos colhidos.
+appG.nodes.deplete(appG.nodes.list.find((n) => n.type === 'tree' && !n.depleted));
+appG.nodes.deplete(appG.nodes.list.find((n) => n.type === 'rock' && !n.depleted));
 // Um segundo goblin permite verificar que o painel não chama um coletor
 // ocupado de livre. Ele é só uma semente de teste, fora da partida normal.
 appG.village.goblins.push(BootGoblin.roll(1));
@@ -477,7 +481,7 @@ tap(treePos.x, treePos.y);
 ok(appG.state.screen === 'deity' && has('deity_worship_grande_arvore_0'),
   'tocar na Grande Árvore abre a interface com postos de culto');
 const busyTree = appG.world.goblins[1];
-busyTree.job = { type: 'goto', node: appG.nodes.list.find((n) => n.type === 'tree') };
+busyTree.job = { type: 'goto', node: appG.nodes.list.find((n) => n.type === 'tree' && !n.depleted) };
 drawnTexts(); step(1);
 texts = drawnTexts();
 ok(texts.includes('Madeira') && !has('deity_worship_grande_arvore_1'),
@@ -496,7 +500,7 @@ tap(golemPos.x, golemPos.y);
 ok(appG.state.screen === 'deity' && has('deity_worship_golem_pedra_0'),
   'tocar no Golem abre sua interface de minério');
 const busyGolem = appG.world.goblins[1];
-busyGolem.job = { type: 'goto', node: appG.nodes.list.find((n) => n.type === 'rock') };
+busyGolem.job = { type: 'goto', node: appG.nodes.list.find((n) => n.type === 'rock' && !n.depleted) };
 drawnTexts(); step(1);
 texts = drawnTexts();
 ok(texts.includes('Pedra') && !has('deity_worship_golem_pedra_1'),

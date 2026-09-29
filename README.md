@@ -45,7 +45,7 @@ python3 -m http.server 8080
 | Pinça (2 dedos) / roda do mouse | zoom (0.7x–3x) |
 | Toque em árvore/pedra/posto | manda o goblin livre mais próximo trabalhar |
 | Toque no goblin trabalhando | chama ele de volta |
-| Toque numa divindade | abre seu Santuário: até 3 acólitos, XP, nível, velocidade e materiais |
+| Toque numa divindade | abre seu Santuário: até 3 acólitos, XP, nível e taxa de produção |
 | Construir → toque no mapa | escolhe exatamente onde colocar a estrutura |
 | Toque longo numa estrutura pronta | preenche um anel amarelo; ao completar, escolhe o novo local |
 | Toque nos outros prédios | abre a tela correspondente |
@@ -88,7 +88,7 @@ Abra a **Cozinha** e use a aba **Cozinheiros** para designar um goblin. A aba **
 | 7 | Porto |
 | 8 | Quartel |
 
-No nível 3, a **Grande Árvore** canta e faz árvores brotarem do chão, enquanto o **Golem de Pedra** cria e arremessa rochas rúnicas que caem e permanecem coletáveis na ilha. Tocar numa delas abre seu **Santuário**: até **3 goblins** podem louvar ao mesmo tempo, acelerando a produção e enchendo a barra de XP da divindade. Ela sobe até o nível 3 e passa a produzir materiais melhores: madeira comum → madeira nobre → madeira ancestral, ou minério → minério refinado → minério arcano. A aba de Minério já reserva esses materiais para a futura forja/compra de runas, sem reabrir slots de runa nos goblins. A ilha nunca ultrapassa **80 árvores e 80 pedras no total** — inclusive a produção divina — e os novos recursos divinos só surgem longe das estruturas. Tocos e entulho de pedra somem após **10 segundos**, mantendo o terreno limpo.
+No nível 3, a **Grande Árvore** canta e faz árvores brotarem do chão, enquanto o **Golem de Pedra** cria e arremessa rochas rúnicas que caem e permanecem coletáveis na ilha. Tocar numa delas abre seu **Santuário**: até **3 goblins** podem louvar ao mesmo tempo, acelerando a produção e enchendo a barra de XP da divindade. Ela sobe até o nível 3; cada nível torna os ciclos de produção mais rápidos. Por enquanto a Árvore entrega apenas madeira e o Golem apenas minério: materiais especiais e a forja/compra de runas continuam reservados para uma fase futura, sem reabrir slots de runa nos goblins. Uma partida nova nasce com **200 árvores e 200 pedras ativas**. A produção divina respeita esse teto por tipo: quando alguém coleta um nó, a vaga permite outra criação, sem limite vitalício de reposições. Os recursos divinos só surgem longe das estruturas. Tocos e entulho de pedra somem após **10 segundos**, mantendo o terreno limpo.
 
 ## 🏚️ Armazém, inventário e equipamento
 

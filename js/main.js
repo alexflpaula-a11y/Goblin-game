@@ -1620,8 +1620,9 @@ function drawDeityScreen() {
 }
 
 function drawDeityMaterials(type, info, P) {
-  const keys = type === 'grande_arvore'
-    ? ['wood', 'hardwood', 'ancient_wood'] : ['ore', 'refined_ore', 'arcane_ore'];
+  // Graus especiais ainda não estão disponíveis: por ora só o material-base
+  // pode entrar no inventário do jogador.
+  const keys = type === 'grande_arvore' ? ['wood'] : ['ore'];
   ui.text(P.x + 18, P.y + 83, type === 'grande_arvore'
     ? i18n.t('ui.deity_tree_materials') : i18n.t('ui.deity_ore_materials'),
   { size: 9, color: '#ffe9b8' });
@@ -1640,8 +1641,8 @@ function drawDeityMaterials(type, info, P) {
       align: 'right', size: 10, bold: true, color: '#d9cdfa',
     });
   });
-  // Níveis ficam reservados para a futura camada de runas; materiais e
-  // velocidade já existem desde o primeiro nível para as duas divindades.
+  // Runas e materiais especiais continuam apenas como preparação visual;
+  // os níveis atuais aceleram os ciclos da produção-base.
   ctx.fillStyle = 'rgba(23,18,37,0.7)';
   ctx.fillRect(P.x + 18, P.y + 225, P.w - 36, 45);
   ctx.strokeStyle = 'rgba(167,139,250,0.45)';

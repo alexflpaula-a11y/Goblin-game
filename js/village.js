@@ -476,25 +476,21 @@ class Village {
                 ctx.restore();
               }
               const seconds = Math.max(0, Math.ceil(work.remaining));
+              const progress = Math.max(0, Math.min(1, 1 - work.remaining / Math.max(1, work.total)));
+              // O próprio cronômetro é a barra de tempo: ele se preenche
+              // enquanto os segundos passam. Não há uma segunda barra de
+              // "quase pronto" embaixo da lona.
               ctx.fillStyle = work.paused ? 'rgba(78,55,19,0.90)' : 'rgba(20,14,27,0.82)';
               ctx.fillRect(s.x - 23, s.y - 73, 46, 11);
+              ctx.fillStyle = work.paused ? 'rgba(201,156,66,0.68)' : 'rgba(232,178,58,0.68)';
+              ctx.fillRect(s.x - 22, s.y - 72, 44 * progress, 9);
               ctx.strokeStyle = work.paused ? 'rgba(255,207,96,0.94)' : 'rgba(255,233,168,0.75)';
               ctx.lineWidth = 1;
               ctx.strokeRect(s.x - 22.5, s.y - 72.5, 45, 10);
-              ctx.fillStyle = '#ffe9a8';
+              ctx.fillStyle = '#fff3c4';
               ctx.font = 'bold 8px monospace';
               ctx.textAlign = 'center';
               ctx.fillText(work.paused ? `II ${seconds}s` : `${seconds}s`, s.x, s.y - 65);
-
-              // A barra é preenchida de verdade durante a obra e mantém
-              // exatamente a fração já feita quando o jogador a pausa.
-              const progress = Math.max(0, Math.min(1, 1 - work.remaining / Math.max(1, work.total)));
-              ctx.fillStyle = 'rgba(20,14,27,0.78)';
-              ctx.fillRect(s.x - 23, s.y - 9, 46, 6);
-              ctx.strokeStyle = 'rgba(255,233,168,0.65)';
-              ctx.strokeRect(s.x - 22.5, s.y - 8.5, 45, 5);
-              ctx.fillStyle = work.paused ? '#c99c42' : '#e8b23a';
-              ctx.fillRect(s.x - 21, s.y - 7, 42 * progress, 2);
               ctx.textAlign = 'left';
             } else {
               // Terminou: o cronômetro some e a lona chama o toque com brilho.
@@ -526,20 +522,20 @@ class Village {
           const meal = s.type === 'cozinha' ? this.cookingJob : null;
           if (meal) {
             const seconds = Math.max(0, Math.ceil(meal.remaining));
+            const progress = Math.max(0, Math.min(1, 1 - meal.remaining / Math.max(1, meal.total)));
+            // Como na obra, o tempo é preenchido dentro do cronômetro e não
+            // duplicado numa barra separada de conclusão junto à cozinha.
             ctx.fillStyle = 'rgba(20,14,27,0.82)';
             ctx.fillRect(s.x - 23, s.y - 77, 46, 11);
+            ctx.fillStyle = 'rgba(214,109,54,0.72)';
+            ctx.fillRect(s.x - 22, s.y - 76, 44 * progress, 9);
             ctx.strokeStyle = 'rgba(255,233,168,0.75)';
             ctx.lineWidth = 1;
             ctx.strokeRect(s.x - 22.5, s.y - 76.5, 45, 10);
-            ctx.fillStyle = '#ffe9a8';
+            ctx.fillStyle = '#fff3c4';
             ctx.font = 'bold 8px monospace';
             ctx.textAlign = 'center';
             ctx.fillText(`🍲 ${seconds}s`, s.x, s.y - 69);
-            const progress = 1 - meal.remaining / Math.max(1, meal.total);
-            ctx.fillStyle = 'rgba(0,0,0,0.48)';
-            ctx.fillRect(s.x - 18, s.y + 5, 36, 3);
-            ctx.fillStyle = '#d66d36';
-            ctx.fillRect(s.x - 18, s.y + 5, 36 * Math.max(0, progress), 3);
             if (meal.working) {
               ctx.save();
               ctx.fillStyle = '#ded7c7';

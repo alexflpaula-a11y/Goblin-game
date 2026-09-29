@@ -6,7 +6,7 @@
 //     Quando o estoque acaba, viram toco/entulho.
 //   • DIVINOS (renováveis): a Grande Árvore faz árvores brotarem e o
 //     Golem arremessa novas rochas. A ilha inteira comporta no máximo
-//     80 árvores e 80 pedras, sempre longe das estruturas.
+//     200 árvores e 200 pedras, sempre longe das estruturas.
 //   • INFINITO (estrutura): a Fazenda produz comida sem acabar.
 //   • Tocos/entulho desaparecem dez segundos após serem esgotados, para
 //     manter a ilha navegável mesmo depois de muita coleta.
@@ -52,15 +52,17 @@ class Nodes {
   }
 
   generate() {
-    // Começa abaixo do teto para as divindades terem espaço para repor
-    // recursos assim que forem ativadas.
-    const cfg = BAL.nodes || { treeCount: 24, rockCount: 24, treeStock: 15, rockStock: 12 };
+    // A ilha começa completa. A vaga de um nó colhido libera a próxima
+    // criação divina, sem um limite vitalício de reposições.
+    const cfg = BAL.nodes || { treeCount: 200, rockCount: 200, treeStock: 15, rockStock: 12 };
     const rnd = mulberry32(42);
     const out = [];
     const clearing = this.world.clearing;
 
     const tryPlace = (type) => {
-      for (let attempt = 0; attempt < 60; attempt++) {
+      // A ilha real tem poucos trechos de grama perto da borda. Uma busca
+      // mais longa garante as 200 vagas de cada tipo, não só "até 200".
+      for (let attempt = 0; attempt < 600; attempt++) {
         const tx = 2 + Math.floor(rnd() * (WORLD.COLS - 4));
         const ty = 2 + Math.floor(rnd() * (WORLD.ROWS - 4));
         if (this.world.tiles[ty * WORLD.COLS + tx] !== 3) continue; // só grama
@@ -86,7 +88,7 @@ class Nodes {
     return out;
   }
 
-  /** Migra saves antigos sem jamais deixar mais de 80 nós ativos por tipo. */
+  /** Migra saves antigos sem jamais deixar mais de 200 nós ativos por tipo. */
   enforceIslandCaps() {
     for (const type of ['tree', 'rock']) {
       let active = 0;

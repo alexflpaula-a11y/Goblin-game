@@ -49,14 +49,10 @@ class UI {
 
   bar(x, y, w, h, frac, color) {
     const c = this.ctx;
-    const value = Math.max(0, Math.min(1, Number(frac) || 0));
     c.fillStyle = 'rgba(0,0,0,0.5)';
     c.fillRect(x, y, w, h);
-    // Um pixel mínimo confirma imediatamente que o relógio/XP começou,
-    // mesmo em barras longas e progressos ainda muito pequenos.
-    const fill = value > 0 ? Math.max(1, value * w) : 0;
     c.fillStyle = color;
-    c.fillRect(x, y, fill, h);
+    c.fillRect(x, y, Math.max(0, Math.min(1, frac)) * w, h);
   }
 
   button(id, x, y, w, h, label, enabled = true, accent = false) {
