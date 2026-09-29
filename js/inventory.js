@@ -6,9 +6,9 @@
 // por enquanto eles vivem em espaços (slots):
 //   • no ARMazém: cada item ocupado ocupa 1 espaço da grade
 //     (capacidade sobe com o nível do Armazém);
-//   • no GOBLIN: 10 espaços de equipamento em volta do boneco
+//   • no GOBLIN: 9 espaços de equipamento em volta do boneco
 //     (capacete, peitoral, botas, calça, 2 anéis, arma primária,
-//     arma secundária, runa e colar).
+//     arma secundária e colar).
 //
 // Onde cada item fica:
 //   village.items            → { espada_ferro: 2, ... } (no armazém)
@@ -20,13 +20,13 @@ const { BAL } = require('balance.js');
 // 'anel' serve para os DOIS espaços de anel do boneco.
 const SLOT_TYPES = [
   'capacete', 'peitoral', 'botas', 'calca', 'anel',
-  'arma_primaria', 'arma_secundaria', 'runa', 'colar',
+  'arma_primaria', 'arma_secundaria', 'colar',
 ];
 
-// Os 10 espaços do boneco (anel duplicado: esquerdo e direito).
+// Os 9 espaços do boneco (anel duplicado: esquerdo e direito).
 const EQUIP_SLOTS = [
   'capacete', 'peitoral', 'botas', 'calca', 'anel1', 'anel2',
-  'arma_primaria', 'arma_secundaria', 'runa', 'colar',
+  'arma_primaria', 'arma_secundaria', 'colar',
 ];
 
 // Catálogo de itens (à venda no Mercado, guardados no Armazém).
@@ -49,8 +49,6 @@ const ITEMS = [
   { id: 'espada_ferro', slot: 'arma_primaria', icon: 'item_espada_ferro', price: 80 },
   { id: 'clava_goblin', slot: 'arma_primaria', icon: 'item_clava_goblin', price: 30 },
   { id: 'escudo_madeira', slot: 'arma_secundaria', icon: 'item_escudo_madeira', price: 55 },
-  // mística
-  { id: 'runa_azul', slot: 'runa', icon: 'item_runa_azul', price: 130 },
 ];
 
 const byId = (id) => ITEMS.find((i) => i.id === id) || null;

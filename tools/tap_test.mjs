@@ -144,10 +144,10 @@ await new Promise((r) => setTimeout(r, 300));
 step(3);
 
 const slotIds = regions().filter((r) => r.id.startsWith('slot_')).map((r) => r.id.slice(5));
-ok(slotIds.length === 10, 'anel completo: 10 espaços', slotIds.join(','));
+ok(slotIds.length === 9, 'anel completo: 9 espaços', slotIds.join(','));
 ok(['capacete', 'peitoral', 'botas', 'calca', 'anel1', 'anel2',
-  'arma_primaria', 'arma_secundaria', 'runa', 'colar']
-  .every((k) => slotIds.includes(k)), 'todos os espaços esperados presentes');
+  'arma_primaria', 'arma_secundaria', 'colar']
+  .every((k) => slotIds.includes(k)) && !slotIds.includes('runa'), 'espaços esperados sem runa');
 ok(has('eqtab_0') && has('eqtab_1') && has('eqtab_2'), '3 abas: equipamento/alimentos/habilidades');
 
 // ---- equipar peitoral de ferro ----
@@ -203,7 +203,7 @@ console.log('\x1b[1mTAP — voltar p/ o armazém e o mundo\x1b[0m');
 tapRegion('back_eq');
 ok(has('inv_equip') && has('inv_upgrade'), 'voltou para a tela do armazém');
 const cells = regions().filter((r) => r.id.startsWith('invs_'));
-ok(cells.length === 7, 'grade do armazém com os 7 itens do kit', `${cells.length} células`);
+ok(cells.length === 6, 'grade do armazém com os 6 itens do kit sem runa', `${cells.length} células`);
 ok(regions().filter((r) => r.id === 'invs_anel_cobre').length === 2, '2 anéis = 2 células');
 
 tapRegion('back_world');

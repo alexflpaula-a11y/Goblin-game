@@ -17,6 +17,11 @@ const { Goblin } = require('goblin.js');
 // reqLevel  = nível da vila para desbloquear (planejamento §6)
 // maxCount  = quantas podem existir (casas: várias; o resto: 1)
 // maxLevel  = teto de melhoria da própria estrutura
+//
+// Tempo de obra: uma construção desbloqueada no nível N começa em
+// 10 × N segundos e cada nível da estrutura acrescenta mais 10 s.
+// Casa (req. 1) = 10/20/30 s; Serraria (req. 2) = 20/30/40 s;
+// Cozinha (req. 3) = 30/40/50 s, e assim por diante.
 const BUILDINGS = {
   construction: { sprite: 'building_construction_1', reqLevel: 1, maxCount: 1, maxLevel: 3, cost: null },
   quest: { sprite: 'building_questboard_1', reqLevel: 1, maxCount: 1, maxLevel: 3, cost: null },
@@ -79,7 +84,7 @@ const BUILDINGS = {
 };
 
 // Ordem de exibição no catálogo da Casa de Construção
-const BUILD_ORDER = ['house', 'serraria', 'fazenda', 'armazem', 'cozinha', 'mercado',
+const BUILD_ORDER = ['construction', 'quest', 'house', 'serraria', 'fazenda', 'armazem', 'cozinha', 'mercado',
   'grande_arvore', 'golem_pedra', 'estabulo', 'ferraria', 'altar', 'bazar', 'porto', 'quartel'];
 
 // Posições fixas (slots) para novas casas dentro da clareira
@@ -99,23 +104,31 @@ const STRUCT_SLOTS = {
   quartel: [960, 590], armazem: [960, 858],
 };
 
+// A vila começa com o terreno vazio. Estes lotes de fundação são gratuitos:
+// Casa de Construção, Painel de Missões e as três primeiras Casas. Não há
+// goblins no mapa no começo: a primeira Casa concluída abre o recrutamento.
+const STARTER_FREE = Object.freeze({ construction: 1, quest: 1, house: 3 });
+
 class Village {
   constructor(data) {
     this.res = data?.res || { ...(BAL.startResources || { wood: 50, stone: 30, gold: 100 }) };
     for (const k of ['wood', 'stone', 'ore', 'food', 'gold']) {
       if (this.res[k] == null) this.res[k] = 0;
     }
-    const initialStructures = data?.structures || [
-      { type: 'construction', level: 1, x: 920, y: 706 },
-      { type: 'quest', level: 1, x: 960, y: 630 },
-      { type: 'house', level: 1, x: 1000, y: 706, slot: 0 },
-    ];
+    // Novo jogo: o jogador escolhe onde sua fundação começa. `data.structures`
+    // continua sendo respeitado integralmente para não apagar saves antigos.
+    const initialStructures = data?.structures || [];
     // Migração transparente: a Mina foi retirada do jogo.
     this.structures = initialStructures.filter((s) => s.type !== 'mina');
+    // Uma partida nova inicia com a ilha vazia. O primeiro goblin só pode
+    // surgir após o jogador concluir a primeira Casa e escolhê-lo no recruta.
+    // Saves que já têm moradores continuam sendo carregados normalmente.
     this.goblins = (data?.goblins || []).map((d) => new Goblin(d));
-    if (this.goblins.length === 0) this.goblins.push(Goblin.roll(0));
     this.recruitedCount = data?.recruitedCount ?? this.goblins.length;
-    this.nextSlot = data?.nextSlot ?? 1;
+    const occupiedHouseSlots = this.structures
+      .filter((s) => s.type === 'house' && Number.isInteger(s.slot))
+      .map((s) => s.slot);
+    this.nextSlot = data?.nextSlot ?? (occupiedHouseSlots.length ? Math.max(...occupiedHouseSlots) + 1 : 0);
 
     // ---------- XP / nível da vila (etapa 1.8) ----------
     this.level = data?.level ?? 1;
@@ -123,7 +136,10 @@ class Village {
     // despensa de comidas cozinhadas: { bread: 3, soup: 1, ... }
     this.meals = data?.meals || {};
     // itens de equipamento guardados no Armazém: { espada_ferro: 2, ... }
-    this.items = data?.items || {};
+    this.items = { ...(data?.items || {}) };
+    // prato em preparo: recursos já foram separados; o goblin cozinheiro
+    // retoma a tarefa ao carregar um save, mas não avança sem estar na cozinha.
+    this.cookingJob = data?.cookingJob || null;
     // migração de saves antigos: `gear` era compra única da vila inteira;
     // agora cada peça é um item do inventário, equipável por goblin.
     if (!data?.items && data?.gear) {
@@ -131,26 +147,57 @@ class Village {
         if (owned) this.items[k] = (this.items[k] || 0) + 1;
       }
     }
+    // A runa azul e seu espaço foram removidos. Apagar a contagem evita que
+    // saves antigos conservem um item invisível ocupando o Armazém.
+    delete this.items.runa_azul;
   }
 
   // ---------- Consultas ----------
-  get houses() { return this.structures.filter((s) => s.type === 'house'); }
+  /** Uma obra só passa a valer depois de o jogador recolhê-la na lona. */
+  isReady(structure) { return !!structure && !structure.construction; }
+
+  get houses() { return this.structures.filter((s) => s.type === 'house' && this.isReady(s)); }
   get capacity() { return this.houses.reduce((a, h) => a + h.level, 0); }
 
-  /** Estruturas que não são casas (uma de cada, no máximo). */
+  /** Estruturas prontas que não são casas (uma de cada, no máximo). */
   get facilities() {
-    return this.structures.filter((s) => s.type !== 'house');
+    return this.structures.filter((s) => s.type !== 'house' && this.isReady(s));
   }
 
-  /** Retorna a estrutura desse tipo (ou null). Casas: use `houses`. */
-  get(type) { return this.structures.find((s) => s.type === type) || null; }
+  /** Retorna a estrutura pronta desse tipo (ou null). Casas: use `houses`. */
+  get(type) { return this.structures.find((s) => s.type === type && this.isReady(s)) || null; }
 
   /** Nível de uma estrutura construída; 0 se ainda não existe. */
   levelOf(type) { return this.get(type)?.level || 0; }
 
   has(type) { return this.levelOf(type) > 0; }
 
+  /** Conta também a obra pendente para não permitir duplicatas na construção. */
   countOf(type) { return this.structures.filter((s) => s.type === type).length; }
+
+  /** Obras ainda aguardando trabalho ou prontas para serem recolhidas. */
+  get constructionSites() { return this.structures.filter((s) => !!s.construction); }
+
+  /** Segundos de trabalho para alcançar `targetLevel` nesta estrutura. */
+  constructionSeconds(type, targetLevel = 1) {
+    const req = BUILDINGS[type]?.reqLevel ?? 1;
+    return 10 * Math.max(1, req + Math.max(1, targetLevel) - 1);
+  }
+
+  /** Ainda há uma unidade gratuita deste prédio de fundação? */
+  isStarterFree(type) {
+    return (STARTER_FREE[type] || 0) > this.countOf(type);
+  }
+
+  /**
+   * A Casa de Construção e a primeira Casa ainda passam pela lona e exigem
+   * que o jogador a recolha. A diferença é que a obra delas já nasce pronta:
+   * duração zero, nunca uma estrutura colocada pronta no mapa.
+   */
+  isZeroTimeStarter(type) {
+    return (type === 'construction' && this.countOf('construction') === 0)
+      || (type === 'house' && this.countOf('house') === 0);
+  }
 
   // ---------- XP e nível da vila ----------
   /** XP total para ir do nível N ao N+1 (planejamento §8: 100 × N^1.6). */
@@ -221,7 +268,9 @@ class Village {
   /** Custo para construir uma estrutura nova desse tipo. */
   buildCost(type) {
     const def = BUILDINGS[type];
-    if (!def?.cost) return null;
+    if (!def) return null;
+    if (this.isStarterFree(type)) return {};
+    if (!def.cost) return null;
     if (type === 'house') return BAL.house?.buildCost || def.cost;
     // custo do balance.json vence o padrão, se existir
     return BAL.buildings?.[type]?.cost || def.cost;
@@ -303,6 +352,27 @@ class Village {
 
   buildAt(type, x, y) { return this.build(type, { x, y }); }
 
+  /**
+   * Cria uma obra no mapa. `build()` continua instantâneo para preservar a
+   * API de saves antigos, testes de lógica e prévias; a UI usa este método
+   * para que toda construção passe pela lona antes de funcionar.
+   */
+  beginBuildAt(type, x, y) {
+    const zeroTime = this.isZeroTimeStarter(type);
+    const structure = this.buildAt(type, x, y);
+    if (!structure) return null;
+
+    // Mesmo as duas fundações sem tempo têm a etapa final de fabricação:
+    // mostram lona brilhante e só passam a valer quando ela é recolhida.
+    const seconds = zeroTime ? 0 : this.constructionSeconds(type, 1);
+    structure.construction = {
+      kind: 'build', targetLevel: 1,
+      total: seconds, remaining: seconds,
+      status: zeroTime ? 'ready' : 'building', worker: null, working: false, paused: false,
+    };
+    return structure;
+  }
+
   /** Move sem custo uma estrutura já construída. */
   move(structure, x, y) {
     if (!structure || !this.structures.includes(structure)) return false;
@@ -331,6 +401,31 @@ class Village {
     return true;
   }
 
+  /** Paga uma melhoria, mas só aplica o novo nível quando a obra terminar. */
+  beginUpgrade(structure) {
+    if (!structure || !this.isReady(structure)) return false;
+    if (structure.level >= this.maxUpgradeLevel(structure.type)) return false;
+    const cost = this.upgradeCost(structure);
+    if (!this.canAfford(cost)) return false;
+    this.pay(cost);
+    const targetLevel = structure.level + 1;
+    const seconds = this.constructionSeconds(structure.type, targetLevel);
+    structure.construction = {
+      kind: 'upgrade', targetLevel,
+      total: seconds, remaining: seconds,
+      status: 'building', worker: null, working: false, paused: false,
+    };
+    return true;
+  }
+
+  /** Recolhe uma obra concluída: ela passa a funcionar na vila. */
+  completeConstruction(structure) {
+    if (!structure?.construction || structure.construction.status !== 'ready') return false;
+    structure.level = structure.construction.targetLevel;
+    delete structure.construction;
+    return true;
+  }
+
   /** Melhora a casa pelo índice (usado pela aba Melhorias). */
   upgradeHouse(index) { return this.upgrade(this.houses[index]); }
 
@@ -349,16 +444,112 @@ class Village {
   }
 
   // ---------- Render / hit-test no mundo ----------
-  drawList() {
-    // Divindades são desenhadas pelo deities.js, pois seus sprites respiram,
-    // cantam/arremessam e têm um acólito. Aqui ficam os prédios estáticos.
+  drawList(time = 0) {
+    // Divindades prontas são desenhadas pelo deities.js; uma divindade em
+    // obra ainda precisa mostrar a lona nesta lista.
     return this.structures
-      .filter((s) => !BUILDINGS[s.type]?.deity)
+      .filter((s) => !BUILDINGS[s.type]?.deity || s.construction)
       .map((s) => ({
         y: s.y,
         draw: (ctx) => {
+          const work = s.construction;
+          if (work) {
+            // A lona branca cercada é um sprite próprio. Poeira e brilho são
+            // animados aqui para reagirem ao trabalho e ao relógio da obra.
+            ctx.drawImage(getSprite('building_construction_site'), s.x - 32, s.y - 60, 64, 64);
+
+            if (work.status === 'building') {
+              if (work.working) {
+                ctx.save();
+                for (let i = 0; i < 9; i++) {
+                  const phase = time * (2.4 + i * 0.11) + i * 1.73;
+                  const rise = (Math.sin(phase) + 1) * 0.5;
+                  const px = s.x - 16 + ((i * 13) % 31) + Math.sin(phase * 1.7) * 3;
+                  const py = s.y - 9 - rise * (9 + (i % 3) * 4);
+                  ctx.globalAlpha = 0.18 + rise * 0.26;
+                  ctx.fillStyle = i % 2 ? '#c8ae7b' : '#e4d0a0';
+                  ctx.fillRect(Math.round(px), Math.round(py), i % 3 === 0 ? 3 : 2, i % 3 === 0 ? 3 : 2);
+                }
+                ctx.restore();
+              }
+              const seconds = Math.max(0, Math.ceil(work.remaining));
+              ctx.fillStyle = work.paused ? 'rgba(78,55,19,0.90)' : 'rgba(20,14,27,0.82)';
+              ctx.fillRect(s.x - 23, s.y - 73, 46, 11);
+              ctx.strokeStyle = work.paused ? 'rgba(255,207,96,0.94)' : 'rgba(255,233,168,0.75)';
+              ctx.lineWidth = 1;
+              ctx.strokeRect(s.x - 22.5, s.y - 72.5, 45, 10);
+              ctx.fillStyle = '#ffe9a8';
+              ctx.font = 'bold 8px monospace';
+              ctx.textAlign = 'center';
+              ctx.fillText(work.paused ? `II ${seconds}s` : `${seconds}s`, s.x, s.y - 65);
+
+              // A barra é preenchida de verdade durante a obra e mantém
+              // exatamente a fração já feita quando o jogador a pausa.
+              const progress = Math.max(0, Math.min(1, 1 - work.remaining / Math.max(1, work.total)));
+              ctx.fillStyle = 'rgba(20,14,27,0.78)';
+              ctx.fillRect(s.x - 23, s.y - 9, 46, 6);
+              ctx.strokeStyle = 'rgba(255,233,168,0.65)';
+              ctx.strokeRect(s.x - 22.5, s.y - 8.5, 45, 5);
+              ctx.fillStyle = work.paused ? '#c99c42' : '#e8b23a';
+              ctx.fillRect(s.x - 21, s.y - 7, 42 * progress, 2);
+              ctx.textAlign = 'left';
+            } else {
+              // Terminou: o cronômetro some e a lona chama o toque com brilho.
+              const pulse = 0.45 + (Math.sin(time * 5) + 1) * 0.18;
+              ctx.save();
+              ctx.globalAlpha = pulse;
+              ctx.strokeStyle = '#fff3a8';
+              ctx.lineWidth = 1.5;
+              ctx.beginPath();
+              ctx.arc(s.x, s.y - 29, 28 + Math.sin(time * 4) * 2, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.fillStyle = '#fff7bf';
+              for (let i = 0; i < 4; i++) {
+                const a = time * 1.8 + i * Math.PI / 2;
+                const px = s.x + Math.cos(a) * 25;
+                const py = s.y - 29 + Math.sin(a) * 19;
+                ctx.fillRect(Math.round(px) - 1, Math.round(py) - 1, 3, 3);
+              }
+              ctx.restore();
+            }
+            return;
+          }
+
           const spr = getSprite(BUILDINGS[s.type]?.sprite || 'building_house_1');
           ctx.drawImage(spr, s.x - 32, s.y - 60, 64, 64);
+
+          // Preparos culinários têm o próprio cronômetro acima da cozinha.
+          // A fumaça quente pulsa apenas enquanto o goblin designado mexe a panela.
+          const meal = s.type === 'cozinha' ? this.cookingJob : null;
+          if (meal) {
+            const seconds = Math.max(0, Math.ceil(meal.remaining));
+            ctx.fillStyle = 'rgba(20,14,27,0.82)';
+            ctx.fillRect(s.x - 23, s.y - 77, 46, 11);
+            ctx.strokeStyle = 'rgba(255,233,168,0.75)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(s.x - 22.5, s.y - 76.5, 45, 10);
+            ctx.fillStyle = '#ffe9a8';
+            ctx.font = 'bold 8px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(`🍲 ${seconds}s`, s.x, s.y - 69);
+            const progress = 1 - meal.remaining / Math.max(1, meal.total);
+            ctx.fillStyle = 'rgba(0,0,0,0.48)';
+            ctx.fillRect(s.x - 18, s.y + 5, 36, 3);
+            ctx.fillStyle = '#d66d36';
+            ctx.fillRect(s.x - 18, s.y + 5, 36 * Math.max(0, progress), 3);
+            if (meal.working) {
+              ctx.save();
+              ctx.fillStyle = '#ded7c7';
+              for (let i = 0; i < 4; i++) {
+                const a = time * (2 + i * 0.2) + i;
+                ctx.globalAlpha = 0.2 + i * 0.08;
+                ctx.fillRect(Math.round(s.x - 7 + i * 5 + Math.sin(a) * 2),
+                  Math.round(s.y - 58 - Math.abs(Math.sin(a)) * (5 + i * 3)), 3, 3);
+              }
+              ctx.restore();
+            }
+            ctx.textAlign = 'left';
+          }
           // pips de nível
           for (let i = 0; i < s.level; i++) {
             ctx.fillStyle = '#e8b23a';
@@ -386,6 +577,7 @@ class Village {
       xp: this.xp,
       meals: this.meals,
       items: this.items,
+      cookingJob: this.cookingJob,
     };
   }
 }

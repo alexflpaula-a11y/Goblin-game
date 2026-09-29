@@ -20,8 +20,9 @@ const COLORS = {
   [WATER]: '#1d5c8f',
   [SAND]: '#e8d293',
   [ROCK]: '#7d8291',
-  grassShades: ['#418f52', '#489a58', '#3b8449'],
-  clearing: '#5aa463',
+  // Toda a terra da ilha usa o mesmo azulejo de grama. A leitura do mapa
+  // vem somente de flores e pequenos enfeites espalhados com parcimônia.
+  ground: '#5aa463',
   wetSand: '#c9b57f',
   tuft: '#2f6b3c',
   flowers: ['#e86a6a', '#e8d06a', '#d98ae8'],
@@ -94,6 +95,95 @@ class GoblinWalker {
   update(dt, api = {}) {
     // qual goblin do roster este walker representa (p/ vestir o equip dele)
     this.goblin = api.village?.goblins?.[this.i] ?? this.goblin ?? null;
+    // Enquanto o jogador o carrega, a posição vem do dedo e nenhuma IA
+    // (passeio, coleta, obra ou culto) pode sobrescrevê-la.
+    if (this.dragged) return;
+
+    // ----- construindo / melhorando uma estrutura -----
+    if (this.job?.construction) {
+      const structure = this.job.construction;
+      const work = structure?.construction;
+      // Se a obra já foi recolhida/concluída ou ganhou outro construtor,
+      // este goblin volta a ficar disponível sem deixar referências órfãs.
+      if (!work || work.status !== 'building' || work.paused || work.worker !== this.i) {
+        if (work?.worker === this.i) work.working = false;
+        this.job = null; this.wait = 0.35;
+      } else if (this.job.type === 'build-goto') {
+        const target = { x: structure.x - 15, y: structure.y + 4 };
+        const dx = target.x - this.x, dy = target.y - this.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 3) {
+          this.x = target.x; this.y = target.y;
+          this.face = 1;
+          this.job.type = 'build';
+          work.working = true;
+          this.anim = 'attack'; this.frame = 0; this.animT = 0;
+        } else {
+          this.x += (dx / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
+          this.y += (dy / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
+          this.face = dx >= 0 ? 1 : -1;
+          this.anim = 'walk';
+          this.animT += dt;
+          if (this.animT > 0.10) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
+        }
+        return;
+      } else {
+        // Martela na frente da lona; o controlador principal desconta o
+        // relógio para que Village continue sendo a dona do estado da obra.
+        this.x = structure.x - 15; this.y = structure.y + 4;
+        this.face = 1;
+        this.anim = 'attack';
+        this.animT += dt;
+        if (this.animT > 0.09) { this.animT = 0; this.frame = (this.frame + 1) % 10; }
+        api.onBuild?.(structure, this.goblin, dt);
+        if (structure.construction?.status !== 'building') {
+          if (structure.construction) structure.construction.working = false;
+          this.job = null; this.wait = 0.45;
+        }
+        return;
+      }
+    }
+
+    // ----- cozinhando uma receita cronometrada -----
+    if (this.job?.cooking) {
+      const meal = this.job.cooking;
+      const kitchen = this.job.kitchen;
+      if (!meal || meal.status !== 'cooking' || meal.worker !== this.i || !kitchen) {
+        if (meal?.worker === this.i) meal.working = false;
+        this.job = null; this.wait = 0.35;
+      } else if (this.job.type === 'cook-goto') {
+        const target = { x: kitchen.x + 13, y: kitchen.y + 4 };
+        const dx = target.x - this.x, dy = target.y - this.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 3) {
+          this.x = target.x; this.y = target.y;
+          this.face = -1;
+          this.job.type = 'cook';
+          meal.working = true;
+          this.anim = 'attack'; this.frame = 0; this.animT = 0;
+        } else {
+          this.x += (dx / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
+          this.y += (dy / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
+          this.face = dx >= 0 ? 1 : -1;
+          this.anim = 'walk';
+          this.animT += dt;
+          if (this.animT > 0.10) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
+        }
+        return;
+      } else {
+        this.x = kitchen.x + 13; this.y = kitchen.y + 4;
+        this.face = -1;
+        this.anim = 'attack';
+        this.animT += dt;
+        if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % 10; }
+        api.onCook?.(meal, this.goblin, dt);
+        if (meal.status !== 'cooking') {
+          meal.working = false;
+          this.job = null; this.wait = 0.45;
+        }
+        return;
+      }
+    }
 
     // ----- louvando uma divindade (ativação manual) -----
     if (this.job?.deityType) {
@@ -190,12 +280,46 @@ class GoblinWalker {
     if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
   }
 
-  draw(ctx) {
+  draw(ctx, time = 0) {
     // sombra
-    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.fillStyle = this.dragged ? 'rgba(0,0,0,0.16)' : 'rgba(0,0,0,0.28)';
     ctx.beginPath();
-    ctx.ellipse(this.x, this.y + 1, 8, 3.5, 0, 0, Math.PI * 2);
+    ctx.ellipse(this.x, this.y + 4, this.dragged ? 11 : 8, this.dragged ? 3 : 3.5, 0, 0, Math.PI * 2);
     ctx.fill();
+    if (this.dragged) {
+      // Voo desesperado: reaproveita o sprite REAL do goblin (e as suas
+      // peças/variação), em vez de trocar o personagem por uma arte genérica.
+      // A sequência de caminhada, a inclinação, o balanço e os rastros fazem
+      // o boneco parecer que foi agarrado e está se debatendo no ar.
+      const phase = time * 13;
+      const frame = Math.floor(phase) % ANIM_FRAMES.walk;
+      const spr = getSprite(gear.spriteForGoblin(this.goblin, 'walk', frame));
+      const flap = Math.sin(phase * 1.35);
+      const lift = this.y - 19 + flap * 2;
+
+      ctx.save();
+      ctx.globalAlpha = 0.45;
+      ctx.strokeStyle = '#f5d36d';
+      ctx.lineWidth = 1.5;
+      const trailDir = -this.face;
+      for (let i = 0; i < 3; i++) {
+        const yy = lift - 8 + i * 7;
+        const length = 8 + i * 3;
+        ctx.beginPath();
+        ctx.moveTo(this.x + trailDir * (15 + i * 3), yy);
+        ctx.lineTo(this.x + trailDir * (15 + i * 3 + length), yy + flap * 0.45);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(this.x, lift);
+      ctx.scale(this.face, 1);
+      ctx.rotate(-0.42 + flap * 0.14);
+      ctx.drawImage(spr, -18, -20, 36, 36);
+      ctx.restore();
+      return;
+    }
     // barra de progresso do ciclo de trabalho
     if (this.job?.type === 'work' && this.jobProgress != null) {
       ctx.fillStyle = 'rgba(0,0,0,0.55)';
@@ -241,7 +365,8 @@ class World {
     this.generate();
     this.prerender();
     this.goblins = [];
-    this.setGoblinCount(1);
+    // A população da ilha vem da Vila. Uma partida nova começa vazia.
+    this.setGoblinCount(0);
   }
 
   // Mantém um walker por goblin da vila (sincronizado com o roster)
@@ -262,7 +387,6 @@ class World {
     const n1 = makeNoise(this.seed, 18);
     const n2 = makeNoise(this.seed + 101, 9);
     const n3 = makeNoise(this.seed + 202, 4);
-    const nr = makeNoise(this.seed + 303, 6);
     const cx = WORLD.COLS / 2, cy = WORLD.ROWS / 2;
 
     for (let y = 0; y < WORLD.ROWS; y++) {
@@ -278,12 +402,9 @@ class World {
         else if (elev < 0.56) t = WATER;
         else if (elev < 0.62) t = SAND;
         else t = GRASS;
-        if (t === GRASS && nr(x, y) > 0.74) t = ROCK;
 
-        // clareira da vila: sempre grama limpa
-        const px = x * WORLD.TILE + 8, py = y * WORLD.TILE + 8;
-        if (Math.hypot(px - this.clearing.x, py - this.clearing.y) < this.clearing.r) t = GRASS;
-
+        // Todo o solo da ilha é a mesma grama. A clareira permanece somente
+        // como referência lógica de posicionamento, sem uma textura própria.
         this.tiles[y * WORLD.COLS + x] = t;
       }
     }
@@ -341,22 +462,22 @@ class World {
           g.fillStyle = 'rgba(255,255,255,0.14)';
           g.fillRect(px + 3, py + 3, 3, 1);
         } else { // GRASS
-          const inClearing = Math.hypot(px + 8 - this.clearing.x, py + 8 - this.clearing.y) < this.clearing.r;
-          g.fillStyle = inClearing ? COLORS.clearing : COLORS.grassShades[Math.floor(h * 3) % 3];
+          // Azulejo único em toda a ilha: sem clareira, pedras ou tons de
+          // grama alternados. Os poucos detalhes só evitam um vazio absoluto.
+          g.fillStyle = COLORS.ground;
           g.fillRect(px, py, T, T);
-          if (!inClearing) {
-            if (h > 0.88) { // tufo de grama
-              g.fillStyle = COLORS.tuft;
-              g.fillRect(px + 4, py + 8, 1, 4);
-              g.fillRect(px + 7, py + 6, 1, 6);
-              g.fillRect(px + 10, py + 9, 1, 3);
-            } else if (h < 0.05) { // florzinha
-              g.fillStyle = COLORS.flowers[Math.floor(h * 100) % 3];
-              g.fillRect(px + 7, py + 7, 2, 2);
-            }
-          } else if (h > 0.93) {
-            g.fillStyle = 'rgba(0,0,0,0.06)'; // pisado na clareira
-            g.fillRect(px + 3, py + 6, 4, 2);
+          if (h > 0.975) { // flores visíveis, mas ainda espalhadas
+            g.fillStyle = COLORS.flowers[Math.floor(hash2(x, y, this.seed + 71) * 3)];
+            g.fillRect(px + 7, py + 7, 2, 2);
+            g.fillRect(px + 8, py + 6, 1, 3);
+          } else if (h > 0.955 && h < 0.970) { // plantinhas baixas
+            g.fillStyle = COLORS.tuft;
+            g.fillRect(px + 6, py + 9, 1, 3);
+            g.fillRect(px + 8, py + 7, 1, 5);
+            g.fillRect(px + 10, py + 9, 1, 3);
+          } else if (h > 0.945 && h < 0.950) { // pedrinha discreta
+            g.fillStyle = COLORS.rockDark;
+            g.fillRect(px + 7, py + 10, 3, 2);
           }
         }
       }
@@ -376,7 +497,12 @@ class World {
   }
 
   update(dt, api) {
-    for (const gb of this.goblins) gb.update(dt, api);
+    for (const gb of this.goblins) {
+      gb.update(dt, api);
+      // Tarefas automáticas só ocupam quem realmente está livre. Assim uma
+      // construção recebe prioridade e um posto esgotado procura outro nó.
+      if (!gb.job) api.onAutoTask?.(gb);
+    }
     // textos flutuantes (+1 madeira etc.)
     for (const f of this.floats) { f.ttl -= dt; f.y -= 14 * dt; }
     this.floats = this.floats.filter((f) => f.ttl > 0);
@@ -402,7 +528,7 @@ class World {
     // entidades (prédios + nós + goblins) ordenadas por y p/ profundidade
     const drawables = [
       ...extras,
-      ...this.goblins.map((gb) => ({ y: gb.y, draw: (c) => gb.draw(c) })),
+      ...this.goblins.map((gb) => ({ y: gb.y, draw: (c) => gb.draw(c, time) })),
     ].sort((a, b) => a.y - b.y);
     for (const d of drawables) d.draw(ctx);
 

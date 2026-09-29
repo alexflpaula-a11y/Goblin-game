@@ -47,9 +47,11 @@ python3 -m http.server 8080
 | Toque no goblin trabalhando | chama ele de volta |
 | Toque numa divindade | envia/retira um goblin para ativar o culto |
 | Construir → toque no mapa | escolhe exatamente onde colocar a estrutura |
-| Botão ↔ → estrutura → mapa | move qualquer estrutura já construída |
+| Toque longo numa estrutura pronta | preenche um anel amarelo; ao completar, escolhe o novo local |
 | Toque nos outros prédios | abre a tela correspondente |
-| Botões no rodapé | **Construir**, **Mover**, **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
+| Botões no rodapé | **Construir**, **Área dos Goblins**, **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
+| Área dos Goblins | defina cada goblin como **Livre**, **Madeira**, **Pedra**, **Comida** ou **Construtor**; somente Construtores iniciam obras |
+| Cozinha → **Cozinheiros** | nomeie quem prepara as receitas; ingredientes são reservados e o prato só fica pronto ao fim do cronômetro |
 
 ## 🔄 O ciclo do jogo
 
@@ -60,6 +62,20 @@ coletar recursos → construir → cumprir missões → XP da vila
 ```
 
 A **vila sobe de nível** com o XP das missões. Cada nível libera novas estruturas *e* eleva o teto de melhoria de todas elas. Melhorar a Cozinha, por exemplo, desbloqueia pratos melhores.
+
+### Fundação da vila
+
+Uma partida nova começa com a ilha **sem prédios e sem goblins**. O primeiro painel pede o local da **Casa de Construção**, que é gratuita. Ela ainda passa pela lona de fabricação, mas como tem duração zero a lona aparece brilhando e basta tocá-la para concluir. Só então o catálogo normal é liberado.
+
+O **Painel de Missões** e as **três primeiras Casas de Goblin** também não custam recursos. Não existem missões antes de o Painel ter sido concluído. A primeira Casa, como a Casa de Construção, tem duração zero mas ainda exige recolher a lona brilhante; ao concluir a Casa, abre-se a escolha do primeiro goblin. A segunda e a terceira Casas continuam sendo obras normais com cronômetro.
+
+### Obras
+
+Colocar ou melhorar uma estrutura cria uma **lona de obra**. A lona aguarda até que o jogador abra a **Área dos Goblins** e nomeie um goblin como **Construtor**; somente um construtor nomeado vai até ela, trabalha levantando poeira e faz o cronômetro avançar. A duração segue o nível de desbloqueio da estrutura: casas (nível 1) levam **10 / 20 / 30 s** nos níveis 1–3; estruturas desbloqueadas no nível 2 levam **20 / 30 / 40 s**; as do nível 3 levam **30 / 40 / 50 s**, e assim sucessivamente. Ao acabar — ou imediatamente nas fundações de duração zero — a lona brilha: toque nela para recolher a construção pronta.
+
+### Cozinha e cozinheiros
+
+Abra a **Cozinha** e use a aba **Cozinheiros** para designar um goblin. A aba **Cozinhar** mostra a duração antes de iniciar: receitas de cozinha nível 1 levam **10 s**, nível 2 levam **20 s** e nível 3 levam **30 s**. Os ingredientes saem do estoque no início, mas a porção só entra na despensa depois que o cozinheiro chega à panela e completa o trabalho. O vapor e o cronômetro acima da Cozinha permitem acompanhar o preparo no mapa.
 
 | Nível | Desbloqueia |
 |---|---|
@@ -72,7 +88,7 @@ A **vila sobe de nível** com o XP das missões. Cada nível libera novas estrut
 | 7 | Porto |
 | 8 | Quartel |
 
-No nível 3, a **Grande Árvore** canta e faz árvores brotarem do chão, enquanto o **Golem de Pedra** cria e arremessa rochas rúnicas que caem e permanecem coletáveis na ilha. As divindades começam vazias: toque nelas para enviar um goblin livre e iniciar o culto; toque novamente para liberá-lo. A ilha nunca ultrapassa **40 árvores e 40 pedras no total**, e os novos recursos divinos só surgem longe das estruturas.
+No nível 3, a **Grande Árvore** canta e faz árvores brotarem do chão, enquanto o **Golem de Pedra** cria e arremessa rochas rúnicas que caem e permanecem coletáveis na ilha. As divindades começam vazias: toque nelas para enviar um goblin livre e iniciar o culto; toque novamente para liberá-lo. A ilha nunca ultrapassa **80 árvores e 80 pedras no total** — inclusive a produção divina — e os novos recursos divinos só surgem longe das estruturas. Tocos e entulho de pedra somem após **10 segundos**, mantendo o terreno limpo.
 
 ## 🏚️ Armazém, inventário e equipamento
 
@@ -81,7 +97,7 @@ O **Armazém** (vila nv 2) guarda tudo e abre o inventário da vila:
 - **Recursos** — madeira, pedra, minério, comida e ouro, mais a **despensa** de pratos cozinhados;
 - **Itens** — área separada com os equipamentos em **espaços** (slots), um item por célula. A capacidade cresce com o nível do Armazém (nv1 = 16, nv2 = 24, nv3 = 32 espaços).
 
-Os equipamentos são comprados no **Mercado** (agora em quantidade, limitados pelos espaços do Armazém) e ainda **não têm status** — isso chega com as batalhas. Cada goblin tem a própria tela de equipar, com **10 espaços rodando o personagem**: capacete, peitoral, botas, calça, **2 anéis**, arma primária, arma secundária, runa e colar. Tocar num espaço lista os itens do tipo guardados no armazém (equipar troca a peça e devolve a antiga).
+Os equipamentos são comprados no **Mercado** (agora em quantidade, limitados pelos espaços do Armazém) e ainda **não têm status** — isso chega com as batalhas. Cada goblin tem a própria tela de equipar, com **9 espaços rodando o personagem**: capacete, peitoral, botas, calça, **2 anéis**, arma primária, arma secundária e colar. Tocar num espaço lista os itens do tipo guardados no armazém (equipar troca a peça e devolve a antiga).
 
 A mesma interface ainda tem duas abas: **Alimentos** (escolher um prato e alimentar qualquer goblin) e **Habilidades** (2 espaços por goblin; cada um usa as habilidades da própria especialidade + as genéricas).
 
@@ -156,7 +172,7 @@ bash    tools/test.sh               # roda as 7 suítes de teste
 
 ## ✅ Testes
 
-370 testes automatizados, sem navegador (`bash tools/test.sh`):
+453 testes automatizados, sem navegador (`bash tools/test.sh`):
 
 | Suíte | O que cobre |
 |---|---|
@@ -189,6 +205,6 @@ em `js/save.js`; o sistema (save/load/autosave a cada 10s) continua intacto.
 
 **Fase 1 concluída (1.1 → 1.8):** ilha + câmera, goblins + habitação + recrutamento 1-de-3, recursos finitos, trabalho, construção de todas as estruturas, missões, XP/nível da vila, cozinha, **Mercado** e as duas divindades renováveis (Grande Árvore e Golem de Pedra).
 
-**Etapa 1.7 — Armazém & Inventário:** o **Armazém** (vila nv 2, melhorável: 16/24/32 espaços) abre o inventário da vila com todos os recursos + despensa numa área e os **itens de equipamento em slots** na outra. 14 equipamentos (sem status por enquanto): conjunto Avaritia (peitoral 120, capacete 150, calça 90 ouro), conjunto de ferro (capacete 45, peitoral 60, calça 40), botas de couro, anel de cobre/rubi, colar de presas, espada, clava, escudo e runa azul. A interface de equipar tem **10 espaços rodando o goblin** (capacete, peitoral, botas, calça, 2 anéis, arma primária, arma secundária, runa, colar) + aba **Alimentos** (alimentar goblins) + aba **Habilidades** (2 espaços por goblin, por especialidade + genéricas). Cada goblin veste o que quiser — as peças Avaritia e o peitoral de ferro mudam o sprite individualmente.
+**Etapa 1.7 — Armazém & Inventário:** o **Armazém** (vila nv 2, melhorável: 16/24/32 espaços) abre o inventário da vila com todos os recursos + despensa numa área e os **itens de equipamento em slots** na outra. 13 equipamentos (sem status por enquanto): conjunto Avaritia (peitoral 120, capacete 150, calça 90 ouro), conjunto de ferro (capacete 45, peitoral 60, calça 40), botas de couro, anel de cobre/rubi, colar de presas, espada, clava e escudo. A interface de equipar tem **9 espaços rodando o goblin** (capacete, peitoral, botas, calça, 2 anéis, arma primária, arma secundária e colar) + aba **Alimentos** (alimentar goblins) + aba **Habilidades** (2 espaços por goblin, por especialidade + genéricas). Cada goblin veste o que quiser — as peças Avaritia e o peitoral de ferro mudam o sprite individualmente.
 
 **A seguir:** Fase 2 (Ferraria, Altar, Bazar) → Fase 3 (combate por turnos — quando os equipamentos ganham status). Roadmap completo em [`docs/planejamento-jogo-gnomos.md`](docs/planejamento-jogo-gnomos.md).
