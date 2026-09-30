@@ -148,8 +148,9 @@ class GoblinWalker {
     if (this.job?.cooking) {
       const meal = this.job.cooking;
       const kitchen = this.job.kitchen;
-      if (!meal || meal.status !== 'cooking' || meal.worker !== this.i || !kitchen) {
-        if (meal?.worker === this.i) meal.working = false;
+      const cooks = Array.isArray(meal?.workers) ? meal.workers
+        : (meal?.worker == null ? [] : [meal.worker]);
+      if (!meal || meal.status !== 'cooking' || !cooks.includes(this.i) || !kitchen) {
         this.job = null; this.wait = 0.35;
       } else if (this.job.type === 'cook-goto') {
         const target = { x: kitchen.x + 13, y: kitchen.y + 4 };
@@ -176,7 +177,9 @@ class GoblinWalker {
         this.anim = 'attack';
         this.animT += dt;
         if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % 10; }
-        api.onCook?.(meal, this.goblin, dt);
+        // Só o cozinheiro líder atualiza o relógio; a velocidade considera
+        // todos os colegas que chegaram à panela.
+        if (meal.worker === this.i) api.onCook?.(meal, this.goblin, dt);
         if (meal.status !== 'cooking') {
           meal.working = false;
           this.job = null; this.wait = 0.45;
@@ -234,8 +237,9 @@ class GoblinWalker {
     if (this.job?.cooking) {
       const meal = this.job.cooking;
       const kitchen = this.job.kitchen;
-      if (!meal || meal.status !== 'cooking' || meal.worker !== this.i || !kitchen) {
-        if (meal?.worker === this.i) meal.working = false;
+      const cooks = Array.isArray(meal?.workers) ? meal.workers
+        : (meal?.worker == null ? [] : [meal.worker]);
+      if (!meal || meal.status !== 'cooking' || !cooks.includes(this.i) || !kitchen) {
         this.job = null; this.wait = 0.35;
       } else if (this.job.type === 'cook-goto') {
         const target = { x: kitchen.x + 13, y: kitchen.y + 4 };
@@ -262,7 +266,9 @@ class GoblinWalker {
         this.anim = 'attack';
         this.animT += dt;
         if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % 10; }
-        api.onCook?.(meal, this.goblin, dt);
+        // Só o cozinheiro líder atualiza o relógio; a velocidade considera
+        // todos os colegas que chegaram à panela.
+        if (meal.worker === this.i) api.onCook?.(meal, this.goblin, dt);
         if (meal.status !== 'cooking') {
           meal.working = false;
           this.job = null; this.wait = 0.45;

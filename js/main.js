@@ -51,15 +51,19 @@ const state = {
   candidates: null,       // 3 goblins p/ recrutamento
   detailIdx: 0,
   feedIdx: null,          // prato escolhido p/ alimentar um goblin
-  kitchenTab: 0,          // 0 receitas | 1 cozinheiros
+  kitchenTab: 0,          // 0 receitas/fila | 1 cozinheiros
   cookScroll: 0,          // rolagem da lista de cozinheiros
+  kitchenQueueScroll: 0,  // rolagem da fila de receitas
   marketTab: 0,           // 0 vender | 1 comprar
   marketScroll: 0,        // rolagem horizontal da prateleira
   marketQty: {},          // quantidade escolhida por item ("res:wood" → 3)
   upgradeIdx: 0,          // casa sendo melhorada (aba Melhorias)
   upgradeScroll: 0,       // rolagem vertical da aba Melhorias
   rosterScroll: 0,        // rolagem vertical da lista de goblins
-  jobsScroll: 0,          // rolagem vertical da Área dos Goblins
+  jobsScroll: 0,          // rolagem vertical da aba Goblins
+  jobsTab: 0,             // 0 goblins | 1 trabalhos
+  jobsRole: null,         // função aberta para escolher trabalhadores
+  jobsWorkScroll: 0,      // rolagem da lista da aba Trabalhos
   toast: null,            // {msg, until}
   levelUp: null,          // {level, until} — banner de nível da vila
   equipIdx: 0,            // goblin sendo equipado
@@ -261,9 +265,12 @@ function releaseGoblinForDrag(walker) {
     job.construction.construction.worker = null;
     job.construction.construction.working = false;
   }
-  if (job?.cooking?.worker === walker.i) {
-    job.cooking.worker = null;
-    job.cooking.working = false;
+  if (job?.cooking) {
+    const meal = job.cooking;
+    meal.workers = (meal.workers || (meal.worker == null ? [] : [meal.worker]))
+      .filter((i) => i !== walker.i);
+    meal.worker = meal.workers[0] ?? null;
+    meal.working = meal.workers.some((i) => world.goblins[i]?.job?.type === 'cook');
   }
   walker.job = null;
   walker.target = null;
@@ -334,7 +341,7 @@ function updateGoblinDrag(g) {
 
 /** Arrasta cartões de goblins para os quadros de função na Área dos Goblins. */
 function updateJobCardDrag(g) {
-  if (state.screen !== 'jobs') {
+  if (state.screen !== 'jobs' || state.jobsTab !== 0) {
     state.jobDrag = null;
     return false;
   }
@@ -446,30 +453,58 @@ function handleConstructionWork(structure, goblin, dt) {
   }
 }
 
-// ---------- Cozinha com goblin designado ----------
-/** Envia somente um goblin marcado como Cozinheiro até a Cozinha. */
-function assignCook() {
-  const meal = village.cookingJob;
-  const kitchen = village.get('cozinha');
-  if (!meal || meal.status !== 'cooking' || !kitchen) return null;
-  const current = meal.worker == null ? null : world.goblins[meal.worker];
-  if (current?.job?.cooking === meal) return current;
-  meal.worker = null;
-  meal.working = false;
-  const cook = world.goblins.find((w) => !w.job && village.goblins[w.i]?.assignment === 'cook');
-  if (!cook) return null;
-  cook.job = { type: 'cook-goto', cooking: meal, kitchen };
-  meal.worker = cook.i;
-  return cook;
+// ---------- Cozinha: fila e até três cozinheiros ----------
+function normalizeMealWorkers(meal) {
+  if (!meal) return [];
+  if (!Array.isArray(meal.workers)) meal.workers = meal.worker == null ? [] : [meal.worker];
+  meal.workers = [...new Set(meal.workers)]
+    .filter((i) => Number.isInteger(i) && world.goblins[i]?.job?.cooking === meal)
+    .slice(0, cooking.MAX_COOKS);
+  meal.worker = meal.workers[0] ?? null; // compatibilidade com saves antigos
+  return meal.workers;
 }
 
-/** Tempo só passa enquanto o cozinheiro designado está mexendo a panela. */
+/** Envia até três goblins marcados como Cozinheiro para a mesma panela. */
+function assignCooks() {
+  const meal = village.cookingJob;
+  const kitchen = village.get('cozinha');
+  if (!meal || meal.status !== 'cooking' || !kitchen) return [];
+  const workers = normalizeMealWorkers(meal);
+  for (const cook of world.goblins) {
+    if (workers.length >= cooking.MAX_COOKS) break;
+    if (cook.job || village.goblins[cook.i]?.assignment !== 'cook') continue;
+    cook.job = { type: 'cook-goto', cooking: meal, kitchen, cookSlot: workers.length };
+    workers.push(cook.i);
+  }
+  meal.worker = workers[0] ?? null;
+  return workers;
+}
+
+/** Inicia o primeiro pedido da fila quando há ingredientes e cozinheiro. */
+function startNextCooking() {
+  if (village.cookingJob || !village.cookingQueue?.length) return null;
+  if (!village.goblins.some((g) => g.assignment === 'cook')) return null;
+  const recipeId = village.cookingQueue[0];
+  const meal = cooking.beginCook(village, recipeId);
+  if (!meal) return null; // fica no topo até haver ingredientes suficientes
+  village.cookingQueue.shift();
+  assignCooks();
+  toast('toast.cooking_started', { name: i18n.t('meal.' + recipeId), seconds: meal.total });
+  return meal;
+}
+
+/** Tempo passa uma vez por frame, acelerado pelos cozinheiros que chegaram. */
 function handleCookingWork(meal, goblin, dt) {
   if (!meal || meal !== village.cookingJob || meal.status !== 'cooking') return;
-  meal.remaining = Math.max(0, meal.remaining - dt);
+  const working = (meal.workers || []).filter((i) => {
+    const walker = world.goblins[i];
+    return walker?.job?.cooking === meal && walker.job.type === 'cook';
+  }).length;
+  if (!working) return;
+  meal.working = true;
+  meal.remaining = Math.max(0, meal.remaining - dt * cooking.cookSpeed(working));
   if (meal.remaining <= 0) {
     meal.status = 'ready';
-    meal.worker = null;
     meal.working = false;
     const out = cooking.finishCook(village);
     if (out) {
@@ -483,16 +518,11 @@ function handleCookingWork(meal, goblin, dt) {
   }
 }
 
-function beginCooking(recipeId) {
-  if (village.cookingJob) { toast('toast.cook_busy'); return; }
-  const hasCook = village.goblins.some((g) => g.assignment === 'cook');
-  if (!hasCook) { toast('toast.no_cook'); return; }
-  const meal = cooking.beginCook(village, recipeId);
-  if (!meal) { toast('toast.need'); return; }
-  assignCook();
-  toast('toast.cooking_started', {
-    name: i18n.t('meal.' + recipeId), seconds: meal.total,
-  });
+function queueCooking(recipeId) {
+  const size = cooking.enqueue(village, recipeId);
+  if (!size) { toast(village.cookingQueue?.length >= cooking.MAX_QUEUE ? 'toast.queue_full' : 'toast.need'); return; }
+  startNextCooking();
+  toast('toast.queue_added', { name: i18n.t('meal.' + recipeId), n: size });
 }
 
 /** Aplica os efeitos de uma estrutura que acabou de ficar disponível. */
@@ -574,17 +604,24 @@ function autoAssignWalker(walker) {
   return !!nodes.assign(node, [walker]);
 }
 
-/** Texto de estado real: um coletor/constructor nunca aparece como livre. */
-function workerActivityLabel(walker, goblin) {
-  if (walker?.job?.construction) return i18n.t('ui.job_building');
-  if (walker?.job?.cooking) return i18n.t('ui.cooking');
-  if (walker?.job?.deityType) return i18n.t('ui.job_worshipping');
+/** Chave e texto do estado real: um coletor/construtor nunca é "livre". */
+function workerActivityKey(walker, goblin) {
+  if (walker?.job?.construction) return 'builder';
+  if (walker?.job?.cooking) return 'cook';
+  if (walker?.job?.deityType) return 'worship';
   const nodeType = walker?.job?.node?.type;
-  if (nodeType === 'tree') return i18n.t('job.wood');
-  if (nodeType === 'rock') return i18n.t('job.stone');
-  if (nodeType === 'farm') return i18n.t('job.food');
-  if (goblin?.assignment) return i18n.t('job.' + goblin.assignment);
-  return i18n.t('job.idle');
+  if (nodeType === 'tree') return 'wood';
+  if (nodeType === 'rock') return 'stone';
+  if (nodeType === 'farm') return 'food';
+  return goblin?.assignment || 'idle';
+}
+
+function workerActivityLabel(walker, goblin) {
+  const key = workerActivityKey(walker, goblin);
+  if (key === 'builder') return i18n.t('ui.job_building');
+  if (key === 'cook') return i18n.t('ui.cooking');
+  if (key === 'worship') return i18n.t('ui.job_worshipping');
+  return i18n.t('job.' + key);
 }
 
 function setGoblinAssignment(index, task) {
@@ -595,6 +632,12 @@ function setGoblinAssignment(index, task) {
   // uma ordem nova aqui: o antigo nó é liberado antes da troca.
   if (walker.job?.construction || walker.job?.cooking || walker.job?.deityType) {
     toast('toast.builder_busy');
+    return;
+  }
+  const wantsCook = task === 'cook';
+  const otherCooks = village.goblins.filter((g, i) => i !== index && g.assignment === 'cook').length;
+  if (wantsCook && goblin.assignment !== 'cook' && otherCooks >= cooking.MAX_COOKS) {
+    toast('toast.cook_limit');
     return;
   }
   if (walker.job?.node) walker.job.node.worker = null;
@@ -738,8 +781,16 @@ function routeTap(id) {
   switch (id) {
     case 'close': state.screen = 'world'; break;
     case 'build_btn': state.screen = 'build'; break;
-    case 'jobs_btn': state.screen = 'jobs'; state.jobsScroll = 0; break;
+    case 'jobs_btn':
+      state.screen = 'jobs'; state.jobsTab = 0; state.jobsRole = null; state.jobsScroll = 0;
+      break;
     case 'close_jobs': state.screen = 'world'; break;
+    case 'jobs_tab_0': state.jobsTab = 0; state.jobsRole = null; state.jobsScroll = 0; break;
+    case 'jobs_tab_1': state.jobsTab = 1; state.jobsRole = null; state.jobsWorkScroll = 0; break;
+    case 'jobs_back_roles': state.jobsRole = null; state.jobsWorkScroll = 0; break;
+    case 'jobs_open_kitchen': state.screen = 'kitchen'; state.kitchenTab = 1; state.cookScroll = 0; break;
+    case 'jobs_open_deity_grande_arvore': openDeityPanel('grande_arvore'); break;
+    case 'jobs_open_deity_golem_pedra': openDeityPanel('golem_pedra'); break;
     case 'close_deity': state.screen = 'world'; state.deityType = null; break;
     case 'deity_tab_0': state.deityTab = 0; break;
     case 'deity_tab_1': state.deityTab = 1; break;
@@ -748,14 +799,18 @@ function routeTap(id) {
     case 'tab_0': state.buildTab = 0; state.buildScroll = 0; break;
     case 'tab_1': state.buildTab = 1; state.upgradeScroll = 0; break;
     case 'roster_btn': state.screen = 'roster'; state.rosterScroll = 0; break;
+    case 'recruit_btn':
+      if (village.goblins.length < village.capacity) openRecruit();
+      else toast('toast.no_slots');
+      break;
     case 'back_roster': state.screen = 'roster'; break;
     case 'back_world': state.screen = 'world'; state.feedIdx = null; break;
     case 'quests_btn':
       if (village.has('quest')) state.screen = 'quests';
       else toast('toast.quest_closed');
       break;
-    case 'kitchen_btn': state.screen = 'kitchen'; state.kitchenTab = 0; break;
-    case 'ktab_0': state.kitchenTab = 0; break;
+    case 'kitchen_btn': state.screen = 'kitchen'; state.kitchenTab = 0; state.kitchenQueueScroll = 0; break;
+    case 'ktab_0': state.kitchenTab = 0; state.kitchenQueueScroll = 0; break;
     case 'ktab_1': state.kitchenTab = 1; state.cookScroll = 0; break;
     case 'market_btn': openMarket(); break;
     case 'armazem_btn': state.screen = 'armazem'; break;
@@ -810,9 +865,14 @@ function routeTap(id) {
         } else toast('toast.quest_missing');
         break;
       }
-      // ----- cozinhar (tempo real com um cozinheiro designado) -----
+      // ----- fila da Cozinha -----
+      if (id?.startsWith('queue_remove_')) {
+        const removed = cooking.dequeueAt(village, Number(id.slice('queue_remove_'.length)));
+        if (removed) toast('toast.queue_removed', { name: i18n.t('meal.' + removed) });
+        break;
+      }
       if (id?.startsWith('cook_')) {
-        beginCooking(id.slice(5));
+        queueCooking(id.slice(5));
         break;
       }
       // ----- mercado: +/-, tudo/máx e confirmar -----
@@ -834,6 +894,12 @@ function routeTap(id) {
       if (id?.startsWith('cookrole_')) {
         const [, idx, task] = id.split('_');
         setGoblinAssignment(Number(idx), task === 'idle' ? null : 'cook');
+        break;
+      }
+      // ----- Aba Trabalhos: abre a lista para escolher trabalhadores -----
+      if (id?.startsWith('jobs_role_')) {
+        state.jobsRole = id.slice('jobs_role_'.length);
+        state.jobsWorkScroll = 0;
         break;
       }
       // ----- Área dos Goblins: job_<índice>_<tarefa> -----
@@ -1020,11 +1086,13 @@ function update(dt) {
       } else if (state.screen === 'roster') {
         state.rosterScroll -= g.pan.dy;
       } else if (state.screen === 'jobs') {
-        state.jobsScroll -= g.pan.dy;
+        if (state.jobsTab === 1) state.jobsWorkScroll -= g.pan.dy;
+        else state.jobsScroll -= g.pan.dy;
       } else if (state.screen === 'deity') {
         state.deityScroll = (state.deityScroll || 0) - g.pan.dy;
-      } else if (state.screen === 'kitchen' && state.kitchenTab === 1) {
-        state.cookScroll -= g.pan.dy;
+      } else if (state.screen === 'kitchen') {
+        if (state.kitchenTab === 1) state.cookScroll -= g.pan.dy;
+        else state.kitchenQueueScroll -= g.pan.dy;
       } else if (state.screen === 'market') {
         state.marketScroll -= g.pan.dx;   // prateleira rola para o lado
       }
@@ -1048,7 +1116,8 @@ function update(dt) {
   nodes.update(dt);
   deities.update(dt);
   dispatchBuilders();
-  assignCook();
+  startNextCooking();
+  assignCooks();
 
   world.update(dt, {
     village,
@@ -1252,6 +1321,11 @@ function drawWorldButtons() {
   if (village.has('mercado')) acts.push({ id: 'market_btn', icon: 'ui_icon_market' });
   if (village.has('armazem')) acts.push({ id: 'armazem_btn', icon: 'ui_icon_armazem' });
   acts.push({ id: 'jobs_btn', glyph: '⚒' });
+  // Toda vaga de moradia pode ser usada depois: isso evita perder recrutas
+  // ao fechar a tela que apareceu ao concluir/melhorar uma Casa.
+  if (village.goblins.length < village.capacity) {
+    acts.push({ id: 'recruit_btn', glyph: '+', badge: { text: String(village.capacity - village.goblins.length), color: '#4fa562', ink: '#0f2a16' } });
+  }
   acts.push({
     id: 'roster_btn', icon: 'ui_icon_village', active: true,
     badge: { text: String(village.goblins.length), color: '#a78bfa', ink: '#1b1530' },
@@ -1410,7 +1484,9 @@ function drawUpgradeRows(P) {
       s: h, label: i18n.t('ui.house_n', { n: i + 1 }), id: 'up_' + i,
     })),
     ...village.facilities
-      .filter((s) => s.type !== 'construction' && s.type !== 'quest')
+      // Divindades evoluem exclusivamente pela barra de louvor; não entram
+      // na loja de melhorias de construção.
+      .filter((s) => s.type !== 'construction' && s.type !== 'quest' && !BUILDINGS[s.type]?.deity)
       .map((s) => ({ s, label: i18n.t('bld.' + s.type), id: 'upf_' + s.type })),
   ];
 
@@ -1461,8 +1537,14 @@ const JOB_ROLES = ['idle', 'wood', 'stone', 'food', 'builder'];
 function drawJobsScreen() {
   const P = { x: 16, y: 30, w: 608, h: 300 };
   ui.rusticPanel(P.x, P.y, P.w, P.h);
-  ui.woodSign(P.x + 8, P.y + 6, 244, 22, i18n.t('ui.jobs_title'), 12);
+  ui.woodSign(P.x + 8, P.y + 6, 228, 22, i18n.t('ui.jobs_title'), 12);
   ui.closeX('close_jobs', P.x + P.w - 38, P.y + 6);
+  ui.tab('jobs_tab_0', P.x + 248, P.y + 7, 108, 20, i18n.t('ui.jobs_tab_goblins'), state.jobsTab === 0);
+  ui.tab('jobs_tab_1', P.x + 364, P.y + 7, 108, 20, i18n.t('ui.jobs_tab_work'), state.jobsTab === 1);
+  if (state.jobsTab === 1) {
+    drawJobWorkTab(P);
+    return;
+  }
   ui.text(P.x + 16, P.y + 60, i18n.t('ui.jobs_drag_hint'), { size: 9, color: '#ffe9b8' });
 
   // Cinco destinos claros: soltar o cartão de um goblin sobre uma função.
@@ -1540,6 +1622,85 @@ function drawJobsScreen() {
   }
 }
 
+// ---------- Aba Trabalhos dentro da Área dos Goblins ----------
+const WORK_ROLE_CARDS = ['wood', 'stone', 'food', 'builder'];
+
+function workersForRole(role) {
+  return village.goblins.map((goblin, i) => ({ goblin, walker: world.goblins[i], i }))
+    .filter(({ walker, goblin }) => workerActivityKey(walker, goblin) === role);
+}
+
+function drawJobWorkTab(P) {
+  const role = state.jobsRole;
+  if (!role) {
+    ui.text(P.x + 16, P.y + 51, i18n.t('ui.jobs_work_hint'), { size: 9, color: '#ffe9b8' });
+    const cards = [...WORK_ROLE_CARDS];
+    cards.forEach((work, i) => {
+      const col = i % 2, row = Math.floor(i / 2);
+      const x = P.x + 16 + col * 292, y = P.y + 64 + row * 60;
+      const active = workersForRole(work);
+      ui.parchment(x, y, 276, 52);
+      ui.text(x + 12, y + 16, i18n.t('job.' + work), { size: 11, bold: true, color: '#3c2712' });
+      const names = active.length ? active.map(({ goblin }) => goblin.name).join(', ') : i18n.t('ui.no_workers');
+      ui.text(x + 12, y + 35, names, { size: 8, color: active.length ? '#4f742f' : '#6e4626' });
+      ui.button('jobs_role_' + work, x + 190, y + 13, 76, 25, `${active.length} ›`,
+        work !== 'builder' || village.has('construction'));
+    });
+
+    ui.text(P.x + 16, P.y + 196, i18n.t('ui.jobs_special'), { size: 9, bold: true, color: '#ffe9b8' });
+    const specials = [
+      { id: 'kitchen', label: i18n.t('bld.cozinha'), enabled: village.has('cozinha'), action: 'jobs_open_kitchen' },
+      { id: 'grande_arvore', label: i18n.t('bld.grande_arvore'), enabled: village.has('grande_arvore'), action: 'jobs_open_deity_grande_arvore' },
+      { id: 'golem_pedra', label: i18n.t('bld.golem_pedra'), enabled: village.has('golem_pedra'), action: 'jobs_open_deity_golem_pedra' },
+    ];
+    specials.forEach((special, i) => {
+      const x = P.x + 16 + i * 194, y = P.y + 211;
+      ctx.fillStyle = special.enabled ? 'rgba(31,48,33,0.72)' : 'rgba(20,16,32,0.36)';
+      ctx.fillRect(x, y, 178, 50);
+      ctx.strokeStyle = special.enabled ? '#a78bfa' : 'rgba(255,233,168,0.2)';
+      ctx.strokeRect(x + .5, y + .5, 177, 49);
+      ui.text(x + 10, y + 17, special.label, { size: 9, bold: true, color: special.enabled ? '#ffe9a8' : '#8a8798' });
+      const active = special.id === 'kitchen'
+        ? (village.cookingJob?.workers?.length || (village.cookingJob?.worker != null ? 1 : 0))
+        : (deities.status(special.id)?.worshippers.length || 0);
+      ui.text(x + 10, y + 35, special.id === 'kitchen'
+        ? i18n.t('ui.jobs_cooks_count', { n: active })
+        : i18n.t('ui.jobs_acolytes_count', { n: active }), { size: 8, color: '#c6b7ea' });
+      ui.button(special.action, x + 118, y + 13, 52, 25, '›', special.enabled);
+    });
+    return;
+  }
+
+  ui.button('jobs_back_roles', P.x + 16, P.y + 43, 78, 23, '‹ ' + i18n.t('ui.back'), true);
+  ui.text(P.x + 105, P.y + 55, i18n.t('ui.jobs_choose_worker', { job: i18n.t('job.' + role) }),
+    { size: 10, bold: true, color: '#ffe9b8' });
+  const rowH = 47, viewTop = P.y + 72, viewH = 212;
+  const contentH = village.goblins.length * rowH;
+  const maxScroll = Math.max(0, contentH - viewH);
+  state.jobsWorkScroll = Math.max(0, Math.min(state.jobsWorkScroll || 0, maxScroll));
+  ctx.save();
+  ctx.beginPath(); ctx.rect(P.x + 8, viewTop, P.w - 18, viewH); ctx.clip();
+  village.goblins.forEach((goblin, i) => {
+    const y = viewTop + i * rowH - state.jobsWorkScroll;
+    if (y + 43 < viewTop || y > viewTop + viewH) return;
+    const walker = world.goblins[i];
+    const actual = workerActivityKey(walker, goblin);
+    const selected = actual === role;
+    const exclusive = ['builder', 'cook', 'worship'].includes(actual) && !selected;
+    ui.parchment(P.x + 12, y + 2, P.w - 34, 41);
+    ctx.drawImage(getSprite(gear.spriteForGoblin(goblin, 'idle', i % 5)), P.x + 19, y + 5, 32, 32);
+    ui.text(P.x + 58, y + 16, goblin.name, { size: 9, bold: true, color: '#3c2712' });
+    ui.text(P.x + 58, y + 30, workerActivityLabel(walker, goblin), {
+      size: 8, color: selected ? '#2f6b3c' : exclusive ? '#8c2f1f' : '#6e4626',
+    });
+    const target = selected ? 'idle' : role;
+    ui.button(`job_${i}_${target}`, P.x + P.w - 126, y + 10, 84, 25,
+      selected ? i18n.t('ui.jobs_remove') : i18n.t('ui.jobs_choose'), !exclusive);
+  });
+  ctx.restore();
+  ui.scrollbarV(P.x + P.w - 10, viewTop, viewH, state.jobsWorkScroll, maxScroll, viewH, contentH);
+}
+
 // ---------- Tela: Santuários (culto, evolução e materiais especiais) ----------
 function drawDeityScreen() {
   const type = state.deityType;
@@ -1547,7 +1708,7 @@ function drawDeityScreen() {
   if (!structure || !deities.status(type)) { state.screen = 'world'; state.deityType = null; return; }
   const info = deities.status(type);
   const P = { x: 12, y: 28, w: 616, h: 304 };
-  const materialTab = type === 'golem_pedra' ? i18n.t('ui.deity_ore') : i18n.t('ui.deity_materials');
+  const materialTab = i18n.t('ui.deity_materials');
   ui.rusticPanel(P.x, P.y, P.w, P.h);
   ui.woodSign(P.x + 8, P.y + 6, 270, 22, i18n.t('ui.deity_shrine', { name: i18n.t('bld.' + type) }), 11);
   ui.closeX('close_deity', P.x + P.w - 38, P.y + 6);
@@ -1622,7 +1783,7 @@ function drawDeityScreen() {
 function drawDeityMaterials(type, info, P) {
   // Graus especiais ainda não estão disponíveis: por ora só o material-base
   // pode entrar no inventário do jogador.
-  const keys = type === 'grande_arvore' ? ['wood'] : ['ore'];
+  const keys = type === 'grande_arvore' ? ['wood'] : ['stone'];
   ui.text(P.x + 18, P.y + 83, type === 'grande_arvore'
     ? i18n.t('ui.deity_tree_materials') : i18n.t('ui.deity_ore_materials'),
   { size: 9, color: '#ffe9b8' });
@@ -1850,10 +2011,34 @@ function drawKitchenScreen() {
     if (!activeMeal) drawCostRow(r.cost, x + w - 6, y + 88);
     ui.text(cx, y + 99, i18n.t('ui.cook_time', { s: cooking.cookingSeconds(r) }),
       { align: 'center', size: 7, bold: true, color: '#6e4626' });
-    const canStart = !village.cookingJob && village.canAfford(r.cost);
+    const canQueue = (village.cookingQueue?.length || 0) < cooking.MAX_QUEUE;
     ui.button('cook_' + r.id, x + 8, y + 104, w - 16, 18,
-      activeMeal ? i18n.t('ui.cooking') : i18n.t('ui.cook'), canStart, canStart);
+      i18n.t('ui.queue_add'), canQueue, canQueue);
   });
+
+  // ----- fila de produção (até 20; a primeira receita sai antes) -----
+  const queue = village.cookingQueue || [];
+  const qx = 482, qy = 76, qw = 134, qh = 154, qRow = 23;
+  ui.text(qx, qy + 6, i18n.t('ui.cooking_queue', { n: queue.length, max: cooking.MAX_QUEUE }),
+    { size: 8, bold: true, color: '#ffe9b8' });
+  const qViewY = qy + 14, qViewH = qh - 16;
+  const qContentH = Math.max(qViewH, queue.length * qRow);
+  const qMaxScroll = Math.max(0, qContentH - qViewH);
+  state.kitchenQueueScroll = Math.max(0, Math.min(state.kitchenQueueScroll || 0, qMaxScroll));
+  ctx.save();
+  ctx.beginPath(); ctx.rect(qx, qViewY, qw, qViewH); ctx.clip();
+  queue.forEach((mealId, i) => {
+    const y = qViewY + i * qRow - state.kitchenQueueScroll;
+    if (y + qRow < qViewY || y > qViewY + qViewH) return;
+    ctx.fillStyle = i === 0 ? 'rgba(79,165,98,0.48)' : 'rgba(20,16,32,0.55)';
+    ctx.fillRect(qx, y + 1, qw, qRow - 2);
+    ui.text(qx + 6, y + 12, `${i + 1}. ${i18n.t('meal.' + mealId)}`, { size: 7, color: '#ffe9a8' });
+    ui.button('queue_remove_' + i, qx + 102, y + 3, 27, 17, '×', true);
+  });
+  if (!queue.length) ui.text(qx + qw / 2, qViewY + qViewH / 2, i18n.t('ui.queue_empty'),
+    { align: 'center', size: 8, color: '#9d94a8' });
+  ctx.restore();
+  ui.scrollbarV(qx + qw - 3, qViewY, qViewH, state.kitchenQueueScroll, qMaxScroll, qViewH, qContentH);
 
   // ----- alimentar goblins -----
   ui.text(20, 238, i18n.t('ui.feed_hint'), { size: 9, color: '#ffe9b8' });
@@ -1904,8 +2089,9 @@ function drawCookRoster() {
   ui.text(20, 88, i18n.t('ui.cooks_sub'), { size: 9, color: '#ffe9b8' });
   const active = village.cookingJob;
   if (active) {
-    ui.woodSign(378, 76, 204, 20,
-      i18n.t('ui.cooking_active', { name: i18n.t('meal.' + active.recipeId), s: Math.ceil(active.remaining) }), 8);
+    const n = active.workers?.length || (active.worker != null ? 1 : 0);
+    ui.woodSign(330, 76, 252, 20,
+      i18n.t('ui.cooking_active_workers', { name: i18n.t('meal.' + active.recipeId), s: Math.ceil(active.remaining), n }), 8);
   }
   const rowH = 54;
   const viewTop = 98, viewBot = 316, viewH = viewBot - viewTop;
@@ -1914,6 +2100,7 @@ function drawCookRoster() {
   state.cookScroll = Math.max(0, Math.min(state.cookScroll || 0, maxScroll));
   ctx.save();
   ctx.beginPath(); ctx.rect(12, viewTop, 600, viewH); ctx.clip();
+  const assignedCooks = village.goblins.filter((g) => g.assignment === 'cook').length;
   village.goblins.forEach((goblin, i) => {
     const y = viewTop + i * rowH - state.cookScroll;
     if (y + 48 < viewTop || y > viewBot) return;
@@ -1930,7 +2117,8 @@ function drawCookRoster() {
         : assigned ? i18n.t('ui.role_assigned', { role: i18n.t('job.cook') }) : i18n.t('ui.job_idle'),
     { size: 8, color: busy ? '#8c2f1f' : '#6e4626' });
     const bx = 416;
-    ui.button('cookrole_' + i + '_cook', bx, y + 13, 100, 25, i18n.t('ui.assign_cook'), !busy && !assigned);
+    ui.button('cookrole_' + i + '_cook', bx, y + 13, 100, 25, i18n.t('ui.assign_cook'),
+      !busy && !assigned && assignedCooks < cooking.MAX_COOKS);
     ui.button('cookrole_' + i + '_idle', bx + 106, y + 13, 70, 25, i18n.t('job.idle'), !busy && assigned);
   });
   ctx.restore();

@@ -143,6 +143,13 @@ class Village {
     // prato em preparo: recursos já foram separados; o goblin cozinheiro
     // retoma a tarefa ao carregar um save, mas não avança sem estar na cozinha.
     this.cookingJob = data?.cookingJob || null;
+    // Fila editável de até 20 receitas. Custos só saem quando a receita sobe
+    // para a panela, preservando a ordem mesmo se faltar ingrediente.
+    this.cookingQueue = Array.isArray(data?.cookingQueue) ? data.cookingQueue.slice(0, 20) : [];
+    // Migra o único cozinheiro do save antigo para a escala de até três.
+    if (this.cookingJob && !Array.isArray(this.cookingJob.workers)) {
+      this.cookingJob.workers = this.cookingJob.worker == null ? [] : [this.cookingJob.worker];
+    }
     // migração de saves antigos: `gear` era compra única da vila inteira;
     // agora cada peça é um item do inventário, equipável por goblin.
     if (!data?.items && data?.gear) {
@@ -299,6 +306,9 @@ class Village {
   /** Teto de melhoria: limitado pelo nível da vila (§2.5). */
   maxUpgradeLevel(type) {
     const def = BUILDINGS[type] || {};
+    // Santuários só evoluem pelo louvor dos acólitos, jamais pela loja de
+    // melhorias da vila. O level físico do prédio fica fixo em 1.
+    if (def.deity) return 1;
     return Math.min(def.maxLevel ?? 3, Math.max(1, this.level));
   }
 
@@ -577,6 +587,7 @@ class Village {
       meals: this.meals,
       items: this.items,
       cookingJob: this.cookingJob,
+      cookingQueue: this.cookingQueue,
     };
   }
 }

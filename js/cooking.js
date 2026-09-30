@@ -8,6 +8,9 @@
 // ============================================================
 const { BAL } = require('balance.js');
 
+const MAX_QUEUE = 20;
+const MAX_COOKS = 3;
+
 // reqKitchen = nível mínimo da Cozinha para liberar a receita.
 // O tempo segue a mesma cadência das casas: receitas de nível 1 levam
 // 10 s, as de nível 2 levam 20 s e as de nível 3 levam 30 s.
@@ -54,6 +57,11 @@ function cookingSeconds(recipeId) {
   return r ? 10 * r.reqKitchen : 0;
 }
 
+/** Cada cozinheiro que chegou à panela soma uma unidade de velocidade. */
+function cookSpeed(activeCooks) {
+  return Math.max(0, Math.min(MAX_COOKS, Math.floor(Number(activeCooks) || 0)));
+}
+
 /** Finaliza uma receita cujo custo já foi separado. */
 function produce(village, recipe, rng = Math.random) {
   let qty = 1;
@@ -85,9 +93,26 @@ function beginCook(village, recipeId) {
   const total = cookingSeconds(r);
   village.cookingJob = {
     recipeId: r.id, total, remaining: total,
-    status: 'cooking', worker: null, working: false,
+    status: 'cooking', worker: null, workers: [], working: false,
   };
   return village.cookingJob;
+}
+
+/** Acrescenta uma receita ao fim da fila, sem cobrar antes de ela iniciar. */
+function enqueue(village, recipeId) {
+  const r = byId(recipeId);
+  const kitchen = village.levelOf('cozinha');
+  if (!r || kitchen < r.reqKitchen) return null;
+  if (!Array.isArray(village.cookingQueue)) village.cookingQueue = [];
+  if (village.cookingQueue.length >= MAX_QUEUE) return null;
+  village.cookingQueue.push(r.id);
+  return village.cookingQueue.length;
+}
+
+/** Remove um item específico da fila e preserva a prioridade dos demais. */
+function dequeueAt(village, index) {
+  if (!Array.isArray(village.cookingQueue) || index < 0 || index >= village.cookingQueue.length) return null;
+  return village.cookingQueue.splice(index, 1)[0] || null;
 }
 
 /** Entrega o prato terminado à despensa e fecha o preparo ativo. */
@@ -125,6 +150,6 @@ function totalMeals(village) {
 }
 
 module.exports = {
-  RECIPES, available, cook, beginCook, finishCook, cookingSeconds,
-  feed, byId, totalMeals, cookBonus,
+  RECIPES, available, cook, beginCook, finishCook, enqueue, dequeueAt, cookingSeconds, cookSpeed,
+  feed, byId, totalMeals, cookBonus, MAX_QUEUE, MAX_COOKS,
 };

@@ -21,7 +21,7 @@ const ANIMATION_FRAMES = {
 // graus permanecem reservados para o futuro sistema de runas/forja.
 const DEITY_RESOURCES = {
   grande_arvore: { key: 'wood', amount: 2 },
-  golem_pedra: { key: 'ore', amount: 2 },
+  golem_pedra: { key: 'stone', amount: 2 },
 };
 
 const clamp01 = (n) => Math.max(0, Math.min(1, n));

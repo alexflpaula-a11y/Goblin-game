@@ -223,6 +223,7 @@ check('não melhora além do nível da vila', v5.upgrade(v5.houses[0]) === false
 v5.level = 3;
 check('teto sobe junto com a vila', v5.maxUpgradeLevel('house') === 3);
 check('agora melhora', v5.upgrade(v5.houses[0]) === true);
+check('melhorar Casa aumenta a capacidade e libera nova vaga', v5.capacity === 2 && v5.goblins.length < v5.capacity);
 
 // ============================================================
 section('Village — obras com tempo, lona e recolhimento');
@@ -329,13 +330,23 @@ check('pão foi para a despensa', cv.meals.bread >= 1);
   check('preparo reserva ingredientes sem entregar prato',
     cv.res.food === rawBefore - 5 && !cv.meals.soup);
   check('não abre segundo preparo enquanto a panela está ocupada', cooking.beginCook(cv, 'bread') === null);
+  const queueFoodBefore = cv.res.food;
+  check('fila aceita receitas sem cobrar antes de iniciar',
+    cooking.enqueue(cv, 'bread') === 1 && cooking.enqueue(cv, 'soup') === 2
+    && cv.res.food === queueFoodBefore && cv.cookingQueue.join(',') === 'bread,soup');
+  check('remover da fila preserva a ordem', cooking.dequeueAt(cv, 0) === 'bread' && cv.cookingQueue.join(',') === 'soup');
+  while (cv.cookingQueue.length < cooking.MAX_QUEUE) cooking.enqueue(cv, 'bread');
+  check('fila limita a 20 receitas', cv.cookingQueue.length === cooking.MAX_QUEUE && cooking.enqueue(cv, 'bread') === null);
   const restoredPrep = new Village(cv.serialize());
-  check('preparo pendente persiste no save', restoredPrep.cookingJob?.recipeId === 'soup' && restoredPrep.cookingJob.remaining === 10);
+  check('preparo e fila pendentes persistem no save', restoredPrep.cookingJob?.recipeId === 'soup'
+    && restoredPrep.cookingJob.remaining === 10 && restoredPrep.cookingQueue.length === cooking.MAX_QUEUE);
   prep.status = 'ready';
   const prepared = cooking.finishCook(cv, () => 0.99);
   check('prato só é entregue ao completar o preparo', prepared?.id === 'soup' && cv.meals.soup === 1 && !cv.cookingJob);
   check('tempos seguem 10/20/30 por nível de receita',
     cooking.cookingSeconds('bread') === 10 && cooking.cookingSeconds('stew') === 20 && cooking.cookingSeconds('feast') === 30);
+  check('um, dois e três cozinheiros escalam a velocidade real',
+    cooking.cookSpeed(1) === 1 && cooking.cookSpeed(2) === 2 && cooking.cookSpeed(3) === 3 && cooking.cookSpeed(4) === 3);
 
   const hurtGoblin = cv.goblins[0];
 hurtGoblin.hp = 1;
@@ -533,6 +544,8 @@ check('nível 3 libera o Golem de Pedra', deityVillage.canBuild('golem_pedra'));
 check('Mina não existe mais no catálogo', !('mina' in req('village.js').BUILDINGS));
 deityVillage.build('grande_arvore');
 deityVillage.build('golem_pedra');
+check('santuários não usam o fluxo comum de melhorias',
+  deityVillage.maxUpgradeLevel('grande_arvore') === 1 && deityVillage.maxUpgradeLevel('golem_pedra') === 1);
 
 const deityWorld = {
   clearing: { x: 960, y: 720, r: 160 },
@@ -552,6 +565,7 @@ const deityRng = () => {
   return seed / 4294967296;
 };
 const gods = new Deities(deityWorld, deityVillage, deityNodes, deityRng);
+check('Golem entrega pedra-base, nunca minério', gods.production('golem_pedra')?.key === 'stone');
 check('divindades começam sem goblins e desligadas',
   !gods.isActive('grande_arvore') && !gods.isActive('golem_pedra')
   && deityWorld.goblins.every((w) => !w.job));
@@ -658,8 +672,8 @@ check('nível 1 produz só madeira; graus futuros seguem indisponíveis',
   shrineVillage.res.wood > materialsBefore.wood
   && (shrineVillage.res.hardwood || 0) === materialsBefore.hardwood
   && (shrineVillage.res.ancient_wood || 0) === materialsBefore.ancient);
-check('três acólitos ainda não evoluem a divindade antes de um minuto',
-  shrine.status('grande_arvore').level === 1 && shrine.status('grande_arvore').xp > 0,
+check('três acólitos multiplicam o XP de louvor (50s × 3 = 150)',
+  shrine.status('grande_arvore').level === 1 && Math.round(shrine.status('grande_arvore').xp) === 150,
   `${shrine.status('grande_arvore').xp.toFixed(1)} XP`);
 for (let i = 0; i < 110; i++) shrine.update(0.1);
 check('três acólitos evoluem após um minuto de louvor contínuo', shrine.status('grande_arvore').level >= 2);

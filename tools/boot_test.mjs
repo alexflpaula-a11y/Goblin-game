@@ -381,6 +381,12 @@ const before = appE.village.goblins.length;
 tapRegion('card_1');
 ok(appE.village.goblins.length === before + 1, 'goblin recrutado entrou na vila');
 ok(appE.state.screen === 'world', 'voltou para o mundo após recrutar');
+appE.village.level = 3;
+appE.village.res.wood = 999; appE.village.res.stone = 999;
+appE.village.upgrade(appE.village.houses[0]);
+step(1);
+ok(has('recruit_btn') && appE.village.goblins.length < appE.village.capacity,
+  'Casa melhorada abre vaga e ela segue acessível pelo botão de recrutamento');
 
 // A Área dos Goblins cria tarefas persistentes e ocupa automaticamente o
 // goblin em uma árvore disponível.
@@ -417,6 +423,26 @@ tapRegion('cook_bread');
 ok(appE.village.cookingJob?.recipeId === 'bread' && appE.village.cookingJob.remaining > 0
   && appE.village.cookingJob.total === 10 && !appE.village.meals.bread,
 'ingredientes viram preparo de pão de 10s, não comida imediata');
+tapRegion('cook_soup');
+ok(appE.village.cookingQueue?.[0] === 'soup' && has('queue_remove_0'),
+  'segunda receita entra na fila removível sem trocar o preparo atual');
+tapRegion('queue_remove_0');
+ok(appE.village.cookingQueue.length === 0, 'remover item da fila funciona');
+
+// A aba Trabalhos reúne a designação por tipo e encaminha postos especiais.
+tapRegion('back_world');
+tapRegion('jobs_btn');
+tapRegion('jobs_tab_1');
+ok(has('jobs_role_wood') && has('jobs_open_kitchen'),
+  'aba Trabalhos lista ofícios e encaminha a Cozinha');
+tapRegion('jobs_role_wood');
+texts = drawnTexts();
+ok(has('jobs_back_roles') && texts.includes('Escolha quem trabalha'),
+  'trabalho escolhido mostra os estados reais dos goblins para atribuição');
+tapRegion('jobs_back_roles');
+tapRegion('jobs_open_kitchen');
+ok(appE.state.screen === 'kitchen' && appE.state.kitchenTab === 1,
+  'posto Cozinha abre sua escala própria');
 
 // Um coletor não aparece como livre no roster da Cozinha e não pode ser
 // escolhido como cozinheiro enquanto seu trabalho atual está ativo.
@@ -432,7 +458,7 @@ ok(texts.includes('Madeira') && !has('cookrole_1_cook'),
 const { Goblin: BootGoblin } = req('goblin.js');
 while (appE.village.goblins.length < 8) appE.village.goblins.push(BootGoblin.roll(appE.village.goblins.length));
 appE.world.setGoblinCount(appE.village.goblins.length);
-appE.state.screen = 'jobs'; appE.state.jobsScroll = 0; step(2);
+appE.state.screen = 'jobs'; appE.state.jobsTab = 0; appE.state.jobsRole = null; appE.state.jobsScroll = 0; step(2);
 const firstHandle = region('jobdrag_0');
 dragPoints({ x: firstHandle.x - 150, y: firstHandle.y + firstHandle.h / 2 },
   { x: firstHandle.x - 150, y: firstHandle.y + firstHandle.h / 2 - 100 }, 14);
@@ -444,6 +470,16 @@ const scrolledIndex = Number(scrolledHandle.id.slice('jobdrag_'.length));
 dragRegion(scrolledHandle.id, 'jobdrop_food');
 ok(appE.village.goblins[scrolledIndex].assignment === 'food',
   'após rolar, a alça ainda atribui o goblin à função');
+// Mais dois goblins podem se juntar ao cozinheiro ativo, e o preparo mantém
+// a escala persistente de três trabalhadores.
+for (const i of [2, 3]) { appE.world.goblins[i].job = null; appE.village.goblins[i].assignment = null; }
+appE.state.screen = 'kitchen'; appE.state.kitchenTab = 1; step(2);
+tapRegion('cookrole_2_cook');
+tapRegion('cookrole_3_cook');
+step(2);
+ok(appE.village.goblins.filter((g) => g.assignment === 'cook').length === 3
+  && appE.village.cookingJob?.workers?.length === 3,
+  'Cozinha agrega até três cozinheiros ao mesmo preparo');
 appE.state.screen = 'world'; step(2);
 // As verificações a seguir testam o salto desde o nível inicial.
 appE.village.level = 1; appE.village.xp = 0;
@@ -468,6 +504,11 @@ ok(appG.village.has('grande_arvore') && appG.village.has('golem_pedra'),
 ok(!appG.deities.isActive('grande_arvore') && !appG.deities.isActive('golem_pedra')
   && appG.world.goblins.every((w) => !w.job),
   'nenhum goblin começa preso às estruturas');
+appG.state.screen = 'build'; appG.state.buildTab = 1; drawnTexts(); step(1);
+texts = drawnTexts();
+ok(!texts.includes('Grande Árvore') && !texts.includes('Golem de Pedra'),
+  'santuários não aparecem no fluxo de melhorias da construção');
+appG.state.screen = 'world'; step(1);
 // A ilha de demonstração já nasce lotada (200/200). Abrimos uma vaga de
 // cada tipo para testar o ciclo divino que só repõe recursos colhidos.
 appG.nodes.deplete(appG.nodes.list.find((n) => n.type === 'tree' && !n.depleted));
@@ -510,8 +551,12 @@ tapRegion('deity_worship_golem_pedra_0');
 ok(appG.deities.isActive('golem_pedra'), 'interface envia o goblin livre ao Golem');
 for (let i = 0; i < 120; i++) appG.world.update(0.1, { village: appG.village });
 ok(appG.world.goblins[0].job?.type === 'worship', 'goblin caminha até o Golem e começa a louvar');
-for (let i = 0; i < 75; i++) { appG.nodes.update(0.1); appG.deities.update(0.1); }
-ok(appG.deities.projectiles.length > 0, 'pedra rúnica está voando em arco');
+let sawGolemProjectile = false;
+for (let i = 0; i < 240 && !sawGolemProjectile; i++) {
+  appG.nodes.update(0.1); appG.deities.update(0.1);
+  sawGolemProjectile = appG.deities.projectiles.length > 0;
+}
+ok(sawGolemProjectile, 'pedra divina está voando em arco');
 ok(appG.deities.drawList(4).length >= 4, 'render inclui divindades, sombra e projétil polido');
 step(2);
 ok(true, 'frame animado desenha sem erro');

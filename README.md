@@ -49,9 +49,9 @@ python3 -m http.server 8080
 | Construir → toque no mapa | escolhe exatamente onde colocar a estrutura |
 | Toque longo numa estrutura pronta | preenche um anel amarelo; ao completar, escolhe o novo local |
 | Toque nos outros prédios | abre a tela correspondente |
-| Botões no rodapé | **Construir**, **Área dos Goblins**, **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
-| Área dos Goblins | defina cada goblin como **Livre**, **Madeira**, **Pedra**, **Comida** ou **Construtor**; somente Construtores iniciam obras |
-| Cozinha → **Cozinheiros** | nomeie quem prepara as receitas; ingredientes são reservados e o prato só fica pronto ao fim do cronômetro |
+| Botões no rodapé | **Construir**, **Área dos Goblins**, **Recrutar** (quando há vaga), **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
+| Área dos Goblins | a aba **Goblins** permite arrastar para **Livre**, **Madeira**, **Pedra**, **Comida** ou **Construtor**; a aba **Trabalhos** lista todos os ocupados por ofício, permite escolher trabalhadores e encaminha Cozinha e Santuários |
+| Cozinha → **Cozinheiros** | designe até **3 cozinheiros**; a fila guarda até **20 receitas** na ordem escolhida, e cada cozinheiro que chega à panela acelera o preparo |
 
 ## 🔄 O ciclo do jogo
 
@@ -67,7 +67,7 @@ A **vila sobe de nível** com o XP das missões. Cada nível libera novas estrut
 
 Uma partida nova começa com a ilha **sem prédios e sem goblins**. O primeiro painel pede o local da **Casa de Construção**, que é gratuita. Ela ainda passa pela lona de fabricação, mas como tem duração zero a lona aparece brilhando e basta tocá-la para concluir. Só então o catálogo normal é liberado.
 
-O **Painel de Missões** e as **três primeiras Casas de Goblin** também não custam recursos. Não existem missões antes de o Painel ter sido concluído. A primeira Casa, como a Casa de Construção, tem duração zero mas ainda exige recolher a lona brilhante; ao concluir a Casa, abre-se a escolha do primeiro goblin. A segunda e a terceira Casas continuam sendo obras normais com cronômetro.
+O **Painel de Missões** e as **três primeiras Casas de Goblin** também não custam recursos. Não existem missões antes de o Painel ter sido concluído. A primeira Casa, como a Casa de Construção, tem duração zero mas ainda exige recolher a lona brilhante; ao concluir a Casa, abre-se a escolha do primeiro goblin. A segunda e a terceira Casas continuam sendo obras normais com cronômetro. Cada nível de uma Casa concede mais uma vaga de moradia; enquanto existir vaga, o botão **Recrutar** permite reabrir a escolha de candidatos.
 
 ### Obras
 
@@ -75,7 +75,7 @@ Colocar ou melhorar uma estrutura cria uma **lona de obra**. A lona aguarda até
 
 ### Cozinha e cozinheiros
 
-Abra a **Cozinha** e use a aba **Cozinheiros** para designar um goblin. A aba **Cozinhar** mostra a duração antes de iniciar: receitas de cozinha nível 1 levam **10 s**, nível 2 levam **20 s** e nível 3 levam **30 s**. Os ingredientes saem do estoque no início, mas a porção só entra na despensa depois que o cozinheiro chega à panela e completa o trabalho. O vapor e o cronômetro acima da Cozinha permitem acompanhar o preparo no mapa.
+Abra a **Cozinha** e use a aba **Cozinheiros** para designar até **três** goblins. A aba **Cozinhar** permite organizar uma fila de até **20 pratos**: a ordem da lista define a prioridade, itens podem ser removidos antes de iniciar e os ingredientes só saem do estoque quando o item chega ao começo da fila e a preparação começa. Receitas de cozinha nível 1 levam **10 s**, nível 2 levam **20 s** e nível 3 levam **30 s** com um cozinheiro; cada cozinheiro que já alcançou a panela soma velocidade ao mesmo preparo. A porção entra na despensa apenas ao término.
 
 | Nível | Desbloqueia |
 |---|---|
@@ -88,7 +88,7 @@ Abra a **Cozinha** e use a aba **Cozinheiros** para designar um goblin. A aba **
 | 7 | Porto |
 | 8 | Quartel |
 
-No nível 3, a **Grande Árvore** canta e faz árvores brotarem do chão, enquanto o **Golem de Pedra** cria e arremessa rochas rúnicas que caem e permanecem coletáveis na ilha. Tocar numa delas abre seu **Santuário**: até **3 goblins** podem louvar ao mesmo tempo, acelerando a produção e enchendo a barra de XP da divindade. Ela sobe até o nível 3; cada nível torna os ciclos de produção mais rápidos. Por enquanto a Árvore entrega apenas madeira e o Golem apenas minério: materiais especiais e a forja/compra de runas continuam reservados para uma fase futura, sem reabrir slots de runa nos goblins. Uma partida nova nasce com **200 árvores e 200 pedras ativas**. A produção divina respeita esse teto por tipo: quando alguém coleta um nó, a vaga permite outra criação, sem limite vitalício de reposições. Os recursos divinos só surgem longe das estruturas. Tocos e entulho de pedra somem após **10 segundos**, mantendo o terreno limpo.
+No nível 3, a **Grande Árvore** canta e faz árvores brotarem do chão, enquanto o **Golem de Pedra** cria e arremessa rochas que caem e permanecem coletáveis na ilha. Tocar numa delas abre seu **Santuário**: até **3 goblins** podem louvar ao mesmo tempo. Cada acólito ativo acelera tanto a produção quanto o ganho de XP de louvor; a barra de XP é o único modo de elevar a divindade até o nível 3 — os santuários não entram na loja de melhorias comum. Cada nível torna os ciclos de produção mais rápidos. Por enquanto a Árvore entrega apenas madeira e o Golem apenas **pedra**: materiais especiais e a forja/compra de runas continuam reservados para uma fase futura, sem reabrir slots de runa nos goblins. Uma partida nova nasce com **200 árvores e 200 pedras ativas**. A produção divina respeita esse teto por tipo: quando alguém coleta um nó, a vaga permite outra criação, sem limite vitalício de reposições. Os recursos divinos só surgem longe das estruturas. Tocos e entulho de pedra somem após **10 segundos**, mantendo o terreno limpo.
 
 ## 🏚️ Armazém, inventário e equipamento
 
