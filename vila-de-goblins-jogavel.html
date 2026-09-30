@@ -5174,11 +5174,13 @@ function routeTap(id) {
   switch (id) {
     case 'close': state.screen = 'world'; break;
     case 'build_btn': state.screen = 'build'; break;
+    // Compatibilidade com saves/testes antigos: a antiga área de trabalho
+    // agora é a aba Trabalhos dentro da tela Vila.
     case 'jobs_btn':
-      state.screen = 'jobs'; state.jobsTab = 0; state.jobsRole = null; state.jobsScroll = 0;
+      state.screen = 'roster'; state.jobsTab = 1; state.jobsRole = null; state.jobsWorkScroll = 0;
       break;
     case 'close_jobs': state.screen = 'world'; break;
-    case 'jobs_tab_0': state.jobsTab = 0; state.jobsRole = null; state.jobsScroll = 0; break;
+    case 'jobs_tab_0': state.jobsTab = 0; state.jobsRole = null; state.jobsScroll = 0; state.rosterScroll = 0; break;
     case 'jobs_tab_1': state.jobsTab = 1; state.jobsRole = null; state.jobsWorkScroll = 0; break;
     case 'jobs_back_roles': state.jobsRole = null; state.jobsWorkScroll = 0; break;
     case 'jobs_open_kitchen': state.screen = 'kitchen'; state.kitchenTab = 1; state.cookScroll = 0; break;
@@ -5191,7 +5193,9 @@ function routeTap(id) {
     case 'close_build': state.screen = 'world'; break;
     case 'tab_0': state.buildTab = 0; state.buildScroll = 0; break;
     case 'tab_1': state.buildTab = 1; state.upgradeScroll = 0; break;
-    case 'roster_btn': state.screen = 'roster'; state.rosterScroll = 0; break;
+    case 'roster_btn':
+      state.screen = 'roster'; state.rosterScroll = 0; state.jobsTab = 0; state.jobsRole = null;
+      break;
     case 'recruit_btn':
       if (village.goblins.length < village.capacity) openRecruit();
       else toast('toast.no_slots');
@@ -5477,7 +5481,8 @@ function update(dt) {
         if (state.buildTab === 0) state.buildScroll -= g.pan.dy;
         else state.upgradeScroll -= g.pan.dy;
       } else if (state.screen === 'roster') {
-        state.rosterScroll -= g.pan.dy;
+        if (state.jobsTab === 1) state.jobsWorkScroll -= g.pan.dy;
+        else state.rosterScroll -= g.pan.dy;
       } else if (state.screen === 'jobs') {
         if (state.jobsTab === 1) state.jobsWorkScroll -= g.pan.dy;
         else state.jobsScroll -= g.pan.dy;
@@ -5713,7 +5718,6 @@ function drawWorldButtons() {
   if (village.has('cozinha')) acts.push({ id: 'kitchen_btn', icon: 'ui_icon_kitchen' });
   if (village.has('mercado')) acts.push({ id: 'market_btn', icon: 'ui_icon_market' });
   if (village.has('armazem')) acts.push({ id: 'armazem_btn', icon: 'ui_icon_armazem' });
-  acts.push({ id: 'jobs_btn', glyph: '⚒' });
   // Toda vaga de moradia pode ser usada depois: isso evita perder recrutas
   // ao fechar a tela que apareceu ao concluir/melhorar uma Casa.
   if (village.goblins.length < village.capacity) {
@@ -6246,8 +6250,18 @@ function RARITIES_IDX(r) { return ['common', 'uncommon', 'rare', 'epic'].indexOf
 
 // ---------- Tela: Roster ----------
 function drawRosterScreen() {
-  ui.rusticPanel(8, 40, 624, 286);
-  ui.woodSign(16, 46, 300, 22, i18n.t('ui.roster_title', { n: village.goblins.length, cap: village.capacity }), 11);
+  const P = { x: 8, y: 40, w: 624, h: 286 };
+  ui.rusticPanel(P.x, P.y, P.w, P.h);
+  ui.woodSign(16, 46, 292, 22, i18n.t('ui.roster_title', { n: village.goblins.length, cap: village.capacity }), 11);
+  ui.closeX('back_world', 594, 46);
+  // Trabalhos vive junto à lista de todos os goblins, não em um botão
+  // separado no mapa. Assim nomear e conferir quem está ocupado é uma só área.
+  ui.tab('jobs_tab_0', 318, 47, 104, 20, i18n.t('ui.jobs_tab_goblins'), state.jobsTab === 0);
+  ui.tab('jobs_tab_1', 430, 47, 112, 20, i18n.t('ui.jobs_tab_work'), state.jobsTab === 1);
+  if (state.jobsTab === 1) {
+    drawJobWorkTab(P);
+    return;
+  }
 
   // Lista rolável (arrasta p/ CIMA/BAIXO) — mostra TODOS os goblins.
   const rowH = 60;
@@ -6278,7 +6292,6 @@ function drawRosterScreen() {
 
   c.restore();
   ui.scrollbarV(626, viewTop, viewH, state.rosterScroll, maxScroll, viewH, contentH);
-  ui.button('back_world', 272, 298, 96, 24, i18n.t('ui.close'), true, true);
 }
 
 // ---------- Tela: Detalhe do goblin ----------

@@ -49,8 +49,8 @@ python3 -m http.server 8080
 | Construir → toque no mapa | escolhe exatamente onde colocar a estrutura |
 | Toque longo numa estrutura pronta | preenche um anel amarelo; ao completar, escolhe o novo local |
 | Toque nos outros prédios | abre a tela correspondente |
-| Botões no rodapé | **Construir**, **Área dos Goblins**, **Recrutar** (quando há vaga), **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
-| Área dos Goblins | a aba **Goblins** permite arrastar para **Livre**, **Madeira**, **Pedra**, **Comida** ou **Construtor**; a aba **Trabalhos** lista todos os ocupados por ofício, permite escolher trabalhadores e encaminha Cozinha e Santuários |
+| Botões no rodapé | **Construir**, **Recrutar** (quando há vaga), **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
+| Vila | concentra a lista de todos os goblins e suas abas **Goblins** e **Trabalhos**; Trabalhos lista ocupados por ofício, permite escolher trabalhadores e encaminha Cozinha e Santuários |
 | Cozinha → **Cozinheiros** | designe até **3 cozinheiros**; a fila guarda até **20 receitas** na ordem escolhida, e cada cozinheiro que chega à panela acelera o preparo |
 
 ## 🔄 O ciclo do jogo
@@ -71,7 +71,7 @@ O **Painel de Missões** e as **três primeiras Casas de Goblin** também não c
 
 ### Obras
 
-Colocar ou melhorar uma estrutura cria uma **lona de obra**. A lona aguarda até que o jogador abra a **Área dos Goblins** e nomeie um goblin como **Construtor**; somente um construtor nomeado vai até ela, trabalha levantando poeira e faz o cronômetro avançar. A duração segue o nível de desbloqueio da estrutura: casas (nível 1) levam **10 / 20 / 30 s** nos níveis 1–3; estruturas desbloqueadas no nível 2 levam **20 / 30 / 40 s**; as do nível 3 levam **30 / 40 / 50 s**, e assim sucessivamente. Ao acabar — ou imediatamente nas fundações de duração zero — a lona brilha: toque nela para recolher a construção pronta.
+Colocar ou melhorar uma estrutura cria uma **lona de obra**. A lona aguarda até que o jogador abra **Vila → Trabalhos** e nomeie um goblin como **Construtor**; somente um construtor nomeado vai até ela, trabalha levantando poeira e faz o cronômetro avançar. A duração segue o nível de desbloqueio da estrutura: casas (nível 1) levam **10 / 20 / 30 s** nos níveis 1–3; estruturas desbloqueadas no nível 2 levam **20 / 30 / 40 s**; as do nível 3 levam **30 / 40 / 50 s**, e assim sucessivamente. Ao acabar — ou imediatamente nas fundações de duração zero — a lona brilha: toque nela para recolher a construção pronta.
 
 ### Cozinha e cozinheiros
 
