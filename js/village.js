@@ -602,11 +602,18 @@ class Village {
       }));
   }
 
+  /**
+   * Estrutura tocada em (wx, wy). Com as construções bem próximas as caixas
+   * se sobrepõem, então vence SEMPRE a que está mais à frente (maior y) —
+   * exatamente a que o jogador vê por cima na tela.
+   */
   hitTest(wx, wy) {
+    let best = null;
     for (const s of this.structures) {
-      if (wx >= s.x - 30 && wx <= s.x + 30 && wy >= s.y - 60 && wy <= s.y + 4) return s;
+      if (wx < s.x - 30 || wx > s.x + 30 || wy < s.y - 60 || wy > s.y + 4) continue;
+      if (!best || s.y > best.y) best = s;
     }
-    return null;
+    return best;
   }
 
   serialize() {

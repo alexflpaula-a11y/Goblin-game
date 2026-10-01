@@ -69,6 +69,8 @@ Mover uma estrutura é sempre o mesmo gesto: **segure o dedo em cima dela** até
 
 Ao construir, ou assim que o anel completa, aparece a prévia translúcida com as quatro **setinhas** em volta. Cada toque numa seta desloca a prévia um pouco naquela direção; o toque no mapa reposiciona a prévia de uma vez. **Confirmar** grava o ponto exato e **Cancelar** desiste.
 
+As construções agora podem ficar **bem mais próximas**. O espaço reservado deixou de ser um círculo largo e passou a ser a **base** do prédio, que é larga e rasa: vizinhas lado a lado precisam de apenas **50 px** entre os centros (quase encostadas) e uma fileira nova cabe **40 px** atrás da anterior — antes a regra exigia 72 px em qualquer direção. A elipse da prévia mostra exatamente esse espaço, e árvores e pedras também passaram a atrapalhar menos (44 px). Como o desenho é ordenado pela profundidade, quem está na frente cobre quem está atrás, e **o toque sempre abre a construção que aparece na frente**.
+
 ### Raridade dos goblins
 
 Cada candidato sai com uma das **sete faixas**, e cada faixa tem a sua fração própria: **1/2 comum · 1/5 incomum · 1/10 raro · 1/50 épico · 1/100 mítico · 1/500 lendário · 1/5000 divino**. Essas frações são os pesos do sorteio; normalizadas, dão ≈ 60,08% · 24,03% · 12,02% · 2,40% · 1,20% · 0,24% · 0,02% no começo da partida.

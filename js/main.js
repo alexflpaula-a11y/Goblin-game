@@ -471,16 +471,30 @@ function updateJobCardDrag(g) {
   return true;
 }
 
+// Espaço mínimo entre construções. Em vez de um círculo largo, o teste usa a
+// BASE de cada prédio: ela é larga e rasa, então vizinhos lado a lado só
+// precisam de `gapX` e fileiras uma atrás da outra de `gapY`. É isso que
+// permite encostar as casas e montar ruas bem juntas; como o desenho é
+// ordenado pelo y, quem está na frente cobre quem está atrás, sem bagunça.
+const placeGap = () => ({
+  x: BAL.placement?.gapX ?? 50,
+  y: BAL.placement?.gapY ?? 40,
+  node: BAL.placement?.nodeGap ?? 44,
+});
+
 /** Retorna null para uma posição válida ou a chave do erro. */
 function placementReason(x, y, ignore = null) {
   const samples = [[0, -3], [-22, -5], [22, -5], [0, -22]];
   if (samples.some(([dx, dy]) => world.tileAtPx(x + dx, y + dy) !== 3)) {
     return 'toast.place_terrain';
   }
-  if (village.structures.some((s) => s !== ignore && Math.hypot(x - s.x, y - s.y) < 72)) {
+  const gap = placeGap();
+  if (village.structures.some((s) => s !== ignore
+    && Math.abs(x - s.x) < gap.x && Math.abs(y - s.y) < gap.y)) {
     return 'toast.place_overlap';
   }
-  if (nodes.list.some((n) => !n.depleted && !n.infinite && Math.hypot(x - n.x, y - n.y) < 52)) {
+  if (nodes.list.some((n) => !n.depleted && !n.infinite
+    && Math.abs(x - n.x) < gap.node && Math.abs(y - n.y) < gap.node * 0.7)) {
     return 'toast.place_node';
   }
   return null;
@@ -1346,6 +1360,7 @@ function placementDrawList() {
   if (!p || !p.preview) return [];
   const { x, y } = p.preview;
   const valid = !placementReason(x, y, p.structure || null);
+  const gap = placeGap();
   const sprite = BUILDINGS[p.type]?.sprite || 'building_house_1';
   return [{
     y,
@@ -1357,7 +1372,9 @@ function placementDrawList() {
       c.strokeStyle = valid ? '#75e083' : '#ff6b5e';
       c.lineWidth = 2;
       c.beginPath();
-      c.ellipse(x, y + 1, 34, 12, 0, 0, Math.PI * 2);
+      // A elipse mostra o espaço que a base realmente reserva, para o
+      // jogador enxergar o quanto dá para encostar numa vizinha.
+      c.ellipse(x, y + 1, gap.x / 2, gap.y / 2, 0, 0, Math.PI * 2);
       c.stroke();
       c.fillStyle = valid ? '#9ff0a9' : '#ff9a90';
       c.font = 'bold 10px monospace';
@@ -3069,7 +3086,7 @@ async function init() {
   const demo = params.get('demo');
   // `?mode=test` abre direto o modo Teste (útil em prévias e testes); com um
   // gancho de screenshot o jogo também pula a escolha para a cena pedida.
-  if (params.get('mode') === 'test' || demo === 'test_goblins' || demo === 'odds') startGameMode('test');
+  if (params.get('mode') === 'test' || ['test_goblins', 'odds', 'packed'].includes(demo)) startGameMode('test');
   else if (demo && demo !== 'modes') startGameMode('normal');
   if (['construction', 'jobs', 'roster', 'kitchen', 'market', 'armazem', 'equip',
     'deities', 'deity_tree', 'deity_golem', 'nodes', 'work', 'stumps'].includes(demo)) ensureDemoGoblin();
@@ -3097,6 +3114,20 @@ async function init() {
   }
   else if (demo === 'modes') state.screen = 'mode_select';
   else if (demo === 'test_goblins') { state.screen = 'test_goblins'; state.testGoblinPage = 0; }
+  else if (demo === 'packed') {
+    // Prévia da vila compacta: casas encostadas no espaçamento mínimo.
+    const base = village.get('construction') || village.build('construction');
+    const ox = (base?.x ?? 960) - 52, oy = (base?.y ?? 726) + 40;
+    for (let row = 0; row < 2; row++) {
+      for (let col = 0; col < 3; col++) {
+        const s = village.beginBuildAt('house', ox + col * 52, oy + row * 42);
+        if (s) village.completeConstruction(s);
+      }
+    }
+    world.setGoblinCount(village.goblins.length);
+    camera.x = ox + 52; camera.y = oy + 10; camera.zoom = 1.5;
+    state.screen = 'world';
+  }
   else if (demo === 'odds') {
     // Prévia da tabela de chances (só existe no modo Teste).
     village.recruitedCount = 6;

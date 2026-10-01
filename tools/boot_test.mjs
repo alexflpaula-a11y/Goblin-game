@@ -736,5 +736,56 @@ ok(appK.village.goblins.length === beforeHouse + 1 && appK.state.screen === 'wor
 ok(RARITIES_K.includes(appK.village.goblins[beforeHouse].rarity),
   'o goblin que chega tem uma raridade sorteada de verdade');
 
+// Construções bem próximas: a base reservada é larga e rasa, então vizinhas
+// quase se encostam e as fileiras ficam logo atrás umas das outras.
+const grassAt = (x, y) => [[0, -3], [-22, -5], [22, -5], [0, -22]]
+  .every(([dx, dy]) => appK.world.tileAtPx(x + dx, y + dy) === 3);
+const freeSpot = (() => {
+  for (let x = 720; x <= 1240; x += 8) {
+    for (let y = 600; y <= 900; y += 8) {
+      if (!grassAt(x, y) || !grassAt(x + 60, y) || !grassAt(x, y + 44)) continue;
+      const clear = appK.village.structures.every((st) => Math.hypot(x - st.x, y - st.y) > 150)
+        && appK.nodes.list.every((n) => n.depleted || n.infinite || Math.hypot(x - n.x, y - n.y) > 130);
+      if (clear) return { x, y };
+    }
+  }
+  return null;
+})();
+ok(!!freeSpot, 'há um descampado livre para testar o espaçamento');
+const placeAt = (wx, wy) => {
+  const spot = appK.camera.worldToScreen(wx, wy);
+  tap(spot.x, spot.y);
+};
+const buildHouseAt = (wx, wy) => {
+  appK.state.screen = 'build'; appK.state.buildTab = 0; appK.state.buildScroll = 0; step(2);
+  tapRegion('bcard_house');
+  placeAt(wx, wy);
+  appK.state.placement = null;
+  appK.state.screen = 'world'; step(1);
+};
+const countHouses = () => appK.village.structures.filter((s) => s.type === 'house').length;
+buildHouseAt(freeSpot.x, freeSpot.y);
+const neighbours = countHouses();
+ok(appK.village.structures.some((s) => s.x === freeSpot.x && s.y === freeSpot.y),
+  'a primeira casa do descampado foi colocada');
+buildHouseAt(freeSpot.x + 52, freeSpot.y);
+ok(countHouses() === neighbours + 1,
+  'uma vizinha pode encostar a 52 px de distância, lado a lado');
+buildHouseAt(freeSpot.x + 52 + 40, freeSpot.y);
+ok(countHouses() === neighbours + 1,
+  'perto demais (40 px) ainda é recusado');
+buildHouseAt(freeSpot.x, freeSpot.y + 30);
+ok(countHouses() === neighbours + 1,
+  'uma fileira colada demais (30 px) também é recusada');
+buildHouseAt(freeSpot.x, freeSpot.y + 40);
+ok(countHouses() === neighbours + 2,
+  'uma fileira nova cabe logo atrás, a 40 px');
+
+// Com as casas sobrepostas, o toque pega sempre a da frente.
+const front = appK.village.structures.find((s) => s.x === freeSpot.x && s.y === freeSpot.y + 40);
+const behind = appK.village.structures.find((s) => s.x === freeSpot.x && s.y === freeSpot.y);
+ok(appK.village.hitTest(front.x, front.y - 50) === front && front !== behind,
+  'o toque numa área sobreposta abre a construção que aparece na frente');
+
 console.log(`\n  ${passes} passaram · ${fails} falharam`);
 process.exit(fails ? 1 : 0);

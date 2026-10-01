@@ -83,6 +83,11 @@
   "buildings": {
     "upgradeMul": 1.8
   },
+  "placement": {
+    "gapX": 50,
+    "gapY": 40,
+    "nodeGap": 44
+  },
   "cooking": {
     "healBonus": 0.0
   },
