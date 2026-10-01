@@ -37,12 +37,12 @@ def g(rows, w):
 # CAPACETE — cobre a calota e desce num filete sobre as tempora; o rosto,
 # as orelhas e a boca continuam a vista.
 HELM = g([
-    "......DDDDDD......",
-    "......MMLMMM......",
-    "......MMMMMM......",
+    ".....DDDDDDDD.....",
+    "....DMMLMMMMMD....",
     "....DMMMMMMMMD....",
-    "....DMMGGMMMMD....",
-    ".....DMMMMMMD.....",
+    "....DMMMMMMMMD....",
+    "....DDDGGDDDDD....",
+    "..................",
     "..................",
     "..................",
     "..................",
@@ -53,8 +53,10 @@ HELM = g([
 CHEST = g([
     "..DDDDDD..",
     ".DMMMMMMD.",
+    "DMMMMMMMMD",
     "DMMMLLMMMD",
     "DMMGGGGMMD",
+    "DMMMMMMMMD",
     "DMMMMMMMMD",
     "..........",
     "..........",
@@ -64,6 +66,8 @@ CHEST = g([
 PAULDRON = g([
     "DDD",
     "DMD",
+    "...",
+    "...",
     "...",
     "...",
     "...",
@@ -78,10 +82,13 @@ GREAVE = g([
     "DDDD",
     "....",
     "....",
+    "....",
 ], 4)
 
 # CINTURA da calca, presa ao tronco.
 HIP = g([
+    "..........",
+    "..........",
     "..........",
     "..........",
     "..........",
@@ -96,6 +103,8 @@ SWORD_SKIN = {
     'down': (g([
         ".G.",
         "GGG",
+        "MLM",
+        "MLM",
         "MLM",
         "MLM",
         "MLM",
@@ -130,11 +139,13 @@ SWORD_SKIN = {
 
 CLUB_SKIN = {
     'down': (g([
-        ".GG.",
-        ".GG.",
-        ".GG.",
+        "DGGD",
+        "DGGD",
+        "DGGD",
         "DMMD",
         "DMLD",
+        "DMMD",
+        "DMMD",
         "DMMD",
         "DMMD",
         ".DD.",
@@ -207,7 +218,7 @@ def weapon(skin, material):
 
 
 def shield(material):
-    return [_layer('arm_r', SHIELD, material, dx=2, dy=-1)]
+    return [_layer('arm_r', SHIELD, material, dx=1, dy=2)]
 
 
 # ------------------------------------------------------------- catalogo ----
@@ -231,8 +242,8 @@ PIECES = {
 # Icones 16x16 do inventario: recorte da parte do corpo que a peca cobre.
 ICONS = {
     'av_cap_icon': ('av_cap', R.ANCHORS['head_box']),
-    'av_pei_icon': ('av_pei', (8, 19, 23, 27)),
-    'av_cal_icon': ('av_cal', (10, 24, 21, 31)),
+    'av_pei_icon': ('av_pei', (8, 16, 23, 24)),
+    'av_cal_icon': ('av_cal', (10, 23, 21, 31)),
 }
 
 

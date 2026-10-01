@@ -28,15 +28,17 @@ R.C.update({
     'G': (188, 150, 46, 255),    # ouro sombra
 })
 
-# Mapa da cabeca (18x10) em coordenadas relativas:
-#   orelha esq. nucleo (2,1) (3,1) (2,2) (3,2) | dir. (14,1) (15,1) (14,2) (15,2)
-#   testa rows 4-5 | olhos row 6 | nariz row 7 | boca row 8
-EYE_L = [(6, 6), (7, 6)]
-EYE_R = [(10, 6), (11, 6)]
-FOREHEAD = [(x, 4) for x in range(5, 13)] + [(x, 5) for x in range(5, 13)]
-CROWN = [(x, 3) for x in range(4, 14)] + [(x, 4) for x in range(4, 14)]
-EAR_L_CORE = [(2, 1), (3, 1), (2, 2), (3, 2)]
-EAR_R_CORE = [(14, 1), (15, 1), (14, 2), (15, 2)]
+# Mapa da cabeca (18x10) em coordenadas relativas ao desenho atual:
+#   cranio nas colunas 4..13 | orelhas pontudas nas colunas 0..2 e 15..17
+#   testa rows 1-3 | sobrancelha row 4 | olhos row 5 | nariz row 6 | boca row 8
+EYE_L = [(6, 5), (7, 5)]
+EYE_R = [(10, 5), (11, 5)]
+BROW_L = [(6, 4), (7, 4)]
+BROW_R = [(10, 4), (11, 4)]
+FOREHEAD = [(x, y) for y in (1, 2, 3) for x in range(5, 13)]
+CROWN = [(x, y) for y in (0, 1, 2) for x in range(4, 14)]
+EAR_L_CORE = [(1, 4), (2, 4), (2, 5)]
+EAR_R_CORE = [(16, 4), (15, 4), (15, 5)]
 
 
 def _put(buf, x, y, ch):
@@ -76,42 +78,42 @@ def _arm_paint(buf, ctx, part, rows, ch):
 
 # --------------------------------------------------------------- tracos ----
 def t_gold_tooth(buf, ctx):
-    _head_paint(buf, ctx, [(6, 8)], 'Y')
+    _head_paint(buf, ctx, [(7, 8)], 'Y')
 
 
 def t_eyepatch(buf, ctx):
-    _head_paint(buf, ctx, EYE_R + [(10, 5), (11, 5)], 'k')
-    _head_paint(buf, ctx, [(6, 5), (7, 5), (8, 5), (9, 5)], 'k')
+    _head_paint(buf, ctx, EYE_R + BROW_R, 'k')
+    _head_paint(buf, ctx, [(8, 4), (9, 4), (8, 5), (9, 5)], 'k')
 
 
 def t_ear_ring(buf, ctx):
-    _head_paint(buf, ctx, [(2, 2)], 'Y')
+    _head_paint(buf, ctx, [(2, 5)], 'Y')
 
 
 def t_earring(buf, ctx):
-    _head_paint(buf, ctx, [(3, 2), (3, 1)], 'Y')
+    _head_paint(buf, ctx, [(2, 4), (2, 5)], 'Y')
 
 
 def t_scar(buf, ctx):
-    _head_paint(buf, ctx, [(6, 5), (6, 6), (7, 7)], 'l')
+    _head_paint(buf, ctx, [(6, 2), (6, 3), (6, 4)], 'l')
 
 
 def t_burns(buf, ctx):
-    _head_paint(buf, ctx, [(10, 7), (11, 7), (11, 6), (11, 5)], 'c')
-    _arm_paint(buf, ctx, 'arm_r', (2, 3), 'c')
+    _head_paint(buf, ctx, [(10, 6), (11, 6), (11, 7), (11, 3)], 'c')
+    _arm_paint(buf, ctx, 'arm_r', (3, 4), 'c')
 
 
 def t_bandana(buf, ctx):
     _head_paint(buf, ctx, CROWN, 'r')
-    _head_paint(buf, ctx, [(5, 4), (6, 4)], 'R')
+    _head_paint(buf, ctx, [(5, 2), (6, 2)], 'R')
 
 
 def t_arm_bandage(buf, ctx):
-    _arm_paint(buf, ctx, 'arm_l', (2, 3), 'W')
+    _arm_paint(buf, ctx, 'arm_l', (3, 4, 5), 'W')
 
 
 def t_birthmark(buf, ctx):
-    _head_paint(buf, ctx, [(6, 4), (6, 5), (7, 5)], 'P')
+    _head_paint(buf, ctx, [(10, 2), (10, 3), (11, 3)], 'P')
 
 
 def t_head_bandage(buf, ctx):
@@ -124,24 +126,24 @@ def t_blind_eye(buf, ctx):
 
 
 def t_ruby_eye(buf, ctx):
-    _head_paint(buf, ctx, [(6, 6)], 'r')
-    _head_paint(buf, ctx, [(7, 6)], 'R')
+    _head_paint(buf, ctx, [(6, 5)], 'r')
+    _head_paint(buf, ctx, [(7, 5)], 'R')
 
 
 def t_wart(buf, ctx):
-    _head_paint(buf, ctx, [(11, 7)], 'd')
+    _head_paint(buf, ctx, [(11, 6)], 'd')
 
 
 def t_freckles(buf, ctx):
-    _head_paint(buf, ctx, [(6, 7), (11, 7), (7, 5), (10, 5)], 'd')
+    _head_paint(buf, ctx, [(6, 6), (11, 6), (6, 3), (11, 3)], 'd')
 
 
 def t_tattoo(buf, ctx):
-    _head_paint(buf, ctx, [(6, 5), (6, 7), (11, 5), (11, 7)], 'c')
+    _head_paint(buf, ctx, [(6, 3), (6, 6), (11, 3), (11, 6)], 'c')
 
 
 def t_double_fangs(buf, ctx):
-    _head_paint(buf, ctx, [(7, 7), (10, 7)], 'y')
+    _head_paint(buf, ctx, [(8, 8), (9, 8)], 'y')
 
 
 def t_glow_eyes(buf, ctx):
@@ -149,12 +151,12 @@ def t_glow_eyes(buf, ctx):
 
 
 def t_dark_veins(buf, ctx):
-    _head_paint(buf, ctx, [(6, 4), (7, 4), (10, 4), (11, 4)], 'v')
+    _head_paint(buf, ctx, [(6, 2), (7, 2), (10, 2), (11, 2)], 'v')
 
 
 def t_dirt(buf, ctx):
-    _head_paint(buf, ctx, [(7, 7), (10, 8)], 'c')
-    _arm_paint(buf, ctx, 'arm_r', (4,), 'c')
+    _head_paint(buf, ctx, [(7, 6), (10, 7)], 'c')
+    _arm_paint(buf, ctx, 'arm_r', (5, 6), 'c')
 
 
 DETAILS = {
@@ -176,8 +178,8 @@ SWAPS = {
 
 def _head_without_right_ear():
     head = copy.deepcopy(R.HEAD)
-    for y in range(0, 3):
-        for x in range(13, 18):
+    for y in range(3, 7):
+        for x in range(14, 18):
             head[y][x] = '.'
     return head
 

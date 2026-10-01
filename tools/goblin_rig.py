@@ -26,19 +26,19 @@ SIZE = 32
 
 # ---------------------------------------------------------------- paleta ----
 C = {
-    'o': (24, 38, 28, 255),      # contorno
-    'd': (54, 112, 58, 255),     # pele sombra
-    'g': (94, 168, 80, 255),     # pele base
-    'l': (142, 203, 110, 255),   # pele luz
-    'T': (28, 54, 40, 255),      # tunica sombra
-    't': (46, 86, 60, 255),      # tunica base
-    'u': (70, 120, 80, 255),     # tunica luz
-    'B': (52, 36, 24, 255),      # couro sombra
-    'b': (96, 64, 40, 255),      # couro base
-    'h': (142, 100, 60, 255),    # couro luz
+    'o': (22, 32, 26, 255),      # contorno
+    'd': (64, 118, 56, 255),     # pele sombra
+    'g': (106, 168, 78, 255),     # pele base
+    'l': (152, 204, 110, 255),   # pele luz
+    'T': (28, 52, 38, 255),      # tunica sombra
+    't': (42, 74, 52, 255),      # tunica base
+    'u': (58, 98, 66, 255),     # tunica luz
+    'B': (62, 42, 26, 255),      # couro sombra
+    'b': (104, 70, 42, 255),      # couro base
+    'h': (146, 104, 62, 255),    # couro luz
     'w': (240, 240, 222, 255),   # brilho do olho
     'p': (18, 24, 20, 255),      # pupila
-    'y': (238, 234, 198, 255),   # presa
+    'y': (222, 214, 178, 255),   # presa
     'm': (48, 24, 28, 255),      # boca
     'S': (104, 118, 132, 255),   # aco sombra
     's': (178, 189, 201, 255),   # aco base
@@ -79,25 +79,27 @@ def check(rows, w):
 # ------------------------------------------------- partes (cores chapadas) --
 # Cabeca 18x10: cranio nas colunas 5..12, orelhas em folha nas pontas.
 HEAD = check(grid([
-    ".ggg..gggggg..ggg.",
-    ".gggg.gggggg.gggg.",
-    ".gggg.gggggg.gggg.",
-    "..gggggggggggggg..",
-    "...gggggggggggg...",
     ".....gggggggg.....",
+    "....gggggggggg....",
+    "....gggggggggg....",
+    ".ggoggggggggggogg.",
+    "gggoggggggggggoggg",
+    ".ggoggggggggggogg.",
+    "..goggggggggggog..",
+    "....gggggggggg....",
+    "....gggggggggg....",
     ".....gggggggg.....",
-    ".....gggggggg.....",
-    ".....gggggggg.....",
-    "......gggggg......",
 ]), 18)
 
 # Tronco 10x7 (tunica, cinto, calcao)
 TORSO = check(grid([
     "..tttttt..",
     ".tttttttt.",
+    "tttttttttt",
     "tttuuuuttt",
-    "ttuuuuuutt",
     "tttuuuuttt",
+    "tttttttttt",
+    "tttttttttt",
     "bbbbhhbbbb",
     "TTttttttTT",
 ]), 10)
@@ -106,6 +108,8 @@ TORSO = check(grid([
 ARM = check(grid([
     "ttt",
     "ttt",
+    "ggg",
+    "ggg",
     "ggg",
     "ggg",
     "ggg",
@@ -120,12 +124,15 @@ LEG = check(grid([
     "gggg",
     "bbbb",
     "bbbb",
+    "bbbb",
 ]), 4)
 
 # ------------------------------------------------------------- espadas ------
 SWORD_DOWN = check(grid([
     ".b.",
     "hhh",
+    "sss",
+    "sss",
     "sss",
     "sss",
     "sss",
@@ -163,36 +170,37 @@ SWORD_ANCHOR = {'down': (0, 0), 'diag': (-3, 0), 'fwd': (-5, 1), 'up': (0, -6)}
 
 # -------------------------------------------------------------- posicoes ----
 REST = {
-    'head':  (7, 10),
-    'torso': (11, 20),
-    'arm_l': (8, 21),
-    'arm_r': (21, 21),
-    'leg_l': (11, 26),
-    'leg_r': (17, 26),
-    'sword': (6, 25),
+    'head':  (7, 6),
+    'torso': (11, 16),
+    'arm_l': (8, 17),
+    'arm_r': (21, 17),
+    'leg_l': (11, 25),
+    'leg_r': (17, 25),
+    'sword': (6, 23),
 }
 
 DRAW_ORDER = ['arm_r', 'leg_l', 'leg_r', 'torso', 'sword', 'head', 'arm_l']
 
 # Detalhes do rosto, em coordenadas relativas a cabeca (18x10).
 FACE = {
-    (6, 4): 'l', (7, 4): 'l', (6, 5): 'l',
-    (6, 6): 'p', (7, 6): 'w', (10, 6): 'w', (11, 6): 'p',
-    (8, 7): 'd', (9, 7): 'd',
-    (6, 8): 'y', (7, 8): 'm', (8, 8): 'm', (9, 8): 'm', (10, 8): 'm', (11, 8): 'y',
+    (6, 1): 'l', (7, 1): 'l', (6, 2): 'l',
+    (6, 4): 'd', (7, 4): 'd', (10, 4): 'd', (11, 4): 'd',
+    (6, 5): 'p', (7, 5): 'p', (10, 5): 'p', (11, 5): 'p',
+    (8, 6): 'd', (9, 6): 'd',
+    (7, 8): 'y', (8, 8): 'm', (9, 8): 'm', (10, 8): 'y',
 }
 
 # Pontos de ancoragem usados pelos geradores de armadura (canvas 32x32, repouso).
 ANCHORS = {
-    'head_box': (8, 10, 23, 19),    # x0, y0, x1, y1 inclusivos
-    'skull_box': (12, 10, 19, 19),
-    'ear_l': (8, 11, 11, 14),
-    'ear_r': (20, 11, 23, 14),
-    'torso_box': (11, 20, 20, 26),
-    'belt_y': 25,
-    'legs_box': (11, 26, 20, 31),
-    'hand_l': (9, 26),
-    'hand_r': (22, 26),
+    'head_box': (7, 6, 24, 15),
+    'skull_box': (11, 6, 20, 15),
+    'ear_l': (7, 9, 10, 12),
+    'ear_r': (21, 9, 24, 12),
+    'torso_box': (11, 16, 20, 24),
+    'belt_y': 23,
+    'legs_box': (11, 25, 20, 31),
+    'hand_l': (9, 24),
+    'hand_r': (22, 24),
     'ground_y': 31,
 }
 
