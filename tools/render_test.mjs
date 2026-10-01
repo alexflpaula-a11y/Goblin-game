@@ -237,7 +237,7 @@ const dyn = [
   ...['wood', 'stone', 'ore', 'food', 'gold'].map((r) => 'res.' + r),
   ...cookingMeals(),
   ...['warrior', 'mage', 'healer', 'cook', 'worker', 'runner', 'common'].map((s) => 'spec.' + s),
-  ...['common', 'uncommon', 'rare', 'epic', 'mythic'].map((r) => 'rarity.' + r),
+  ...['common', 'uncommon', 'rare', 'epic', 'mythic', 'legendary', 'divine'].map((r) => 'rarity.' + r),
   ...VARIATIONS.map((v) => 'variation.' + v),
   ...inventory.EQUIP_SLOTS.map((s) => 'slot.' + s),
   ...inventory.SLOT_TYPES.map((s) => 'slot.' + s),

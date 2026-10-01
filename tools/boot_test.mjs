@@ -402,6 +402,13 @@ ok(has('recruit_btn') && appE.village.goblins.length < appE.village.capacity,
 ok(!has('jobs_btn') && has('roster_btn'),
   'não há ícone separado de Trabalhos: a aba fica dentro da Vila');
 
+// Informação de bastidor: a aceleração das obras não aparece numa partida normal.
+appE.state.screen = 'build'; appE.state.buildTab = 1; appE.state.upgradeScroll = 0;
+drawnTexts(); step(2);
+ok(!drawnTexts().includes('Obras +'),
+  'partida normal não mostra o quanto a Casa de Construção acelera as obras');
+appE.state.screen = 'world'; step(1);
+
 // A aba Trabalhos dentro da Vila cria tarefas persistentes e ocupa
 // automaticamente o goblin em uma árvore disponível.
 tapRegion('roster_btn');
@@ -697,6 +704,37 @@ ok(appK.village.goblins.length === chosenBefore + 1 && appK.state.screen === 'wo
 const { VARIATIONS: VARS_K } = req('goblin.js');
 ok(appK.village.goblins[chosenBefore].variation === VARS_K[6],
   'o goblin recrutado é exatamente a aparência escolhida');
+
+// As chances só podem ser consultadas no modo Teste.
+const { RARITIES: RARITIES_K } = req('goblin.js');
+tapRegion('test_goblins_btn');
+ok(has('test_odds'), 'a galeria do modo Teste tem o botão de chances');
+tapRegion('test_odds');
+drawnTexts(); step(2);
+const oddsTexts = drawnTexts();
+ok(appK.state.testOdds === true
+  && ['Comum', 'Incomum', 'Raro', 'Épico', 'Mítico', 'Lendário', 'Divino'].every((r) => oddsTexts.includes(r)),
+'o painel de chances lista as sete faixas');
+ok(oddsTexts.includes('/2') && oddsTexts.includes('/5000'),
+  'o painel mostra a fração de cada faixa');
+tapRegion('test_odds');
+ok(appK.state.testOdds === false, 'o mesmo botão fecha o painel de chances');
+appK.state.screen = 'world'; step(1);
+
+// Colocar casas no modo Teste traz goblins na hora, para conferir as chances.
+const beforeHouse = appK.village.goblins.length;
+appK.state.screen = 'build'; appK.state.buildTab = 0; appK.state.buildScroll = 0; step(2);
+tapRegion('bcard_house');
+const testHouseSpot = appK.camera.worldToScreen(1100, 820);
+tap(testHouseSpot.x, testHouseSpot.y);
+const testHouse = appK.village.structures.find((s) => s.type === 'house' && s.construction);
+ok(testHouse?.construction?.status === 'ready' && testHouse.construction.total === 0,
+  'no modo Teste a obra fica pronta na hora, sem precisar de construtor');
+tap(testHouseSpot.x, testHouseSpot.y);
+ok(appK.village.goblins.length === beforeHouse + 1 && appK.state.screen === 'world',
+  'concluir a Casa no modo Teste já traz um goblin sorteado, sem abrir cartas');
+ok(RARITIES_K.includes(appK.village.goblins[beforeHouse].rarity),
+  'o goblin que chega tem uma raridade sorteada de verdade');
 
 console.log(`\n  ${passes} passaram · ${fails} falharam`);
 process.exit(fails ? 1 : 0);

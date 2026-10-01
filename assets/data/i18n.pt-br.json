@@ -51,6 +51,8 @@
   "rarity.rare": "Raro",
   "rarity.epic": "Épico",
   "rarity.mythic": "Mítico",
+  "rarity.legendary": "Lendário",
+  "rarity.divine": "Divino",
   "toast.no_idle": "Nenhum goblin livre!",
   "toast.node_busy": "Este nó já tem trabalhador!",
   "res.ore": "minério",
@@ -379,5 +381,12 @@
   "ui.test_pick": "Escolher",
   "ui.unlimited": "∞",
   "toast.normal_mode": "Modo Normal: construa sua vila do zero.",
-  "toast.test_mode": "Modo Teste: recursos infinitos e tudo liberado."
+  "toast.test_mode": "Modo Teste: recursos infinitos e tudo liberado.",
+  "ui.test_odds": "Chances",
+  "ui.test_odds_title": "Chances de raridade",
+  "ui.test_odds_sub": "{n} goblins recrutados • +0,1 por goblin",
+  "ui.test_odds_maxed": "no máximo",
+  "ui.test_odds_hint": "Ao chegar ao máximo, a faixa para de aparecer.",
+  "toast.test_spawn": "{name} chegou à vila — {rarity}!",
+  "toast.test_spawn_many": "{n} goblins novos chegaram à vila!"
 }

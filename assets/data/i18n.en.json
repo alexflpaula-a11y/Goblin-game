@@ -51,6 +51,8 @@
   "rarity.rare": "Rare",
   "rarity.epic": "Epic",
   "rarity.mythic": "Mythic",
+  "rarity.legendary": "Legendary",
+  "rarity.divine": "Divine",
   "toast.no_idle": "No idle goblin!",
   "toast.node_busy": "This node already has a worker!",
   "res.ore": "ore",
@@ -379,5 +381,12 @@
   "ui.test_pick": "Pick",
   "ui.unlimited": "∞",
   "toast.normal_mode": "Normal mode: build your village from scratch.",
-  "toast.test_mode": "Test mode: unlimited resources and everything unlocked."
+  "toast.test_mode": "Test mode: unlimited resources and everything unlocked.",
+  "ui.test_odds": "Odds",
+  "ui.test_odds_title": "Rarity odds",
+  "ui.test_odds_sub": "{n} goblins recruited • +0.1 per goblin",
+  "ui.test_odds_maxed": "maxed out",
+  "ui.test_odds_hint": "Once a tier maxes out it stops showing up.",
+  "toast.test_spawn": "{name} joined the village — {rarity}!",
+  "toast.test_spawn_many": "{n} new goblins joined the village!"
 }

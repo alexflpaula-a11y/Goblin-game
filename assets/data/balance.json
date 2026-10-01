@@ -19,14 +19,16 @@
     "maxLevel": 3
   },
   "recruit": {
-    "rarityBase": {
-      "common": 0.5,
-      "uncommon": 0.2,
-      "rare": 0.1,
-      "epic": 0.02,
-      "mythic": 0.01
+    "rarityDenominator": {
+      "common": 2,
+      "uncommon": 5,
+      "rare": 10,
+      "epic": 50,
+      "mythic": 100,
+      "legendary": 500,
+      "divine": 5000
     },
-    "luckPerRecruit": 0.005,
+    "luckStep": 0.1,
     "attrRange": {
       "common": [
         1,
@@ -46,6 +48,14 @@
       ],
       "mythic": [
         8,
+        10
+      ],
+      "legendary": [
+        9,
+        10
+      ],
+      "divine": [
+        10,
         10
       ]
     }

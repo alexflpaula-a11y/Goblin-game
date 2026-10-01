@@ -71,7 +71,13 @@ Ao construir, ou assim que o anel completa, aparece a prévia translúcida com a
 
 ### Raridade dos goblins
 
-Cada candidato sai com uma das cinco faixas, nas chances **1/2 comum · 1/5 incomum · 1/10 raro · 1/50 épico · 1/100 mítico** (pesos relativos 50 : 20 : 10 : 2 : 1, normalizados no sorteio — na prática ≈ 60,2% · 24,1% · 12,0% · 2,4% · 1,2%). A raridade define a faixa de atributos sorteada e a cor das barras; **Mítico** é a nova faixa máxima, com atributos entre 8 e 10 e cinco estrelas. A *sorte crescente* por recrutas feitos continua existindo, mas agora empurra as faixas altas só de leve.
+Cada candidato sai com uma das **sete faixas**, e cada faixa tem a sua fração própria: **1/2 comum · 1/5 incomum · 1/10 raro · 1/50 épico · 1/100 mítico · 1/500 lendário · 1/5000 divino**. Essas frações são os pesos do sorteio; normalizadas, dão ≈ 60,08% · 24,03% · 12,02% · 2,40% · 1,20% · 0,24% · 0,02% no começo da partida.
+
+O **denominador nunca muda**, mas o **numerador começa em 1 e sobe 0,1 a cada goblin recrutado** — com 9 goblins na vila as frações estão em 1,9/2 · 1,9/5 · 1,9/10 · 1,9/50 · 1,9/100 · 1,9/500 · 1,9/5000. Quando o numerador alcança o denominador a faixa chega ao **máximo** e sai do sorteio: com 10 goblins o comum fecha em 2/2 e nunca mais aparece, sobrando incomum 2/5, raro 2/10, épico 2/50, mítico 2/100, lendário 2/500 e divino 2/5000. Os pontos de corte são 10 recrutas (comum), 40 (incomum), 90 (raro), 490 (épico), 990 (mítico), 4990 (lendário) e 49990 (divino).
+
+A raridade define a faixa de atributos sorteada, a cor das barras e o número de estrelas: **Mítico** 8–10, **Lendário** 9–10 e **Divino** 10 em tudo, com sete estrelas.
+
+A tabela completa — fração atual, chance real e aviso de faixa esgotada — fica no botão **Chances**, dentro da galeria ☺ Goblins, e **só existe no modo Teste**: é informação de bastidor e não aparece numa partida normal. No modo Teste as obras também ficam prontas na hora e **cada vaga de moradia nova já chega com um goblin sorteado**, para conferir as chances em poucos toques.
 
 ## 🔄 O ciclo do jogo
 
@@ -91,7 +97,7 @@ O **Painel de Missões** e as **três primeiras Casas de Goblin** também não c
 
 ### Obras
 
-Colocar ou melhorar uma estrutura cria uma **lona de obra**. A lona aguarda até que o jogador abra **Vila → Trabalhos** e nomeie um goblin como **Construtor**; somente um construtor nomeado vai até ela, trabalha levantando poeira e faz o cronômetro avançar. A duração segue o nível de desbloqueio da estrutura: casas (nível 1) levam **10 / 20 / 30 s** nos níveis 1–3; estruturas desbloqueadas no nível 2 levam **20 / 30 / 40 s**; as do nível 3 levam **30 / 40 / 50 s**, e assim sucessivamente. A **Casa de Construção** também pode ser melhorada: cada nível extra acelera todas as obras em **25%**. Ao acabar — ou imediatamente nas fundações de duração zero — a lona brilha: toque nela para recolher a construção pronta.
+Colocar ou melhorar uma estrutura cria uma **lona de obra**. A lona aguarda até que o jogador abra **Vila → Trabalhos** e nomeie um goblin como **Construtor**; somente um construtor nomeado vai até ela, trabalha levantando poeira e faz o cronômetro avançar. A duração segue o nível de desbloqueio da estrutura: casas (nível 1) levam **10 / 20 / 30 s** nos níveis 1–3; estruturas desbloqueadas no nível 2 levam **20 / 30 / 40 s**; as do nível 3 levam **30 / 40 / 50 s**, e assim sucessivamente. A **Casa de Construção** também pode ser melhorada: cada nível extra acelera todas as obras em **25%** (esse número só é exibido na lista de melhorias do modo Teste; numa partida normal ele fica de bastidor). Ao acabar — ou imediatamente nas fundações de duração zero — a lona brilha: toque nela para recolher a construção pronta.
 
 ### Cozinha e cozinheiros
 

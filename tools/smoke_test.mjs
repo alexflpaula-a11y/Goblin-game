@@ -98,38 +98,64 @@ const avg = (n) => {
 const low = avg(0), high = avg(100);
 check('sorte crescente aumenta raridade', high > low, `0 recrutas=${low.toFixed(3)} · 100=${high.toFixed(3)}`);
 
-// Chances pedidas: 1/2 comum, 1/5 incomum, 1/10 raro, 1/50 épico, 1/100 mítico
-// (pesos 50 : 20 : 10 : 2 : 1, normalizados no sorteio).
-const { RARITY_ODDS } = req('goblin.js');
-check('as cinco faixas existem, do comum ao mítico',
-  RARITIES.join(',') === 'common,uncommon,rare,epic,mythic');
-check('as chances-base são 1/2, 1/5, 1/10, 1/50 e 1/100',
-  RARITY_ODDS.common === 1 / 2 && RARITY_ODDS.uncommon === 1 / 5
-  && RARITY_ODDS.rare === 1 / 10 && RARITY_ODDS.epic === 1 / 50
-  && RARITY_ODDS.mythic === 1 / 100);
-const oddsTotal = Object.values(RARITY_ODDS).reduce((a, b) => a + b, 0);
-const expected = Object.fromEntries(
-  Object.entries(RARITY_ODDS).map(([k, v]) => [k, v / oddsTotal]));
-const rolls = { common: 0, uncommon: 0, rare: 0, epic: 0, mythic: 0 };
+// Chances pedidas: 1/2 comum, 1/5 incomum, 1/10 raro, 1/50 épico, 1/100 mítico,
+// 1/500 lendário e 1/5000 divino. O numerador sobe 0,1 por goblin recrutado e
+// a faixa some do sorteio quando ele alcança o denominador.
+const { RARITY_DENOMINATOR, RARITY_LUCK_STEP } = req('goblin.js');
+check('as sete faixas existem, do comum ao divino',
+  RARITIES.join(',') === 'common,uncommon,rare,epic,mythic,legendary,divine');
+check('os denominadores são 2, 5, 10, 50, 100, 500 e 5000',
+  JSON.stringify(RARITY_DENOMINATOR)
+  === JSON.stringify({ common: 2, uncommon: 5, rare: 10, epic: 50, mythic: 100, legendary: 500, divine: 5000 }));
+check('cada goblin recrutado soma um décimo ao numerador', RARITY_LUCK_STEP === 0.1);
+
+const oddsAt = (n) => Object.fromEntries(Goblin.rarityOdds(n).map((row) => [row.rarity, row]));
+const start0 = oddsAt(0);
+check('sem recrutas, as frações começam em 1/denominador',
+  Object.values(start0).every((row) => row.numerator === 1 && !row.maxed));
+const nine = oddsAt(9);
+check('com 9 goblins todas as faixas estão em 1,9/denominador',
+  Math.abs(nine.common.numerator - 1.9) < 1e-9
+  && Math.abs(nine.divine.numerator - 1.9) < 1e-9
+  && Object.values(nine).every((row) => !row.maxed));
+const ten = oddsAt(10);
+check('com 10 goblins o comum chega a 2/2 e para de aparecer',
+  ten.common.maxed && ten.common.chance === 0
+  && Math.abs(ten.uncommon.numerator - 2) < 1e-9 && !ten.uncommon.maxed);
+check('faixas restantes continuam proporcionais depois do corte',
+  Math.abs(ten.uncommon.chance / ten.rare.chance - 2) < 1e-9
+  && Math.abs(ten.rare.chance / ten.epic.chance - 5) < 1e-9);
+check('incomum e raro também se esgotam no seu tempo (40 e 90 goblins)',
+  oddsAt(39).uncommon.maxed === false && oddsAt(40).uncommon.maxed === true
+  && oddsAt(89).rare.maxed === false && oddsAt(90).rare.maxed === true);
+check('o divino nunca se esgota numa partida realista',
+  !oddsAt(500).divine.maxed && oddsAt(500).divine.chance > 0);
+
 let raritySeed = 20261001;
 const rarityRng = () => {
   raritySeed = (raritySeed * 1103515245 + 12345) % 2147483648;
   return raritySeed / 2147483648;
 };
-const SAMPLES = 200000;
+const SAMPLES = 400000;
+const rolls = Object.fromEntries(RARITIES.map((r) => [r, 0]));
 for (let i = 0; i < SAMPLES; i++) rolls[Goblin.rollRarity(0, rarityRng)] += 1;
-const offBy = Object.keys(expected)
-  .map((k) => Math.abs(rolls[k] / SAMPLES - expected[k]));
-check('o sorteio respeita as proporções 50:20:10:2:1',
+const offBy = RARITIES.map((r) => Math.abs(rolls[r] / SAMPLES - start0[r].chance));
+check('o sorteio respeita as proporções 1/2 : 1/5 : 1/10 : 1/50 : 1/100 : 1/500 : 1/5000',
   Math.max(...offBy) < 0.01,
-  Object.keys(rolls).map((k) => `${k} ${(100 * rolls[k] / SAMPLES).toFixed(1)}%`).join(' · '));
-check('mítico é a faixa mais rara e aparece de verdade',
-  rolls.mythic > 0 && rolls.mythic < rolls.epic && rolls.epic < rolls.rare
+  RARITIES.map((r) => `${r} ${(100 * rolls[r] / SAMPLES).toFixed(2)}%`).join(' · '));
+check('a ordem de raridade é respeitada e o divino aparece',
+  rolls.divine > 0 && rolls.divine < rolls.legendary && rolls.legendary < rolls.mythic
+  && rolls.mythic < rolls.epic && rolls.epic < rolls.rare
   && rolls.rare < rolls.uncommon && rolls.uncommon < rolls.common);
-const mythicGoblin = new Goblin({ rarity: 'mythic', name: 'Mito' });
-check('um goblin mítico é válido e persiste no save',
-  RARITIES.includes(mythicGoblin.rarity)
-  && new Goblin(JSON.parse(JSON.stringify(mythicGoblin))).rarity === 'mythic');
+const cappedRolls = new Set();
+for (let i = 0; i < 4000; i++) cappedRolls.add(Goblin.rollRarity(10, rarityRng));
+check('faixa no máximo não é mais sorteada', !cappedRolls.has('common'));
+for (const rarity of ['mythic', 'legendary', 'divine']) {
+  const special = new Goblin({ rarity, name: 'Prova' });
+  check(`um goblin ${rarity} é válido e persiste no save`,
+    RARITIES.includes(special.rarity)
+    && new Goblin(JSON.parse(JSON.stringify(special))).rarity === rarity);
+}
 
 // ============================================================
 section('Village — recursos, construção, habitação');

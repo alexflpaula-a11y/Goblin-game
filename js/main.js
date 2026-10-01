@@ -48,6 +48,7 @@ const state = {
   screen: 'mode_select',
   gameMode: null,         // null até escolher Normal ou Teste na abertura
   testGoblinPage: 0,      // página do catálogo completo de goblins no modo Teste
+  testOdds: false,        // painel de chances de raridade (exclusivo do modo Teste)
   buildTab: 0,            // 0 estruturas | 1 melhorias
   buildScroll: 0,         // rolagem vertical do catálogo de estruturas
   candidates: null,       // 3 goblins p/ recrutamento
@@ -111,7 +112,7 @@ const input = new Input(canvas);
 
 const RARITY_COLOR = {
   common: '#b9aedc', uncommon: '#4fa562', rare: '#4a90d8',
-  epic: '#d98ae8', mythic: '#ffcf5c',
+  epic: '#d98ae8', mythic: '#ffcf5c', legendary: '#ff8f3c', divine: '#8ff3ff',
 };
 
 // Catálogo da Casa de Construção: vem direto do village.js, então
@@ -211,6 +212,25 @@ function startGameMode(mode) {
     state.screen = needsFoundation ? 'build' : 'world';
     toast(needsFoundation ? 'toast.foundation_start' : 'toast.normal_mode');
   }
+}
+
+/** Modo Teste: preenche as vagas novas com goblins sorteados de verdade. */
+function spawnTestGoblins(count = 1) {
+  const spawned = [];
+  for (let i = 0; i < count; i++) {
+    const goblin = Goblin.roll(village.recruitedCount, village.goblins.map((g) => g.name));
+    if (!village.recruit(goblin)) break;
+    spawned.push(goblin);
+  }
+  if (!spawned.length) return spawned;
+  world.setGoblinCount(village.goblins.length);
+  const last = spawned[spawned.length - 1];
+  if (spawned.length === 1) {
+    toast('toast.test_spawn', { name: last.name, rarity: i18n.t('rarity.' + last.rarity) });
+  } else {
+    toast('toast.test_spawn_many', { n: spawned.length });
+  }
+  return spawned;
 }
 
 /** Modelo determinístico para a galeria: uma carta por aparência existente. */
@@ -625,10 +645,14 @@ function completePlacedStructure(structure, capacityBefore = village.capacity) {
   if (structure.type === 'house') {
     world.setGoblinCount(village.goblins.length);
     toast('toast.built');
+    const newSlots = village.capacity - capacityBefore;
+    // No modo Teste cada vaga nova já chega com um goblin sorteado: é assim
+    // que dá para conferir as chances de raridade rapidamente.
+    if (newSlots > 0 && village.unlimited) spawnTestGoblins(newSlots);
     // Uma Casa nova ou melhorada só abre candidatos quando ela realmente
     // aumentou a lotação. A comparação protege obras/saves já concluídos e
     // garante a vaga correspondente a cada nível de Casa.
-    if (village.capacity > capacityBefore && village.goblins.length < village.capacity) openRecruit();
+    else if (newSlots > 0 && village.goblins.length < village.capacity) openRecruit();
   } else {
     toast('toast.built_x', { name });
   }
@@ -919,6 +943,7 @@ function routeTap(id) {
       if (p?.preview) finishPlacement(p.preview.x, p.preview.y);
       break;
     }
+    case 'test_odds': state.testOdds = !state.testOdds; break;
     case 'test_prev_page':
       state.testGoblinPage = Math.max(0, state.testGoblinPage - 1);
       break;
@@ -1708,7 +1733,9 @@ function drawUpgradeRows(P) {
     if (y + 54 < viewTop - 2 || y > viewBot + 2) return;
     const { s } = row;
     ui.parchment(P.x + 10, y, P.w - 20, 54);
-    const speedLabel = s.type === 'construction'
+    // O aviso de que melhorar a Casa de Construção acelera as obras é
+    // informação de bastidor: aparece apenas no modo Teste.
+    const speedLabel = s.type === 'construction' && village.unlimited
       ? ` • ${i18n.t('ui.construction_speed', { n: Math.round((village.constructionSpeed() - 1) * 100) })}` : '';
     ui.text(P.x + 22, y + 15, `${row.label} • ${i18n.t('ui.level', { n: s.level })}${speedLabel}`,
       { size: 11, bold: true, color: '#4a3018' });
@@ -2131,8 +2158,48 @@ function drawTestGoblinScreen() {
 
   ui.button('test_prev_page', P.x + 12, P.y + P.h - 32, 110, 24, i18n.t('ui.prev'), page > 0);
   ui.button('test_next_page', P.x + 134, P.y + P.h - 32, 110, 24, i18n.t('ui.next'), page < pages - 1);
+  ui.button('test_odds', P.x + 256, P.y + P.h - 32, 136, 24, i18n.t('ui.test_odds'), true, state.testOdds);
   ui.text(P.x + P.w - 16, P.y + P.h - 20, i18n.t('ui.test_goblins_hint'),
     { align: 'right', size: 8, color: '#ffe9b8' });
+
+  if (state.testOdds) drawTestOddsPanel();
+}
+
+/**
+ * Tabela de chances do modo Teste: numerador/denominador de cada faixa e a
+ * chance real do próximo sorteio. Nunca aparece numa partida normal.
+ */
+function drawTestOddsPanel() {
+  const P = { x: 120, y: 54, w: 400, h: 258 };
+  ctx.fillStyle = 'rgba(10,7,20,0.86)';
+  ctx.fillRect(0, 34, CONFIG.LOGICAL_WIDTH, CONFIG.LOGICAL_HEIGHT - 34);
+  ui.rusticPanel(P.x, P.y, P.w, P.h);
+  ui.woodSign(P.x + 10, P.y + 8, P.w - 48, 20, i18n.t('ui.test_odds_title'), 11);
+  ui.closeX('test_odds', P.x + P.w - 34, P.y + 8);
+  ui.text(P.x + P.w / 2, P.y + 42, i18n.t('ui.test_odds_sub', { n: village.recruitedCount }),
+    { align: 'center', size: 9, color: '#ffe9b8' });
+
+  Goblin.rarityOdds(village.recruitedCount).forEach((row, i) => {
+    const y = P.y + 56 + i * 26;
+    ui.parchment(P.x + 14, y, P.w - 28, 23);
+    // Pastilha com a cor da faixa; apagada quando ela já está no máximo.
+    ctx.globalAlpha = row.maxed ? 0.35 : 1;
+    ctx.fillStyle = RARITY_COLOR[row.rarity];
+    ctx.fillRect(P.x + 24, y + 7, 9, 9);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = '#3c2712'; ctx.lineWidth = 1;
+    ctx.strokeRect(P.x + 24.5, y + 7.5, 8, 8);
+    ui.text(P.x + 40, y + 12, i18n.t('rarity.' + row.rarity),
+      { size: 10, bold: true, color: row.maxed ? '#8a6b4a' : '#3c2712' });
+    ui.text(P.x + 170, y + 12,
+      `${row.numerator.toFixed(1).replace('.', ',')}/${row.denominator}`,
+      { size: 9, bold: true, color: row.maxed ? '#8c2f1f' : '#4a3018' });
+    ui.text(P.x + P.w - 26, y + 12,
+      row.maxed ? i18n.t('ui.test_odds_maxed') : `${(row.chance * 100).toFixed(2)}%`,
+      { align: 'right', size: 9, bold: true, color: row.maxed ? '#8c2f1f' : '#2f6b3c' });
+  });
+  ui.text(P.x + P.w / 2, P.y + P.h - 14, i18n.t('ui.test_odds_hint'),
+    { align: 'center', size: 8, color: '#ffe9b8' });
 }
 
 // ---------- Tela: Recrutamento (escolher 1 de 3) ----------
@@ -3002,7 +3069,7 @@ async function init() {
   const demo = params.get('demo');
   // `?mode=test` abre direto o modo Teste (útil em prévias e testes); com um
   // gancho de screenshot o jogo também pula a escolha para a cena pedida.
-  if (params.get('mode') === 'test' || demo === 'test_goblins') startGameMode('test');
+  if (params.get('mode') === 'test' || demo === 'test_goblins' || demo === 'odds') startGameMode('test');
   else if (demo && demo !== 'modes') startGameMode('normal');
   if (['construction', 'jobs', 'roster', 'kitchen', 'market', 'armazem', 'equip',
     'deities', 'deity_tree', 'deity_golem', 'nodes', 'work', 'stumps'].includes(demo)) ensureDemoGoblin();
@@ -3030,6 +3097,11 @@ async function init() {
   }
   else if (demo === 'modes') state.screen = 'mode_select';
   else if (demo === 'test_goblins') { state.screen = 'test_goblins'; state.testGoblinPage = 0; }
+  else if (demo === 'odds') {
+    // Prévia da tabela de chances (só existe no modo Teste).
+    village.recruitedCount = 6;
+    state.screen = 'test_goblins'; state.testGoblinPage = 0; state.testOdds = true;
+  }
   else if (demo === 'move') {
     // Prévia do reposicionamento: uma estrutura já segurada e pronta para
     // o ajuste fino com as setinhas.

@@ -222,6 +222,9 @@ class Village {
    * duração zero, nunca uma estrutura colocada pronta no mapa.
    */
   isZeroTimeStarter(type) {
+    // O modo Teste existe para experimentar: nenhuma obra espera relógio
+    // nem depende de um construtor para ficar pronta.
+    if (this.unlimited) return true;
     return (type === 'construction' && this.countOf('construction') === 0)
       || (type === 'house' && this.countOf('house') === 0);
   }
@@ -452,11 +455,12 @@ class Village {
     if (!this.canAfford(cost)) return false;
     this.pay(cost);
     const targetLevel = structure.level + 1;
-    const seconds = this.constructionSeconds(structure.type, targetLevel);
+    const seconds = this.unlimited ? 0 : this.constructionSeconds(structure.type, targetLevel);
     structure.construction = {
       kind: 'upgrade', targetLevel,
       total: seconds, remaining: seconds,
-      status: 'building', worker: null, working: false, paused: false,
+      status: seconds > 0 ? 'building' : 'ready',
+      worker: null, working: false, paused: false,
     };
     return true;
   }
