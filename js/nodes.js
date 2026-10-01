@@ -6,13 +6,17 @@
 //     Quando o estoque acaba, viram toco/entulho.
 //   • DIVINOS (renováveis): a Grande Árvore faz árvores brotarem e o
 //     Golem arremessa novas rochas. A ilha inteira comporta no máximo
-//     40 árvores e 40 pedras, sempre longe das estruturas.
+//     200 árvores e 200 pedras, sempre longe das estruturas.
 //   • INFINITO (estrutura): a Fazenda produz comida sem acabar.
+//   • Tocos/entulho desaparecem dez segundos após serem esgotados, para
+//     manter a ilha navegável mesmo depois de muita coleta.
 // ============================================================
 const { getSprite } = require('assetLoader.js');
 const { BAL } = require('balance.js');
 const { WORLD } = require('world.js');
-const ISLAND_NODE_CAP = 40;
+const ISLAND_NODE_CAP = 200;
+const REMNANT_LIFETIME = 10;
+const REMNANT_FADE_SECONDS = 1.5;
 const GROWTH_FRAMES = { tree: 24, rock: 16 };
 
 function mulberry32(seed) {
@@ -37,6 +41,9 @@ class Nodes {
           worker: null, age: d.divine ? 99 : 0,
           growth: d.divine ? 1 : undefined,
           ...d,
+          // Saves antigos não tinham o relógio do resquício: eles recebem
+          // uma última janela de 10 s em vez de poluírem a ilha para sempre.
+          decay: d.depleted ? (Number.isFinite(d.decay) ? d.decay : REMNANT_LIFETIME) : undefined,
         }));
     } else {
       this.list = this.generate();
@@ -45,15 +52,17 @@ class Nodes {
   }
 
   generate() {
-    // Começa abaixo do teto para as divindades terem espaço para repor
-    // recursos assim que forem ativadas.
-    const cfg = BAL.nodes || { treeCount: 24, rockCount: 24, treeStock: 15, rockStock: 12 };
+    // A ilha começa completa. A vaga de um nó colhido libera a próxima
+    // criação divina, sem um limite vitalício de reposições.
+    const cfg = BAL.nodes || { treeCount: 200, rockCount: 200, treeStock: 15, rockStock: 12 };
     const rnd = mulberry32(42);
     const out = [];
     const clearing = this.world.clearing;
 
     const tryPlace = (type) => {
-      for (let attempt = 0; attempt < 60; attempt++) {
+      // A ilha real tem poucos trechos de grama perto da borda. Uma busca
+      // mais longa garante as 200 vagas de cada tipo, não só "até 200".
+      for (let attempt = 0; attempt < 600; attempt++) {
         const tx = 2 + Math.floor(rnd() * (WORLD.COLS - 4));
         const ty = 2 + Math.floor(rnd() * (WORLD.ROWS - 4));
         if (this.world.tiles[ty * WORLD.COLS + tx] !== 3) continue; // só grama
@@ -79,7 +88,7 @@ class Nodes {
     return out;
   }
 
-  /** Migra saves antigos sem jamais deixar mais de 40 nós ativos por tipo. */
+  /** Migra saves antigos sem jamais deixar mais de 200 nós ativos por tipo. */
   enforceIslandCaps() {
     for (const type of ['tree', 'rock']) {
       let active = 0;
@@ -161,9 +170,24 @@ class Nodes {
     return node;
   }
 
-  /** Faz árvores brotarem e pedras assentarem depois do impacto. */
+  /** Marca um recurso finito como esgotado e inicia o sumiço do resquício. */
+  deplete(node) {
+    if (!node || node.infinite || node.depleted) return false;
+    node.stock = 0;
+    node.depleted = true;
+    node.worker = null;
+    node.decay = REMNANT_LIFETIME;
+    return true;
+  }
+
+  /** Faz árvores brotarem, pedras assentarem e limpa resquícios expirados. */
   update(dt) {
     for (const n of this.list) {
+      if (n.depleted) {
+        // Também cobre nós marcados diretamente por saves/testes antigos.
+        n.decay = Number.isFinite(n.decay) ? n.decay - dt : REMNANT_LIFETIME - dt;
+        continue;
+      }
       if (!n.divine) continue;
       n.age = (n.age || 0) + dt;
       if ((n.growth ?? 1) < 1) {
@@ -171,6 +195,9 @@ class Nodes {
         n.growth = Math.min(1, n.growth + dt / duration);
       }
     }
+    // Os últimos 1,5 s são um fade; quando o relógio zera removemos o
+    // objeto de verdade para liberar memória e espaço visual.
+    this.list = this.list.filter((n) => !n.depleted || n.decay > 0);
   }
 
   /**
@@ -213,6 +240,21 @@ class Nodes {
     return null;
   }
 
+  /** Próximo nó desocupado para uma tarefa automática da Área dos Goblins. */
+  findAvailable(task, x, y) {
+    const type = task === 'wood' ? 'tree' : task === 'stone' ? 'rock'
+      : task === 'food' ? 'farm' : null;
+    if (!type) return null;
+    let best = null;
+    let bestD = Infinity;
+    for (const node of this.list) {
+      if (node.type !== type || node.depleted || node.worker != null) continue;
+      const d = Math.hypot((x ?? node.x) - node.x, (y ?? node.y) - node.y);
+      if (d < bestD) { bestD = d; best = node; }
+    }
+    return best;
+  }
+
   // Manda o walker livre mais próximo trabalhar no nó
   assign(node, walkers) {
     if (!node || node.depleted || node.worker != null) return null;
@@ -248,6 +290,10 @@ class Nodes {
           ctx.fillText(label, n.x, n.y - 8);
           ctx.textAlign = 'left';
           return;
+        }
+        ctx.save();
+        if (n.depleted && Number.isFinite(n.decay)) {
+          ctx.globalAlpha = Math.max(0, Math.min(1, n.decay / REMNANT_FADE_SECONDS));
         }
         const id = n.depleted
           ? (n.type === 'tree' ? 'node_tree_stump' : 'node_rock_rubble')
@@ -303,6 +349,7 @@ class Nodes {
           ctx.fillStyle = n.type === 'tree' ? '#c9a24a' : '#9aa0ad';
           ctx.fillRect(n.x - 10, n.y - 36, 20 * (n.stock / n.max), 3);
         }
+        ctx.restore();
       },
     }));
   }
@@ -312,9 +359,13 @@ class Nodes {
     // então não precisam ser salvos.
     return this.list
       .filter((n) => !n.infinite)
-      .map(({ type, x, y, stock, max, depleted, divine }) =>
-        ({ type, x, y, stock, max, depleted, ...(divine ? { divine: true } : {}) }));
+      .map(({ type, x, y, stock, max, depleted, divine, decay }) =>
+        ({ type, x, y, stock, max, depleted,
+          ...(depleted && Number.isFinite(decay) ? { decay } : {}),
+          ...(divine ? { divine: true } : {}) }));
   }
 }
 
-module.exports = { Nodes, ISLAND_NODE_CAP, GROWTH_FRAMES };
+module.exports = {
+  Nodes, ISLAND_NODE_CAP, REMNANT_LIFETIME, REMNANT_FADE_SECONDS, GROWTH_FRAMES,
+};

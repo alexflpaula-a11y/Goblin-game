@@ -45,7 +45,7 @@ for (const name of names) {
   // 3. invariantes por tela
   if (name === 'equip') {
     const slots = regions.filter((r) => r.id.startsWith('slot_'));
-    ok(slots.length === 10, 'anel de equipamento completo (10 espaços)',
+    ok(slots.length === 9, 'anel de equipamento completo (9 espaços, sem runa)',
       slots.map((s) => s.id.slice(5)).join(','));
     const goblin = { x: 214, y: 152, w: 72, h: 72 };   // sprite do goblin no centro
     const onGoblin = slots.filter((s) => overlap(s, goblin) > 0);

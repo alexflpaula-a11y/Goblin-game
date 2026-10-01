@@ -19,13 +19,16 @@
     "maxLevel": 3
   },
   "recruit": {
-    "rarityBase": {
-      "common": 0.68,
-      "uncommon": 0.22,
-      "rare": 0.08,
-      "epic": 0.02
+    "rarityDenominator": {
+      "common": 2,
+      "uncommon": 5,
+      "rare": 10,
+      "epic": 50,
+      "mythic": 100,
+      "legendary": 500,
+      "divine": 5000
     },
-    "luckPerRecruit": 0.005,
+    "luckStep": 0.1,
     "attrRange": {
       "common": [
         1,
@@ -42,12 +45,24 @@
       "epic": [
         6,
         10
+      ],
+      "mythic": [
+        8,
+        10
+      ],
+      "legendary": [
+        9,
+        10
+      ],
+      "divine": [
+        10,
+        10
       ]
     }
   },
   "nodes": {
-    "treeCount": 24,
-    "rockCount": 24,
+    "treeCount": 200,
+    "rockCount": 200,
     "treeStock": 15,
     "rockStock": 12,
     "workPeriod": 1.2
@@ -67,6 +82,11 @@
   },
   "buildings": {
     "upgradeMul": 1.8
+  },
+  "placement": {
+    "gapX": 50,
+    "gapY": 40,
+    "nodeGap": 44
   },
   "cooking": {
     "healBonus": 0.0

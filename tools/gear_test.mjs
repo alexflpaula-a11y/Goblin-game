@@ -49,8 +49,12 @@ console.log('ARMAZÉM & INVENTÁRIO — equipamentos');
 const v = new Village(null);
 // mercado + armazém construídos direto (custo/level irrelevantes p/ o teste)
 v.structures.push({ type: 'mercado', level: 1, x: 500, y: 500 });
-// um segundo goblin p/ provar que o equipamento é individual
-v.goblins.push(new Goblin({ name: 'Zug', specialty: 'mage', raridade: 'common' }));
+// O jogo novo não começa com moradores; o cenário de equipamento semeia
+// dois explicitamente para provar que cada conjunto é individual.
+v.goblins.push(
+  Goblin.roll(0),
+  new Goblin({ name: 'Zug', specialty: 'mage', raridade: 'common' }),
+);
 v.res.wood = 999; v.res.stone = 999;
 v.res.gold = 2000;
 
@@ -66,7 +70,7 @@ const gears = cat.filter(i => i.kind === 'gear');
 ok(gears.length === inv.ITEMS.length, `com Armazém: ${inv.ITEMS.length} equipamentos à venda`);
 ok(market.catalog(v, 'sell').some(i => i.kind === 'gear'), 'equipamentos agora podem ser revendidos');
 ok(!gears.some(i => i.price <= 0), 'todos com preço ok');
-ok(inv.EQUIP_SLOTS.length === 10, 'boneco tem 10 espaços de equipamento');
+ok(inv.EQUIP_SLOTS.length === 9, 'boneco tem 9 espaços de equipamento, sem runa');
 ok(inv.SLOT_TYPES.includes('anel'), "anel é um tipo (serve nos dois dedos)");
 
 // ---------- compra em quantidade + capacidade ----------

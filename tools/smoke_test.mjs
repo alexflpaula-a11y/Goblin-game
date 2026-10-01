@@ -83,6 +83,10 @@ const cands = Goblin.candidates(0, []);
 check('recrutamento gera 3 candidatos', cands.length === 3);
 check('candidatos têm nomes distintos', new Set(cands.map((c) => c.name)).size === 3);
 check('candidatos têm variações distintas', new Set(cands.map((c) => c.variation)).size === 3);
+const cookSave = new Goblin({ ...g, assignment: 'cook' });
+const oldUnknownJob = new Goblin({ ...g, assignment: 'made_up_old_role' });
+check('save preserva a função Cozinheiro', cookSave.assignment === 'cook');
+check('função antiga/desconhecida ainda migra para Livre', oldUnknownJob.assignment === null);
 
 // sorte crescente: com muitos recrutas, raridade média deve subir
 const rarityScore = (r) => RARITIES.indexOf(r);
@@ -94,6 +98,65 @@ const avg = (n) => {
 const low = avg(0), high = avg(100);
 check('sorte crescente aumenta raridade', high > low, `0 recrutas=${low.toFixed(3)} · 100=${high.toFixed(3)}`);
 
+// Chances pedidas: 1/2 comum, 1/5 incomum, 1/10 raro, 1/50 épico, 1/100 mítico,
+// 1/500 lendário e 1/5000 divino. O numerador sobe 0,1 por goblin recrutado e
+// a faixa some do sorteio quando ele alcança o denominador.
+const { RARITY_DENOMINATOR, RARITY_LUCK_STEP } = req('goblin.js');
+check('as sete faixas existem, do comum ao divino',
+  RARITIES.join(',') === 'common,uncommon,rare,epic,mythic,legendary,divine');
+check('os denominadores são 2, 5, 10, 50, 100, 500 e 5000',
+  JSON.stringify(RARITY_DENOMINATOR)
+  === JSON.stringify({ common: 2, uncommon: 5, rare: 10, epic: 50, mythic: 100, legendary: 500, divine: 5000 }));
+check('cada goblin recrutado soma um décimo ao numerador', RARITY_LUCK_STEP === 0.1);
+
+const oddsAt = (n) => Object.fromEntries(Goblin.rarityOdds(n).map((row) => [row.rarity, row]));
+const start0 = oddsAt(0);
+check('sem recrutas, as frações começam em 1/denominador',
+  Object.values(start0).every((row) => row.numerator === 1 && !row.maxed));
+const nine = oddsAt(9);
+check('com 9 goblins todas as faixas estão em 1,9/denominador',
+  Math.abs(nine.common.numerator - 1.9) < 1e-9
+  && Math.abs(nine.divine.numerator - 1.9) < 1e-9
+  && Object.values(nine).every((row) => !row.maxed));
+const ten = oddsAt(10);
+check('com 10 goblins o comum chega a 2/2 e para de aparecer',
+  ten.common.maxed && ten.common.chance === 0
+  && Math.abs(ten.uncommon.numerator - 2) < 1e-9 && !ten.uncommon.maxed);
+check('faixas restantes continuam proporcionais depois do corte',
+  Math.abs(ten.uncommon.chance / ten.rare.chance - 2) < 1e-9
+  && Math.abs(ten.rare.chance / ten.epic.chance - 5) < 1e-9);
+check('incomum e raro também se esgotam no seu tempo (40 e 90 goblins)',
+  oddsAt(39).uncommon.maxed === false && oddsAt(40).uncommon.maxed === true
+  && oddsAt(89).rare.maxed === false && oddsAt(90).rare.maxed === true);
+check('o divino nunca se esgota numa partida realista',
+  !oddsAt(500).divine.maxed && oddsAt(500).divine.chance > 0);
+
+let raritySeed = 20261001;
+const rarityRng = () => {
+  raritySeed = (raritySeed * 1103515245 + 12345) % 2147483648;
+  return raritySeed / 2147483648;
+};
+const SAMPLES = 400000;
+const rolls = Object.fromEntries(RARITIES.map((r) => [r, 0]));
+for (let i = 0; i < SAMPLES; i++) rolls[Goblin.rollRarity(0, rarityRng)] += 1;
+const offBy = RARITIES.map((r) => Math.abs(rolls[r] / SAMPLES - start0[r].chance));
+check('o sorteio respeita as proporções 1/2 : 1/5 : 1/10 : 1/50 : 1/100 : 1/500 : 1/5000',
+  Math.max(...offBy) < 0.01,
+  RARITIES.map((r) => `${r} ${(100 * rolls[r] / SAMPLES).toFixed(2)}%`).join(' · '));
+check('a ordem de raridade é respeitada e o divino aparece',
+  rolls.divine > 0 && rolls.divine < rolls.legendary && rolls.legendary < rolls.mythic
+  && rolls.mythic < rolls.epic && rolls.epic < rolls.rare
+  && rolls.rare < rolls.uncommon && rolls.uncommon < rolls.common);
+const cappedRolls = new Set();
+for (let i = 0; i < 4000; i++) cappedRolls.add(Goblin.rollRarity(10, rarityRng));
+check('faixa no máximo não é mais sorteada', !cappedRolls.has('common'));
+for (const rarity of ['mythic', 'legendary', 'divine']) {
+  const special = new Goblin({ rarity, name: 'Prova' });
+  check(`um goblin ${rarity} é válido e persiste no save`,
+    RARITIES.includes(special.rarity)
+    && new Goblin(JSON.parse(JSON.stringify(special))).rarity === rarity);
+}
+
 // ============================================================
 section('Village — recursos, construção, habitação');
 // ============================================================
@@ -101,19 +164,40 @@ const { Village } = req('village.js');
 const v = new Village();
 
 check('recursos iniciais do balance', v.res.wood === BALANCE.startResources.wood);
-check('começa com 3 estruturas', v.structures.length === 3, String(v.structures.length));
-check('começa com 1 casa', v.houses.length === 1);
-check('começa com 1 goblin', v.goblins.length === 1);
-check('capacidade = soma dos níveis das casas', v.capacity === 1);
+check('começa sem estruturas no mapa', v.structures.length === 0, String(v.structures.length));
+check('começa sem casas e sem capacidade', v.houses.length === 0 && v.capacity === 0);
+check('começa sem goblins na ilha', v.goblins.length === 0);
+
+const startWood = v.res.wood, startStone = v.res.stone;
+const foundation = v.beginBuildAt('construction', 920, 706);
+check('Casa de Construção grátis aparece como lona pronta sem cronômetro',
+  foundation?.type === 'construction' && foundation.construction?.status === 'ready'
+  && foundation.construction.total === 0 && !v.has('construction')
+  && v.res.wood === startWood && v.res.stone === startStone);
+check('recolher a lona da fundação é que libera a Casa de Construção',
+  v.completeConstruction(foundation) && v.has('construction'));
+const board = v.beginBuildAt('quest', 960, 650);
+check('Painel gratuito ainda é uma obra cronometrada',
+  board?.construction?.status === 'building' && board.construction.total === 10);
+const firstHouse = v.beginBuildAt('house', 1000, 706);
+check('primeira Casa grátis também nasce como lona brilhante sem tempo',
+  firstHouse?.type === 'house' && firstHouse.construction?.status === 'ready'
+  && firstHouse.construction.total === 0 && v.capacity === 0);
+check('recolher a primeira lona libera a capacidade, não um goblin automático',
+  v.completeConstruction(firstHouse) && v.capacity === 1 && v.goblins.length === 0);
+check('primeira Casa não consumiu recursos', v.res.wood === startWood && v.res.stone === startStone);
+check('recruta só cabe depois da primeira Casa', v.recruit(Goblin.roll(0)) && v.goblins.length === 1);
+check('a segunda e a terceira Casa também são grátis', v.buildHouse() && v.buildHouse()
+  && v.houses.length === 3 && v.res.wood === startWood && v.res.stone === startStone);
 
 const woodBefore = v.res.wood;
 const built = v.buildHouse();
-check('constrói casa com recursos', built === true);
-check('pagou o custo em madeira', v.res.wood === woodBefore - BALANCE.house.buildCost.wood);
-check('capacidade subiu p/ 2', v.capacity === 2);
+check('quarta Casa passa a custar recursos', built === true);
+check('pagou o custo em madeira depois das três grátis', v.res.wood === woodBefore - BALANCE.house.buildCost.wood);
+check('capacidade cresce com as Casas', v.capacity === 4);
 
 v.res.wood = 0; v.res.stone = 0;
-check('bloqueia construção sem recursos', v.buildHouse() === false);
+check('bloqueia construção paga sem recursos', v.buildHouse() === false);
 
 v.res.wood = 9999; v.res.stone = 9999;
 // A partir da etapa 1.8 a melhoria é limitada pelo nível da vila (§2.5),
@@ -130,6 +214,7 @@ check('respeita maxLevel da casa', v.houses[0].level === BALANCE.house.maxLevel,
 
 // recrutamento respeita capacidade
 const v2 = new Village();
+v2.buildHouse(); // primeira casa de fundação, instantânea e gratuita
 let guard = 0;
 while (v2.goblins.length < v2.capacity && guard++ < 50) v2.recruit(Goblin.roll(0));
 check('não recruta acima da capacidade', v2.recruit(Goblin.roll(0)) === false);
@@ -140,6 +225,14 @@ check('serialize/restore preserva recursos', round.res.wood === v.res.wood);
 check('serialize/restore preserva casas', round.houses.length === v.houses.length);
 check('serialize/restore reconstrói Goblins', round.goblins[0] instanceof Goblin);
 check('serialize/restore preserva variação', round.goblins[0].variation === v.goblins[0].variation);
+
+// ============================================================
+section('World — chão uniforme e povoamento inicial');
+// ============================================================
+const { World } = req('world.js');
+const visualWorld = new World(17);
+check('mundo novo não cria walkers antes de haver goblins', visualWorld.goblins.length === 0);
+check('terra da ilha não alterna para tiles de rocha', !Array.from(visualWorld.tiles).includes(4));
 
 // ============================================================
 section('Village — XP, nível e desbloqueios (etapa 1.8)');
@@ -181,6 +274,7 @@ check('sem recursos → motivo cost', v4.blockedReason('cozinha')?.reason === 'c
 
 // ---------- melhoria limitada pelo nível da vila ----------
 const v5 = new Village();
+v5.buildHouse();
 v5.res = { wood: 9999, stone: 9999, ore: 9999, food: 9999, gold: 9999 };
 v5.level = 1;
 check('teto de melhoria = nível da vila', v5.maxUpgradeLevel('house') === 1);
@@ -188,6 +282,72 @@ check('não melhora além do nível da vila', v5.upgrade(v5.houses[0]) === false
 v5.level = 3;
 check('teto sobe junto com a vila', v5.maxUpgradeLevel('house') === 3);
 check('agora melhora', v5.upgrade(v5.houses[0]) === true);
+check('melhorar Casa aumenta a capacidade e libera nova vaga', v5.capacity === 2 && v5.goblins.length < v5.capacity);
+const timedHouse = new Village();
+timedHouse.buildHouse(); timedHouse.level = 3;
+timedHouse.res = { wood: 999, stone: 999, ore: 999, food: 999, gold: 999 };
+const timedHome = timedHouse.houses[0];
+check('melhoria de Casa por obra só ganha vaga ao ser recolhida',
+  timedHouse.beginUpgrade(timedHome) && timedHouse.capacity === 1
+  && ((timedHome.construction.status = 'ready'), timedHouse.completeConstruction(timedHome))
+  && timedHouse.capacity === 2);
+const constructionSpeedVillage = new Village();
+constructionSpeedVillage.level = 3;
+constructionSpeedVillage.res = { wood: 999, stone: 999, ore: 999, food: 999, gold: 999 };
+constructionSpeedVillage.build('construction');
+constructionSpeedVillage.upgrade(constructionSpeedVillage.get('construction'));
+check('Casa de Construção melhorada acelera todas as obras', constructionSpeedVillage.constructionSpeed() === 1.25);
+
+// ---------- Modo Teste: carteira infinita e moradia livre ----------
+const testV = new Village();
+testV.setUnlimited(true);
+const testGoldBefore = testV.res.gold;
+testV.pay({ wood: 40, stone: 30, gold: 25 });
+check('modo Teste não desconta recursos ao pagar',
+  testV.res.gold === testGoldBefore && testV.res.wood >= 999999);
+check('modo Teste pode pagar qualquer custo', testV.canAfford({ wood: 1e9, gold: 1e9 }));
+testV.level = 8;
+check('modo Teste constrói o que quiser sem recursos', testV.build('quartel') !== null);
+const { Goblin: TestGoblin } = req('goblin.js');
+check('modo Teste recruta sem depender de casas',
+  testV.capacity === 0 && testV.recruit(TestGoblin.roll(0)) === true);
+check('modo Teste persiste no save', new Village(JSON.parse(JSON.stringify(testV.serialize()))).unlimited === true);
+const normalV = new Village();
+normalV.pay({ wood: 10 });
+check('modo Normal segue descontando normalmente',
+  normalV.res.wood === (new Village()).res.wood - 10 && !normalV.unlimited);
+
+// ============================================================
+section('Village — obras com tempo, lona e recolhimento');
+// ============================================================
+const buildV = new Village();
+buildV.buildHouse(); // a segunda casa é a primeira obra cronometrada
+buildV.level = 3;
+buildV.res = { wood: 9999, stone: 9999, ore: 9999, food: 9999, gold: 9999 };
+check('tempos seguem 10 × (nível da vila exigido + nível da estrutura - 1)',
+  buildV.constructionSeconds('house', 1) === 10
+  && buildV.constructionSeconds('house', 2) === 20
+  && buildV.constructionSeconds('house', 3) === 30
+  && buildV.constructionSeconds('serraria', 1) === 20
+  && buildV.constructionSeconds('serraria', 3) === 40
+  && buildV.constructionSeconds('cozinha', 1) === 30
+  && buildV.constructionSeconds('cozinha', 3) === 50);
+const pendingHouse = buildV.beginBuildAt('house', 840, 760);
+check('construir pelo fluxo do jogo cria uma obra pendente',
+  pendingHouse?.construction?.status === 'building' && pendingHouse.construction.total === 10);
+check('obra pendente não aumenta capacidade nem fica funcional',
+  buildV.capacity === 1 && buildV.countOf('house') === 2 && buildV.houses.length === 1);
+check('não recolhe lona antes de terminar', buildV.completeConstruction(pendingHouse) === false);
+pendingHouse.construction.status = 'ready'; pendingHouse.construction.remaining = 0;
+check('recolher lona pronta finaliza estrutura e libera capacidade',
+  buildV.completeConstruction(pendingHouse) && buildV.capacity === 2 && buildV.houses.length === 2);
+const upgradingHouse = buildV.houses[0];
+check('melhoria cria obra de 20 segundos sem subir o nível na hora',
+  buildV.beginUpgrade(upgradingHouse) && upgradingHouse.level === 1
+  && upgradingHouse.construction?.total === 20);
+upgradingHouse.construction.status = 'ready';
+check('recolher melhoria aplica o nível alvo',
+  buildV.completeConstruction(upgradingHouse) && upgradingHouse.level === 2);
 
 // ============================================================
 section('Quests — painel de missões (etapa 1.7)');
@@ -232,6 +392,8 @@ section('Cooking — cozinha e cura (etapa 1.4)');
 // ============================================================
 const cooking = req('cooking.js');
 const cv = new Village();
+cv.buildHouse();
+cv.recruit(Goblin.roll(0));
 cv.res = { wood: 100, stone: 100, ore: 100, food: 100, gold: 100 };
 
 check('sem cozinha, nada liberado', cooking.available(0).length === 0);
@@ -250,9 +412,48 @@ check('cozinhou pão', out !== null && out.id === 'bread');
 check('consumiu comida crua', cv.res.food === foodBefore - 3);
 check('pão foi para a despensa', cv.meals.bread >= 1);
 
-check('receita travada pelo nível da cozinha', cooking.cook(cv, 'feast') === null);
+  check('receita travada pelo nível da cozinha', cooking.cook(cv, 'feast') === null);
 
-const hurtGoblin = cv.goblins[0];
+  // A interface separa os ingredientes ao iniciar, mas o prato só entra na
+  // despensa depois de o cozinheiro terminar seu cronômetro.
+  const rawBefore = cv.res.food;
+  const prep = cooking.beginCook(cv, 'soup');
+  check('preparo cria trabalho de 10 segundos', prep?.total === 10 && prep.remaining === 10);
+  check('preparo reserva ingredientes sem entregar prato',
+    cv.res.food === rawBefore - 5 && !cv.meals.soup);
+  check('não abre segundo preparo enquanto a panela está ocupada', cooking.beginCook(cv, 'bread') === null);
+  const queueFoodBefore = cv.res.food;
+  check('fila aceita receitas sem cobrar antes de iniciar',
+    cooking.enqueue(cv, 'bread') === 1 && cooking.enqueue(cv, 'soup') === 2
+    && cv.res.food === queueFoodBefore && cv.cookingQueue.join(',') === 'bread,soup');
+  check('remover da fila preserva a ordem', cooking.dequeueAt(cv, 0) === 'bread' && cv.cookingQueue.join(',') === 'soup');
+  while (cv.cookingQueue.length < cooking.MAX_QUEUE) cooking.enqueue(cv, 'bread');
+  check('fila limita a 20 receitas', cv.cookingQueue.length === cooking.MAX_QUEUE && cooking.enqueue(cv, 'bread') === null);
+  const restoredPrep = new Village(cv.serialize());
+  check('preparo e fila pendentes persistem no save', restoredPrep.cookingJob?.recipeId === 'soup'
+    && restoredPrep.cookingJob.remaining === 10 && restoredPrep.cookingQueue.length === cooking.MAX_QUEUE);
+  prep.status = 'ready';
+  const prepared = cooking.finishCook(cv, () => 0.99);
+  check('prato só é entregue ao completar o preparo', prepared?.id === 'soup' && cv.meals.soup === 1 && !cv.cookingJob);
+  check('tempos seguem 10/20/30 por nível de receita',
+    cooking.cookingSeconds('bread') === 10 && cooking.cookingSeconds('stew') === 20 && cooking.cookingSeconds('feast') === 30);
+  check('um, dois e três cozinheiros escalam a velocidade real',
+    cooking.cookSpeed(1) === 1 && cooking.cookSpeed(2) === 2 && cooking.cookSpeed(3) === 3 && cooking.cookSpeed(4) === 3);
+  const kitchenForRecipes = cv.get('cozinha');
+  cv.level = 3;
+  cv.upgrade(kitchenForRecipes);
+  const stewJob = cooking.beginCook(cv, 'stew');
+  check('cozinheiros aceitam ensopado com Cozinha nível 2', stewJob?.recipeId === 'stew' && stewJob.total === 20);
+  stewJob.status = 'ready';
+  check('ensopado termina e entra na despensa', cooking.finishCook(cv, () => 0.99)?.id === 'stew' && cv.meals.stew === 1);
+  cv.res.wood = 999; cv.res.stone = 999; cv.res.gold = 999;
+  cv.upgrade(kitchenForRecipes);
+  const feastJob = cooking.beginCook(cv, 'feast');
+  check('cozinheiros aceitam banquete com Cozinha nível 3', feastJob?.recipeId === 'feast' && feastJob.total === 30);
+  feastJob.status = 'ready';
+  check('banquete termina e entra na despensa', cooking.finishCook(cv, () => 0.99)?.id === 'feast' && cv.meals.feast === 1);
+
+  const hurtGoblin = cv.goblins[0];
 hurtGoblin.hp = 1;
 const healed = cooking.feed(cv, hurtGoblin, 'bread');
 check('comer cura HP', healed > 0, `curou ${healed}`);
@@ -357,15 +558,17 @@ section('Inventory — armazém, itens e espaços');
 // ============================================================
 const inv = req('inventory.js');
 
-check('catálogo tem os equipamentos', inv.ITEMS.length === 14, `${inv.ITEMS.length} itens`);
+check('catálogo tem os equipamentos sem runa', inv.ITEMS.length === 13, `${inv.ITEMS.length} itens`);
 check('todo item tem ícone e preço', inv.ITEMS.every((i) => i.icon && i.price > 0));
-check('10 espaços no boneco', inv.EQUIP_SLOTS.length === 10);
-check('espaços esperados',
+check('9 espaços no boneco', inv.EQUIP_SLOTS.length === 9);
+check('espaços esperados sem runa',
   ['capacete', 'peitoral', 'botas', 'calca', 'anel1', 'anel2',
-    'arma_primaria', 'arma_secundaria', 'runa', 'colar']
-    .every((k) => inv.EQUIP_SLOTS.includes(k)));
+    'arma_primaria', 'arma_secundaria', 'colar']
+    .every((k) => inv.EQUIP_SLOTS.includes(k)) && !inv.EQUIP_SLOTS.includes('runa'));
 
 const iv = new Village();
+iv.buildHouse();
+iv.recruit(Goblin.roll(0));
 check('sem armazém: 0 espaços de item', iv.itemCapacity() === 0);
 iv.level = 2;
 iv.res = { wood: 999, stone: 999, ore: 99, food: 99, gold: 999 };
@@ -396,6 +599,13 @@ check('conta peças equipadas', inv.equippedCount(ig) === 2);   // arma + anel I
 const legacy = new Village({ gear: { peitoral_avaritia: true, calca_avaritia: false } });
 check('save antigo migra peças p/ o inventário',
   legacy.items.peitoral_avaritia === 1 && !legacy.items.calca_avaritia);
+const legacyRune = new Village({
+  items: { espada_ferro: 1, runa_azul: 4 },
+  goblins: [{ name: 'Gruk', equip: { runa: 'runa_azul', espada_ferro: 'espada_ferro' } }],
+});
+check('save antigo descarta runa guardada e equipada',
+  !legacyRune.items.runa_azul && !legacyRune.goblins[0].equip.runa
+  && legacyRune.goblins[0].equip.espada_ferro === 'espada_ferro');
 
 // persistência
 const iround = new Village(JSON.parse(JSON.stringify(iv.serialize())));
@@ -429,8 +639,8 @@ check('remove habilidade', abilities.unequipAbility(ag, 1) === specAb.id);
 // ============================================================
 section('Divindades — canto, arremesso, distância e limite');
 // ============================================================
-const { Nodes } = req('nodes.js');
-const { Deities, ISLAND_NODE_CAP, ANIMATION_FRAMES } = req('deities.js');
+const { Nodes, REMNANT_LIFETIME } = req('nodes.js');
+const { Deities, ISLAND_NODE_CAP, ANIMATION_FRAMES, MAX_WORSHIPPERS } = req('deities.js');
 const deityVillage = new Village();
 deityVillage.level = 3;
 deityVillage.res = { wood: 9999, stone: 9999, ore: 0, food: 0, gold: 9999 };
@@ -439,6 +649,8 @@ check('nível 3 libera o Golem de Pedra', deityVillage.canBuild('golem_pedra'));
 check('Mina não existe mais no catálogo', !('mina' in req('village.js').BUILDINGS));
 deityVillage.build('grande_arvore');
 deityVillage.build('golem_pedra');
+check('santuários não usam o fluxo comum de melhorias',
+  deityVillage.maxUpgradeLevel('grande_arvore') === 1 && deityVillage.maxUpgradeLevel('golem_pedra') === 1);
 
 const deityWorld = {
   clearing: { x: 960, y: 720, r: 160 },
@@ -458,6 +670,7 @@ const deityRng = () => {
   return seed / 4294967296;
 };
 const gods = new Deities(deityWorld, deityVillage, deityNodes, deityRng);
+check('Golem entrega pedra-base, nunca minério', gods.production('golem_pedra')?.key === 'stone');
 check('divindades começam sem goblins e desligadas',
   !gods.isActive('grande_arvore') && !gods.isActive('golem_pedra')
   && deityWorld.goblins.every((w) => !w.job));
@@ -471,7 +684,8 @@ check('animações possuem mais quadros',
   ANIMATION_FRAMES.treeChant >= 24 && ANIMATION_FRAMES.golemForge >= 24);
 let sawChant = false, sawForge = false, sawProjectile = false;
 let sawTreeRise = false, sawRockLand = false;
-for (let i = 0; i < 5200; i++) {
+// Tempo para observar ciclos, crescimento e o projétil sem depender do teto.
+for (let i = 0; i < 12000; i++) {
   deityNodes.update(0.1);
   gods.update(0.1);
   sawChant ||= gods.states.grande_arvore.mode === 'chant';
@@ -503,18 +717,90 @@ try {
 } catch (error) { deityDrawError = error; }
 check('divindades, acólitos e nós animados desenham sem erro',
   deityDrawError === null, deityDrawError?.message);
-check('ilha respeita teto TOTAL de 40 árvores',
-  deityNodes.countActive('tree') === ISLAND_NODE_CAP,
-  String(deityNodes.countActive('tree')));
-check('ilha respeita teto TOTAL de 40 pedras',
-  deityNodes.countActive('rock') === ISLAND_NODE_CAP,
-  String(deityNodes.countActive('rock')));
+check('teto por tipo da ilha é 200', ISLAND_NODE_CAP === 200, String(ISLAND_NODE_CAP));
+const freshNodes = new Nodes(visualWorld);
+check('ilha real nova começa com 200 árvores e 200 pedras',
+  freshNodes.countActive('tree') === 200 && freshNodes.countActive('rock') === 200,
+  `${freshNodes.countActive('tree')} árvores, ${freshNodes.countActive('rock')} pedras`);
+const cappedNodes = new Nodes(deityWorld, [
+  ...Array.from({ length: 205 }, (_, i) => ({ type: 'tree', x: i * 3, y: 10, stock: 1, max: 1, depleted: false })),
+  ...Array.from({ length: 205 }, (_, i) => ({ type: 'rock', x: i * 3, y: 50, stock: 1, max: 1, depleted: false })),
+]);
+check('save acima do teto é limitado a 200 árvores e 200 pedras',
+  cappedNodes.countActive('tree') === ISLAND_NODE_CAP && cappedNodes.countActive('rock') === ISLAND_NODE_CAP);
 const spawned = deityNodes.list.filter((n) => n.divine);
 check('todos os milagres ficam a pelo menos 190px das estruturas',
   spawned.every((n) => deityVillage.structures.every((s) => Math.hypot(n.x - s.x, n.y - s.y) >= 190)));
 const divineRound = new Nodes(deityWorld, JSON.parse(JSON.stringify(deityNodes.serialize())));
-check('árvores e pedras persistem no save sem ultrapassar 40',
-  divineRound.countActive('tree') === 40 && divineRound.countActive('rock') === 40);
+check('árvores e pedras persistem no save sem ultrapassar 200',
+  divineRound.countActive('tree') <= ISLAND_NODE_CAP && divineRound.countActive('rock') <= ISLAND_NODE_CAP);
+// A produção respeita a lotação da ilha: em 200 árvores ativas, ela espera.
+// Quando uma é coletada, a vaga gera outra árvore e novo material-base, sem
+// um limite vitalício de reposições.
+deityNodes.list = cappedNodes.list;
+gods.states.grande_arvore.mode = 'idle'; gods.states.grande_arvore.cooldown = 0;
+const cappedWood = deityVillage.res.wood || 0;
+for (let i = 0; i < 300; i++) gods.update(0.1);
+check('Grande Árvore não produz enquanto a ilha está no teto',
+  (deityVillage.res.wood || 0) === cappedWood && deityNodes.countActive('tree') === ISLAND_NODE_CAP);
+const freedTree = deityNodes.list.find((n) => n.type === 'tree' && !n.depleted);
+deityNodes.deplete(freedTree);
+for (let i = 0; i < 300; i++) gods.update(0.1);
+check('vaga colhida permite produção divina ilimitada e reposição',
+  (deityVillage.res.wood || 0) > cappedWood && deityNodes.countActive('tree') === ISLAND_NODE_CAP);
+
+// Até três acólitos dividem o santuário, aceleram a produção e enchem o XP
+// persistente da divindade (não do nível físico do prédio).
+const shrineVillage = new Village();
+shrineVillage.level = 3;
+shrineVillage.res = { wood: 9999, stone: 9999, ore: 0, food: 0, gold: 9999 };
+shrineVillage.build('grande_arvore');
+const shrineWorld = {
+  clearing: { x: 960, y: 720, r: 160 }, tiles: new Uint8Array(120 * 90).fill(3), floats: [],
+  goblins: [0, 1, 2].map((i) => ({ i, x: 940 + i * 15, y: 720, job: null, target: null })),
+};
+const shrineNodes = new Nodes(shrineWorld, [
+  { type: 'tree', x: 20, y: 20, stock: 0, max: 1, depleted: true },
+]);
+const shrine = new Deities(shrineWorld, shrineVillage, shrineNodes, deityRng);
+shrineVillage.goblins = [{ assignment: 'cook' }];
+check('culto recusa um cozinheiro reservado, mesmo entre receitas',
+  shrine.activate('grande_arvore', shrineWorld.goblins, 0).reason === 'busy');
+shrineVillage.goblins[0].assignment = null;
+const sent = [0, 1, 2].map((i) => shrine.activate('grande_arvore', shrineWorld.goblins, i));
+shrineWorld.goblins.forEach((w) => { w.job.type = 'worship'; });
+check('santuário aceita até três acólitos',
+  sent.every((r) => r.ok) && shrine.status('grande_arvore').worshippers.length === MAX_WORSHIPPERS);
+check('quarto acólito é recusado', shrine.activate('grande_arvore', shrineWorld.goblins).reason === 'full');
+const materialsBefore = { wood: shrineVillage.res.wood || 0, hardwood: shrineVillage.res.hardwood || 0,
+  ancient: shrineVillage.res.ancient_wood || 0 };
+const levelOneCycle = shrine.cycleSeconds('grande_arvore');
+const levelOneRate = shrine.status('grande_arvore').perMinute;
+for (let i = 0; i < 500; i++) shrine.update(0.1);
+check('nível 1 produz só madeira; graus futuros seguem indisponíveis',
+  shrineVillage.res.wood > materialsBefore.wood
+  && (shrineVillage.res.hardwood || 0) === materialsBefore.hardwood
+  && (shrineVillage.res.ancient_wood || 0) === materialsBefore.ancient);
+check('três acólitos multiplicam o XP de louvor (50s × 3 = 150)',
+  shrine.status('grande_arvore').level === 1 && Math.round(shrine.status('grande_arvore').xp) === 150,
+  `${shrine.status('grande_arvore').xp.toFixed(1)} XP`);
+for (let i = 0; i < 110; i++) shrine.update(0.1);
+check('três acólitos evoluem após um minuto de louvor contínuo', shrine.status('grande_arvore').level >= 2);
+check('nível divino acelera a produção-base sem liberar materiais',
+  shrine.cycleSeconds('grande_arvore') < levelOneCycle && shrine.status('grande_arvore').perMinute > levelOneRate);
+
+const remnants = new Nodes(deityWorld, [
+  { type: 'tree', x: 100, y: 100, stock: 1, max: 1, depleted: false },
+  { type: 'rock', x: 140, y: 100, stock: 1, max: 1, depleted: false },
+]);
+remnants.deplete(remnants.list[0]);
+remnants.deplete(remnants.list[1]);
+remnants.update(REMNANT_LIFETIME - 0.1);
+check('toco e entulho permanecem pelos primeiros 10 segundos', remnants.list.length === 2);
+const remnantSave = remnants.serialize();
+check('relógio de sumiço do resquício persiste no save', remnantSave.every((n) => n.depleted && n.decay > 0));
+remnants.update(0.11);
+check('toco e entulho somem após 10 segundos', remnants.list.length === 0);
 check('desativar libera o goblin novamente',
   gods.deactivate('grande_arvore') && deityWorld.goblins[0].job === null);
 const migratedVillage = new Village({ structures: [

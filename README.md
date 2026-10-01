@@ -45,11 +45,41 @@ python3 -m http.server 8080
 | Pinça (2 dedos) / roda do mouse | zoom (0.7x–3x) |
 | Toque em árvore/pedra/posto | manda o goblin livre mais próximo trabalhar |
 | Toque no goblin trabalhando | chama ele de volta |
-| Toque numa divindade | envia/retira um goblin para ativar o culto |
+| Toque numa divindade | abre seu Santuário: até 3 acólitos, XP, nível e taxa de produção |
 | Construir → toque no mapa | escolhe exatamente onde colocar a estrutura |
-| Botão ↔ → estrutura → mapa | move qualquer estrutura já construída |
+| Setinhas ▲ ▼ ◀ ▶ em volta da prévia | empurram a estrutura um pouco em cada direção, para o ajuste fino antes de **Confirmar** |
+| Toque longo numa estrutura pronta | **único jeito de mover**: preenche um anel amarelo e, ao completar, libera o novo local |
 | Toque nos outros prédios | abre a tela correspondente |
-| Botões no rodapé | **Construir**, **Mover**, **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
+| Botões no rodapé | **Construir**, **Recrutar** (quando há vaga), **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
+| Vila | concentra a lista de todos os goblins e suas abas **Goblins** e **Trabalhos**; em Trabalhos, arraste somente goblins disponíveis até um ofício e toque no ofício para ver apenas sua equipe atual |
+| Cozinha → **Cozinheiros** | designe até **3 cozinheiros** dentre os disponíveis; a fila guarda até **20 receitas** na ordem escolhida, e cada cozinheiro que chega à panela acelera o preparo |
+
+### Modos de jogo
+
+Ao abrir o jogo aparecem dois modos:
+
+- **Modo Normal** — a partida padrão: a ilha começa vazia, os recursos são finitos e as estruturas são liberadas pelo nível da vila.
+- **Modo Teste** — para experimentar o jogo inteiro: os recursos são **infinitos** (a barra superior mostra ∞ e nada é descontado), **todas as estruturas já estão desbloqueadas** e o rodapé ganha o botão **☺ Goblins**, uma galeria paginada com **todas as aparências existentes** — escolha qualquer uma e ela entra na vila na hora, sem depender de vagas de moradia.
+
+O modo escolhido vale para a sessão inteira. Para abrir direto no modo Teste (prévias e testes), use `?mode=test` na URL.
+
+### Posicionar e mover estruturas
+
+Mover uma estrutura é sempre o mesmo gesto: **segure o dedo em cima dela** até o anel amarelo fechar. Não existe botão de mover — um toque simples continua abrindo a tela do prédio. Um goblin parado na frente não atrapalha: enquanto o dedo não se mexe, o anel continua enchendo.
+
+Ao construir, ou assim que o anel completa, aparece a prévia translúcida com as quatro **setinhas** em volta. Cada toque numa seta desloca a prévia um pouco naquela direção; o toque no mapa reposiciona a prévia de uma vez. **Confirmar** grava o ponto exato e **Cancelar** desiste.
+
+As construções agora podem ficar **bem mais próximas**. O espaço reservado deixou de ser um círculo largo e passou a ser a **base** do prédio, que é larga e rasa: vizinhas lado a lado precisam de apenas **50 px** entre os centros (quase encostadas) e uma fileira nova cabe **40 px** atrás da anterior — antes a regra exigia 72 px em qualquer direção. A elipse da prévia mostra exatamente esse espaço, e árvores e pedras também passaram a atrapalhar menos (44 px). Como o desenho é ordenado pela profundidade, quem está na frente cobre quem está atrás, e **o toque sempre abre a construção que aparece na frente**.
+
+### Raridade dos goblins
+
+Cada candidato sai com uma das **sete faixas**, e cada faixa tem a sua fração própria: **1/2 comum · 1/5 incomum · 1/10 raro · 1/50 épico · 1/100 mítico · 1/500 lendário · 1/5000 divino**. Essas frações são os pesos do sorteio; normalizadas, dão ≈ 60,08% · 24,03% · 12,02% · 2,40% · 1,20% · 0,24% · 0,02% no começo da partida.
+
+O **denominador nunca muda**, mas o **numerador começa em 1 e sobe 0,1 a cada goblin recrutado** — com 9 goblins na vila as frações estão em 1,9/2 · 1,9/5 · 1,9/10 · 1,9/50 · 1,9/100 · 1,9/500 · 1,9/5000. Quando o numerador alcança o denominador a faixa chega ao **máximo** e sai do sorteio: com 10 goblins o comum fecha em 2/2 e nunca mais aparece, sobrando incomum 2/5, raro 2/10, épico 2/50, mítico 2/100, lendário 2/500 e divino 2/5000. Os pontos de corte são 10 recrutas (comum), 40 (incomum), 90 (raro), 490 (épico), 990 (mítico), 4990 (lendário) e 49990 (divino).
+
+A raridade define a faixa de atributos sorteada, a cor das barras e o número de estrelas: **Mítico** 8–10, **Lendário** 9–10 e **Divino** 10 em tudo, com sete estrelas.
+
+A tabela completa — fração atual, chance real e aviso de faixa esgotada — fica no botão **Chances**, dentro da galeria ☺ Goblins, e **só existe no modo Teste**: é informação de bastidor e não aparece numa partida normal. No modo Teste as obras também ficam prontas na hora e **cada vaga de moradia nova já chega com um goblin sorteado**, para conferir as chances em poucos toques.
 
 ## 🔄 O ciclo do jogo
 
@@ -60,6 +90,20 @@ coletar recursos → construir → cumprir missões → XP da vila
 ```
 
 A **vila sobe de nível** com o XP das missões. Cada nível libera novas estruturas *e* eleva o teto de melhoria de todas elas. Melhorar a Cozinha, por exemplo, desbloqueia pratos melhores.
+
+### Fundação da vila
+
+Uma partida nova começa com a ilha **sem prédios e sem goblins**. O primeiro painel pede o local da **Casa de Construção**, que é gratuita. Ela ainda passa pela lona de fabricação, mas como tem duração zero a lona aparece brilhando e basta tocá-la para concluir. Só então o catálogo normal é liberado.
+
+O **Painel de Missões** e as **três primeiras Casas de Goblin** também não custam recursos. Não existem missões antes de o Painel ter sido concluído. A primeira Casa, como a Casa de Construção, tem duração zero mas ainda exige recolher a lona brilhante; ao concluir a Casa, abre-se a escolha do primeiro goblin. A segunda e a terceira Casas continuam sendo obras normais com cronômetro. Cada nível de uma Casa concede mais uma vaga de moradia; durante uma melhoria, as vagas que ela já tinha continuam valendo e, ao recolher a obra pronta, a nova vaga abre o recrutamento. Enquanto existir vaga, o botão **Recrutar** permite reabrir a escolha de candidatos.
+
+### Obras
+
+Colocar ou melhorar uma estrutura cria uma **lona de obra**. A lona aguarda até que o jogador abra **Vila → Trabalhos** e nomeie um goblin como **Construtor**; somente um construtor nomeado vai até ela, trabalha levantando poeira e faz o cronômetro avançar. A duração segue o nível de desbloqueio da estrutura: casas (nível 1) levam **10 / 20 / 30 s** nos níveis 1–3; estruturas desbloqueadas no nível 2 levam **20 / 30 / 40 s**; as do nível 3 levam **30 / 40 / 50 s**, e assim sucessivamente. A **Casa de Construção** também pode ser melhorada: cada nível extra acelera todas as obras em **25%** (esse número só é exibido na lista de melhorias do modo Teste; numa partida normal ele fica de bastidor). Ao acabar — ou imediatamente nas fundações de duração zero — a lona brilha: toque nela para recolher a construção pronta.
+
+### Cozinha e cozinheiros
+
+Abra a **Cozinha** e use a aba **Cozinheiros** para designar até **três** goblins. A aba **Cozinhar** permite organizar uma fila de até **20 pratos**: a ordem da lista define a prioridade, itens podem ser removidos antes de iniciar e os ingredientes só saem do estoque quando o item chega ao começo da fila e a preparação começa. Receitas de cozinha nível 1 levam **10 s**, nível 2 levam **20 s** e nível 3 levam **30 s** com um cozinheiro; cada cozinheiro que já alcançou a panela soma velocidade ao mesmo preparo. A porção entra na despensa apenas ao término.
 
 | Nível | Desbloqueia |
 |---|---|
@@ -72,7 +116,7 @@ A **vila sobe de nível** com o XP das missões. Cada nível libera novas estrut
 | 7 | Porto |
 | 8 | Quartel |
 
-No nível 3, a **Grande Árvore** canta e faz árvores brotarem do chão, enquanto o **Golem de Pedra** cria e arremessa rochas rúnicas que caem e permanecem coletáveis na ilha. As divindades começam vazias: toque nelas para enviar um goblin livre e iniciar o culto; toque novamente para liberá-lo. A ilha nunca ultrapassa **40 árvores e 40 pedras no total**, e os novos recursos divinos só surgem longe das estruturas.
+No nível 3, a **Grande Árvore** canta e faz árvores brotarem do chão, enquanto o **Golem de Pedra** cria e arremessa rochas que caem e permanecem coletáveis na ilha. Tocar numa delas abre seu **Santuário**: até **3 goblins** podem louvar ao mesmo tempo. Cada acólito ativo acelera tanto a produção quanto o ganho de XP de louvor; a barra de XP é o único modo de elevar a divindade até o nível 3 — os santuários não entram na loja de melhorias comum. Cada nível torna os ciclos de produção mais rápidos. Por enquanto a Árvore entrega apenas madeira e o Golem apenas **pedra**: materiais especiais e a forja/compra de runas continuam reservados para uma fase futura, sem reabrir slots de runa nos goblins. Uma partida nova nasce com **200 árvores e 200 pedras ativas**. A produção divina respeita esse teto por tipo: quando alguém coleta um nó, a vaga permite outra criação, sem limite vitalício de reposições. Os recursos divinos só surgem longe das estruturas. Tocos e entulho de pedra somem após **10 segundos**, mantendo o terreno limpo.
 
 ## 🏚️ Armazém, inventário e equipamento
 
@@ -81,7 +125,7 @@ O **Armazém** (vila nv 2) guarda tudo e abre o inventário da vila:
 - **Recursos** — madeira, pedra, minério, comida e ouro, mais a **despensa** de pratos cozinhados;
 - **Itens** — área separada com os equipamentos em **espaços** (slots), um item por célula. A capacidade cresce com o nível do Armazém (nv1 = 16, nv2 = 24, nv3 = 32 espaços).
 
-Os equipamentos são comprados no **Mercado** (agora em quantidade, limitados pelos espaços do Armazém) e ainda **não têm status** — isso chega com as batalhas. Cada goblin tem a própria tela de equipar, com **10 espaços rodando o personagem**: capacete, peitoral, botas, calça, **2 anéis**, arma primária, arma secundária, runa e colar. Tocar num espaço lista os itens do tipo guardados no armazém (equipar troca a peça e devolve a antiga).
+Os equipamentos são comprados no **Mercado** (agora em quantidade, limitados pelos espaços do Armazém) e ainda **não têm status** — isso chega com as batalhas. Cada goblin tem a própria tela de equipar, com **9 espaços rodando o personagem**: capacete, peitoral, botas, calça, **2 anéis**, arma primária, arma secundária e colar. Tocar num espaço lista os itens do tipo guardados no armazém (equipar troca a peça e devolve a antiga).
 
 A mesma interface ainda tem duas abas: **Alimentos** (escolher um prato e alimentar qualquer goblin) e **Habilidades** (2 espaços por goblin; cada um usa as habilidades da própria especialidade + as genéricas).
 
@@ -156,7 +200,7 @@ bash    tools/test.sh               # roda as 7 suítes de teste
 
 ## ✅ Testes
 
-370 testes automatizados, sem navegador (`bash tools/test.sh`):
+453 testes automatizados, sem navegador (`bash tools/test.sh`):
 
 | Suíte | O que cobre |
 |---|---|
@@ -189,6 +233,6 @@ em `js/save.js`; o sistema (save/load/autosave a cada 10s) continua intacto.
 
 **Fase 1 concluída (1.1 → 1.8):** ilha + câmera, goblins + habitação + recrutamento 1-de-3, recursos finitos, trabalho, construção de todas as estruturas, missões, XP/nível da vila, cozinha, **Mercado** e as duas divindades renováveis (Grande Árvore e Golem de Pedra).
 
-**Etapa 1.7 — Armazém & Inventário:** o **Armazém** (vila nv 2, melhorável: 16/24/32 espaços) abre o inventário da vila com todos os recursos + despensa numa área e os **itens de equipamento em slots** na outra. 14 equipamentos (sem status por enquanto): conjunto Avaritia (peitoral 120, capacete 150, calça 90 ouro), conjunto de ferro (capacete 45, peitoral 60, calça 40), botas de couro, anel de cobre/rubi, colar de presas, espada, clava, escudo e runa azul. A interface de equipar tem **10 espaços rodando o goblin** (capacete, peitoral, botas, calça, 2 anéis, arma primária, arma secundária, runa, colar) + aba **Alimentos** (alimentar goblins) + aba **Habilidades** (2 espaços por goblin, por especialidade + genéricas). Cada goblin veste o que quiser — as peças Avaritia e o peitoral de ferro mudam o sprite individualmente.
+**Etapa 1.7 — Armazém & Inventário:** o **Armazém** (vila nv 2, melhorável: 16/24/32 espaços) abre o inventário da vila com todos os recursos + despensa numa área e os **itens de equipamento em slots** na outra. 13 equipamentos (sem status por enquanto): conjunto Avaritia (peitoral 120, capacete 150, calça 90 ouro), conjunto de ferro (capacete 45, peitoral 60, calça 40), botas de couro, anel de cobre/rubi, colar de presas, espada, clava e escudo. A interface de equipar tem **9 espaços rodando o goblin** (capacete, peitoral, botas, calça, 2 anéis, arma primária, arma secundária e colar) + aba **Alimentos** (alimentar goblins) + aba **Habilidades** (2 espaços por goblin, por especialidade + genéricas). Cada goblin veste o que quiser — as peças Avaritia e o peitoral de ferro mudam o sprite individualmente.
 
 **A seguir:** Fase 2 (Ferraria, Altar, Bazar) → Fase 3 (combate por turnos — quando os equipamentos ganham status). Roadmap completo em [`docs/planejamento-jogo-gnomos.md`](docs/planejamento-jogo-gnomos.md).
