@@ -170,7 +170,8 @@ docs/               documentação
   planejamento-jogo-gnomos.md  planejamento completo + log de desenvolvimento
   rascunho-inicial.md          primeiro rascunho do projeto (arquivo histórico)
 art-source/         arte-fonte do autor (NÃO carregada em runtime)
-  goblins/          os 45 GIFs de variação usados por gen_goblin_variations.py
+  goblins/          os 45 GIFs de variação da arte antiga (histórico)
+  goblins-v2/       folhas de conferência do goblin atual (base, variações, equipamentos)
   avaritia/         sprite sheet / gif / zip / preview do conjunto Avaritia
   peitoral-ferro/   sprite sheet / zip / preview do peitoral de ferro
   misc/             imagens e sprites avulsos de referência
@@ -190,7 +191,9 @@ art-source/         arte-fonte do autor (NÃO carregada em runtime)
 python3 tools/build_singlefile.py          # gera o vila-de-goblins-jogavel.html
 python3 tools/gen_sprites.py               # (re)gera a pixel art de prédios e comidas
 python3 tools/gen_icons.py                 # (re)gera ícones 16×16 de itens/habilidades
-python3 tools/gen_goblin_variations.py     # extrai as 45 variações em lotes de 5
+python3 tools/gen_goblin_v2.py             # goblin base + as 45 variações (2852 quadros)
+python3 tools/gen_gear_v2.py               # armaduras e armas encaixadas no goblin
+python3 tools/gen_goblin_variations.py     # (legado) extraía as variações dos GIFs antigos
 python3 tools/unbuild.py            # extrai a fonte de volta a partir do build
 bash    tools/test.sh               # roda as 7 suítes de teste
 ```
@@ -216,7 +219,19 @@ bash    tools/test.sh               # roda as 7 suítes de teste
 
 O conjunto **Avaritia** (peitoral, calça, capacete + 3 pares + conjunto completo, 62 frames cada) vive em `sprites/itens/` e é gerado por `sprites/itens/gerar_item.py` / `gerar_conjunto.py` a partir dos frames do goblin no `window.EMBEDDED` do jogo — apenas recolor de pixels existentes.
 
-PNGs **32×32** referenciados por **nome lógico** no `manifest.json`. Se um PNG não existir, um placeholder é desenhado automaticamente (o jogo nunca quebra). Os goblins têm **45 variações físicas** vindas dos GIFs do autor — dente dourado, tapa-olho, cicatrizes, albinismo, tatuagens e combinações — cada uma com os 62 quadros de `idle/walk/attack/hurt/death`. `tools/gen_goblin_variations.py` extrai todas em **9 lotes de 5** e também gera os overlays que mantêm a variação sob a armadura. Prédios, recursos e comidas são pixel art autoral gerada por `tools/gen_sprites.py`.
+PNGs **32×32** referenciados por **nome lógico** no `manifest.json`. Se um PNG não existir, um placeholder é desenhado automaticamente (o jogo nunca quebra). Os goblins têm **45 variações físicas** — dente dourado, tapa-olho, cicatrizes, albinismo, tatuagens e combinações — cada uma com os 62 quadros de `idle/walk/attack/hurt/death`.
+
+Desde a arte atual, nada disso é desenhado quadro a quadro: existe um **rig**. O goblin é um conjunto de partes em cores chapadas (cabeça, tronco, braços, pernas, espada); ao montar um quadro o rig posiciona as partes, **gera o contorno escuro automaticamente** a partir da silhueta e só então pinta rosto, variação e armadura. Por isso um ajuste no desenho se propaga para os 2852 quadros de uma vez.
+
+| arquivo | papel |
+| --- | --- |
+| `tools/goblin_rig.py` | partes do corpo, paleta, contorno automático, pontos de ancoragem |
+| `tools/goblin_anim.py` | as 62 poses das 5 animações |
+| `tools/goblin_variations.py` | as 45 aparências como receitas de traços (cicatriz, atadura, albinismo…) |
+| `tools/goblin_gear.py` | armaduras e armas, ancoradas às partes do corpo |
+| `tools/gen_goblin_v2.py` / `tools/gen_gear_v2.py` | geram os PNGs |
+
+Cada traço de variação é aplicado em coordenadas **relativas à cabeça/braço daquele quadro**, então a marca acompanha o goblin em qualquer pose. Os overlays de armadura também não são desenhados à mão: são a **diferença** entre o quadro vestido e o mesmo quadro nu, o que torna o encaixe exato por construção. Prédios, recursos e comidas são pixel art autoral gerada por `tools/gen_sprites.py`.
 
 ## 🌐 Idiomas
 

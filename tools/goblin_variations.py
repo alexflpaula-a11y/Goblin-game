@@ -44,6 +44,9 @@ def _put(buf, x, y, ch):
         buf[y][x] = ch
 
 
+_MASK = set()
+
+
 def _head_paint(buf, ctx, cells, ch, over_outline=False):
     if 'head' not in ctx:
         return
@@ -51,7 +54,7 @@ def _head_paint(buf, ctx, cells, ch, over_outline=False):
     for fx, fy in cells:
         x = hx + (17 - fx if flip else fx)
         y = hy + fy
-        if 0 <= x < R.SIZE and 0 <= y < R.SIZE:
+        if 0 <= x < R.SIZE and 0 <= y < R.SIZE and (x, y) not in _MASK:
             if buf[y][x] is None:
                 continue
             if buf[y][x] == 'o' and not over_outline:
@@ -66,7 +69,8 @@ def _arm_paint(buf, ctx, part, rows, ch):
     for ry in rows:
         for rx in range(3):
             x, y = ax + rx, ay + ry
-            if 0 <= x < R.SIZE and 0 <= y < R.SIZE and buf[y][x] not in (None, 'o'):
+            if (0 <= x < R.SIZE and 0 <= y < R.SIZE
+                    and buf[y][x] not in (None, 'o') and (x, y) not in _MASK):
                 buf[y][x] = ch
 
 
@@ -250,9 +254,14 @@ def build(variation_id):
         else:
             raise KeyError(f'traco desconhecido: {t} ({variation_id})')
 
-    def detail(buf, ctx):
-        for fn in details:
-            fn(buf, ctx)
+    def detail(buf, ctx, mask=()):
+        global _MASK
+        _MASK = mask or set()
+        try:
+            for fn in details:
+                fn(buf, ctx)
+        finally:
+            _MASK = set()
 
     return {
         'swap': swap or None,

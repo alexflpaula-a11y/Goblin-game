@@ -48,6 +48,17 @@ C = {
     'W': (228, 224, 212, 255),   # pano claro / albino
     'Y': (216, 178, 58, 255),    # ouro
     'c': (70, 54, 42, 255),      # marca escura
+    '1': (42, 46, 68, 255),      # obsidiana sombra (avaritia)
+    '2': (86, 94, 122, 255),      # obsidiana base
+    '3': (132, 142, 176, 255),   # obsidiana luz
+    '4': (86, 232, 212, 255),    # gema turquesa
+    '5': (30, 142, 134, 255),    # gema turquesa sombra
+    '6': (214, 176, 58, 255),    # filete dourado
+    '7': (82, 90, 101, 255),     # ferro sombra
+    '8': (140, 150, 162, 255),   # ferro base
+    '9': (198, 206, 216, 255),   # ferro luz
+    'L': (134, 94, 54, 255),     # madeira (escudo)
+    'M': (176, 132, 80, 255),    # madeira luz
     'n': (186, 146, 110, 255),   # pele clara alternativa
     'k': (14, 22, 18, 255),      # preto
 }
@@ -243,7 +254,8 @@ def to_image(buf):
     return img
 
 
-def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None):
+def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None,
+            gear=None):
     """Monta um quadro. Retorna o buffer de chars (ainda nao convertido)."""
     extra_parts = extra_parts or {}
     buf = _blank()
@@ -275,6 +287,29 @@ def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None):
             head_pos = (ox, oy, flip)
         _blit(buf, art, ox, oy, flip=flip)
 
+    # Camadas de equipamento: cada peca e ancorada a uma parte do corpo e
+    # desenhada na posicao que a parte tem NAQUELE quadro, entao a armadura
+    # acompanha o goblin em qualquer pose. Entram antes do contorno para
+    # ganharem contorno proprio e se fundirem com a silhueta.
+    gear_mask = set()
+    for piece in (gear or ()):
+        anchor = piece['anchor']
+        if anchor not in ctx or pose.get(anchor) is None:
+            continue
+        ax, ay, aflip = ctx[anchor]
+        gx = ax + (-piece.get('dx', 0) if aflip else piece.get('dx', 0))
+        gy = ay + piece.get('dy', 0)
+        art = piece['grid']
+        rows = [list(reversed(r)) for r in art] if aflip else art
+        for yy, row in enumerate(rows):
+            for xx, ch in enumerate(row):
+                if ch == '.':
+                    continue
+                px, py = gx + xx, gy + yy
+                if 0 <= px < SIZE and 0 <= py < SIZE:
+                    buf[py][px] = ch
+                    gear_mask.add((px, py))
+
     buf = _shade(buf)
     buf = _outline(buf)
 
@@ -287,15 +322,16 @@ def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None):
         for (fx, fy), ch in face.items():
             x = hx + (17 - fx if hflip else fx)
             y = hy + fy
-            if 0 <= x < SIZE and 0 <= y < SIZE and buf[y][x] is not None:
+            if (0 <= x < SIZE and 0 <= y < SIZE
+                    and buf[y][x] is not None and (x, y) not in gear_mask):
                 buf[y][x] = ch
         if variation:
-            variation(buf, ctx)
+            variation(buf, ctx, gear_mask)
 
     if swap:
         for y in range(SIZE):
             for x in range(SIZE):
-                if buf[y][x] in swap:
+                if buf[y][x] in swap and (x, y) not in gear_mask:
                     buf[y][x] = swap[buf[y][x]]
 
     if overlay:

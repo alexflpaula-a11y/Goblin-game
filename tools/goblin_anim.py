@@ -186,18 +186,32 @@ POSES = {
 
 
 # ---------------------------------------------------------- pos-processo ----
+_LAY_OFFSET = None
+
+
+def _lay_offset():
+    """Deslocamento fixo do corpo deitado.
+
+    E calculado UMA vez a partir do goblin nu. Usar sempre o mesmo valor e
+    essencial: se o enquadramento dependesse do conteudo do quadro, um
+    escudo ou um elmo mudariam a silhueta e o overlay sairia desalinhado
+    do corpo na animacao de morte.
+    """
+    global _LAY_OFFSET
+    if _LAY_OFFSET is None:
+        ref = R.to_image(R.compose(_pose())).transpose(Image.ROTATE_270)
+        bb = ref.getbbox()
+        _LAY_OFFSET = ((R.SIZE - (bb[2] - bb[0])) // 2 - bb[0],
+                       R.ANCHORS['ground_y'] + 1 - bb[3])
+    return _LAY_OFFSET
+
+
 def _lay_down(img, lift):
     """Deita o corpo com rotacao exata de 90 graus (sem perda de pixels)."""
+    dx, dy = _lay_offset()
     rot = img.transpose(Image.ROTATE_270)
-    bb = rot.getbbox()
-    if not bb:
-        return img
-    crop = rot.crop(bb)
-    x = max(0, min(R.SIZE - crop.width, (R.SIZE - crop.width) // 2))
-    y = R.ANCHORS['ground_y'] + 1 - crop.height - lift
-    y = max(0, min(R.SIZE - crop.height, y))
     out = Image.new('RGBA', (R.SIZE, R.SIZE), (0, 0, 0, 0))
-    out.alpha_composite(crop, (x, y))
+    out.paste(rot, (dx, dy - lift), rot)
     return out
 
 
