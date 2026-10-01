@@ -98,12 +98,16 @@ function maxSell(village, kind, key) { return have(village, kind, key); }
 /** Máximo que dá para comprar com o ouro atual. */
 function maxBuy(village, kind, key) {
   const p = buyPrice(village, kind, key);
+  // A carteira do modo Teste é infinita; limitamos só a interface a 999
+  // para não criar controles impraticáveis, e preservamos o limite físico
+  // de espaços para equipamentos.
+  const affordable = village.unlimited ? 999 : Math.floor((village.res.gold || 0) / p);
   if (kind === 'gear') {
     // limitado pelo ouro E pelos espaços livres do Armazém
     const livre = village.itemCapacity() - village.itemsCount();
-    return Math.max(0, Math.min(Math.floor((village.res.gold || 0) / p), livre));
+    return Math.max(0, Math.min(affordable, livre));
   }
-  return Math.max(0, Math.floor((village.res.gold || 0) / p));
+  return Math.max(0, affordable);
 }
 
 function addItem(village, kind, key, qty) {
@@ -118,7 +122,7 @@ function takeItem(village, kind, key, qty) {
     if (village.meals[key] <= 0) delete village.meals[key];
   } else if (kind === 'gear') {
     village.takeItem(key, qty);
-  } else {
+  } else if (!village.unlimited) {
     village.res[key] -= qty;
   }
 }
@@ -148,8 +152,8 @@ function buy(village, kind, key, qty) {
     if (village.itemsCount() + n > village.itemCapacity()) return 0;
   }
   const cost = buyPrice(village, kind, key) * n;
-  if ((village.res.gold || 0) < cost) return 0;
-  village.res.gold -= cost;
+  if (!village.unlimited && (village.res.gold || 0) < cost) return 0;
+  if (!village.unlimited) village.res.gold -= cost;
   addItem(village, kind, key, n);
   return cost;
 }

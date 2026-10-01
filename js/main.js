@@ -14,7 +14,7 @@ const { Nodes } = require('nodes.js');
 const { Deities } = require('deities.js');
 const { UI } = require('ui.js');
 const { loadBalance, BAL } = require('balance.js');
-const { Goblin, ATTRS } = require('goblin.js');
+const { Goblin, ATTRS, VARIATIONS, SPECS, RARITIES } = require('goblin.js');
 const gear = require('gear.js');
 const inv = require('inventory.js');
 const abilities = require('abilities.js');
@@ -44,8 +44,11 @@ const saved = loadGame() || {};
 const state = {
   language: saved.language || 'pt-BR',
   taps: saved.taps || 0,
-  // world | build | jobs | recruit | roster | detail | quests | kitchen | market | armazem | equip
-  screen: 'world',
+  // mode_select | world | build | jobs | recruit | roster | detail | quests | kitchen | market | armazem | equip | test_goblins
+  screen: 'mode_select',
+  gameMode: null,         // null até escolher Normal ou Teste na abertura
+  editMode: false,        // no mundo: tocar construção seleciona; terreno reposiciona a câmera
+  testGoblinPage: 0,      // página do catálogo completo de goblins no modo Teste
   buildTab: 0,            // 0 estruturas | 1 melhorias
   buildScroll: 0,         // rolagem vertical do catálogo de estruturas
   candidates: null,       // 3 goblins p/ recrutamento
@@ -186,6 +189,62 @@ function openRecruit() {
   state.screen = 'recruit';
 }
 
+const TEST_GOBLINS_PER_PAGE = 6;
+
+/** Entrada única dos dois modos oferecidos na primeira abertura. */
+function startGameMode(mode) {
+  state.gameMode = mode;
+  state.editMode = false;
+  if (mode === 'test') {
+    // O maior requisito atual é o Quartel (nível 8). O catálogo e as
+    // melhorias passam a estar liberados sem precisar simular missões.
+    village.level = Math.max(village.level, Math.max(...BUILD_DEFS.map((d) => d.lv)));
+    village.xp = 0;
+    village.setUnlimited(true);
+    state.screen = 'world';
+    toast('toast.test_mode');
+  } else {
+    village.setUnlimited(false);
+    // Mantém a fundação normal: o jogador escolhe onde ela começa.
+    const needsFoundation = village.countOf('construction') === 0;
+    state.screen = needsFoundation ? 'build' : 'world';
+    toast(needsFoundation ? 'toast.foundation_start' : 'toast.normal_mode');
+  }
+}
+
+/** Modelo determinístico para a galeria: uma carta por aparência existente. */
+function testGoblinTemplate(index) {
+  const variation = VARIATIONS[index];
+  const rarity = RARITIES[index % RARITIES.length];
+  const specialty = SPECS[index % SPECS.length];
+  const attrs = {};
+  ATTRS.forEach((attr, n) => { attrs[attr] = 3 + ((index + n * 3) % 8); });
+  return { variation, rarity, specialty, ...attrs };
+}
+
+function uniqueGoblinName(base) {
+  const names = new Set(village.goblins.map((g) => g.name));
+  if (!names.has(base)) return base;
+  let n = 2;
+  while (names.has(`${base} ${n}`)) n += 1;
+  return `${base} ${n}`;
+}
+
+/** Recruta livremente uma das aparências do catálogo exclusivo do Teste. */
+function recruitTestGoblin(index) {
+  if (!village.unlimited || !VARIATIONS[index]) return;
+  const template = testGoblinTemplate(index);
+  const goblin = new Goblin({
+    ...template,
+    name: uniqueGoblinName(`${i18n.t('ui.test_goblin')} ${index + 1}`),
+  });
+  if (village.recruit(goblin)) {
+    world.setGoblinCount(village.goblins.length);
+    toast('toast.recruited', { name: goblin.name });
+  }
+  state.screen = 'world';
+}
+
 /** Mostra o banner de "vila subiu de nível" e diz o que liberou. */
 function celebrateLevelUps(ups) {
   if (!ups) return;
@@ -220,9 +279,34 @@ function beginBuildPlacement(type) {
   toast('toast.place_choose', { name: i18n.t('bld.' + type) });
 }
 
+/** Seleciona uma construção pronta para reposicionamento preciso. */
+function beginMovePlacement(structure) {
+  if (!structure || structure.construction) return false;
+  state.placement = {
+    mode: 'move', type: structure.type, structure,
+    preview: { x: structure.x, y: structure.y }, cursorSeq: input.cursorSeq,
+  };
+  toast('toast.move_choose', { name: i18n.t('bld.' + structure.type) });
+  return true;
+}
+
+/** Move a prévia em passos curtos pelos controles de seta. */
+function nudgePlacement(dx, dy) {
+  const p = state.placement;
+  if (!p?.preview) return false;
+  const next = { x: Math.round(p.preview.x + dx), y: Math.round(p.preview.y + dy) };
+  const reason = placementReason(next.x, next.y, p.structure || null);
+  if (reason) { toast(reason); return false; }
+  p.preview = next;
+  // O clique na seta não deve fazer a prévia voltar para a posição do cursor.
+  p.cursorSeq = input.cursorSeq;
+  return true;
+}
+
 /** Atualiza o círculo de toque longo que libera o reposicionamento. */
 function updateStructureHold() {
-  if (state.screen !== 'world' || state.placement || state.goblinGrab || state.goblinDrag) {
+  if (state.screen !== 'world' || state.placement || state.editMode
+    || state.goblinGrab || state.goblinDrag) {
     state.holdMove = null;
     return;
   }
@@ -244,12 +328,8 @@ function updateStructureHold() {
   state.holdMove.progress = hold.progress;
 
   if (hold.progress >= 1) {
-    state.placement = {
-      mode: 'move', type: held.type, structure: held,
-      preview: { x: held.x, y: held.y }, cursorSeq: input.cursorSeq,
-    };
+    beginMovePlacement(held);
     state.holdMove = null;
-    toast('toast.move_choose', { name: i18n.t('bld.' + held.type) });
   }
 }
 
@@ -281,7 +361,8 @@ function releaseGoblinForDrag(walker) {
 
 /** Começa/atualiza/finaliza o voo do goblin carregado pelo jogador. */
 function updateGoblinDrag(g) {
-  if (state.screen !== 'world' || state.placement) {
+  // No modo edição o dedo serve às estruturas e à câmera, nunca aos goblins.
+  if (state.screen !== 'world' || state.placement || state.editMode) {
     state.goblinGrab = null;
     return false;
   }
@@ -802,8 +883,22 @@ function marketConfirm(slot) {
 
 function routeTap(id) {
   switch (id) {
+    case 'mode_normal': startGameMode('normal'); break;
+    case 'mode_test': startGameMode('test'); break;
     case 'close': state.screen = 'world'; break;
     case 'build_btn': state.screen = 'build'; break;
+    case 'edit_btn':
+      state.editMode = !state.editMode;
+      state.holdMove = null;
+      toast(state.editMode ? 'toast.edit_on' : 'toast.edit_off');
+      break;
+    case 'test_goblins_btn':
+      if (village.unlimited) { state.testGoblinPage = 0; state.screen = 'test_goblins'; }
+      break;
+    case 'move_nudge_up': nudgePlacement(0, -12); break;
+    case 'move_nudge_down': nudgePlacement(0, 12); break;
+    case 'move_nudge_left': nudgePlacement(-12, 0); break;
+    case 'move_nudge_right': nudgePlacement(12, 0); break;
     // Compatibilidade com saves/testes antigos: a antiga área de trabalho
     // agora é a aba Trabalhos dentro da tela Vila.
     case 'jobs_btn':
@@ -820,6 +915,18 @@ function routeTap(id) {
     case 'deity_tab_0': state.deityTab = 0; break;
     case 'deity_tab_1': state.deityTab = 1; break;
     case 'placement_cancel': state.placement = null; toast('toast.place_cancelled'); break;
+    case 'placement_confirm': {
+      const p = state.placement;
+      if (p?.preview) finishPlacement(p.preview.x, p.preview.y);
+      break;
+    }
+    case 'test_prev_page':
+      state.testGoblinPage = Math.max(0, state.testGoblinPage - 1);
+      break;
+    case 'test_next_page':
+      state.testGoblinPage = Math.min(
+        Math.ceil(VARIATIONS.length / TEST_GOBLINS_PER_PAGE) - 1, state.testGoblinPage + 1);
+      break;
     case 'close_build': state.screen = 'world'; break;
     case 'tab_0': state.buildTab = 0; state.buildScroll = 0; break;
     case 'tab_1': state.buildTab = 1; state.upgradeScroll = 0; break;
@@ -827,7 +934,9 @@ function routeTap(id) {
       state.screen = 'roster'; state.rosterScroll = 0; state.jobsTab = 0; state.jobsRole = null;
       break;
     case 'recruit_btn':
-      if (village.goblins.length < village.capacity) openRecruit();
+      // No modo Teste o jogador escolhe diretamente qualquer goblin existente.
+      if (village.unlimited) { state.testGoblinPage = 0; state.screen = 'test_goblins'; }
+      else if (village.goblins.length < village.capacity) openRecruit();
       else toast('toast.no_slots');
       break;
     case 'back_roster': state.screen = 'roster'; break;
@@ -1011,6 +1120,11 @@ function routeTap(id) {
         if (cur) toast('toast.ability_removed', { name: g.name, ab: i18n.t('ab.' + cur) });
         break;
       }
+      // ----- galeria completa do modo Teste -----
+      if (id?.startsWith('tgob_')) {
+        recruitTestGoblin(Number(id.slice(5)));
+        break;
+      }
       // ----- recrutamento / roster -----
       if (id?.startsWith('card_')) {
         const g = state.candidates[Number(id.slice(5))];
@@ -1038,12 +1152,25 @@ function updateStatus() {
 
 function update(dt) {
   const g = input.consume();
+  // Antes de escolher Normal ou Teste, a ilha fica parada atrás do menu.
+  if (state.screen === 'mode_select') {
+    if (g.tap) {
+      state.taps += 1;
+      updateStatus();
+      const hit = ui.hit(g.tap);
+      if (hit) routeTap(hit);
+    }
+    return;
+  }
   const draggingGoblin = updateGoblinDrag(g);
   const draggingJobCard = updateJobCardDrag(g);
   if (g.tap) { state.taps += 1; updateStatus(); }
 
   // No desktop o fantasma acompanha o mouse; no celular acompanha o dedo.
-  if (state.placement && input.cursor && input.cursorSeq > (state.placement.cursorSeq ?? -1)) {
+  // Sobre um botão (setinhas, confirmar, cancelar) o fantasma fica parado,
+  // senão o ajuste fino seria desfeito pelo próprio toque no controle.
+  if (state.placement && input.cursor && !ui.hit(input.cursor)
+    && input.cursorSeq > (state.placement.cursorSeq ?? -1)) {
     state.placement.preview = camera.screenToWorld(input.cursor.x, input.cursor.y);
     state.placement.cursorSeq = input.cursorSeq;
   }
@@ -1061,6 +1188,21 @@ function update(dt) {
       // Construção/mudança de lugar sempre tem prioridade sobre interações.
       if (state.placement) {
         finishPlacement(w.x, w.y);
+        return;
+      }
+
+      // Modo edição: a estrutura tocada entra em reposicionamento e o toque
+      // no terreno apenas leva a câmera até ali, sem abrir telas.
+      if (state.editMode) {
+        const target = village.hitTest(w.x, w.y);
+        if (target) {
+          if (target.construction) toast('toast.edit_busy');
+          else beginMovePlacement(target);
+        } else {
+          camera.x = w.x;
+          camera.y = w.y;
+          camera.clamp();
+        }
         return;
       }
 
@@ -1234,7 +1376,9 @@ function render(time) {
   drawOverlay(time);
 
   ui.begin();
-  if (state.screen === 'build') drawBuildScreen();
+  if (state.screen === 'mode_select') drawModeSelectScreen();
+  else if (state.screen === 'test_goblins') drawTestGoblinScreen();
+  else if (state.screen === 'build') drawBuildScreen();
   else if (state.screen === 'jobs') drawJobsScreen();
   else if (state.screen === 'recruit') drawRecruitScreen();
   else if (state.screen === 'roster') drawRosterScreen();
@@ -1276,7 +1420,9 @@ function drawOverlay(time) {
   let rx = 632;
   for (let i = res.length - 1; i >= 0; i--) {
     const [k, v] = res[i];
-    const label = String(v);
+    // No modo Teste a carteira é infinita: mostrar números gigantes só
+    // atrapalharia a leitura da barra superior.
+    const label = village.unlimited ? i18n.t('ui.unlimited') : String(v);
     const wLab = ctx.measureText(label).width;
     rx -= wLab;
     ctx.fillStyle = '#ffe9a8';
@@ -1289,12 +1435,15 @@ function drawOverlay(time) {
 
   // hint + etiqueta da fase
   if (state.screen === 'world') {
+    const hint = state.editMode ? i18n.t('ui.edit_mode') : i18n.t('demo.hint');
     ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(0,0,0,0.45)';
-    ctx.fillRect(160, 338, 320, 16);
-    ctx.fillStyle = '#e8e2f7';
     ctx.font = '9px monospace';
-    ctx.fillText(i18n.t('demo.hint'), 320, 346);
+    // A faixa nunca invade a etiqueta da fase, à esquerda.
+    const hintW = Math.max(320, Math.min(336, ctx.measureText(hint).width + 20));
+    ctx.fillStyle = state.editMode ? 'rgba(90,60,10,0.72)' : 'rgba(0,0,0,0.45)';
+    ctx.fillRect(320 - hintW / 2, 338, hintW, 16);
+    ctx.fillStyle = state.editMode ? '#ffe9a8' : '#e8e2f7';
+    ctx.fillText(hint, 320, 346);
   }
   ctx.textAlign = 'left';
   ctx.font = '8px monospace';
@@ -1330,23 +1479,60 @@ function drawOverlay(time) {
   }
 }
 
+/**
+ * Setinhas em volta da prévia: cada toque empurra a estrutura um pouco na
+ * direção escolhida, para o ajuste fino depois de escolher o ponto no mapa.
+ */
+function drawPlacementArrows() {
+  const p = state.placement;
+  if (!p?.preview) return;
+  const center = camera.worldToScreen(p.preview.x, p.preview.y - 28);
+  const size = 26, reach = 46;
+  const arrows = [
+    { id: 'move_nudge_up', dx: 0, dy: -reach, glyph: '▲' },
+    { id: 'move_nudge_down', dx: 0, dy: reach, glyph: '▼' },
+    { id: 'move_nudge_left', dx: -reach - 8, dy: 0, glyph: '◀' },
+    { id: 'move_nudge_right', dx: reach + 8, dy: 0, glyph: '▶' },
+  ];
+  for (const a of arrows) {
+    const x = Math.round(center.x + a.dx - size / 2);
+    const y = Math.round(center.y + a.dy - size / 2);
+    // Mantém as setas dentro da tela, mesmo com a prévia perto da borda.
+    const cx = Math.max(4, Math.min(CONFIG.LOGICAL_WIDTH - size - 4, x));
+    const cy = Math.max(38, Math.min(CONFIG.LOGICAL_HEIGHT - size - 40, y));
+    ctx.fillStyle = 'rgba(26,18,40,0.82)';
+    ctx.strokeStyle = '#ffe9a8';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(cx, cy, size, size, 7); else ctx.rect(cx, cy, size, size);
+    ctx.fill(); ctx.stroke();
+    ui.text(cx + size / 2, cy + size / 2 + 1, a.glyph,
+      { align: 'center', size: 12, bold: true, color: '#ffe9a8' });
+    ui.region(a.id, cx, cy, size, size);
+  }
+}
+
 function drawWorldButtons() {
   if (state.placement) {
     const p = state.placement;
     const key = p.mode === 'move' ? 'ui.move_choose' : 'ui.place_choose';
     const params = p.type ? { name: i18n.t('bld.' + p.type) } : {};
-    ui.woodSign(118, 302, 390, 24, i18n.t(key, params), 10);
-    ui.button('placement_cancel', 516, 302, 112, 28, i18n.t('ui.cancel'), true);
+    ui.woodSign(8, 302, 356, 24, i18n.t(key, params), 10);
+    ui.button('placement_confirm', 372, 302, 128, 28, i18n.t('ui.confirm'), true, true);
+    ui.button('placement_cancel', 508, 302, 120, 28, i18n.t('ui.cancel'), true);
+    drawPlacementArrows();
     return;
   }
 
-  // Barra de ações do mundo. Mover estruturas é gesto de toque longo, não
-  // ocupa mais um botão na interface.
+  // Barra de ações do mundo. O modo de edição troca o toque do mundo entre
+  // interagir e reposicionar; o toque longo continua valendo fora dele.
   const ready = quests.list.filter((q) => q.canDeliver(village)).length;
 
   const acts = [
     { id: 'build_btn', icon: 'ui_icon_build' },
+    { id: 'edit_btn', glyph: '✥', active: state.editMode },
   ];
+  if (village.unlimited) acts.push({ id: 'test_goblins_btn', glyph: '☺' });
   if (village.has('quest')) {
     acts.push({ id: 'quests_btn', icon: 'ui_icon_quests',
       badge: ready > 0 ? { text: String(ready), color: '#4fa562', ink: '#0f2a16' } : null });
@@ -1424,7 +1610,8 @@ function drawCostRow(cost, xRight, y) {
 function drawStructureCards(P) {
   const vLv = village.level;
   // Até a Casa de Construção estar de pé, só ela pode ser escolhida.
-  const defs = village.has('construction')
+  // O modo Teste nasce com tudo liberado, inclusive esta etapa.
+  const defs = village.has('construction') || village.unlimited
     ? BUILD_DEFS : BUILD_DEFS.filter((def) => def.id === 'construction');
   // O catálogo mostra as estruturas em 3 colunas; arrasta p/ CIMA/BAIXO.
   const cols = 3, w = 164, h = 118, rowH = 122;
@@ -1899,6 +2086,73 @@ function drawDeityMaterials(type, info, P) {
   ui.text(P.x + P.w / 2, P.y + 260, i18n.t('ui.deity_speed', { rate: info.perMinute.toFixed(1) }), {
     align: 'center', size: 9, bold: true, color: type === 'grande_arvore' ? '#a9ea86' : '#ffd56d',
   });
+}
+
+// ---------- Tela: escolha do modo de jogo ----------
+function drawModeSelectScreen() {
+  ctx.fillStyle = 'rgba(10,7,20,0.82)';
+  ctx.fillRect(0, 0, CONFIG.LOGICAL_WIDTH, CONFIG.LOGICAL_HEIGHT);
+  ui.rusticPanel(78, 54, 484, 258);
+  ui.woodSign(94, 64, 452, 26, i18n.t('ui.mode_title'), 13);
+
+  const cards = [
+    {
+      id: 'mode_normal', title: i18n.t('ui.mode_normal'),
+      lines: [i18n.t('ui.mode_normal_1'), i18n.t('ui.mode_normal_2')],
+    },
+    {
+      id: 'mode_test', title: i18n.t('ui.mode_test'),
+      lines: [i18n.t('ui.mode_test_1'), i18n.t('ui.mode_test_2'), i18n.t('ui.mode_test_3')],
+    },
+  ];
+  cards.forEach((card, i) => {
+    const x = 96 + i * 228, y = 102, w = 212, h = 162;
+    ui.parchment(x, y, w, h);
+    ui.woodSign(x + 8, y + 8, w - 16, 20, card.title, 11);
+    card.lines.forEach((line, n) => {
+      ui.text(x + w / 2, y + 48 + n * 20, line,
+        { align: 'center', size: 9, color: '#4a3018' });
+    });
+    ui.button(card.id, x + 26, y + h - 36, w - 52, 26, i18n.t('ui.mode_play'), true, i === 0);
+  });
+}
+
+// ---------- Tela: galeria completa de goblins (modo Teste) ----------
+function drawTestGoblinScreen() {
+  const P = { x: 8, y: 40, w: 624, h: 286 };
+  ui.rusticPanel(P.x, P.y, P.w, P.h);
+  ui.woodSign(16, 46, 330, 22, i18n.t('ui.test_goblins_title'), 11);
+  ui.closeX('back_world', 594, 46);
+
+  const pages = Math.max(1, Math.ceil(VARIATIONS.length / TEST_GOBLINS_PER_PAGE));
+  state.testGoblinPage = Math.max(0, Math.min(state.testGoblinPage, pages - 1));
+  const page = state.testGoblinPage;
+  ui.text(360, 57, i18n.t('ui.test_goblins_page', { n: page + 1, total: pages }),
+    { size: 9, color: '#ffe9b8' });
+
+  const cols = 3, w = 192, h = 104;
+  for (let i = 0; i < TEST_GOBLINS_PER_PAGE; i++) {
+    const index = page * TEST_GOBLINS_PER_PAGE + i;
+    if (index >= VARIATIONS.length) break;
+    const tpl = testGoblinTemplate(index);
+    const goblin = new Goblin({ ...tpl, name: `${i18n.t('ui.test_goblin')} ${index + 1}` });
+    const col = i % cols, row = Math.floor(i / cols);
+    const x = P.x + 12 + col * (w + 12), y = P.y + 36 + row * (h + 10);
+    ui.parchment(x, y, w, h);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(getSprite(gear.spriteForGoblin(goblin, 'idle', index % 5)), x + 8, y + 18, 56, 56);
+    ui.text(x + 74, y + 24, goblin.name, { size: 10, bold: true, color: '#3c2712' });
+    ui.text(x + 74, y + 40, `${i18n.t('spec.' + goblin.specialty)} • ${i18n.t('rarity.' + goblin.rarity)}`,
+      { size: 8, color: '#6e4626' });
+    ui.text(x + 74, y + 56, i18n.t('variation.' + goblin.variation),
+      { size: 8, bold: true, color: '#8c4f32' });
+    ui.button('tgob_' + index, x + 74, y + 70, w - 86, 22, i18n.t('ui.test_pick'), true);
+  }
+
+  ui.button('test_prev_page', P.x + 12, P.y + P.h - 32, 110, 24, i18n.t('ui.prev'), page > 0);
+  ui.button('test_next_page', P.x + 134, P.y + P.h - 32, 110, 24, i18n.t('ui.next'), page < pages - 1);
+  ui.text(P.x + P.w - 16, P.y + P.h - 20, i18n.t('ui.test_goblins_hint'),
+    { align: 'right', size: 8, color: '#ffe9b8' });
 }
 
 // ---------- Tela: Recrutamento (escolher 1 de 3) ----------
@@ -2764,7 +3018,12 @@ async function init() {
 
   // Ganchos de screenshot mantêm um morador apenas nas cenas que precisam
   // mostrar trabalho/equipamento; uma partida normal continua vazia.
-  const demo = new URLSearchParams(location.search).get('demo');
+  const params = new URLSearchParams(location.search);
+  const demo = params.get('demo');
+  // `?mode=test` abre direto o modo Teste (útil em prévias e testes); com um
+  // gancho de screenshot o jogo também pula a escolha para a cena pedida.
+  if (params.get('mode') === 'test' || demo === 'test_goblins') startGameMode('test');
+  else if (demo && demo !== 'modes') startGameMode('normal');
   if (['construction', 'jobs', 'roster', 'kitchen', 'market', 'armazem', 'equip',
     'deities', 'deity_tree', 'deity_golem', 'nodes', 'work', 'stumps'].includes(demo)) ensureDemoGoblin();
 
@@ -2787,6 +3046,20 @@ async function init() {
         site.construction.working = true;
       }
       camera.x = site.x; camera.y = site.y - 4; camera.zoom = 1.4;
+    }
+  }
+  else if (demo === 'modes') state.screen = 'mode_select';
+  else if (demo === 'test_goblins') { state.screen = 'test_goblins'; state.testGoblinPage = 0; }
+  else if (demo === 'edit') {
+    // Prévia do modo edição com uma estrutura já selecionada para ajuste.
+    village.level = Math.max(village.level, 2);
+    village.res.wood += 999; village.res.stone += 999;
+    const home = village.get('construction') || village.build('construction');
+    state.editMode = true;
+    state.screen = 'world';
+    if (home) {
+      beginMovePlacement(home);
+      camera.x = home.x; camera.y = home.y - 10; camera.zoom = 1.6;
     }
   }
   else if (demo === 'jobs') state.screen = 'jobs';
@@ -2857,9 +3130,11 @@ async function init() {
     }
   }
 
-  // Primeira abertura: leva direto à fundação gratuita, pois não há nenhum
-  // prédio pré-posicionado no mapa.
-  if (!demo && village.countOf('construction') === 0) {
+  // Primeira abertura: a escolha do modo abre antes de tudo. Só depois de
+  // escolher Normal o jogo leva direto à fundação gratuita.
+  if (!demo && state.gameMode === null) {
+    state.screen = 'mode_select';
+  } else if (!demo && village.countOf('construction') === 0) {
     state.screen = 'build';
     toast('toast.foundation_start');
   }

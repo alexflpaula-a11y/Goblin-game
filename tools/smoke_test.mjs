@@ -239,6 +239,25 @@ constructionSpeedVillage.build('construction');
 constructionSpeedVillage.upgrade(constructionSpeedVillage.get('construction'));
 check('Casa de Construção melhorada acelera todas as obras', constructionSpeedVillage.constructionSpeed() === 1.25);
 
+// ---------- Modo Teste: carteira infinita e moradia livre ----------
+const testV = new Village();
+testV.setUnlimited(true);
+const testGoldBefore = testV.res.gold;
+testV.pay({ wood: 40, stone: 30, gold: 25 });
+check('modo Teste não desconta recursos ao pagar',
+  testV.res.gold === testGoldBefore && testV.res.wood >= 999999);
+check('modo Teste pode pagar qualquer custo', testV.canAfford({ wood: 1e9, gold: 1e9 }));
+testV.level = 8;
+check('modo Teste constrói o que quiser sem recursos', testV.build('quartel') !== null);
+const { Goblin: TestGoblin } = req('goblin.js');
+check('modo Teste recruta sem depender de casas',
+  testV.capacity === 0 && testV.recruit(TestGoblin.roll(0)) === true);
+check('modo Teste persiste no save', new Village(JSON.parse(JSON.stringify(testV.serialize()))).unlimited === true);
+const normalV = new Village();
+normalV.pay({ wood: 10 });
+check('modo Normal segue descontando normalmente',
+  normalV.res.wood === (new Village()).res.wood - 10 && !normalV.unlimited);
+
 // ============================================================
 section('Village — obras com tempo, lona e recolhimento');
 // ============================================================

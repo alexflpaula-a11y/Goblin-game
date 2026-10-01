@@ -162,6 +162,11 @@ async function hold(x, y, ms = 740) {
   step(1);
 }
 
+/** Começa uma partida pelo menu de abertura (Normal ou Teste). */
+function chooseMode(mode = 'normal') {
+  tapRegion(mode === 'test' ? 'mode_test' : 'mode_normal');
+}
+
 const SAVE_KEY = 'gnome-village-save-v1';
 const drawnTexts = () => textLog.splice(0, textLog.length).join(' | ');
 
@@ -215,6 +220,11 @@ ok(appB.village.level === 1 && appB.village.goblins.length === 0,
   'vila NOVA (nível 1, ilha sem goblins) — save velho ignorado');
 ok(!appB.village.has('armazem'), 'armazém do save velho não veio');
 ok(globalThis.localStorage.getItem(SAVE_KEY) === null, 'chave do save velho foi descartada no boot');
+ok(appB.state.screen === 'mode_select' && has('mode_normal') && has('mode_test'),
+  'abertura oferece os modos Normal e Teste');
+chooseMode('normal');
+ok(appB.state.gameMode === 'normal' && !appB.village.unlimited,
+  'modo Normal mantém recursos finitos');
 ok(appB.state.screen === 'build' && has('bcard_construction'),
   'vila nova abre a navegação da fundação');
 ok(globalThis.localStorage.getItem(SAVE_KEY) === null, 'nada é gravado ao jogar');
@@ -290,6 +300,7 @@ ok(has('mdo_gear:espada_ferro'), 'vender 1 devolve o botão de compra');
 // ============================================================
 console.log('\x1b[1mBOOT E — fundação vazia, obras e recruta\x1b[0m');
 const appE = await boot('');
+chooseMode('normal');
 ok(appE.village.structures.length === 0 && appE.state.screen === 'build',
   'novo jogo abre o terreno vazio no catálogo da fundação');
 ok(has('bcard_construction') && !has('bcard_house'),
@@ -617,6 +628,88 @@ const constructionScreen = appG.camera.worldToScreen(constructionHome.x, constru
 dragPoints(fromMovedGoblin, constructionScreen, 11);
 ok(appG.village.goblins[carried.i].assignment === 'builder',
   'soltar o goblin sobre a Casa de Construção nomeia um Construtor');
+
+// ============================================================
+console.log('\x1b[1mBOOT J — setinhas e modo edição\x1b[0m');
+appG.state.screen = 'world';
+appG.state.editMode = false;
+appG.state.placement = null;
+step(1);
+ok(has('edit_btn'), 'a barra do mundo tem o botão do modo edição');
+tapRegion('edit_btn');
+ok(appG.state.editMode === true, 'botão liga o modo edição');
+const editTarget = appG.village.get('construction');
+const editTargetScreen = appG.camera.worldToScreen(editTarget.x, editTarget.y - 20);
+tap(editTargetScreen.x, editTargetScreen.y);
+ok(appG.state.placement?.mode === 'move' && appG.state.placement.structure === editTarget,
+  'no modo edição um toque na estrutura já a coloca para mover');
+const beforeNudge = { ...appG.state.placement.preview };
+step(1);
+ok(['move_nudge_up', 'move_nudge_down', 'move_nudge_left', 'move_nudge_right'].every(has),
+  'as quatro setinhas aparecem em volta da prévia');
+tapRegion('move_nudge_left');
+tapRegion('move_nudge_up');
+ok(appG.state.placement.preview.x < beforeNudge.x && appG.state.placement.preview.y < beforeNudge.y,
+  'cada seta empurra a prévia um pouco na direção escolhida');
+const nudged = { ...appG.state.placement.preview };
+tapRegion('placement_confirm');
+ok(appG.state.placement === null
+  && editTarget.x === nudged.x && editTarget.y === nudged.y,
+  'confirmar grava exatamente o ponto ajustado pelas setas');
+
+// No modo edição o toque no terreno só desloca a câmera; nenhuma tela abre.
+const camBefore = { x: appG.camera.x, y: appG.camera.y };
+const groundScreen = appG.camera.worldToScreen(appG.camera.x + 90, appG.camera.y + 60);
+tap(groundScreen.x, groundScreen.y);
+ok(appG.state.screen === 'world'
+  && (Math.abs(appG.camera.x - camBefore.x) > 1 || Math.abs(appG.camera.y - camBefore.y) > 1),
+  'tocar no terreno em modo edição move a tela');
+tapRegion('edit_btn');
+ok(appG.state.editMode === false, 'o mesmo botão desliga o modo edição');
+const houseForTap = appG.village.get('construction');
+const houseTapScreen = appG.camera.worldToScreen(houseForTap.x, houseForTap.y - 20);
+tap(houseTapScreen.x, houseTapScreen.y);
+ok(appG.state.screen === 'build' && appG.state.placement === null,
+  'fora do modo edição a estrutura volta a abrir sua tela');
+appG.state.screen = 'world'; step(1);
+
+// ============================================================
+console.log('\x1b[1mBOOT K — modo Teste: recursos infinitos e catálogo de goblins\x1b[0m');
+const appK = await boot('');
+ok(appK.state.screen === 'mode_select', 'a partida nova começa na escolha de modo');
+chooseMode('test');
+ok(appK.state.gameMode === 'test' && appK.village.unlimited,
+  'modo Teste liga a carteira infinita');
+ok(appK.state.screen === 'world', 'modo Teste entra direto no mapa');
+const goldBefore = appK.village.res.gold;
+appK.village.pay({ wood: 50, stone: 40, gold: 30 });
+ok(appK.village.res.gold === goldBefore && appK.village.canAfford({ gold: 999999999 }),
+  'construir no modo Teste não gasta recursos');
+appK.state.screen = 'build'; appK.state.buildTab = 0; appK.state.buildScroll = 0;
+drawnTexts(); step(2);
+ok(['construction', 'quest', 'house', 'serraria', 'fazenda', 'armazem'].every((id) => has('bcard_' + id)),
+  'o catálogo já abre com as primeiras estruturas liberadas');
+appK.state.buildScroll = 9999; step(2);
+ok(has('bcard_quartel') && has('bcard_porto'),
+  'as estruturas de nível alto também estão disponíveis');
+const { BUILDINGS: BLD_K } = req('village.js');
+ok(Object.keys(BLD_K).every((id) => appK.village.blockedReason(id)?.reason !== 'level'),
+  'nenhuma estrutura segue travada por nível da vila no modo Teste');
+appK.state.screen = 'world'; step(1);
+ok(has('test_goblins_btn'), 'o mundo mostra o botão de todos os goblins');
+tapRegion('test_goblins_btn');
+ok(appK.state.screen === 'test_goblins' && has('tgob_0') && has('test_next_page'),
+  'a galeria lista goblins e permite paginar');
+tapRegion('test_next_page');
+ok(appK.state.testGoblinPage === 1 && has('tgob_6'),
+  'a próxima página traz outras aparências');
+const chosenBefore = appK.village.goblins.length;
+tapRegion('tgob_6');
+ok(appK.village.goblins.length === chosenBefore + 1 && appK.state.screen === 'world',
+  'escolher um goblin da galeria o traz para a vila sem precisar de casa');
+const { VARIATIONS: VARS_K } = req('goblin.js');
+ok(appK.village.goblins[chosenBefore].variation === VARS_K[6],
+  'o goblin recrutado é exatamente a aparência escolhida');
 
 console.log(`\n  ${passes} passaram · ${fails} falharam`);
 process.exit(fails ? 1 : 0);

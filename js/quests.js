@@ -117,7 +117,7 @@ class Quests {
     if (!quest || !quest.canDeliver(village)) return null;
 
     if (quest.kind === 'meal') village.meals[quest.key] -= quest.qty;
-    else village.res[quest.key] -= quest.qty;
+    else if (!village.unlimited) village.res[quest.key] -= quest.qty;
 
     village.add('gold', quest.gold);
     const levelUps = village.gainXp(quest.xp);

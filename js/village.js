@@ -112,6 +112,10 @@ const STARTER_FREE = Object.freeze({ construction: 1, quest: 1, house: 3 });
 class Village {
   constructor(data) {
     this.res = data?.res || { ...(BAL.startResources || { wood: 50, stone: 30, gold: 100 }) };
+    // O modo de teste não desconta recursos nem limita recrutamento. É uma
+    // propriedade da vila para que construção, cozinha e demais sistemas
+    // possam respeitá-lo sem depender da interface.
+    this.unlimited = !!data?.unlimited;
     // Materiais especiais são produzidos apenas pelas divindades e ficam
     // guardados para as futuras receitas do Altar/Runas.
     for (const k of ['wood', 'stone', 'ore', 'food', 'gold',
@@ -250,15 +254,28 @@ class Village {
   }
 
   // ---------- Recursos ----------
+  /** Ativa/desativa a carteira infinita usada exclusivamente no modo Teste. */
+  setUnlimited(on = true) {
+    this.unlimited = !!on;
+    if (this.unlimited) {
+      // Mantém valores finitos nos dados/mercado; a interface apresenta ∞.
+      for (const key of ['wood', 'stone', 'ore', 'food', 'gold']) {
+        this.res[key] = Math.max(this.res[key] || 0, 999999);
+      }
+    }
+  }
+
   canAfford(cost) {
-    return Object.entries(cost || {}).every(([k, v]) => (this.res[k] || 0) >= v);
+    return this.unlimited || Object.entries(cost || {}).every(([k, v]) => (this.res[k] || 0) >= v);
   }
 
   pay(cost) {
+    if (this.unlimited) return;
     for (const [k, v] of Object.entries(cost || {})) this.res[k] -= v;
   }
 
   add(resource, amount) {
+    if (this.unlimited && ['wood', 'stone', 'ore', 'food', 'gold'].includes(resource)) return;
     this.res[resource] = (this.res[resource] || 0) + amount;
   }
 
@@ -457,7 +474,7 @@ class Village {
 
   // ---------- Goblins ----------
   recruit(goblin) {
-    if (this.goblins.length >= this.capacity) return false;
+    if (!this.unlimited && this.goblins.length >= this.capacity) return false;
     this.goblins.push(goblin);
     this.recruitedCount += 1;
     return true;
@@ -591,6 +608,7 @@ class Village {
   serialize() {
     return {
       res: this.res,
+      unlimited: this.unlimited,
       structures: this.structures,
       goblins: this.goblins,
       recruitedCount: this.recruitedCount,

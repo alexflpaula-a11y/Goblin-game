@@ -47,11 +47,28 @@ python3 -m http.server 8080
 | Toque no goblin trabalhando | chama ele de volta |
 | Toque numa divindade | abre seu Santuário: até 3 acólitos, XP, nível e taxa de produção |
 | Construir → toque no mapa | escolhe exatamente onde colocar a estrutura |
+| Setinhas ▲ ▼ ◀ ▶ em volta da prévia | empurram a estrutura um pouco em cada direção, para o ajuste fino antes de **Confirmar** |
 | Toque longo numa estrutura pronta | preenche um anel amarelo; ao completar, escolhe o novo local |
+| Botão **✥ Edição** | liga o modo edição: tocar numa estrutura já a pega para mover e tocar no terreno apenas desloca a tela |
 | Toque nos outros prédios | abre a tela correspondente |
 | Botões no rodapé | **Construir**, **Recrutar** (quando há vaga), **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
 | Vila | concentra a lista de todos os goblins e suas abas **Goblins** e **Trabalhos**; em Trabalhos, arraste somente goblins disponíveis até um ofício e toque no ofício para ver apenas sua equipe atual |
 | Cozinha → **Cozinheiros** | designe até **3 cozinheiros** dentre os disponíveis; a fila guarda até **20 receitas** na ordem escolhida, e cada cozinheiro que chega à panela acelera o preparo |
+
+### Modos de jogo
+
+Ao abrir o jogo aparecem dois modos:
+
+- **Modo Normal** — a partida padrão: a ilha começa vazia, os recursos são finitos e as estruturas são liberadas pelo nível da vila.
+- **Modo Teste** — para experimentar o jogo inteiro: os recursos são **infinitos** (a barra superior mostra ∞ e nada é descontado), **todas as estruturas já estão desbloqueadas** e o rodapé ganha o botão **☺ Goblins**, uma galeria paginada com **todas as aparências existentes** — escolha qualquer uma e ela entra na vila na hora, sem depender de vagas de moradia.
+
+O modo escolhido vale para a sessão inteira. Para abrir direto no modo Teste (prévias e testes), use `?mode=test` na URL.
+
+### Posicionar e mover estruturas
+
+Ao construir — ou ao escolher mover uma estrutura pronta — aparece a prévia translúcida com as quatro **setinhas** em volta. Cada toque numa seta desloca a prévia um pouco naquela direção; o toque no mapa continua reposicionando a prévia de uma vez. **Confirmar** grava o ponto exato e **Cancelar** desiste.
+
+O botão **✥ Edição** no rodapé alterna o comportamento do toque no mundo: com ele ligado, tocar numa estrutura pronta já a coloca em reposicionamento (sem abrir a tela dela) e tocar no terreno apenas leva a câmera até ali. Com o modo desligado, os toques voltam ao normal (abrir telas, chamar goblins) e o toque longo continua servindo para mover.
 
 ## 🔄 O ciclo do jogo
 
