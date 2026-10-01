@@ -50,6 +50,7 @@
   "rarity.uncommon": "Incomum",
   "rarity.rare": "Raro",
   "rarity.epic": "Épico",
+  "rarity.mythic": "Mítico",
   "toast.no_idle": "Nenhum goblin livre!",
   "toast.node_busy": "Este nó já tem trabalhador!",
   "res.ore": "minério",
@@ -376,11 +377,7 @@
   "ui.test_goblins_hint": "Toque em Escolher para trazê-lo à vila.",
   "ui.test_goblin": "Goblin",
   "ui.test_pick": "Escolher",
-  "ui.edit_mode": "edição: toque na estrutura p/ mover • no chão, move a tela",
   "ui.unlimited": "∞",
   "toast.normal_mode": "Modo Normal: construa sua vila do zero.",
-  "toast.test_mode": "Modo Teste: recursos infinitos e tudo liberado.",
-  "toast.edit_on": "Modo edição ligado: toque numa estrutura para movê-la.",
-  "toast.edit_off": "Modo edição desligado.",
-  "toast.edit_busy": "Essa obra ainda está em andamento."
+  "toast.test_mode": "Modo Teste: recursos infinitos e tudo liberado."
 }

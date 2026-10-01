@@ -8,7 +8,7 @@ const NAMES = ['Grik', 'Snaga', 'Uzgul', 'Mog', 'Zub', 'Krash', 'Narzug', 'Gashb
   'Dush', 'Ugluk', 'Bolg', 'Shagrat', 'Gorbag', 'Muzgash', 'Lugburz', 'Radbug'];
 
 const SPECS = ['warrior', 'mage', 'healer', 'cook', 'worker', 'runner', 'common'];
-const RARITIES = ['common', 'uncommon', 'rare', 'epic'];
+const RARITIES = ['common', 'uncommon', 'rare', 'epic', 'mythic'];
 const ATTRS = ['poderDestrutivo', 'potencialMagico', 'vitalidade',
   'velocidade', 'precisao', 'potencialEvolucao'];
 
@@ -32,7 +32,15 @@ const RARITY_SPEC_WEIGHTS = {
   uncommon: [12, 8, 8, 8, 12, 8, 10],
   rare:     [16, 12, 12, 10, 12, 12, 2],
   epic:     [22, 16, 16, 12, 12, 16, 0],
+  mythic:   [26, 20, 20, 14, 12, 18, 0],
 };
+
+// Chances pedidas pelo jogo: 1/2 comum, 1/5 incomum, 1/10 raro,
+// 1/50 épico e 1/100 mítico. Elas entram como PESOS relativos
+// (50 : 20 : 10 : 2 : 1) e são normalizadas no sorteio.
+const RARITY_ODDS = Object.freeze({
+  common: 1 / 2, uncommon: 1 / 5, rare: 1 / 10, epic: 1 / 50, mythic: 1 / 100,
+});
 
 function pickWeighted(weights, rng) {
   const total = weights.reduce((a, b) => a + b, 0);
@@ -103,14 +111,18 @@ class Goblin {
   // Sorte crescente: quanto mais goblins já recrutados, maior a
   // chance de raridades altas.
   static rollRarity(recruitedCount, rng = Math.random) {
-    const base = BAL.recruit?.rarityBase || { common: 0.68, uncommon: 0.22, rare: 0.08, epic: 0.02 };
+    const base = { ...RARITY_ODDS, ...(BAL.recruit?.rarityBase || {}) };
     const luck = recruitedCount * (BAL.recruit?.luckPerRecruit ?? 0.005);
-    const wRare = base.rare + luck;
-    const wEpic = base.epic + luck * 0.5;
-    const wUnc = base.uncommon + luck * 0.5;
-    const wCom = Math.max(0.15, 1 - wRare - wEpic - wUnc);
-    const i = pickWeighted([wCom, wUnc, wRare, wEpic], rng);
-    return RARITIES[i];
+    // A sorte crescente só empurra as faixas altas, e de leve: as chances
+    // pedidas (1/2, 1/5, 1/10, 1/50, 1/100) continuam sendo a referência.
+    const weights = [
+      base.common,
+      base.uncommon + luck * 0.25,
+      base.rare + luck * 0.5,
+      base.epic + luck * 0.15,
+      base.mythic + luck * 0.05,
+    ].map((w) => Math.max(0, w));
+    return RARITIES[pickWeighted(weights, rng)];
   }
 
   static roll(recruitedCount, existingNames = [], rng = Math.random, excludedVariations = []) {
@@ -152,4 +164,4 @@ class Goblin {
   }
 }
 
-module.exports = { SPECS, RARITIES, ATTRS, VARIATIONS, Goblin };
+module.exports = { SPECS, RARITIES, RARITY_ODDS, ATTRS, VARIATIONS, Goblin };

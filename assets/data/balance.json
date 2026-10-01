@@ -20,10 +20,11 @@
   },
   "recruit": {
     "rarityBase": {
-      "common": 0.68,
-      "uncommon": 0.22,
-      "rare": 0.08,
-      "epic": 0.02
+      "common": 0.5,
+      "uncommon": 0.2,
+      "rare": 0.1,
+      "epic": 0.02,
+      "mythic": 0.01
     },
     "luckPerRecruit": 0.005,
     "attrRange": {
@@ -41,6 +42,10 @@
       ],
       "epic": [
         6,
+        10
+      ],
+      "mythic": [
+        8,
         10
       ]
     }

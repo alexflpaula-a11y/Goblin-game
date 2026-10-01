@@ -48,8 +48,7 @@ python3 -m http.server 8080
 | Toque numa divindade | abre seu Santuário: até 3 acólitos, XP, nível e taxa de produção |
 | Construir → toque no mapa | escolhe exatamente onde colocar a estrutura |
 | Setinhas ▲ ▼ ◀ ▶ em volta da prévia | empurram a estrutura um pouco em cada direção, para o ajuste fino antes de **Confirmar** |
-| Toque longo numa estrutura pronta | preenche um anel amarelo; ao completar, escolhe o novo local |
-| Botão **✥ Edição** | liga o modo edição: tocar numa estrutura já a pega para mover e tocar no terreno apenas desloca a tela |
+| Toque longo numa estrutura pronta | **único jeito de mover**: preenche um anel amarelo e, ao completar, libera o novo local |
 | Toque nos outros prédios | abre a tela correspondente |
 | Botões no rodapé | **Construir**, **Recrutar** (quando há vaga), **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
 | Vila | concentra a lista de todos os goblins e suas abas **Goblins** e **Trabalhos**; em Trabalhos, arraste somente goblins disponíveis até um ofício e toque no ofício para ver apenas sua equipe atual |
@@ -66,9 +65,13 @@ O modo escolhido vale para a sessão inteira. Para abrir direto no modo Teste (p
 
 ### Posicionar e mover estruturas
 
-Ao construir — ou ao escolher mover uma estrutura pronta — aparece a prévia translúcida com as quatro **setinhas** em volta. Cada toque numa seta desloca a prévia um pouco naquela direção; o toque no mapa continua reposicionando a prévia de uma vez. **Confirmar** grava o ponto exato e **Cancelar** desiste.
+Mover uma estrutura é sempre o mesmo gesto: **segure o dedo em cima dela** até o anel amarelo fechar. Não existe botão de mover — um toque simples continua abrindo a tela do prédio. Um goblin parado na frente não atrapalha: enquanto o dedo não se mexe, o anel continua enchendo.
 
-O botão **✥ Edição** no rodapé alterna o comportamento do toque no mundo: com ele ligado, tocar numa estrutura pronta já a coloca em reposicionamento (sem abrir a tela dela) e tocar no terreno apenas leva a câmera até ali. Com o modo desligado, os toques voltam ao normal (abrir telas, chamar goblins) e o toque longo continua servindo para mover.
+Ao construir, ou assim que o anel completa, aparece a prévia translúcida com as quatro **setinhas** em volta. Cada toque numa seta desloca a prévia um pouco naquela direção; o toque no mapa reposiciona a prévia de uma vez. **Confirmar** grava o ponto exato e **Cancelar** desiste.
+
+### Raridade dos goblins
+
+Cada candidato sai com uma das cinco faixas, nas chances **1/2 comum · 1/5 incomum · 1/10 raro · 1/50 épico · 1/100 mítico** (pesos relativos 50 : 20 : 10 : 2 : 1, normalizados no sorteio — na prática ≈ 60,2% · 24,1% · 12,0% · 2,4% · 1,2%). A raridade define a faixa de atributos sorteada e a cor das barras; **Mítico** é a nova faixa máxima, com atributos entre 8 e 10 e cinco estrelas. A *sorte crescente* por recrutas feitos continua existindo, mas agora empurra as faixas altas só de leve.
 
 ## 🔄 O ciclo do jogo
 

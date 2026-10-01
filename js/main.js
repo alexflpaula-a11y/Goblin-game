@@ -47,7 +47,6 @@ const state = {
   // mode_select | world | build | jobs | recruit | roster | detail | quests | kitchen | market | armazem | equip | test_goblins
   screen: 'mode_select',
   gameMode: null,         // null até escolher Normal ou Teste na abertura
-  editMode: false,        // no mundo: tocar construção seleciona; terreno reposiciona a câmera
   testGoblinPage: 0,      // página do catálogo completo de goblins no modo Teste
   buildTab: 0,            // 0 estruturas | 1 melhorias
   buildScroll: 0,         // rolagem vertical do catálogo de estruturas
@@ -110,7 +109,10 @@ const camera = new Camera(
 const ui = new UI(ctx);
 const input = new Input(canvas);
 
-const RARITY_COLOR = { common: '#b9aedc', uncommon: '#4fa562', rare: '#4a90d8', epic: '#d98ae8' };
+const RARITY_COLOR = {
+  common: '#b9aedc', uncommon: '#4fa562', rare: '#4a90d8',
+  epic: '#d98ae8', mythic: '#ffcf5c',
+};
 
 // Catálogo da Casa de Construção: vem direto do village.js, então
 // toda estrutura nova aparece aqui automaticamente.
@@ -194,7 +196,6 @@ const TEST_GOBLINS_PER_PAGE = 6;
 /** Entrada única dos dois modos oferecidos na primeira abertura. */
 function startGameMode(mode) {
   state.gameMode = mode;
-  state.editMode = false;
   if (mode === 'test') {
     // O maior requisito atual é o Quartel (nível 8). O catálogo e as
     // melhorias passam a estar liberados sem precisar simular missões.
@@ -305,8 +306,9 @@ function nudgePlacement(dx, dy) {
 
 /** Atualiza o círculo de toque longo que libera o reposicionamento. */
 function updateStructureHold() {
-  if (state.screen !== 'world' || state.placement || state.editMode
-    || state.goblinGrab || state.goblinDrag) {
+  // Um goblin parado na frente do prédio não impede o gesto: enquanto o dedo
+  // não se move, o anel de reposicionamento continua enchendo.
+  if (state.screen !== 'world' || state.placement || state.goblinDrag) {
     state.holdMove = null;
     return;
   }
@@ -330,6 +332,9 @@ function updateStructureHold() {
   if (hold.progress >= 1) {
     beginMovePlacement(held);
     state.holdMove = null;
+    // O mesmo dedo não pode sair carregando um goblin depois de assumir
+    // o reposicionamento da estrutura.
+    state.goblinGrab = null;
   }
 }
 
@@ -361,8 +366,7 @@ function releaseGoblinForDrag(walker) {
 
 /** Começa/atualiza/finaliza o voo do goblin carregado pelo jogador. */
 function updateGoblinDrag(g) {
-  // No modo edição o dedo serve às estruturas e à câmera, nunca aos goblins.
-  if (state.screen !== 'world' || state.placement || state.editMode) {
+  if (state.screen !== 'world' || state.placement) {
     state.goblinGrab = null;
     return false;
   }
@@ -887,11 +891,6 @@ function routeTap(id) {
     case 'mode_test': startGameMode('test'); break;
     case 'close': state.screen = 'world'; break;
     case 'build_btn': state.screen = 'build'; break;
-    case 'edit_btn':
-      state.editMode = !state.editMode;
-      state.holdMove = null;
-      toast(state.editMode ? 'toast.edit_on' : 'toast.edit_off');
-      break;
     case 'test_goblins_btn':
       if (village.unlimited) { state.testGoblinPage = 0; state.screen = 'test_goblins'; }
       break;
@@ -1191,21 +1190,6 @@ function update(dt) {
         return;
       }
 
-      // Modo edição: a estrutura tocada entra em reposicionamento e o toque
-      // no terreno apenas leva a câmera até ali, sem abrir telas.
-      if (state.editMode) {
-        const target = village.hitTest(w.x, w.y);
-        if (target) {
-          if (target.construction) toast('toast.edit_busy');
-          else beginMovePlacement(target);
-        } else {
-          camera.x = w.x;
-          camera.y = w.y;
-          camera.clamp();
-        }
-        return;
-      }
-
       // tocar em goblin trabalhando/louvando → chamar de volta
       for (const wk of world.goblins) {
         if (wk.job && Math.abs(w.x - wk.x) < 12 && Math.abs(w.y - (wk.y - 14)) < 20) {
@@ -1435,15 +1419,12 @@ function drawOverlay(time) {
 
   // hint + etiqueta da fase
   if (state.screen === 'world') {
-    const hint = state.editMode ? i18n.t('ui.edit_mode') : i18n.t('demo.hint');
     ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.fillRect(160, 338, 320, 16);
+    ctx.fillStyle = '#e8e2f7';
     ctx.font = '9px monospace';
-    // A faixa nunca invade a etiqueta da fase, à esquerda.
-    const hintW = Math.max(320, Math.min(336, ctx.measureText(hint).width + 20));
-    ctx.fillStyle = state.editMode ? 'rgba(90,60,10,0.72)' : 'rgba(0,0,0,0.45)';
-    ctx.fillRect(320 - hintW / 2, 338, hintW, 16);
-    ctx.fillStyle = state.editMode ? '#ffe9a8' : '#e8e2f7';
-    ctx.fillText(hint, 320, 346);
+    ctx.fillText(i18n.t('demo.hint'), 320, 346);
   }
   ctx.textAlign = 'left';
   ctx.font = '8px monospace';
@@ -1524,13 +1505,12 @@ function drawWorldButtons() {
     return;
   }
 
-  // Barra de ações do mundo. O modo de edição troca o toque do mundo entre
-  // interagir e reposicionar; o toque longo continua valendo fora dele.
+  // Barra de ações do mundo. Mover estruturas é gesto de toque longo na
+  // própria estrutura, então não ocupa um botão aqui.
   const ready = quests.list.filter((q) => q.canDeliver(village)).length;
 
   const acts = [
     { id: 'build_btn', icon: 'ui_icon_build' },
-    { id: 'edit_btn', glyph: '✥', active: state.editMode },
   ];
   if (village.unlimited) acts.push({ id: 'test_goblins_btn', glyph: '☺' });
   if (village.has('quest')) {
@@ -2188,7 +2168,7 @@ function drawRecruitScreen() {
     ui.text(cx, y + h - 12, i18n.t('ui.recruit_pick'), { align: 'center', size: 8, color: '#8a6b4a' });
   });
 }
-function RARITIES_IDX(r) { return ['common', 'uncommon', 'rare', 'epic'].indexOf(r); }
+function RARITIES_IDX(r) { return RARITIES.indexOf(r); }
 
 // ---------- Tela: Roster ----------
 function drawRosterScreen() {
@@ -3050,12 +3030,12 @@ async function init() {
   }
   else if (demo === 'modes') state.screen = 'mode_select';
   else if (demo === 'test_goblins') { state.screen = 'test_goblins'; state.testGoblinPage = 0; }
-  else if (demo === 'edit') {
-    // Prévia do modo edição com uma estrutura já selecionada para ajuste.
+  else if (demo === 'move') {
+    // Prévia do reposicionamento: uma estrutura já segurada e pronta para
+    // o ajuste fino com as setinhas.
     village.level = Math.max(village.level, 2);
     village.res.wood += 999; village.res.stone += 999;
     const home = village.get('construction') || village.build('construction');
-    state.editMode = true;
     state.screen = 'world';
     if (home) {
       beginMovePlacement(home);

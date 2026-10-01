@@ -630,19 +630,21 @@ ok(appG.village.goblins[carried.i].assignment === 'builder',
   'soltar o goblin sobre a Casa de Construção nomeia um Construtor');
 
 // ============================================================
-console.log('\x1b[1mBOOT J — setinhas e modo edição\x1b[0m');
+console.log('\x1b[1mBOOT J — setinhas do reposicionamento\x1b[0m');
 appG.state.screen = 'world';
-appG.state.editMode = false;
 appG.state.placement = null;
 step(1);
-ok(has('edit_btn'), 'a barra do mundo tem o botão do modo edição');
-tapRegion('edit_btn');
-ok(appG.state.editMode === true, 'botão liga o modo edição');
-const editTarget = appG.village.get('construction');
-const editTargetScreen = appG.camera.worldToScreen(editTarget.x, editTarget.y - 20);
-tap(editTargetScreen.x, editTargetScreen.y);
-ok(appG.state.placement?.mode === 'move' && appG.state.placement.structure === editTarget,
-  'no modo edição um toque na estrutura já a coloca para mover');
+ok(!has('edit_btn'), 'não existe mais botão de mover na barra do mundo');
+const moveTarget = appG.village.get('construction');
+const moveTargetScreen = appG.camera.worldToScreen(moveTarget.x, moveTarget.y - 20);
+// Mover é só segurando o dedo em cima da estrutura.
+tap(moveTargetScreen.x, moveTargetScreen.y);
+ok(appG.state.placement === null && appG.state.screen === 'build',
+  'um toque simples ainda abre a tela da estrutura, sem movê-la');
+appG.state.screen = 'world'; step(1);
+await hold(moveTargetScreen.x, moveTargetScreen.y);
+ok(appG.state.placement?.mode === 'move' && appG.state.placement.structure === moveTarget,
+  'segurar em cima da estrutura é o único jeito de movê-la');
 const beforeNudge = { ...appG.state.placement.preview };
 step(1);
 ok(['move_nudge_up', 'move_nudge_down', 'move_nudge_left', 'move_nudge_right'].every(has),
@@ -654,23 +656,8 @@ ok(appG.state.placement.preview.x < beforeNudge.x && appG.state.placement.previe
 const nudged = { ...appG.state.placement.preview };
 tapRegion('placement_confirm');
 ok(appG.state.placement === null
-  && editTarget.x === nudged.x && editTarget.y === nudged.y,
+  && moveTarget.x === nudged.x && moveTarget.y === nudged.y,
   'confirmar grava exatamente o ponto ajustado pelas setas');
-
-// No modo edição o toque no terreno só desloca a câmera; nenhuma tela abre.
-const camBefore = { x: appG.camera.x, y: appG.camera.y };
-const groundScreen = appG.camera.worldToScreen(appG.camera.x + 90, appG.camera.y + 60);
-tap(groundScreen.x, groundScreen.y);
-ok(appG.state.screen === 'world'
-  && (Math.abs(appG.camera.x - camBefore.x) > 1 || Math.abs(appG.camera.y - camBefore.y) > 1),
-  'tocar no terreno em modo edição move a tela');
-tapRegion('edit_btn');
-ok(appG.state.editMode === false, 'o mesmo botão desliga o modo edição');
-const houseForTap = appG.village.get('construction');
-const houseTapScreen = appG.camera.worldToScreen(houseForTap.x, houseForTap.y - 20);
-tap(houseTapScreen.x, houseTapScreen.y);
-ok(appG.state.screen === 'build' && appG.state.placement === null,
-  'fora do modo edição a estrutura volta a abrir sua tela');
 appG.state.screen = 'world'; step(1);
 
 // ============================================================

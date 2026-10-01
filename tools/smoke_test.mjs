@@ -98,6 +98,39 @@ const avg = (n) => {
 const low = avg(0), high = avg(100);
 check('sorte crescente aumenta raridade', high > low, `0 recrutas=${low.toFixed(3)} · 100=${high.toFixed(3)}`);
 
+// Chances pedidas: 1/2 comum, 1/5 incomum, 1/10 raro, 1/50 épico, 1/100 mítico
+// (pesos 50 : 20 : 10 : 2 : 1, normalizados no sorteio).
+const { RARITY_ODDS } = req('goblin.js');
+check('as cinco faixas existem, do comum ao mítico',
+  RARITIES.join(',') === 'common,uncommon,rare,epic,mythic');
+check('as chances-base são 1/2, 1/5, 1/10, 1/50 e 1/100',
+  RARITY_ODDS.common === 1 / 2 && RARITY_ODDS.uncommon === 1 / 5
+  && RARITY_ODDS.rare === 1 / 10 && RARITY_ODDS.epic === 1 / 50
+  && RARITY_ODDS.mythic === 1 / 100);
+const oddsTotal = Object.values(RARITY_ODDS).reduce((a, b) => a + b, 0);
+const expected = Object.fromEntries(
+  Object.entries(RARITY_ODDS).map(([k, v]) => [k, v / oddsTotal]));
+const rolls = { common: 0, uncommon: 0, rare: 0, epic: 0, mythic: 0 };
+let raritySeed = 20261001;
+const rarityRng = () => {
+  raritySeed = (raritySeed * 1103515245 + 12345) % 2147483648;
+  return raritySeed / 2147483648;
+};
+const SAMPLES = 200000;
+for (let i = 0; i < SAMPLES; i++) rolls[Goblin.rollRarity(0, rarityRng)] += 1;
+const offBy = Object.keys(expected)
+  .map((k) => Math.abs(rolls[k] / SAMPLES - expected[k]));
+check('o sorteio respeita as proporções 50:20:10:2:1',
+  Math.max(...offBy) < 0.01,
+  Object.keys(rolls).map((k) => `${k} ${(100 * rolls[k] / SAMPLES).toFixed(1)}%`).join(' · '));
+check('mítico é a faixa mais rara e aparece de verdade',
+  rolls.mythic > 0 && rolls.mythic < rolls.epic && rolls.epic < rolls.rare
+  && rolls.rare < rolls.uncommon && rolls.uncommon < rolls.common);
+const mythicGoblin = new Goblin({ rarity: 'mythic', name: 'Mito' });
+check('um goblin mítico é válido e persiste no save',
+  RARITIES.includes(mythicGoblin.rarity)
+  && new Goblin(JSON.parse(JSON.stringify(mythicGoblin))).rarity === 'mythic');
+
 // ============================================================
 section('Village — recursos, construção, habitação');
 // ============================================================
