@@ -167,7 +167,15 @@ class Village {
   isReady(structure) { return !!structure && !structure.construction; }
 
   get houses() { return this.structures.filter((s) => s.type === 'house' && this.isReady(s)); }
-  get capacity() { return this.houses.reduce((a, h) => a + h.level, 0); }
+  /**
+   * Uma Casa em melhoria continua abrigando seus moradores no nível antigo.
+   * Apenas uma Casa nova em construção não conta antes de ser recolhida.
+   */
+  get capacity() {
+    return this.structures
+      .filter((s) => s.type === 'house' && (!s.construction || s.construction.kind === 'upgrade'))
+      .reduce((sum, house) => sum + house.level, 0);
+  }
 
   /** Estruturas prontas que não são casas (uma de cada, no máximo). */
   get facilities() {
@@ -192,6 +200,11 @@ class Village {
   constructionSeconds(type, targetLevel = 1) {
     const req = BUILDINGS[type]?.reqLevel ?? 1;
     return 10 * Math.max(1, req + Math.max(1, targetLevel) - 1);
+  }
+
+  /** A Casa de Construção acelera todas as obras em 25% por nível extra. */
+  constructionSpeed() {
+    return 1 + Math.max(0, this.levelOf('construction') - 1) * 0.25;
   }
 
   /** Ainda há uma unidade gratuita deste prédio de fundação? */

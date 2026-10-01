@@ -349,10 +349,9 @@ ok(houseWork?.construction?.status === 'building' && houseWork.construction.work
   'lona aguarda um Construtor nomeado; não captura goblin livre');
 tapRegion('roster_btn');
 tapRegion('jobs_tab_1');
-tapRegion('jobs_role_builder');
-ok(has('job_0_builder'),
-  'aba Trabalhos da Vila permite escolher o primeiro Construtor');
-tapRegion('job_0_builder');
+ok(has('jobdrag_0') && has('jobdrop_builder'),
+  'aba Trabalhos da Vila mostra goblins disponíveis para arrastar');
+dragRegion('jobdrag_0', 'jobdrop_builder');
 step(2);
 ok(houseWork.construction.worker === 0,
   'goblin só vai até a lona depois de ser nomeado Construtor');
@@ -396,11 +395,13 @@ ok(!has('jobs_btn') && has('roster_btn'),
 // automaticamente o goblin em uma árvore disponível.
 tapRegion('roster_btn');
 tapRegion('jobs_tab_1');
-ok(has('jobs_role_wood'), 'Vila mostra a aba Trabalhos');
-tapRegion('jobs_role_wood');
-tapRegion('job_1_wood');
+ok(has('jobdrag_1') && has('jobdrop_wood'), 'Vila mostra a aba Trabalhos');
+dragRegion('jobdrag_1', 'jobdrop_wood');
 ok(appE.village.goblins[1].assignment === 'wood' && !!appE.world.goblins[1].job?.node,
-  'escolher Madeira manda o goblin coletar automaticamente');
+  'arrastar para Madeira manda o goblin coletar automaticamente');
+tapRegion('jobdrop_wood');
+ok(has('job_1_idle') && !has('job_0_wood'),
+  'tocar Madeira mostra apenas quem está sendo usado nesse trabalho');
 tapRegion('job_1_idle');
 ok(appE.village.goblins[1].assignment === null && !appE.world.goblins[1].job,
   'retirar em Trabalhos remove a tarefa automática e chama o goblin de volta');
@@ -409,10 +410,9 @@ tapRegion('back_world');
 // A aba Trabalhos reúne também a função de Construtor.
 appE.world.goblins.forEach((w) => { w.job = null; });
 appE.state.screen = 'roster'; appE.state.jobsTab = 1; appE.state.jobsRole = null; step(2);
-tapRegion('jobs_role_builder');
-ok(has('job_1_builder'), 'Vila mostra o ofício Construtor');
-tapRegion('job_1_builder');
-ok(appE.village.goblins[1].assignment === 'builder', 'Vila designa um Construtor pelo trabalho escolhido');
+ok(has('jobdrop_builder') && has('jobdrag_1'), 'Vila mostra o ofício Construtor');
+dragRegion('jobdrag_1', 'jobdrop_builder');
+ok(appE.village.goblins[1].assignment === 'builder', 'Vila designa um Construtor pelo arraste');
 
 // A Cozinha possui uma escala própria e só inicia prato após nomear cozinheiro.
 appE.village.level = 3;
@@ -420,6 +420,8 @@ appE.village.res = { wood: 999, stone: 999, ore: 999, food: 999, gold: 999 };
 appE.village.build('cozinha');
 appE.state.screen = 'kitchen'; appE.state.kitchenTab = 0; step(2);
 ok(has('ktab_1') && has('cook_bread'), 'Cozinha mostra abas de receitas e cozinheiros');
+// A escala agora só oferece goblins realmente disponíveis.
+appE.world.goblins[0].job = null; appE.village.goblins[0].assignment = null;
 tapRegion('ktab_1');
 ok(has('cookrole_0_cook'), 'aba Cozinheiros permite escolher cada goblin');
 tapRegion('cookrole_0_cook');
@@ -439,12 +441,12 @@ ok(appE.village.cookingQueue.length === 0, 'remover item da fila funciona');
 tapRegion('back_world');
 tapRegion('roster_btn');
 tapRegion('jobs_tab_1');
-ok(has('jobs_role_wood') && has('jobs_open_kitchen'),
+ok(has('jobdrop_wood') && has('jobs_open_kitchen'),
   'aba Trabalhos lista ofícios e encaminha a Cozinha');
-tapRegion('jobs_role_wood');
+tapRegion('jobdrop_wood');
 texts = drawnTexts();
-ok(has('jobs_back_roles') && texts.includes('Escolha quem trabalha'),
-  'trabalho escolhido mostra os estados reais dos goblins para atribuição');
+ok(has('jobs_back_roles') && texts.includes('Nenhum goblin trabalhando'),
+  'trabalho escolhido mostra somente sua equipe atual');
 tapRegion('jobs_back_roles');
 tapRegion('jobs_open_kitchen');
 ok(appE.state.screen === 'kitchen' && appE.state.kitchenTab === 1,
@@ -456,8 +458,8 @@ const busyCook = appE.world.goblins[1];
 busyCook.job = { type: 'goto', node: appE.nodes.list.find((n) => n.type === 'tree') };
 appE.state.screen = 'kitchen'; appE.state.kitchenTab = 1; drawnTexts(); step(1);
 texts = drawnTexts();
-ok(texts.includes('Madeira') && !has('cookrole_1_cook'),
-  'Cozinha mostra o trabalho real do coletor e desativa sua escala');
+ok(!texts.includes('Madeira') && !has('cookrole_1_cook'),
+  'Cozinha mostra somente goblins disponíveis, sem o coletor ocupado');
 
 // A lista de todos os goblins continua rolável; trabalhos ficam na aba ao lado.
 const { Goblin: BootGoblin } = req('goblin.js');
@@ -470,12 +472,10 @@ dragPoints({ x: firstCard.x + 120, y: firstCard.y + firstCard.h / 2 },
 step(1);
 ok(appE.state.rosterScroll > 0, 'lista da Vila rola ao arrastar');
 appE.world.goblins[4].job = null; appE.village.goblins[4].assignment = null;
-// Depois da rolagem, a aba ainda abre normalmente (o toque real já foi
-// exercitado acima); aqui mudamos o estado para não reutilizar uma região
-// do frame anterior.
+// Depois da rolagem, a aba ainda abre normalmente; o cartão disponível pode
+// ser arrastado diretamente ao destino Comida.
 appE.state.jobsTab = 1; appE.state.jobsRole = null; step(2);
-tapRegion('jobs_role_food');
-tapRegion('job_4_food');
+dragRegion('jobdrag_4', 'jobdrop_food');
 ok(appE.village.goblins[4].assignment === 'food',
   'aba Trabalhos atribui Comida sem sair da Vila');
 // Mais dois goblins podem se juntar ao cozinheiro ativo, e o preparo mantém
@@ -525,16 +525,20 @@ appG.nodes.deplete(appG.nodes.list.find((n) => n.type === 'rock' && !n.depleted)
 // ocupado de livre. Ele é só uma semente de teste, fora da partida normal.
 appG.village.goblins.push(BootGoblin.roll(1));
 appG.world.setGoblinCount(appG.village.goblins.length);
+// Um cozinheiro reservado não pode aparecer como disponível para louvar.
+appG.village.goblins[1].assignment = 'cook';
 const treePos = appG.camera.worldToScreen(appG.village.get('grande_arvore').x, appG.village.get('grande_arvore').y - 20);
 tap(treePos.x, treePos.y);
-ok(appG.state.screen === 'deity' && has('deity_worship_grande_arvore_0'),
-  'tocar na Grande Árvore abre a interface com postos de culto');
+ok(appG.state.screen === 'deity' && has('deity_worship_grande_arvore_0')
+  && !has('deity_worship_grande_arvore_1'),
+  'Santuário só lista o disponível; cozinheiro reservado fica fora');
+appG.village.goblins[1].assignment = null;
 const busyTree = appG.world.goblins[1];
 busyTree.job = { type: 'goto', node: appG.nodes.list.find((n) => n.type === 'tree' && !n.depleted) };
 drawnTexts(); step(1);
 texts = drawnTexts();
-ok(texts.includes('Madeira') && !has('deity_worship_grande_arvore_1'),
-  'Grande Árvore exibe o trabalho real e não oferece coletor ocupado');
+ok(!texts.includes('Madeira') && !has('deity_worship_grande_arvore_1'),
+  'Grande Árvore mostra somente goblins disponíveis, sem coletor ocupado');
 busyTree.job = null;
 tapRegion('deity_worship_grande_arvore_0');
 ok(appG.deities.isActive('grande_arvore'), 'interface envia um goblin para a Grande Árvore');
@@ -557,7 +561,7 @@ busyGolem.job = { type: 'goto', node: appG.nodes.list.find((n) => n.type === 'ro
 drawnTexts(); step(1);
 texts = drawnTexts();
 ok(texts.includes('Pedra') && !has('deity_worship_golem_pedra_1'),
-  'Golem exibe o trabalho real e não oferece coletor ocupado');
+  'Golem mostra somente goblins disponíveis, sem coletor ocupado');
 busyGolem.job = null;
 tapRegion('deity_worship_golem_pedra_0');
 ok(appG.deities.isActive('golem_pedra'), 'interface envia o goblin livre ao Golem');

@@ -50,8 +50,8 @@ python3 -m http.server 8080
 | Toque longo numa estrutura pronta | preenche um anel amarelo; ao completar, escolhe o novo local |
 | Toque nos outros prédios | abre a tela correspondente |
 | Botões no rodapé | **Construir**, **Recrutar** (quando há vaga), **Missões**, **Cozinha**, **Mercado**, **Armazém**, **Vila** |
-| Vila | concentra a lista de todos os goblins e suas abas **Goblins** e **Trabalhos**; Trabalhos lista ocupados por ofício, permite escolher trabalhadores e encaminha Cozinha e Santuários |
-| Cozinha → **Cozinheiros** | designe até **3 cozinheiros**; a fila guarda até **20 receitas** na ordem escolhida, e cada cozinheiro que chega à panela acelera o preparo |
+| Vila | concentra a lista de todos os goblins e suas abas **Goblins** e **Trabalhos**; em Trabalhos, arraste somente goblins disponíveis até um ofício e toque no ofício para ver apenas sua equipe atual |
+| Cozinha → **Cozinheiros** | designe até **3 cozinheiros** dentre os disponíveis; a fila guarda até **20 receitas** na ordem escolhida, e cada cozinheiro que chega à panela acelera o preparo |
 
 ## 🔄 O ciclo do jogo
 
@@ -67,11 +67,11 @@ A **vila sobe de nível** com o XP das missões. Cada nível libera novas estrut
 
 Uma partida nova começa com a ilha **sem prédios e sem goblins**. O primeiro painel pede o local da **Casa de Construção**, que é gratuita. Ela ainda passa pela lona de fabricação, mas como tem duração zero a lona aparece brilhando e basta tocá-la para concluir. Só então o catálogo normal é liberado.
 
-O **Painel de Missões** e as **três primeiras Casas de Goblin** também não custam recursos. Não existem missões antes de o Painel ter sido concluído. A primeira Casa, como a Casa de Construção, tem duração zero mas ainda exige recolher a lona brilhante; ao concluir a Casa, abre-se a escolha do primeiro goblin. A segunda e a terceira Casas continuam sendo obras normais com cronômetro. Cada nível de uma Casa concede mais uma vaga de moradia; enquanto existir vaga, o botão **Recrutar** permite reabrir a escolha de candidatos.
+O **Painel de Missões** e as **três primeiras Casas de Goblin** também não custam recursos. Não existem missões antes de o Painel ter sido concluído. A primeira Casa, como a Casa de Construção, tem duração zero mas ainda exige recolher a lona brilhante; ao concluir a Casa, abre-se a escolha do primeiro goblin. A segunda e a terceira Casas continuam sendo obras normais com cronômetro. Cada nível de uma Casa concede mais uma vaga de moradia; durante uma melhoria, as vagas que ela já tinha continuam valendo e, ao recolher a obra pronta, a nova vaga abre o recrutamento. Enquanto existir vaga, o botão **Recrutar** permite reabrir a escolha de candidatos.
 
 ### Obras
 
-Colocar ou melhorar uma estrutura cria uma **lona de obra**. A lona aguarda até que o jogador abra **Vila → Trabalhos** e nomeie um goblin como **Construtor**; somente um construtor nomeado vai até ela, trabalha levantando poeira e faz o cronômetro avançar. A duração segue o nível de desbloqueio da estrutura: casas (nível 1) levam **10 / 20 / 30 s** nos níveis 1–3; estruturas desbloqueadas no nível 2 levam **20 / 30 / 40 s**; as do nível 3 levam **30 / 40 / 50 s**, e assim sucessivamente. Ao acabar — ou imediatamente nas fundações de duração zero — a lona brilha: toque nela para recolher a construção pronta.
+Colocar ou melhorar uma estrutura cria uma **lona de obra**. A lona aguarda até que o jogador abra **Vila → Trabalhos** e nomeie um goblin como **Construtor**; somente um construtor nomeado vai até ela, trabalha levantando poeira e faz o cronômetro avançar. A duração segue o nível de desbloqueio da estrutura: casas (nível 1) levam **10 / 20 / 30 s** nos níveis 1–3; estruturas desbloqueadas no nível 2 levam **20 / 30 / 40 s**; as do nível 3 levam **30 / 40 / 50 s**, e assim sucessivamente. A **Casa de Construção** também pode ser melhorada: cada nível extra acelera todas as obras em **25%**. Ao acabar — ou imediatamente nas fundações de duração zero — a lona brilha: toque nela para recolher a construção pronta.
 
 ### Cozinha e cozinheiros
 

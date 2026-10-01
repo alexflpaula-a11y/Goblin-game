@@ -224,6 +224,20 @@ v5.level = 3;
 check('teto sobe junto com a vila', v5.maxUpgradeLevel('house') === 3);
 check('agora melhora', v5.upgrade(v5.houses[0]) === true);
 check('melhorar Casa aumenta a capacidade e libera nova vaga', v5.capacity === 2 && v5.goblins.length < v5.capacity);
+const timedHouse = new Village();
+timedHouse.buildHouse(); timedHouse.level = 3;
+timedHouse.res = { wood: 999, stone: 999, ore: 999, food: 999, gold: 999 };
+const timedHome = timedHouse.houses[0];
+check('melhoria de Casa por obra só ganha vaga ao ser recolhida',
+  timedHouse.beginUpgrade(timedHome) && timedHouse.capacity === 1
+  && ((timedHome.construction.status = 'ready'), timedHouse.completeConstruction(timedHome))
+  && timedHouse.capacity === 2);
+const constructionSpeedVillage = new Village();
+constructionSpeedVillage.level = 3;
+constructionSpeedVillage.res = { wood: 999, stone: 999, ore: 999, food: 999, gold: 999 };
+constructionSpeedVillage.build('construction');
+constructionSpeedVillage.upgrade(constructionSpeedVillage.get('construction'));
+check('Casa de Construção melhorada acelera todas as obras', constructionSpeedVillage.constructionSpeed() === 1.25);
 
 // ============================================================
 section('Village — obras com tempo, lona e recolhimento');
@@ -347,6 +361,19 @@ check('pão foi para a despensa', cv.meals.bread >= 1);
     cooking.cookingSeconds('bread') === 10 && cooking.cookingSeconds('stew') === 20 && cooking.cookingSeconds('feast') === 30);
   check('um, dois e três cozinheiros escalam a velocidade real',
     cooking.cookSpeed(1) === 1 && cooking.cookSpeed(2) === 2 && cooking.cookSpeed(3) === 3 && cooking.cookSpeed(4) === 3);
+  const kitchenForRecipes = cv.get('cozinha');
+  cv.level = 3;
+  cv.upgrade(kitchenForRecipes);
+  const stewJob = cooking.beginCook(cv, 'stew');
+  check('cozinheiros aceitam ensopado com Cozinha nível 2', stewJob?.recipeId === 'stew' && stewJob.total === 20);
+  stewJob.status = 'ready';
+  check('ensopado termina e entra na despensa', cooking.finishCook(cv, () => 0.99)?.id === 'stew' && cv.meals.stew === 1);
+  cv.res.wood = 999; cv.res.stone = 999; cv.res.gold = 999;
+  cv.upgrade(kitchenForRecipes);
+  const feastJob = cooking.beginCook(cv, 'feast');
+  check('cozinheiros aceitam banquete com Cozinha nível 3', feastJob?.recipeId === 'feast' && feastJob.total === 30);
+  feastJob.status = 'ready';
+  check('banquete termina e entra na despensa', cooking.finishCook(cv, () => 0.99)?.id === 'feast' && cv.meals.feast === 1);
 
   const hurtGoblin = cv.goblins[0];
 hurtGoblin.hp = 1;
@@ -658,6 +685,10 @@ const shrineNodes = new Nodes(shrineWorld, [
   { type: 'tree', x: 20, y: 20, stock: 0, max: 1, depleted: true },
 ]);
 const shrine = new Deities(shrineWorld, shrineVillage, shrineNodes, deityRng);
+shrineVillage.goblins = [{ assignment: 'cook' }];
+check('culto recusa um cozinheiro reservado, mesmo entre receitas',
+  shrine.activate('grande_arvore', shrineWorld.goblins, 0).reason === 'busy');
+shrineVillage.goblins[0].assignment = null;
 const sent = [0, 1, 2].map((i) => shrine.activate('grande_arvore', shrineWorld.goblins, i));
 shrineWorld.goblins.forEach((w) => { w.job.type = 'worship'; });
 check('santuário aceita até três acólitos',

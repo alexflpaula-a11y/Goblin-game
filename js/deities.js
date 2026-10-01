@@ -102,6 +102,13 @@ class Deities {
         const walker = this.world.goblins[idx];
         return !!walker && walker.job?.deityType === type;
       }).slice(0, MAX_WORSHIPPERS);
+      // Migração/consistência: culto é exclusivo. Nunca deixe um acólito
+      // conservar uma função reservada (especialmente cozinheiro) em saves
+      // antigos, pois isso bloquearia a escala da Cozinha depois.
+      for (const idx of state.worshippers) {
+        const goblin = this.village.goblins[idx];
+        if (goblin) goblin.assignment = null;
+      }
       state.active = state.worshippers.length > 0;
       state.worshipper = state.worshippers[0] ?? null; // compatibilidade
       if (!state.active) {
@@ -131,12 +138,17 @@ class Deities {
     if (state.worshippers.length >= MAX_WORSHIPPERS) return { ok: false, reason: 'full' };
 
     let best = preferredIndex == null ? null : walkers[preferredIndex];
-    if (best?.job) return { ok: false, reason: 'busy' };
+    // Culto não sequestra uma função reservada. Isto inclui cozinheiros sem
+    // receita ativa: eles continuam pertencendo à escala da Cozinha.
+    if (best?.job || (this.village.goblins[best?.i]?.assignment && this.village.goblins[best?.i]?.assignment !== 'idle')) {
+      return { ok: false, reason: 'busy' };
+    }
     if (!best) {
       const target = this.worshipPosition(type, structure, state.worshippers.length);
       let bestDistance = Infinity;
       for (const walker of walkers) {
-        if (walker.job) continue;
+        const assignment = this.village.goblins[walker.i]?.assignment;
+        if (walker.job || (assignment && assignment !== 'idle')) continue;
         const d = Math.hypot(walker.x - target.x, walker.y - target.y);
         if (d < bestDistance) { best = walker; bestDistance = d; }
       }
