@@ -95,7 +95,12 @@ registerPiece('peitoral_ferro', 'ferro_pei', LAYER.peitoral, { hasFullSprite: tr
 registerPiece('capacete_ferro', 'ferro_cap', LAYER.capacete);
 registerPiece('calca_ferro', 'ferro_cal', LAYER.calca);
 
-// Armas — únicas peças de arma que aparecem no goblin (primária e secundária).
+// Armas — o goblin base está DESARMADO, então a arma equipada é desenhada
+// inteira pelo overlay (antes ela só repintava a adaga que vinha colada no
+// corpo, e por isso toda arma tinha o formato de adaga).
+registerPiece('adaga_pedra', 'wpn_adaga_pedra', LAYER.arma_primaria);
+registerPiece('adaga_metal', 'wpn_adaga_metal', LAYER.arma_primaria);
+registerPiece('adaga_madeira', 'wpn_adaga_madeira', LAYER.arma_primaria);
 registerPiece('espada_ferro', 'wpn_espada', LAYER.arma_primaria);
 registerPiece('clava_goblin', 'wpn_clava', LAYER.arma_primaria);
 registerPiece('escudo_madeira', 'wpn_escudo', LAYER.arma_secundaria);

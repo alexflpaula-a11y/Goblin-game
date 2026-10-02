@@ -31,7 +31,7 @@ OVERLAY_DIR = ROOT / 'assets' / 'sprites' / 'goblin-gear-overlays'
 MANIFEST = ROOT / 'assets' / 'manifest.json'
 
 BATCH_SIZE = 5
-FRAME_COUNTS = {'idle': 5, 'walk': 8, 'attack': 17, 'hurt': 17, 'death': 15}
+FRAME_COUNTS = {'idle': 5, 'walk': 8, 'attack': 17, 'hurt': 17, 'death': 24}
 
 # Canto superior esquerdo de cada canvas 128x128 (sprite 32x32 em escala 4x).
 PREVIEW_SLOTS = {

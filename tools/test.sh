@@ -8,6 +8,7 @@
 #   5. tap          toques reais: equipar, alimentar, habilidades
 #   6. boot         boot real: saves desativados, estouro, recruta
 #   7. build        o arquivo único distribuído funciona sozinho
+#   8. anim         o goblin não se despedaça nem teleporta (Python/Pillow)
 #
 # Uso:  bash tools/test.sh
 set -u
@@ -22,6 +23,12 @@ for t in smoke render playthrough gear tap boot build; do
     fails=$((fails + 1))
   fi
 done
+
+printf '\n\033[1m── anim ─────────────────────────────\033[0m\n'
+(cd tools && python3 anim_test.py)
+if [ "$?" -ne 0 ]; then
+  fails=$((fails + 1))
+fi
 
 printf '\n────────────────────────────────────\n'
 if [ "$fails" -eq 0 ]; then

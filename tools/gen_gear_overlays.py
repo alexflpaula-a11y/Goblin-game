@@ -37,7 +37,7 @@ GOBLIN_DIR = ROOT / 'assets' / 'sprites' / 'goblins'
 OVERLAY_DIR = ROOT / 'assets' / 'sprites' / 'goblin-gear-overlays'
 MANIFEST = ROOT / 'assets' / 'manifest.json'
 
-FRAME_COUNTS = {'idle': 5, 'walk': 8, 'attack': 17, 'hurt': 17, 'death': 15}
+FRAME_COUNTS = {'idle': 5, 'walk': 8, 'attack': 17, 'hurt': 17, 'death': 24}
 S = 32
 
 # ---------------- paletas ----------------

@@ -558,7 +558,7 @@ section('Inventory — armazém, itens e espaços');
 // ============================================================
 const inv = req('inventory.js');
 
-check('catálogo tem os equipamentos sem runa', inv.ITEMS.length === 13, `${inv.ITEMS.length} itens`);
+check('catálogo tem os equipamentos sem runa', inv.ITEMS.length === 16, `${inv.ITEMS.length} itens`);
 check('todo item tem ícone e preço', inv.ITEMS.every((i) => i.icon && i.price > 0));
 check('9 espaços no boneco', inv.EQUIP_SLOTS.length === 9);
 check('espaços esperados sem runa',

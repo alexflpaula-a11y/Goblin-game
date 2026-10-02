@@ -15,10 +15,17 @@ ou ferro (FERRO). Uma peca nova e so mais um desenho nesse formato.
 import goblin_rig as R
 
 # ------------------------------------------------------------- materiais ---
+R.C.update({
+    'N': (72, 72, 80, 255),      # pedra sombra
+    'O': (118, 118, 126, 255),   # pedra base
+    'T': (170, 170, 178, 255),   # pedra luz
+})
+
 MATERIALS = {
     'avaritia': {'D': '1', 'M': '2', 'L': '3', 'G': '4', 'A': '6'},
     'ferro':    {'D': '7', 'M': '8', 'L': '9', 'G': '9', 'A': '6'},
     'madeira':  {'D': 'B', 'M': 'L', 'L': 'M', 'G': '6', 'A': '6'},
+    'pedra':    {'D': 'N', 'M': 'O', 'L': 'T', 'G': 'T', 'A': '6'},
 }
 
 
@@ -116,7 +123,11 @@ NASAL = ([(x, y, 'M') for y in range(11, 16) for x in (21, 22, 23)]
 SOBRANCELHA = ([(x, 11, 'L') for x in range(14, 20)]
                + [(x, 11, 'L') for x in range(24, 29)])
 
-HELM = _mold(R.HEAD, _keep_head, slits=VISOR, marks=NASAL + SOBRANCELHA)
+# Rebites na face: quebram a chapa lisa sem mudar o recorte da peca.
+REBITES_ELMO = [(10, 11), (10, 13), (10, 15), (29, 12), (29, 14)]
+
+HELM = _mold(R.HEAD, _keep_head, slits=VISOR,
+             marks=NASAL + SOBRANCELHA + [(x, y, 'L') for x, y in REBITES_ELMO])
 
 # --- PEITORAL -------------------------------------------------------------
 # Todo o torax (linhas 0..10 do tronco, ate a altura do cinto). Os bracos
@@ -125,8 +136,11 @@ HELM = _mold(R.HEAD, _keep_head, slits=VISOR, marks=NASAL + SOBRANCELHA)
 CHEST = _mold(
     R.TORSO, lambda x, y: y <= 10,
     gems=[(12, 5), (13, 5), (12, 6), (13, 6), (6, 1), (20, 1)],
+    # esterno, gola e rebites: a chapa lisa parecia uma placa de papelao
     marks=[(x, y, 'L') for y in (3, 4, 7, 8) for x in (12, 13)]
-          + [(x, 2, 'M') for x in range(7, 21)])
+          + [(x, 2, 'M') for x in range(7, 21)]
+          + [(x, y, 'L') for y in (4, 7) for x in (9, 16)]
+          + [(8, 9, 'L'), (17, 9, 'L'), (12, 9, 'L'), (13, 9, 'L')])
 
 # Ombreiras: so o alto do braco. O antebraco e a mao comecam logo abaixo.
 PAULDRON_L = _mold(R.ARM_L, lambda x, y: y <= 4 and x >= 4, flat=True)
@@ -135,21 +149,187 @@ PAULDRON_R = _mold(R.ARM_R, lambda x, y: y <= 4 and x <= 4, flat=True)
 # --- CALCA ----------------------------------------------------------------
 # Quadril inteiro (o resto do tronco, da linha do cinto para baixo) mais as
 # duas pernas completas, botas inclusive.
-HIP = _mold(R.TORSO, lambda x, y: y >= 11, gems=[(7, 13), (18, 13)])
+# Cinto na linha de cima e costura no meio das pernas.
+HIP = _mold(R.TORSO, lambda x, y: y >= 11, gems=[(7, 13), (18, 13)],
+            marks=[(x, 12, 'L') for x in range(3, 22)]
+                  + [(x, 13, 'M') for x in range(3, 22)]
+                  + [(13, y, 'L') for y in range(16, 20)]
+                  + [(5, 15, 'L'), (20, 15, 'L')])
 GREAVE_L = _mold(R.LEG_L, lambda x, y: True, flat=True)
 GREAVE_R = _mold(R.LEG_R, lambda x, y: True, flat=True)
 
+# Escudo redondo: tabuas verticais (as colunas em L sao as juntas), aro
+# escuro em volta e umbo de metal no centro.
 SHIELD = g([
     "...DDDD...",
-    "..DMMMMD..",
-    ".DMMMMMMD.",
-    "DMMMMMMMMD",
-    "DMMGGGGMMD",
-    "DMMGGGGMMD",
-    "DMMGGGGMMD",
-    "DMMMMMMMMD",
-    ".DMMMMMMD.",
-    "..DMMMMD..",
+    "..DMLMMD..",
+    ".DMLMMLMD.",
+    "DMLMMLMMLD",
+    "DMLMGGGGLD",
+    "DMLMGAAGLD",
+    "DMLMGGGGLD",
+    "DMLMMLMMLD",
+    ".DMLMMLMD.",
+    "..DMLMMD..",
+    "...DDDD...",
+], 10)
+
+# ------------------------------------------------------------------ armas --
+# O goblin nasce DESARMADO: a adaga deixou de fazer parte do corpo e virou
+# equipamento. Com isso a arma nao precisa mais cobrir pixel a pixel uma
+# adaga ja desenhada, entao cada arma pode ter o tamanho e o formato dela.
+#
+# De cada arma so sao desenhadas DUAS vistas, a vertical ("down") e a
+# diagonal. As outras duas saem por transformacao exata:
+#   up  = "down" espelhado na vertical     (ponta para cima)
+#   fwd = "down" girado 90 graus           (ponta para frente)
+# Rotacao de 90 graus nao perde nenhum pixel, diferente de um angulo
+# qualquer, que borra arte em pixel art.
+#
+# O cabo e sempre couro (B/b/h passam direto pela paleta); so a lamina ou a
+# cabeca da arma usam as cores do material.
+
+
+def _flip_v(grid):
+    return [list(r) for r in reversed(grid)]
+
+
+def _rot_ccw(grid):
+    """Gira 90 graus no sentido anti-horario. Exato, sem reamostragem."""
+    h, w = len(grid), len(grid[0])
+    return [[grid[y][w - 1 - x] for y in range(h)] for x in range(w)]
+
+
+def _views(down, diag):
+    """Monta as 4 vistas e o deslocamento de cada uma.
+
+    Os deslocamentos sao calculados para que o CABO caia sempre na mesma
+    posicao da mao, qualquer que seja o comprimento da arma — por isso dao
+    para desenhar uma adaga curta e uma espada longa na mesma montagem.
+    """
+    hd, wd = len(down), len(down[0])
+    hg = len(diag)
+    return {
+        # cabo nas linhas 1-2 da grade -> deslocamento fixo
+        'down': (down, -1, 0),
+        # espelhado: o cabo vai para as linhas h-3/h-2, entao sobe a grade
+        'up': (_flip_v(down), -1, 12 - hd),
+        # girado: a grade fica deitada, cabo a esquerda
+        'fwd': (_rot_ccw(down), 0, -(wd // 2) + 2),
+        # diagonal: cabo no canto de baixo, lamina subindo para a direita
+        'diag': (diag, 0, 9 - hg),
+    }
+
+
+# cabo de couro comum a todas as armas: B contorno, b couro, h brilho
+ADAGA_DOWN = g([
+    "..BB..",
+    ".BbhB.",
+    ".BbhB.",
+    "DLLLLD",
+    ".DMLD.",
+    ".DMLD.",
+    ".DMLD.",
+    ".DMLD.",
+    ".DMLD.",
+    "..DLD.",
+    "..DD..",
+    "......",
+], 6)
+
+ADAGA_DIAG = g([
+    "........DD",
+    ".......DLD",
+    "......DLMD",
+    ".....DLMD.",
+    "....DLMD..",
+    "...DLMD...",
+    "..LLLD....",
+    ".BbhB.....",
+    ".BBB......",
+], 10)
+
+ESPADA_DOWN = g([
+    "..BB..",
+    ".BbhB.",
+    ".BbhB.",
+    "DLLLLD",
+    ".DMLD.",
+    ".DMLD.",
+    ".DMLD.",
+    ".DMLD.",
+    ".DMLD.",
+    ".DMLD.",
+    ".DMLD.",
+    ".DMLD.",
+    ".DMLD.",
+    "..DLD.",
+    "..DD..",
+    "......",
+], 6)
+
+ESPADA_DIAG = g([
+    "...........DD",
+    "..........DLD",
+    ".........DLMD",
+    "........DLMD.",
+    ".......DLMD..",
+    "......DLMD...",
+    ".....DLMD....",
+    "....DLMD.....",
+    "...DLMD......",
+    "..LLLD.......",
+    ".BbhB........",
+    ".BBB.........",
+], 13)
+
+CLAVA_DOWN = g([
+    "..BB..",
+    ".BbhB.",
+    ".BbhB.",
+    ".DMMD.",
+    ".DMMD.",
+    "DMLLMD",
+    "DMLLMD",
+    "DMLLMD",
+    "DMLLMD",
+    "DMLLMD",
+    ".DMMD.",
+    "..DD..",
+    "......",
+    "......",
+], 6)
+
+CLAVA_DIAG = g([
+    "......DDD..",
+    ".....DMLLD.",
+    "....DMLLMD.",
+    "....DMLLD..",
+    "...DMMLD...",
+    "...DMMD....",
+    "..DMMD.....",
+    ".BbhB......",
+    ".BbD.......",
+    ".BB........",
+], 11)
+
+ADAGA = _views(ADAGA_DOWN, ADAGA_DIAG)
+ESPADA = _views(ESPADA_DOWN, ESPADA_DIAG)
+CLAVA = _views(CLAVA_DOWN, CLAVA_DIAG)
+
+# Escudo redondo: tabuas verticais (as colunas em L sao as juntas), aro
+# escuro em volta e umbo de metal no centro.
+SHIELD = g([
+    "...DDDD...",
+    "..DMLMMD..",
+    ".DMLMMLMD.",
+    "DMLMMLMMLD",
+    "DMLMGGGGLD",
+    "DMLMGAAGLD",
+    "DMLMGGGGLD",
+    "DMLMMLMMLD",
+    ".DMLMMLMD.",
+    "..DMLMMD..",
     "...DDDD...",
 ], 10)
 
@@ -176,17 +356,19 @@ def _reskin(remap):
 SWORD_SKIN = _reskin(SWORD_REMAP)
 CLUB_SKIN = _reskin(CLUB_REMAP)
 
+# Escudo redondo: tabuas verticais (as colunas em L sao as juntas), aro
+# escuro em volta e umbo de metal no centro.
 SHIELD = g([
     "...DDDD...",
-    "..DMMMMD..",
-    ".DMMMMMMD.",
-    "DMMMMMMMMD",
-    "DMMGGGGMMD",
-    "DMMGGGGMMD",
-    "DMMGGGGMMD",
-    "DMMMMMMMMD",
-    ".DMMMMMMD.",
-    "..DMMMMD..",
+    "..DMLMMD..",
+    ".DMLMMLMD.",
+    "DMLMMLMMLD",
+    "DMLMGGGGLD",
+    "DMLMGAAGLD",
+    "DMLMGGGGLD",
+    "DMLMMLMMLD",
+    ".DMLMMLMD.",
+    "..DMLMMD..",
     "...DDDD...",
 ], 10)
 
@@ -215,10 +397,10 @@ def pants(material):
     ]
 
 
-def weapon(skin, material):
-    """Arma: um desenho por orientacao, escolhido pelo tipo de espada da pose."""
+def weapon(views, material):
+    """Arma: uma vista por orientacao, escolhida pela pose do braco."""
     return [{'anchor': 'sword', 'material': material, 'by_kind': {
-        k: (paint(rows, material), dx, dy) for k, (rows, dx, dy) in skin.items()
+        k: (paint(rows, material), dx, dy) for k, (rows, dx, dy) in views.items()
     }}]
 
 
@@ -240,8 +422,11 @@ PIECES = {
     'ferro_cap':  (helm('ferro'), None),
     'ferro_pei':  (chest('ferro'), 'goblins'),
     'ferro_cal':  (pants('ferro'), None),
-    'wpn_espada': (weapon(SWORD_SKIN, 'ferro'), None),
-    'wpn_clava':  (weapon(CLUB_SKIN, 'madeira'), None),
+    'wpn_adaga_pedra':   (weapon(ADAGA, 'pedra'), None),
+    'wpn_adaga_metal':   (weapon(ADAGA, 'ferro'), None),
+    'wpn_adaga_madeira': (weapon(ADAGA, 'madeira'), None),
+    'wpn_espada': (weapon(ESPADA, 'ferro'), None),
+    'wpn_clava':  (weapon(CLAVA, 'madeira'), None),
     'wpn_escudo': (shield('madeira'), None),
 }
 

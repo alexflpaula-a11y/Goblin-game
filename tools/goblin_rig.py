@@ -414,10 +414,18 @@ def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None,
         dx, dy = spec[0], spec[1]
         flip = len(spec) > 2 and bool(spec[2])
         if name == 'sword':
+            # 'sword' e um ANCORA de mao, nao uma parte do corpo. O goblin
+            # nasce desarmado: a posicao e sempre calculada (para a arma
+            # equipada saber onde se encaixar), mas a adaga so e desenhada
+            # se a pose pedir explicitamente (_weapon), o que hoje nenhuma
+            # animacao faz — quem desenha arma e o equipamento.
             kind = pose.get('_sword', 'down')
-            art = SWORDS[kind]
             ax, ay = SWORD_ANCHOR[kind]
             dx, dy = dx + ax, dy + ay
+            if not pose.get('_weapon'):
+                ctx[name] = (REST[name][0] + dx, REST[name][1] + dy, flip)
+                continue
+            art = SWORDS[kind]
         else:
             art = extra_parts.get(name, DEFAULT_PART[name])
         bx, by = REST[name]

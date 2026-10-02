@@ -67,7 +67,10 @@ function makeNoise(seed, cell) {
 // Usado para nunca pedir um quadro que não existe (ex.: sair do 'walk'
 // no quadro 7 e cair no 'idle', que só vai até 4) — o que fazia aparecer
 // o placeholder "VAR" piscando entre uma ação e outra.
-const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 15 };
+// A morte passou de 15 para 24 quadros: antes o goblin aparecia deitado de
+// um quadro para o outro; agora ele cambaleia, cede os joelhos, tomba e só
+// então fica estirado no chão.
+const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 24 };
 
 // ---------- Goblin que passeia / trabalha ----------
 class GoblinWalker {
