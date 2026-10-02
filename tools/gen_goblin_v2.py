@@ -10,7 +10,7 @@ Saida (mesmos nomes que o jogo e o manifest ja usam, nada quebra):
     assets/sprites/goblins/goblin_<acao>_<n>.png
     assets/sprites/goblins/variant_<id>_<acao>_<n>.png
 
-Sao 46 x 62 = 2852 quadros de 32x32.
+Sao 46 x 62 = 2852 quadros de 64x64 (resolucao nativa da arte).
 """
 
 import argparse
@@ -43,16 +43,16 @@ def write_set(prefix, variation, out_dir):
 def sheet(frames, scale=4, bg=(24, 24, 28, 255)):
     rows = [frames[a] for a in A.ACTIONS]
     w = max(len(r) for r in rows)
-    img = Image.new('RGBA', (32 * w, 32 * len(rows)), bg)
+    img = Image.new('RGBA', (R.SIZE * w, R.SIZE * len(rows)), bg)
     for j, row in enumerate(rows):
         for i, fr in enumerate(row):
-            img.alpha_composite(fr, (i * 32, j * 32))
+            img.alpha_composite(fr, (i * R.SIZE, j * R.SIZE))
     return img.resize((img.width * scale, img.height * scale), Image.NEAREST)
 
 
 def contact_sheet(thumbs, cols=9, scale=3):
     rows = (len(thumbs) + cols - 1) // cols
-    cell = 32 * scale
+    cell = R.SIZE * scale
     img = Image.new('RGBA', (cols * cell, rows * cell), (24, 24, 28, 255))
     for k, th in enumerate(thumbs):
         big = th.resize((cell, cell), Image.NEAREST)

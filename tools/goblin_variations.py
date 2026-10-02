@@ -28,21 +28,23 @@ R.C.update({
     'G': (188, 150, 46, 255),    # ouro sombra
 })
 
-# Mapa da cabeca (24x12), recortada da arte de referencia:
-#   cranio nas colunas 7..18 | orelha esquerda cols 1..6, direita cols 17..22
-#   testa rows 3-5 | sobrancelhas row 6 | olhos row 7 | focinho rows 8-9
-#   boca row 10 | presa (15, 11)
-EYE_L = [(10, 7), (11, 7)]
-EYE_R = [(15, 7), (16, 7)]
-BROW_L = [(10, 6), (11, 6)]
-BROW_R = [(15, 6), (16, 6)]
-FOREHEAD = [(x, y) for y in (3, 4, 5) for x in range(8, 18)]
-CROWN = [(x, y) for y in (0, 1, 2) for x in range(8, 20)]
-EAR_L_CORE = [(3, 2), (4, 2), (3, 3), (4, 3)]
-EAR_R_CORE = [(18, 2), (19, 2), (19, 3), (20, 3)]
-EAR_L_LOBE = [(2, 4)]
-EAR_R_LOBE = [(21, 4)]
-TUSK = [(15, 11)]
+# Mapa da cabeca (38x20), recortada da arte de referencia em 64x64:
+#   cranio cols 10..31 | orelha esquerda cols 0..13, direita cols 26..37
+#   testa rows 5..10 | sobrancelhas row 11 | olhos rows 12-13
+#   focinho rows 14..16 | boca/presa row 17 | queixo rows 18-19
+EYE_L = [(x, y) for y in (12, 13) for x in (17, 18, 19)]
+EYE_R = [(x, y) for y in (12, 13) for x in (25, 26)]
+BROW_L = [(17, 11), (18, 11), (19, 11)]
+BROW_R = [(25, 11), (26, 11)]
+FOREHEAD = [(x, y) for y in range(7, 12) for x in range(15, 30)]
+CROWN = [(x, y) for y in range(2, 8) for x in range(15, 31)]
+EAR_L_CORE = [(x, y) for y in (4, 5, 6) for x in range(4, 11)]
+EAR_R_CORE = [(x, y) for y in (3, 4, 5) for x in range(28, 35)]
+EAR_L_LOBE = [(3, 6), (4, 6)]
+EAR_R_LOBE = [(34, 6), (35, 6)]
+TUSK = [(22, 17), (23, 17)]
+CHEEK_L = [(14, 14), (14, 15), (14, 16)]
+CHEEK_R = [(28, 14), (28, 15), (28, 16)]
 
 
 def _put(buf, x, y, ch):
@@ -88,8 +90,8 @@ def t_gold_tooth(buf, ctx):
 
 def t_eyepatch(buf, ctx):
     _head_paint(buf, ctx, EYE_R + BROW_R, 'k', over_outline=True)
-    _head_paint(buf, ctx, [(13, 6), (14, 6), (17, 6), (18, 6),
-                           (17, 7), (18, 7)], 'k')
+    _head_paint(buf, ctx, [(x, y) for y in (11, 12, 13) for x in (24, 27, 28)], 'k')
+    _head_paint(buf, ctx, [(21, 10), (22, 10), (29, 14), (30, 14)], 'k')
 
 
 def t_ear_ring(buf, ctx):
@@ -101,30 +103,31 @@ def t_earring(buf, ctx):
 
 
 def t_scar(buf, ctx):
-    _head_paint(buf, ctx, [(9, 5), (9, 6), (9, 7), (9, 8)], 'l')
+    _head_paint(buf, ctx, [(15, 9), (15, 10), (15, 11), (15, 12),
+                           (15, 13), (14, 14), (14, 15)], 'l')
 
 
 def t_burns(buf, ctx):
-    _head_paint(buf, ctx, [(17, 7), (17, 8), (16, 9), (17, 9)], 'c')
-    _arm_paint(buf, ctx, 'arm_l', (3, 4), 'c', cols=(2, 3, 4))
+    _head_paint(buf, ctx, CHEEK_R + [(27, 17), (28, 17)], 'c')
+    _arm_paint(buf, ctx, 'arm_l', range(5, 9), 'c', cols=range(2, 7))
 
 
 def t_bandana(buf, ctx):
     _head_paint(buf, ctx, CROWN, 'r')
-    _head_paint(buf, ctx, [(9, 2), (10, 2), (14, 1)], 'R')
+    _head_paint(buf, ctx, [(x, y) for y in (4, 5) for x in range(15, 20)], 'R')
 
 
 def t_arm_bandage(buf, ctx):
-    _arm_paint(buf, ctx, 'arm_r', (2, 3), 'W', cols=(1, 2, 3, 4))
+    _arm_paint(buf, ctx, 'arm_r', range(3, 7), 'W', cols=range(1, 6))
 
 
 def t_birthmark(buf, ctx):
-    _head_paint(buf, ctx, [(16, 2), (16, 3), (17, 3)], 'P')
+    _head_paint(buf, ctx, [(x, y) for y in (6, 7, 8) for x in (27, 28, 29)], 'P')
 
 
 def t_head_bandage(buf, ctx):
     _head_paint(buf, ctx, FOREHEAD, 'W')
-    _head_paint(buf, ctx, EYE_L, 'W')
+    _head_paint(buf, ctx, EYE_L + BROW_L, 'W')
 
 
 def t_blind_eye(buf, ctx):
@@ -132,24 +135,27 @@ def t_blind_eye(buf, ctx):
 
 
 def t_ruby_eye(buf, ctx):
-    _head_paint(buf, ctx, [(10, 7)], 'r')
-    _head_paint(buf, ctx, [(11, 7)], 'R')
+    _head_paint(buf, ctx, [(17, 12), (18, 12), (17, 13)], 'r')
+    _head_paint(buf, ctx, [(19, 12), (18, 13), (19, 13)], 'R')
 
 
 def t_wart(buf, ctx):
-    _head_paint(buf, ctx, [(12, 8)], 'd')
+    _head_paint(buf, ctx, [(21, 15), (22, 15)], 'd')
 
 
 def t_freckles(buf, ctx):
-    _head_paint(buf, ctx, [(9, 5), (9, 7), (17, 5), (17, 7)], 'd')
+    _head_paint(buf, ctx, [(15, 10), (15, 14), (29, 10), (29, 14),
+                           (16, 16), (27, 16)], 'd')
 
 
 def t_tattoo(buf, ctx):
-    _head_paint(buf, ctx, [(9, 4), (9, 8), (17, 4), (17, 8)], 'c')
+    _head_paint(buf, ctx, [(15, 8), (15, 9), (16, 10),
+                           (29, 8), (29, 9), (28, 10)], 'c')
+    _head_paint(buf, ctx, [(15, 16), (16, 17), (29, 16), (28, 17)], 'c')
 
 
 def t_double_fangs(buf, ctx):
-    _head_paint(buf, ctx, [(12, 11), (13, 11)], 'y')
+    _head_paint(buf, ctx, [(19, 17), (20, 17), (19, 18), (26, 17), (26, 18)], 'y')
 
 
 def t_glow_eyes(buf, ctx):
@@ -157,12 +163,12 @@ def t_glow_eyes(buf, ctx):
 
 
 def t_dark_veins(buf, ctx):
-    _head_paint(buf, ctx, [(9, 2), (10, 2), (16, 2), (17, 2)], 'v')
+    _head_paint(buf, ctx, [(x, y) for y in (4, 5, 6) for x in (16, 17, 29, 30)], 'v')
 
 
 def t_dirt(buf, ctx):
-    _head_paint(buf, ctx, [(11, 6), (16, 8)], 'c')
-    _arm_paint(buf, ctx, 'arm_l', (5, 6), 'c', cols=(1, 2, 3))
+    _head_paint(buf, ctx, CHEEK_L + [(21, 18), (22, 18)], 'c')
+    _arm_paint(buf, ctx, 'arm_l', range(8, 11), 'c', cols=range(1, 5))
 
 
 DETAILS = {
@@ -184,12 +190,12 @@ SWAPS = {
 
 def _head_without_right_ear():
     head = copy.deepcopy(R.HEAD)
-    for y in range(1, 6):
-        for x in range(17, 24):
+    for y in range(0, 9):
+        for x in range(29, 38):
             head[y][x] = '.'
-    for x in range(17, 20):           # fecha o coto com contorno
-        if head[6][x] != '.':
-            head[6][x] = 'o'
+    for y in range(0, 9):             # fecha o coto com contorno
+        if head[y][28] != '.':
+            head[y][28] = 'o'
     return head
 
 

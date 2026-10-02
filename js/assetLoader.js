@@ -73,12 +73,15 @@ function getSprite(id) {
     const baseId = parts[1];
     const layerIds = parts.slice(2);
     if (baseId) {
+      // O canvas acompanha o tamanho real do sprite base: os goblins sao
+      // 64x64 (resolucao nativa da arte) e os demais sprites, 32x32.
+      const base = getSprite(baseId);
       const c = document.createElement('canvas');
-      c.width = 32;
-      c.height = 32;
+      c.width = base.width || 32;
+      c.height = base.height || 32;
       const g = c.getContext('2d');
       g.imageSmoothingEnabled = false;
-      g.drawImage(getSprite(baseId), 0, 0);
+      g.drawImage(base, 0, 0);
       for (const layerId of layerIds) {
         // só desenha a camada se o PNG dela realmente foi carregado
         if (cache.has(layerId)) g.drawImage(cache.get(layerId), 0, 0);

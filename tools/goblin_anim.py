@@ -39,7 +39,7 @@ def _pose(body=(0, 0), head=(0, 0), arm_l=(0, 0), arm_r=(0, 0),
 
 # --------------------------------------------------------------- idle ------
 # Respiracao: o corpo inteiro afunda 1px e volta; as pernas ficam plantadas.
-IDLE_BOB = [0, 0, 1, 1, 0]
+IDLE_BOB = [0, 0, 2, 2, 0]
 
 
 def idle_poses():
@@ -56,11 +56,11 @@ def idle_poses():
 # Ciclo de 8 quadros: pernas em contratempo, tronco sobe no meio do passo,
 # bracos balancando ao contrario das pernas.
 WALK_LX = [0, 0, 0, 0, 0, 0, 0, 0]
-WALK_LY = [0, -1, -2, -1, 0, 0, 0, 0]
+WALK_LY = [0, -2, -4, -2, 0, 0, 0, 0]
 WALK_RX = [0, 0, 0, 0, 0, 0, 0, 0]
-WALK_RY = [0, 0, 0, 0, 0, -1, -2, -1]
-WALK_BOB = [0, -1, -1, 0, 0, -1, -1, 0]
-WALK_SWAY = [0, 0, 1, 0, 0, 0, -1, 0]
+WALK_RY = [0, 0, 0, 0, 0, -2, -4, -2]
+WALK_BOB = [0, -2, -2, 0, 0, -2, -2, 0]
+WALK_SWAY = [0, 0, 2, 0, 0, 0, -2, 0]
 
 
 def walk_poses():
@@ -84,19 +84,19 @@ def walk_poses():
 ATTACK = [
     # (dx corpo, dy corpo, dx braco, dy braco, tipo de adaga)
     (0, 0, 0, 0, 'diag'),
-    (-1, 0, 0, -1, 'diag'),
-    (-1, 0, 0, -2, 'up'),
-    (-2, 0, 0, -3, 'up'),
-    (-2, 0, 0, -3, 'up'),
-    (-1, 0, 1, -3, 'up'),
-    (1, 0, 1, -1, 'diag'),
-    (2, -1, 2, 0, 'fwd'),
-    (2, 0, 2, 1, 'fwd'),
-    (2, 0, 2, 1, 'fwd'),
-    (1, 0, 2, 1, 'fwd'),
-    (1, 0, 1, 1, 'diag'),
-    (0, 0, 1, 0, 'diag'),
-    (0, 0, 1, 0, 'diag'),
+    (-2, 0, 0, -2, 'diag'),
+    (-2, 0, 0, -4, 'up'),
+    (-4, 0, 0, -6, 'up'),
+    (-4, 0, 0, -6, 'up'),
+    (-2, 0, 2, -6, 'up'),
+    (2, 0, 2, -2, 'diag'),
+    (4, -2, 4, 0, 'fwd'),
+    (4, 0, 4, 2, 'fwd'),
+    (4, 0, 4, 2, 'fwd'),
+    (2, 0, 4, 2, 'fwd'),
+    (2, 0, 2, 2, 'diag'),
+    (0, 0, 2, 0, 'diag'),
+    (0, 0, 2, 0, 'diag'),
     (0, 0, 0, 0, 'diag'),
     (0, 0, 0, 0, 'diag'),
     (0, 0, 0, 0, 'diag'),
@@ -121,9 +121,9 @@ def attack_poses():
 
 # --------------------------------------------------------------- hurt ------
 # Impacto: recuo forte, cabeca jogada para tras e tremor amortecido.
-HURT_DX = [0, -1, -2, -2, -2, -1, -1, -1, 0, -1, 0, 0, 1, 0, 0, 0, 0]
-HURT_HEAD = [0, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-HURT_DY = [0, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+HURT_DX = [0, -2, -4, -4, -4, -2, -2, -2, 0, -2, 0, 0, 2, 0, 0, 0, 0]
+HURT_HEAD = [0, -2, -2, -2, -2, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+HURT_DY = [0, -2, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 HURT_FLASH = {1, 2, 3, 6, 7}
 
 
@@ -149,8 +149,8 @@ def hurt_poses():
 # A queda final usa rotacao de exatamente 90 graus (sem perda de pixels);
 # os quadros intermediarios usam agachamento, que fica bem mais limpo que
 # rotacoes arbitrarias em 32x32.
-DEATH_SINK = [0, 0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0, 0, 0]
-DEATH_LIFT = [0, 0, 0, 0, 0, 0, 0, 3, 1, 0, 0, 0, 0, 0, 0]
+DEATH_SINK = [0, 0, 2, 4, 6, 8, 10, 0, 0, 0, 0, 0, 0, 0, 0]
+DEATH_LIFT = [0, 0, 0, 0, 0, 0, 0, 6, 2, 0, 0, 0, 0, 0, 0]
 DEATH_ALPHA = [255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 236, 208, 176, 140, 100]
 DEATH_LYING = 7   # a partir deste quadro o corpo esta deitado
 

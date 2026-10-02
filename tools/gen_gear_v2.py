@@ -107,10 +107,10 @@ def main():
 
     # Folha de conferencia: goblin base + cada peca, em idle.
     order = ['', *G.PIECES]
-    sheet = Image.new('RGBA', (32 * len(order), 32), (24, 24, 28, 255))
+    sheet = Image.new('RGBA', (R.SIZE * len(order), R.SIZE), (24, 24, 28, 255))
     for i, prefix in enumerate(order):
         img = base['idle'][0] if not prefix else dressed_cache[prefix]['idle'][0]
-        sheet.alpha_composite(img, (i * 32, 0))
+        sheet.alpha_composite(img, (i * R.SIZE, 0))
     sheet.resize((sheet.width * 6, sheet.height * 6), Image.NEAREST) \
          .save(PREVIEW / 'equipamentos.png')
 

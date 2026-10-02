@@ -219,11 +219,13 @@ bash    tools/test.sh               # roda as 7 suítes de teste
 
 O conjunto **Avaritia** (peitoral, calça, capacete + 3 pares + conjunto completo, 62 frames cada) vive em `sprites/itens/` e é gerado por `sprites/itens/gerar_item.py` / `gerar_conjunto.py` a partir dos frames do goblin no `window.EMBEDDED` do jogo — apenas recolor de pixels existentes.
 
-PNGs **32×32** referenciados por **nome lógico** no `manifest.json`. Se um PNG não existir, um placeholder é desenhado automaticamente (o jogo nunca quebra). Os goblins têm **45 variações físicas** — dente dourado, tapa-olho, cicatrizes, albinismo, tatuagens e combinações — cada uma com os 62 quadros de `idle/walk/attack/hurt/death`.
+PNGs referenciados por **nome lógico** no `manifest.json` — **64×64 para os goblins** (resolução nativa da arte de referência) e 32×32 para o resto. Se um PNG não existir, um placeholder é desenhado automaticamente (o jogo nunca quebra). Os goblins têm **45 variações físicas** — dente dourado, tapa-olho, cicatrizes, albinismo, tatuagens e combinações — cada uma com os 62 quadros de `idle/walk/attack/hurt/death`.
 
-Desde a arte atual, nada disso é desenhado quadro a quadro: existe um **rig**. O goblin base **não é um desenho novo** — ele é recortado, pixel a pixel, da arte de referência em `art-source/goblins-v2/referencia.jpg` (64×64). O pipeline reduz a arte para a escala do jogo (26 px de altura num canvas 32×32), limpa a compressão JPEG numa paleta de 12 cores e **fatia o resultado em partes** (cabeça com as duas orelhas, tronco com o avental de couro, braço esquerdo, braço direito com a adaga, perna esquerda, perna direita, lâmina). Cada parte já carrega o contorno e o sombreado originais; o rig só reposiciona as peças por quadro e, por cima, pinta o rosto, a variação e a armadura. Por isso um ajuste no recorte se propaga para os 2852 quadros de uma vez.
+Desde a arte atual, nada disso é desenhado quadro a quadro: existe um **rig**. O goblin base **não é um desenho novo** — ele é a arte de referência em `art-source/goblins-v2/referencia.jpg`, usada na **resolução nativa dela (64×64)**, sem redução. O pipeline limpa a compressão JPEG numa paleta de 12 cores (`referencia-limpa.png`) e **fatia o resultado em partes**: cabeça 38×20 com as duas orelhas, tronco 28×23 com o avental de couro, braço esquerdo 13×14, braço direito 11×11 com a adaga, pernas 12×7 / 10×7 e a lâmina 9×9. Cada parte já carrega o contorno e o sombreado originais — a pose de repouso recomposta é **pixel a pixel idêntica** à referência. O rig só reposiciona as peças por quadro e, por cima, pinta rosto, variação e armadura, então um ajuste no recorte se propaga para os 2852 quadros de uma vez.
 
-Comparação lado a lado em `art-source/goblins-v2/base-zoom.png`; a arte limpa em 64×64 fica em `referencia-limpa.png`.
+Os goblins são, portanto, os únicos sprites **64×64** do jogo. Nada no código precisou de alinhamento manual: todas as chamadas de desenho já passam largura/altura explícitas e o compositor de equipamento (`js/assetLoader.js`) usa o tamanho real do sprite base.
+
+Comparação lado a lado em `art-source/goblins-v2/base-zoom.png`; folha de conferência completa (62 quadros + 45 variações + 13 equipamentos) em `conferencia.png`.
 
 | arquivo | papel |
 | --- | --- |

@@ -18,8 +18,9 @@ import goblin_anim as A              # noqa: E402
 import goblin_gear as G              # noqa: E402
 import goblin_variations as V        # noqa: E402
 import gen_gear_v2 as GG             # noqa: E402
+import goblin_rig as R               # noqa: E402
 
-CELL = 32
+CELL = R.SIZE
 COLS = 17
 SCALE = 4
 BG = (22, 22, 26, 255)
