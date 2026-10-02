@@ -34,138 +34,124 @@ def g(rows, w):
 
 
 # ------------------------------------------------------------- desenhos ----
-# Geometria do goblin 64x64 recortado da referencia:
-#   cabeca 36x20 | tronco 27x21 | braco esq. 13x14 | braco dir. 10x12
-#   perna esq. 11x7 | perna dir. 10x7
-# Rosto, orelhas e pes continuam a vista em todas as pecas.
+# As placas NAO sao desenhadas a mao. Elas sao MOLDADAS sobre a silhueta da
+# parte do corpo que vestem: o molde le o recorte do goblin, escolhe quais
+# pixels a peca cobre e devolve a chapa ja com borda, volume e gemas.
+#
+# Vantagem: o encaixe e exato por construcao. Nao sobra pele por baixo da
+# armadura nem a placa invade uma area que precisa ficar livre — maos,
+# antebracos, orelhas e queixo saem de regras, nao de tentativa e erro.
 
-# CAPACETE — calota sobre o cranio (cols 12..29); orelhas livres.
-HELM = g([
-    "....................................",
-    "....................................",
-    "..............DDDDDDDDDDDDDD........",
-    ".............DMMMMMMMMMMMMMMD.......",
-    "............DMMMLLLMMMMMMMMMMD......",
-    "............DMMLLLLLMMMMMMMMMD......",
-    "............DMMMLLLMMMMMMMMMMD......",
-    "............DMMMMMMMMMMMMMMMMD......",
-    "............DDGGGGGGGGGGGGGGDD......",
-    "............DDDDDDDDDDDDDDDDDD......",
-    "....................................",
-    "....................................",
-    "....................................",
-    "....................................",
-    "....................................",
-    "....................................",
-    "....................................",
-    "....................................",
-    "....................................",
-    "....................................",
-], 36)
 
-# PEITORAL — placa do peito, acima do cinto de couro do goblin.
-CHEST = g([
-    ".....DDDDDDDDDDDDDDDD......",
-    "....DMMMMMMMMMMMMMMMMD.....",
-    "....DMMMMMMMMMMMMMMMMD.....",
-    "....DMMMMMLLLLLLMMMMMD.....",
-    "....DMMMMLLLLLLLLMMMMD.....",
-    "....DMMGGGGGGGGGGGMMMD.....",
-    "....DMMGGGGGGGGGGGMMMD.....",
-    "....DMMMMMMMMMMMMMMMMD.....",
-    "....DDMMMMMMMMMMMMMMDD.....",
-    ".....DDDDDDDDDDDDDDDD......",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-], 27)
+def _mold(part, keep, gems=(), slits=(), flat=False, marks=()):
+    """Molda uma chapa sobre `part`, cobrindo os pixels onde keep(x, y).
 
-# OMBREIRAS — uma por braco.
-PAULDRON_L = g([
-    ".............",
-    "....DDDDDDDDD",
-    "...DDMMMMMMMD",
-    "...DMMMMMMMMD",
-    "...DDMMMMMMDD",
-    "....DDDDDDDD.",
-    ".............",
-    ".............",
-    ".............",
-    ".............",
-    ".............",
-    ".............",
-    ".............",
-    ".............",
-], 13)
+    borda -> L (aco claro) · miolo -> D (escuro) · bisel sob a borda -> M
+    `gems` recebem G (turquesa) e `slits` viram visor, tambem em G.
+    `flat` serve para pecas finas (bracos, pernas), onde um miolo escuro
+    deixaria a peca quase invisivel: a chapa fica em M com luz em cima.
+    """
+    h, w = len(part), len(part[0])
+    dentro = [[part[y][x] != '.' and keep(x, y) for x in range(w)]
+              for y in range(h)]
+    # Fecha buracos: a chapa e solida de ponta a ponta em cada linha, senao
+    # um vao do desenho vira um pixel de borda solto no meio da armadura.
+    for linha in dentro:
+        if True in linha:
+            for x in range(linha.index(True), len(linha) - linha[::-1].index(True)):
+                linha[x] = True
 
-PAULDRON_R = g([
-    "DDDDDDD...",
-    "DMMMMMDD..",
-    "DMMMMMMD..",
-    "DDMMMMMD..",
-    ".DDDDDDD..",
-    "..........",
-    "..........",
-    "..........",
-    "..........",
-    "..........",
-    "..........",
-    "..........",
+    def eh(x, y):
+        return 0 <= x < w and 0 <= y < h and dentro[y][x]
+
+    out = [['.'] * w for _ in range(h)]
+    for y in range(h):
+        for x in range(w):
+            if not dentro[y][x]:
+                continue
+            borda = not all(eh(x + dx, y + dy)
+                            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+            if flat:
+                out[y][x] = 'L' if (borda and not eh(x, y - 1)) else 'M'
+            else:
+                out[y][x] = 'L' if borda else 'D'
+    if not flat:                      # bisel: uma linha clara sob a borda
+        for y in range(1, h):
+            for x in range(w):
+                if out[y][x] == 'D' and out[y - 1][x] == 'L':
+                    out[y][x] = 'M'
+    # Gemas e visor so entram no miolo: pintar por cima da borda abriria um
+    # rombo no contorno da peca.
+    for x, y, ch in list(marks) + [(x, y, 'G') for x, y in
+                                   list(gems) + list(slits)]:
+        if 0 <= y < h and 0 <= x < w and out[y][x] in ('D', 'M'):
+            out[y][x] = ch
+    return out
+
+
+# --- CAPACETE -------------------------------------------------------------
+# Cobre o rosto inteiro. Fica de fora so o que o usuario pediu: as duas
+# orelhas e o focinho/queixo. Os limites laterais sao as colunas escuras que
+# o proprio desenho usa para separar cranio e orelha.
+HELM_TOP, HELM_BOTTOM = 2, 16
+HELM_LEFT = {2: 12, 3: 12, 4: 12, 5: 12, 6: 11, 7: 12, 8: 6, 9: 6,
+             10: 7, 11: 7, 12: 7, 13: 7, 14: 9, 15: 9, 16: 9}
+HELM_RIGHT = {2: 23, 3: 23, 4: 24, 5: 24, 6: 25, 7: 27, 8: 27, 9: 27}
+
+
+def _keep_head(x, y):
+    if not (HELM_TOP <= y <= HELM_BOTTOM):
+        return False
+    return HELM_LEFT[y] <= x < HELM_RIGHT.get(y, len(R.HEAD[0]))
+
+
+# O visor nasce dos olhos do goblin: as mesmas celulas que o rig usa para
+# olho e pupila, entao a fresta cai exatamente sobre o olhar dele.
+VISOR = [c for k in ('eye_l', 'pupil_l', 'eye_r', 'pupil_r')
+         for c in R.FACE_CELLS[k]]
+
+# Nasal e sobrancelha dao volume ao elmo: sem eles a chapa vira um balde.
+NASAL = ([(x, y, 'M') for y in range(11, 16) for x in (21, 22, 23)]
+         + [(22, y, 'L') for y in range(11, 16)])
+SOBRANCELHA = ([(x, 11, 'L') for x in range(14, 20)]
+               + [(x, 11, 'L') for x in range(24, 29)])
+
+HELM = _mold(R.HEAD, _keep_head, slits=VISOR, marks=NASAL + SOBRANCELHA)
+
+# --- PEITORAL -------------------------------------------------------------
+# Todo o torax (linhas 0..10 do tronco, ate a altura do cinto). Os bracos
+# sao partes separadas no rig, entao maos e antebracos ficam livres sozinhos.
+# Gema central mais as duas dos ombros, como no icone do inventario.
+CHEST = _mold(
+    R.TORSO, lambda x, y: y <= 10,
+    gems=[(12, 5), (13, 5), (12, 6), (13, 6), (6, 1), (20, 1)],
+    marks=[(x, y, 'L') for y in (3, 4, 7, 8) for x in (12, 13)]
+          + [(x, 2, 'M') for x in range(7, 21)])
+
+# Ombreiras: so o alto do braco. O antebraco e a mao comecam logo abaixo.
+PAULDRON_L = _mold(R.ARM_L, lambda x, y: y <= 4 and x >= 4, flat=True)
+PAULDRON_R = _mold(R.ARM_R, lambda x, y: y <= 4 and x <= 4, flat=True)
+
+# --- CALCA ----------------------------------------------------------------
+# Quadril inteiro (o resto do tronco, da linha do cinto para baixo) mais as
+# duas pernas completas, botas inclusive.
+HIP = _mold(R.TORSO, lambda x, y: y >= 11, gems=[(7, 13), (18, 13)])
+GREAVE_L = _mold(R.LEG_L, lambda x, y: True, flat=True)
+GREAVE_R = _mold(R.LEG_R, lambda x, y: True, flat=True)
+
+SHIELD = g([
+    "...DDDD...",
+    "..DMMMMD..",
+    ".DMMMMMMD.",
+    "DMMMMMMMMD",
+    "DMMGGGGMMD",
+    "DMMGGGGMMD",
+    "DMMGGGGMMD",
+    "DMMMMMMMMD",
+    ".DMMMMMMD.",
+    "..DMMMMD..",
+    "...DDDD...",
 ], 10)
-
-# GREVAS — placa sobre o cano da bota; o pe fica exposto.
-GREAVE_L = g([
-    "...DDDDDDDD",
-    "..DDMMMMMDD",
-    ".DDMMMMMMDD",
-    ".DDDDDDDDD.",
-    "...........",
-    "...........",
-    "...........",
-], 11)
-
-GREAVE_R = g([
-    "DDDDDDDD..",
-    "DDMMMMMDD.",
-    "DDMMMMMMDD",
-    ".DDDDDDDD.",
-    "..........",
-    "..........",
-    "..........",
-], 10)
-
-# CINTURA da calca, na linha do cinto do goblin.
-HIP = g([
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...DDDDDDDDDDDDDDDDD.......",
-    "...DMMMMMMMMMMMMMMMMD......",
-    "..DMMMMMMMMMMMMMMMMMMD.....",
-    "..DMMMMMMMMMMMMMMMMMMD.....",
-    "..DDMMMMMMMMMMMMMMMMDD.....",
-    "...DDDDDDDDDDDDDDDDDD......",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-    "...........................",
-], 27)
 
 # ---- armas: reskin da propria adaga do rig ----
 # Em vez de desenhar cada orientacao a mao (e arriscar deixar um pixel da
@@ -261,9 +247,9 @@ PIECES = {
 
 # Icones 16x16 do inventario: recorte da parte do corpo que a peca cobre.
 ICONS = {
-    'av_cap_icon': ('av_cap', R.ANCHORS['head_box']),
-    'av_pei_icon': ('av_pei', (21, 39, 44, 53)),
-    'av_cal_icon': ('av_cal', (15, 49, 46, 63)),
+    'av_cap_icon': 'av_cap',
+    'av_pei_icon': 'av_pei',
+    'av_cal_icon': 'av_cal',
 }
 
 

@@ -33,6 +33,7 @@ import goblin_rig as R                # noqa: E402
 OVL = ROOT / 'assets' / 'sprites' / 'goblin-gear-overlays'
 SPR = ROOT / 'assets' / 'sprites'
 PREVIEW = ROOT / 'art-source' / 'goblins-v2'
+ICON_ART = ROOT / 'art-source' / 'gear-icons'
 
 
 def frames_with(layers):
@@ -67,16 +68,15 @@ def diff(dressed, naked):
     return out
 
 
-def icon(img, box, size=16):
-    x0, y0, x1, y1 = box
-    crop = img.crop((x0, y0, x1 + 1, y1 + 1))
-    out = Image.new('RGBA', (size, size), (0, 0, 0, 0))
-    w, h = crop.size
-    scale = min(size / w, size / h, 2)
-    if scale < 1:
-        crop = crop.resize((max(1, int(w * scale)), max(1, int(h * scale))), Image.NEAREST)
-    out.alpha_composite(crop, ((size - crop.width) // 2, (size - crop.height) // 2))
-    return out
+def copy_icon(icon_id):
+    """Icone 16x16 do inventario.
+
+    Os icones sao arte-fonte propria, nao um recorte do goblin: eles sao o
+    desenho de referencia da linha AVARITIA (foi a partir deles que as placas
+    foram desenhadas). Derivar o icone reduzindo a armadura do sprite so
+    achatava a peca e perdia a leitura, entao o gerador passa a arte adiante.
+    """
+    return Image.open(ICON_ART / f'{icon_id}.png').convert('RGBA')
 
 
 def main():
@@ -100,9 +100,8 @@ def main():
                     written += 1
         print(f'  {prefix:12s} ok')
 
-    for icon_id, (prefix, box) in G.ICONS.items():
-        src = dressed_cache[prefix]['idle'][0]
-        R.save_png(icon(src, box), SPR / 'avaritia' / f'{icon_id}.png')
+    for icon_id in G.ICONS:
+        R.save_png(copy_icon(icon_id), SPR / 'avaritia' / f'{icon_id}.png')
         written += 1
 
     # Folha de conferencia: goblin base + cada peca, em idle.
