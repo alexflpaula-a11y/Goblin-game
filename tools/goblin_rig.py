@@ -26,21 +26,22 @@ SIZE = 64
 
 # ---------------------------------------------------------------- paleta ----
 C = {
-    'o': (24, 32, 22, 255),      # contorno
-    'e': (24, 78, 42, 255),      # pele verde profunda
-    'j': (60, 145, 86, 255),     # pele verde media
-    'f': (168, 235, 190, 255),   # pele verde brilho
-    'z': (150, 162, 148, 255),   # aco da adaga
+    # --- paleta extraida da propria referencia (k-means, 12 cores) ---
+    'k': (11, 38, 16, 255),      # contorno/pupila (verde quase preto)
+    'e': (19, 75, 36, 255),      # pele sombra profunda
+    'd': (47, 123, 71, 255),     # pele sombra
+    'n': (80, 147, 99, 255),     # pele meio-tom frio
+    'j': (58, 165, 91, 255),     # pele meio-tom
+    'g': (77, 186, 109, 255),    # pele base
+    'l': (102, 204, 132, 255),   # pele luz
+    'f': (179, 243, 197, 255),   # pele brilho / olho
+    'B': (57, 49, 35, 255),      # couro sombra
+    'b': (91, 69, 55, 255),      # couro base
+    'h': (116, 96, 79, 255),     # couro luz
+    'z': (147, 161, 143, 255),   # aco da adaga
     'q': (205, 222, 205, 255),   # aco da adaga, brilho
-    'd': (44, 117, 67, 255),     # pele sombra
-    'g': (74, 178, 104, 255),     # pele base
-    'l': (104, 205, 132, 255),   # pele luz
-    'T': (28, 52, 38, 255),      # tunica sombra
-    't': (42, 74, 52, 255),      # tunica base
-    'u': (58, 98, 66, 255),     # tunica luz
-    'B': (60, 48, 36, 255),      # couro sombra
-    'b': (106, 82, 62, 255),      # couro base
-    'h': (142, 112, 80, 255),    # couro luz
+    'o': (24, 32, 22, 255),      # contorno do equipamento
+    'K': (12, 12, 14, 255),      # preto puro (tapa-olho)
     'w': (240, 240, 222, 255),   # brilho do olho
     'p': (18, 24, 20, 255),      # pupila
     'y': (222, 214, 178, 255),   # presa
@@ -64,11 +65,9 @@ C = {
     '9': (198, 206, 216, 255),   # ferro luz
     'L': (134, 94, 54, 255),     # madeira (escudo)
     'M': (176, 132, 80, 255),    # madeira luz
-    'n': (186, 146, 110, 255),   # pele clara alternativa
-    'k': (14, 22, 18, 255),      # preto
 }
 
-SKIN_KEYS = ('e', 'd', 'j', 'g', 'l', 'f')
+SKIN_KEYS = ('k', 'e', 'd', 'n', 'j', 'g', 'l', 'f')
 
 
 def grid(rows):
@@ -83,156 +82,156 @@ def check(rows, w):
 
 # ------------------------------------------- partes (recortes da arte) --
 # Recortadas pixel a pixel de art-source/goblins-v2/referencia-limpa.png,
-# na resolucao nativa da arte (64x64). Nada foi redesenhado nem reduzido.
+# na resolucao nativa (64x64) e com a paleta original — inclusive os pixels
+# escuros do contorno interno e das pupilas, que dao o volume do desenho.
 
 HEAD = check(grid([
-    "................ooooooo..oeoooo.......",
-    ".............ooojllggjooojdlgjdoo.....",
-    ".....o...o.ooeedllglffjoeglgjgljeo....",
-    "...ooeoooeoeodgllgggglfffejddglldo....",
-    "..odjlllllgjedllggggglfffejdjgggjeoo..",
-    ".oodjgglllllddddglgglgllfgeedjjgldooo.",
-    "ooddjjdggllflljdjgglgggglfleeedjggjdoo",
-    ".ooooooddjggllflgjglglglglfdoeddeoooo.",
-    "..o....oddjjglglgllgggjglglgoooeo..o..",
-    "........oedddjjgglglggjjlggljjeo......",
-    ".........odddjggggjgggglgggljjeo......",
-    ".........oeeejgjjlgjlgjgggjddjoo......",
-    "..........oeejjjgfffeglgglfjjeo.......",
-    ".........oodeddjgfffedgjggfjeoo.......",
-    "..........oddjggjllldlljgjgllzeo......",
-    "..........oddjjgjggjlggggggglzoo......",
-    "..........odjdgggjggljllglglooo.......",
-    "..........oeddggggggddfflgggo.........",
-    "..........oddjgggggljlleggeeo.........",
-    ".......o.ooBdjjjjjgjlllgljeo..........",
-]), 38)   # 38x20
+    ".................kkk....kkkkk.......",
+    "...............kkkkkk....kkkkk......",
+    "..............kdgggndk..ndlnndk.....",
+    "............kedggggffd.engnjglne....",
+    "..k.kk..eke.eglggggglfffenddjlld....",
+    "..ddgggglgjedggggggglfffejddjggde...",
+    ".kddgggllllddddjgggggllfgkedjjjgdkk.",
+    "edddddggllflgjdjggggggggflekedjgnndk",
+    ".kkkkkdddggllflgdggjgjlglfdkkdde.kk.",
+    "....k.kddddggggjggggjjgggggkkkek....",
+    ".......kkdddjjgggggggjjgggljnk......",
+    ".......kkdddjjgjgjgjjgggjglnnk......",
+    ".......k.ekedjjjggdljjjjjjednk......",
+    ".......k..eejjjnffkeggjglfkkk.......",
+    ".........kdedddnfffedjjggfdek.......",
+    ".........kddjggjgggdlljjdgllze......",
+    ".........kddjjjjjjjggjgjggjlzk......",
+    ".........kdddjjjjjjljlgglggk........",
+    ".........keddjjjjjjddfflggn.........",
+    ".........kedngjjjggjkkennee.........",
+]), 36)   # 36x20
 
 TORSO = check(grid([
-    ".....oBBdjjggglggllljeeo....",
-    ".....eBBbdgggggllgdddgzeo...",
-    ".....eBBbdggddeeeeeeeeeoo...",
-    ".......BbbgljdjdddBBej......",
-    ".......bbbdllljdjjbb........",
-    ".......bBbdggglgjdbb........",
-    ".......bBbdjggllgjBboB......",
-    ".......Bobbdgggllgbboo......",
-    ".......BBzzdjgjjjgzzBo......",
-    "....ooboBbbBjjjjjgzbBo......",
-    "....BbbbbBBBbbbbbbbBoo......",
-    "goobbBbBBoBoBBBbBbbbBo......",
-    "oobBBbbBoBbBBBBBBBBbbB......",
-    "obzBBBBoBbbbbbbbbbbbbB......",
-    "obzBBboBBBBbbbbbbbbbbboBoooo",
-    "oBbBbbooBBBbbbbbbbBBBbBbooo.",
-    ".........BBBbbbbbBB.........",
-    ".........oBBBBoBBoo.........",
-    ".........ooBBBBBBoo.........",
-    "..........ooooooooo.........",
-    "...........o..o.o.o.........",
-    ".................oo.........",
-    "..................o.........",
-]), 28)   # 28x23
+    ".....kBdnnjjjjdllgnlnkk....",
+    ".....eBBddjjjglgjlggdee....",
+    ".....eBBhdjgjjgglgdddnze...",
+    ".......Bhdngddeeeeeekk.....",
+    ".......BhbnljdddddBBkn.....",
+    ".......bbhdlglddjnbbk......",
+    ".......bbhdgggljjdbhB......",
+    ".......hBhdngglggdbhBe.....",
+    ".......bBhhdjggglnhhkk.....",
+    ".......Bbzzddjjddnzzbk.....",
+    "....kkkBBhhbnnnnnnzhBk.....",
+    "....BbhhbbbbhbbhhhbbBB.....",
+    "nkkbbbhBBBbBBBbbbbbbBk.....",
+    "kkhBbbbbkBbBBBBBbBBhhB.....",
+    "khzBBBBBBbhhhhhhhbbhhb.....",
+    ".hzbbbBkbbbhhhhbbbbbbhBBkkk",
+    ".BhBbbBBbbBbhhhhbbbBBbBbBk.",
+    ".........Bbbbbbbbb.........",
+    ".........kBBBBBBBB.........",
+    ".........kBBBBBBBk.........",
+    "..........kBkkk.k..........",
+]), 27)   # 27x21
 
 ARM_L = check(grid([
-    ".......oeoo..",
-    ".......ojdd..",
-    ".....ooeljd..",
-    "....odjglggjB",
-    "....ojllggddo",
-    "..oojljlgjeeB",
-    ".oedlgdedeoeB",
-    "odjllggeeoooB",
-    "ojjgglgeooooB",
-    "ejjjglejoo...",
-    "odjgggejoB...",
-    ".oodgl.......",
-    "...ojd.......",
-    "....oo.......",
+    "........k.k..",
+    ".....k.kndd..",
+    ".....k.egddkb",
+    "....kdnnljgnb",
+    "....kjllgjddB",
+    "...kdljgjdeeB",
+    ".kkdggdedekeb",
+    "kddlgjgkekkkB",
+    "knjgglgekkkkB",
+    "knjjggenkk...",
+    "kddgggknkB...",
+    "..kdjg.......",
+    "...kdd.......",
+    ".....k.......",
 ]), 13)   # 13x14
 
 ARM_R = check(grid([
-    "..lgeo.....",
-    "odjlo......",
-    "Bddjoo.....",
-    "..edje.....",
-    "..jjgd.....",
-    "..djdjlje..",
-    "..jdgdgfe..",
-    "..ooeglgdoo",
-    "...ojdgdeo.",
-    "..ooojjoo..",
-    "..ooodjeo..",
-]), 11)   # 11x11
+    ".e........",
+    ".gne......",
+    "ddlk......",
+    "eddk......",
+    ".edne.....",
+    ".ndgd.e...",
+    ".dndjlne..",
+    ".ndjdj.e..",
+    ".kkejlgeek",
+    ".kkndjdk..",
+    ".kkkndk...",
+    ".kkkddk...",
+]), 10)   # 10x12
 
 LEG_L = check(grid([
-    "....ooooooBB",
-    "....ooooooBo",
-    "...oodggljdo",
-    "..ooBBeeedoo",
-    ".oBbbbbboo..",
-    "ooBbbBbBoo..",
-    ".oooooooo...",
-]), 12)   # 12x7
+    "..kkkkkkkBB",
+    "....kkkkkBk",
+    "...kdnnnddk",
+    ".kBBBeeed..",
+    "kbhhhhbBk..",
+    "kbbbbbbBk..",
+    "kkBkkBkk...",
+]), 11)   # 11x7
 
 LEG_R = check(grid([
-    "Bedjjeo...",
-    "djllgeo...",
-    "djjBBooo..",
-    "eeBBBBBoo.",
-    "oBBbbbbBoo",
-    "BBBBbbbBoo",
-    "ooooooooo.",
+    "BBednnk...",
+    "ednglne...",
+    "kdnnkkkk..",
+    ".eeeBBBBB.",
+    "kBbbhhhhbk",
+    "kBbbbbbbBk",
+    ".kkkkkkkkk",
 ]), 10)   # 10x7
 
 # Adaga da referencia: lamina apontando para cima-direita.
 SWORD_DIAG = check(grid([
-    ".......oo",
-    "......ooo",
-    ".....ooBo",
-    "o.o.offBo",
-    "ooooffzoo",
-    "zzozfzBo.",
-    "zBzBzoo..",
-    "...zBo...",
-    "...zoo...",
-]), 9)   # 9x9
+    ".......kk.",
+    "......kkkk",
+    "......kBB.",
+    "....kffB..",
+    "k.Bkffzkkk",
+    "zzBzfzb.k.",
+    "k.zBzB....",
+    "...zB.....",
+    ".f.zk.....",
+]), 10)   # 10x9
 
 SWORD_DOWN = check(grid([
     ".bb.",
-    "oBBo",
-    "obbo",
-    "ozqo",
-    "ozqo",
-    "ozqo",
-    "ozqo",
-    "ozqo",
-    "ozqo",
-    "ozqo",
-    ".ozo",
-    "..o.",
+    "kBBk",
+    "khhk",
+    "kzqk",
+    "kzqk",
+    "kzqk",
+    "kzqk",
+    "kzqk",
+    "kzqk",
+    "kzqk",
+    ".kzk",
+    "..k.",
 ]), 4)
 
 SWORD_UP = check(grid([
-    ".o..",
-    "ozo.",
-    "ozqo",
-    "ozqo",
-    "ozqo",
-    "ozqo",
-    "ozqo",
-    "ozqo",
-    "ozqo",
-    "obbo",
-    "oBBo",
+    ".k..",
+    "kzk.",
+    "kzqk",
+    "kzqk",
+    "kzqk",
+    "kzqk",
+    "kzqk",
+    "kzqk",
+    "kzqk",
+    "khhk",
+    "kBBk",
     ".bb.",
 ]), 4)
 
 SWORD_FWD = check(grid([
-    ".oooooooooo.",
-    "obBzzzzzzzzo",
-    "obBqqqqqqqzo",
-    ".oooooooooo.",
+    ".kkkkkkkkkk.",
+    "kbBzzzzzzzzk",
+    "khBqqqqqqqzk",
+    ".kkkkkkkkkk.",
 ]), 12)
 
 SWORDS = {'down': SWORD_DOWN, 'diag': SWORD_DIAG, 'fwd': SWORD_FWD, 'up': SWORD_UP}
@@ -240,12 +239,12 @@ SWORD_ANCHOR = {'down': (1, 7), 'diag': (0, 0), 'fwd': (1, 6), 'up': (1, -2)}
 
 # -------------------------------------------------------------- posicoes ----
 REST = {
-    'head':   (12, 21),
-    'torso':  (17, 41),
+    'head':   (13, 20),
+    'torso':  (17, 40),
     'arm_l':  (11, 41),
-    'arm_r':  (37, 44),
-    'leg_l':  (14, 57),
-    'leg_r':  (36, 57),
+    'arm_r':  (38, 43),
+    'leg_l':  (15, 57),
+    'leg_r':  (35, 57),
     'sword':  (43, 42),
 }
 
@@ -253,27 +252,46 @@ REST = {
 DRAW_ORDER = ['arm_l', 'leg_l', 'leg_r', 'torso', 'sword', 'head', 'arm_r']
 
 # Detalhes do rosto, em coordenadas relativas a cabeca (18x10).
-FACE = {
-    (17, 11): 'e', (18, 11): 'e', (19, 11): 'e',          # sobrancelha esquerda
-    (25, 11): 'e', (26, 11): 'e',                          # sobrancelha direita
-    (17, 12): 'f', (18, 12): 'f', (19, 12): 'f',           # olho esquerdo
-    (17, 13): 'f', (18, 13): 'f', (19, 13): 'f',
-    (25, 12): 'f', (26, 12): 'f',                          # olho direito
-    (25, 13): 'f', (26, 13): 'f',
-    (22, 17): 'f', (23, 17): 'f',                          # presa
+FACE_CELLS = {
+    'eye_l':   [(16, 13), (17, 13), (16, 14), (17, 14), (18, 14)],
+    'pupil_l': [(18, 13)],
+    'eye_r':   [(25, 13), (25, 14)],
+    'pupil_r': [(26, 13), (27, 13), (28, 13)],
+    'brow_l':  [(15, 12), (16, 12), (17, 12)],
+    'brow_r':  [(24, 12), (25, 12), (26, 12)],
+    'tusk':    [(21, 18), (22, 18)],
 }
+
+
+def _face_from_art():
+    """O rosto nao e redesenhado: e lido da propria arte.
+
+    Antes o rig pintava retangulos chapados por cima dos olhos, o que matava
+    a pupila e o sombreado do original. Agora FACE devolve exatamente os
+    pixels que ja estao no recorte, entao repintar e um no-op visual — ele
+    existe so para que `swap` e as variacoes saibam onde o rosto fica.
+    """
+    out = {}
+    for cells in FACE_CELLS.values():
+        for x, y in cells:
+            if 0 <= y < len(HEAD) and 0 <= x < len(HEAD[0]) and HEAD[y][x] != '.':
+                out[(x, y)] = HEAD[y][x]
+    return out
+
+
+FACE = _face_from_art()
 
 # Pontos de ancoragem usados pelos geradores de armadura (canvas 32x32, repouso).
 ANCHORS = {
-    'head_box': (12, 21, 49, 40),
-    'skull_box': (22, 21, 42, 40),
-    'ear_l': (12, 23, 25, 28),
-    'ear_r': (38, 22, 49, 28),
-    'torso_box': (24, 41, 45, 60),
+    'head_box': (13, 20, 48, 39),
+    'skull_box': (22, 20, 42, 39),
+    'ear_l': (13, 23, 26, 28),
+    'ear_r': (37, 21, 48, 28),
+    'torso_box': (24, 40, 44, 60),
     'belt_y': 52,
-    'legs_box': (14, 57, 45, 63),
-    'hand_l': (15, 52),
-    'hand_r': (46, 50),
+    'legs_box': (15, 57, 44, 63),
+    'hand_l': (16, 52),
+    'hand_r': (45, 50),
     'ground_y': 63,
 }
 

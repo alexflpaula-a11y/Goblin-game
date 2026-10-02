@@ -20,31 +20,38 @@ import goblin_rig as R
 
 # Cores extras usadas so pelas variacoes.
 R.C.update({
-    'A': (214, 220, 204, 255),   # pele albina
-    'a': (240, 243, 233, 255),   # pele albina luz
-    'E': (176, 186, 168, 255),   # pele albina sombra
+    # Tons escolhidos para bater com os sprites ORIGINAIS do repositorio:
+    # albino rosado, tatuagem azul, queimadura avermelhada.
+    'A': (234, 214, 208, 255),   # pele albina
+    'a': (250, 240, 236, 255),   # pele albina luz
+    'E': (190, 164, 160, 255),   # pele albina sombra
     'P': (112, 66, 124, 255),    # mancha de nascenca
     'v': (64, 42, 80, 255),      # veias amaldicoadas
     'G': (188, 150, 46, 255),    # ouro sombra
+    'I': (58, 92, 170, 255),     # tatuagem azul
+    'J': (32, 52, 110, 255),     # tatuagem azul escura
+    'Q': (168, 58, 44, 255),     # queimadura
 })
 
-# Mapa da cabeca (38x20), recortada da arte de referencia em 64x64:
-#   cranio cols 10..31 | orelha esquerda cols 0..13, direita cols 26..37
-#   testa rows 5..10 | sobrancelhas row 11 | olhos rows 12-13
-#   focinho rows 14..16 | boca/presa row 17 | queixo rows 18-19
-EYE_L = [(x, y) for y in (12, 13) for x in (17, 18, 19)]
-EYE_R = [(x, y) for y in (12, 13) for x in (25, 26)]
-BROW_L = [(17, 11), (18, 11), (19, 11)]
-BROW_R = [(25, 11), (26, 11)]
-FOREHEAD = [(x, y) for y in range(7, 12) for x in range(15, 30)]
-CROWN = [(x, y) for y in range(2, 8) for x in range(15, 31)]
-EAR_L_CORE = [(x, y) for y in (4, 5, 6) for x in range(4, 11)]
-EAR_R_CORE = [(x, y) for y in (3, 4, 5) for x in range(28, 35)]
-EAR_L_LOBE = [(3, 6), (4, 6)]
-EAR_R_LOBE = [(34, 6), (35, 6)]
-TUSK = [(22, 17), (23, 17)]
-CHEEK_L = [(14, 14), (14, 15), (14, 16)]
-CHEEK_R = [(28, 14), (28, 15), (28, 16)]
+# Mapa da cabeca (36x20), lido da arte de referencia em 64x64:
+#   cranio cols 12..30 | orelha esquerda cols 0..13, direita cols 24..35
+#   testa rows 8..12 | olhos rows 13-14 | focinho rows 15..17
+#   boca/dente row 18 | queixo row 19
+EYE_L = R.FACE_CELLS['eye_l']
+EYE_R = R.FACE_CELLS['eye_r']
+PUPIL_L = R.FACE_CELLS['pupil_l']
+PUPIL_R = R.FACE_CELLS['pupil_r']
+BROW_L = R.FACE_CELLS['brow_l']
+BROW_R = R.FACE_CELLS['brow_r']
+TUSK = R.FACE_CELLS['tusk']
+FOREHEAD = [(x, y) for y in range(8, 13) for x in range(12, 28)]
+CROWN = [(x, y) for y in range(1, 7) for x in range(13, 30)]
+EAR_L_CORE = [(x, y) for y in (5, 6, 7) for x in range(2, 11)]
+EAR_R_CORE = [(x, y) for y in (4, 5, 6, 7) for x in range(28, 34)]
+EAR_L_LOBE = [(1, 7), (2, 7)]
+EAR_R_LOBE = [(33, 7), (34, 7)]
+CHEEK_L = [(12, 15), (12, 16), (12, 17), (13, 18)]
+CHEEK_R = [(26, 15), (26, 16), (25, 17), (25, 18)]
 
 
 def _put(buf, x, y, ch):
@@ -85,90 +92,104 @@ def _arm_paint(buf, ctx, part, rows, ch, cols=None):
 
 # --------------------------------------------------------------- tracos ----
 def t_gold_tooth(buf, ctx):
-    _head_paint(buf, ctx, TUSK, 'Y')
+    _head_paint(buf, ctx, TUSK + [(20, 18)], 'Y')
+    _head_paint(buf, ctx, [(21, 19)], 'G')
 
 
 def t_eyepatch(buf, ctx):
-    _head_paint(buf, ctx, EYE_R + BROW_R, 'k', over_outline=True)
-    _head_paint(buf, ctx, [(x, y) for y in (11, 12, 13) for x in (24, 27, 28)], 'k')
-    _head_paint(buf, ctx, [(21, 10), (22, 10), (29, 14), (30, 14)], 'k')
+    _head_paint(buf, ctx, EYE_R + PUPIL_R + BROW_R, 'K', over_outline=True)
+    _head_paint(buf, ctx, [(24, 13), (24, 14), (27, 14), (28, 14)], 'K')
+    _head_paint(buf, ctx, [(21, 11), (22, 11), (23, 12), (29, 15), (30, 15)], 'K')
 
 
 def t_ear_ring(buf, ctx):
     _head_paint(buf, ctx, EAR_L_LOBE, 'Y', over_outline=True)
+    _head_paint(buf, ctx, [(3, 7)], 'G', over_outline=True)
 
 
 def t_earring(buf, ctx):
     _head_paint(buf, ctx, EAR_L_LOBE + EAR_R_LOBE, 'Y', over_outline=True)
+    _head_paint(buf, ctx, [(3, 7), (32, 7)], 'G', over_outline=True)
 
 
 def t_scar(buf, ctx):
-    _head_paint(buf, ctx, [(15, 9), (15, 10), (15, 11), (15, 12),
-                           (15, 13), (14, 14), (14, 15)], 'l')
+    _head_paint(buf, ctx, [(14, 9), (14, 10), (14, 11), (14, 12),
+                           (14, 13), (13, 14), (13, 15)], 'l')
 
 
 def t_burns(buf, ctx):
-    _head_paint(buf, ctx, CHEEK_R + [(27, 17), (28, 17)], 'c')
-    _arm_paint(buf, ctx, 'arm_l', range(5, 9), 'c', cols=range(2, 7))
+    # Como no original: queimadura avermelhada, nao uma mancha marrom.
+    _head_paint(buf, ctx, CHEEK_R + [(26, 18)], 'Q')
+    _head_paint(buf, ctx, [(27, 15), (27, 16), (24, 19), (25, 19)], 'R')
+    _arm_paint(buf, ctx, 'arm_l', range(4, 8), 'Q', cols=range(3, 8))
+    _arm_paint(buf, ctx, 'arm_l', (5, 6), 'R', cols=range(4, 7))
 
 
 def t_bandana(buf, ctx):
     _head_paint(buf, ctx, CROWN, 'r')
-    _head_paint(buf, ctx, [(x, y) for y in (4, 5) for x in range(15, 20)], 'R')
+    _head_paint(buf, ctx, [(x, y) for y in (5, 6) for x in range(14, 19)], 'R')
 
 
 def t_arm_bandage(buf, ctx):
-    _arm_paint(buf, ctx, 'arm_r', range(3, 7), 'W', cols=range(1, 6))
+    _arm_paint(buf, ctx, 'arm_r', range(4, 8), 'W', cols=range(1, 6))
 
 
 def t_birthmark(buf, ctx):
-    _head_paint(buf, ctx, [(x, y) for y in (6, 7, 8) for x in (27, 28, 29)], 'P')
+    _head_paint(buf, ctx, [(x, y) for y in (8, 9, 10) for x in (25, 26, 27)], 'P')
 
 
 def t_head_bandage(buf, ctx):
     _head_paint(buf, ctx, FOREHEAD, 'W')
-    _head_paint(buf, ctx, EYE_L + BROW_L, 'W')
+    _head_paint(buf, ctx, EYE_L + PUPIL_L + BROW_L, 'W')
 
 
 def t_blind_eye(buf, ctx):
     _head_paint(buf, ctx, EYE_L, 'w')
+    _head_paint(buf, ctx, PUPIL_L, 'w', over_outline=True)
 
 
 def t_ruby_eye(buf, ctx):
-    _head_paint(buf, ctx, [(17, 12), (18, 12), (17, 13)], 'r')
-    _head_paint(buf, ctx, [(19, 12), (18, 13), (19, 13)], 'R')
+    _head_paint(buf, ctx, EYE_L, 'r')
+    _head_paint(buf, ctx, PUPIL_L, 'R', over_outline=True)
 
 
 def t_wart(buf, ctx):
-    _head_paint(buf, ctx, [(21, 15), (22, 15)], 'd')
+    _head_paint(buf, ctx, [(20, 16), (21, 16), (20, 17)], 'e')
+    _head_paint(buf, ctx, [(21, 17)], 'd')
 
 
 def t_freckles(buf, ctx):
-    _head_paint(buf, ctx, [(15, 10), (15, 14), (29, 10), (29, 14),
-                           (16, 16), (27, 16)], 'd')
+    _head_paint(buf, ctx, [(14, 11), (13, 15), (27, 11), (26, 15),
+                           (15, 17), (24, 17), (14, 13), (27, 16)], 'e')
 
 
 def t_tattoo(buf, ctx):
-    _head_paint(buf, ctx, [(15, 8), (15, 9), (16, 10),
-                           (29, 8), (29, 9), (28, 10)], 'c')
-    _head_paint(buf, ctx, [(15, 16), (16, 17), (29, 16), (28, 17)], 'c')
+    # Como no original: tracos AZUIS no rosto, nao marrons.
+    _head_paint(buf, ctx, [(14, 9), (14, 10), (14, 11), (15, 11),
+                           (27, 9), (27, 10), (27, 11), (26, 11)], 'I')
+    _head_paint(buf, ctx, [(13, 16), (13, 17), (14, 17),
+                           (26, 16), (26, 17), (25, 17)], 'I')
+    _head_paint(buf, ctx, [(14, 12), (27, 12), (15, 8), (26, 8)], 'J')
 
 
 def t_double_fangs(buf, ctx):
-    _head_paint(buf, ctx, [(19, 17), (20, 17), (19, 18), (26, 17), (26, 18)], 'y')
+    _head_paint(buf, ctx, [(18, 18), (19, 18), (18, 19), (24, 18), (24, 19)], 'y')
 
 
 def t_glow_eyes(buf, ctx):
     _head_paint(buf, ctx, EYE_L + EYE_R, 'Y')
+    _head_paint(buf, ctx, PUPIL_L + PUPIL_R, 'G', over_outline=True)
 
 
 def t_dark_veins(buf, ctx):
-    _head_paint(buf, ctx, [(x, y) for y in (4, 5, 6) for x in (16, 17, 29, 30)], 'v')
+    _head_paint(buf, ctx, [(x, y) for y in (5, 6, 7, 8)
+                           for x in (15, 16, 27, 28)], 'v')
+    _head_paint(buf, ctx, [(17, 9), (26, 9), (16, 10), (27, 10)], 'v')
 
 
 def t_dirt(buf, ctx):
-    _head_paint(buf, ctx, CHEEK_L + [(21, 18), (22, 18)], 'c')
-    _arm_paint(buf, ctx, 'arm_l', range(8, 11), 'c', cols=range(1, 5))
+    _head_paint(buf, ctx, CHEEK_L + [(20, 19), (21, 19)], 'c')
+    _arm_paint(buf, ctx, 'arm_l', range(8, 11), 'c', cols=range(1, 6))
 
 
 DETAILS = {
@@ -182,20 +203,29 @@ DETAILS = {
 }
 
 SWAPS = {
-    'albino': {'e': 'E', 'd': 'E', 'j': 'A', 'g': 'A', 'l': 'a', 'f': 'a'},
-    'grizzled': {'f': 'l', 'l': 'g', 'g': 'j', 'j': 'd'},
-    'sooty': {'h': 'b', 'b': 'B', 'f': 'l', 'l': 'g'},
+    # Trocas de paleta: respeitam os 8 tons de pele do original, entao o
+    # volume do desenho continua la — muda so a matiz.
+    'albino': {'k': 'E', 'e': 'E', 'd': 'E', 'n': 'A', 'j': 'A',
+               'g': 'A', 'l': 'a', 'f': 'a'},
+    'grizzled': {'f': 'l', 'l': 'g', 'g': 'j', 'j': 'n', 'n': 'd', 'd': 'e'},
+    'sooty': {'h': 'b', 'b': 'B', 'f': 'l', 'l': 'g', 'g': 'j'},
 }
+
+
+# Onde a orelha direita comeca em cada linha da cabeca. Os valores saem do
+# proprio desenho (a coluna escura que separa cranio e orelha), por isso o
+# corte tira a orelha inteira sem comer o cranio.
+EAR_R_CUT = {0: 23, 1: 23, 2: 23, 3: 23, 4: 24, 5: 24, 6: 25, 7: 27, 8: 27, 9: 27}
 
 
 def _head_without_right_ear():
     head = copy.deepcopy(R.HEAD)
-    for y in range(0, 9):
-        for x in range(29, 38):
+    w = len(head[0])
+    for y, cut in EAR_R_CUT.items():
+        for x in range(cut, w):
             head[y][x] = '.'
-    for y in range(0, 9):             # fecha o coto com contorno
-        if head[y][28] != '.':
-            head[y][28] = 'o'
+        if head[y][cut - 1] != '.':   # fecha o coto com contorno escuro
+            head[y][cut - 1] = 'k'
     return head
 
 
