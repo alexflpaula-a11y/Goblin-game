@@ -28,17 +28,21 @@ R.C.update({
     'G': (188, 150, 46, 255),    # ouro sombra
 })
 
-# Mapa da cabeca (18x10) em coordenadas relativas ao desenho atual:
-#   cranio nas colunas 4..13 | orelhas pontudas nas colunas 0..2 e 15..17
-#   testa rows 1-3 | sobrancelha row 4 | olhos row 5 | nariz row 6 | boca row 8
-EYE_L = [(6, 5), (7, 5)]
-EYE_R = [(10, 5), (11, 5)]
-BROW_L = [(6, 4), (7, 4)]
-BROW_R = [(10, 4), (11, 4)]
-FOREHEAD = [(x, y) for y in (1, 2, 3) for x in range(5, 13)]
-CROWN = [(x, y) for y in (0, 1, 2) for x in range(4, 14)]
-EAR_L_CORE = [(1, 4), (2, 4), (2, 5)]
-EAR_R_CORE = [(16, 4), (15, 4), (15, 5)]
+# Mapa da cabeca (24x12), recortada da arte de referencia:
+#   cranio nas colunas 7..18 | orelha esquerda cols 1..6, direita cols 17..22
+#   testa rows 3-5 | sobrancelhas row 6 | olhos row 7 | focinho rows 8-9
+#   boca row 10 | presa (15, 11)
+EYE_L = [(10, 7), (11, 7)]
+EYE_R = [(15, 7), (16, 7)]
+BROW_L = [(10, 6), (11, 6)]
+BROW_R = [(15, 6), (16, 6)]
+FOREHEAD = [(x, y) for y in (3, 4, 5) for x in range(8, 18)]
+CROWN = [(x, y) for y in (0, 1, 2) for x in range(8, 20)]
+EAR_L_CORE = [(3, 2), (4, 2), (3, 3), (4, 3)]
+EAR_R_CORE = [(18, 2), (19, 2), (19, 3), (20, 3)]
+EAR_L_LOBE = [(2, 4)]
+EAR_R_LOBE = [(21, 4)]
+TUSK = [(15, 11)]
 
 
 def _put(buf, x, y, ch):
@@ -54,7 +58,7 @@ def _head_paint(buf, ctx, cells, ch, over_outline=False):
         return
     hx, hy, flip = ctx['head']
     for fx, fy in cells:
-        x = hx + (17 - fx if flip else fx)
+        x = hx + (R.HEAD_W - 1 - fx if flip else fx)
         y = hy + fy
         if 0 <= x < R.SIZE and 0 <= y < R.SIZE and (x, y) not in _MASK:
             if buf[y][x] is None:
@@ -64,12 +68,13 @@ def _head_paint(buf, ctx, cells, ch, over_outline=False):
             buf[y][x] = ch
 
 
-def _arm_paint(buf, ctx, part, rows, ch):
+def _arm_paint(buf, ctx, part, rows, ch, cols=None):
     if part not in ctx:
         return
     ax, ay, flip = ctx[part]
+    cols = cols if cols is not None else range(len(R.DEFAULT_PART[part][0]))
     for ry in rows:
-        for rx in range(3):
+        for rx in cols:
             x, y = ax + rx, ay + ry
             if (0 <= x < R.SIZE and 0 <= y < R.SIZE
                     and buf[y][x] not in (None, 'o') and (x, y) not in _MASK):
@@ -78,42 +83,43 @@ def _arm_paint(buf, ctx, part, rows, ch):
 
 # --------------------------------------------------------------- tracos ----
 def t_gold_tooth(buf, ctx):
-    _head_paint(buf, ctx, [(7, 8)], 'Y')
+    _head_paint(buf, ctx, TUSK, 'Y')
 
 
 def t_eyepatch(buf, ctx):
-    _head_paint(buf, ctx, EYE_R + BROW_R, 'k')
-    _head_paint(buf, ctx, [(8, 4), (9, 4), (8, 5), (9, 5)], 'k')
+    _head_paint(buf, ctx, EYE_R + BROW_R, 'k', over_outline=True)
+    _head_paint(buf, ctx, [(13, 6), (14, 6), (17, 6), (18, 6),
+                           (17, 7), (18, 7)], 'k')
 
 
 def t_ear_ring(buf, ctx):
-    _head_paint(buf, ctx, [(2, 5)], 'Y')
+    _head_paint(buf, ctx, EAR_L_LOBE, 'Y', over_outline=True)
 
 
 def t_earring(buf, ctx):
-    _head_paint(buf, ctx, [(2, 4), (2, 5)], 'Y')
+    _head_paint(buf, ctx, EAR_L_LOBE + EAR_R_LOBE, 'Y', over_outline=True)
 
 
 def t_scar(buf, ctx):
-    _head_paint(buf, ctx, [(6, 2), (6, 3), (6, 4)], 'l')
+    _head_paint(buf, ctx, [(9, 5), (9, 6), (9, 7), (9, 8)], 'l')
 
 
 def t_burns(buf, ctx):
-    _head_paint(buf, ctx, [(10, 6), (11, 6), (11, 7), (11, 3)], 'c')
-    _arm_paint(buf, ctx, 'arm_r', (3, 4), 'c')
+    _head_paint(buf, ctx, [(17, 7), (17, 8), (16, 9), (17, 9)], 'c')
+    _arm_paint(buf, ctx, 'arm_l', (3, 4), 'c', cols=(2, 3, 4))
 
 
 def t_bandana(buf, ctx):
     _head_paint(buf, ctx, CROWN, 'r')
-    _head_paint(buf, ctx, [(5, 2), (6, 2)], 'R')
+    _head_paint(buf, ctx, [(9, 2), (10, 2), (14, 1)], 'R')
 
 
 def t_arm_bandage(buf, ctx):
-    _arm_paint(buf, ctx, 'arm_l', (3, 4, 5), 'W')
+    _arm_paint(buf, ctx, 'arm_r', (2, 3), 'W', cols=(1, 2, 3, 4))
 
 
 def t_birthmark(buf, ctx):
-    _head_paint(buf, ctx, [(10, 2), (10, 3), (11, 3)], 'P')
+    _head_paint(buf, ctx, [(16, 2), (16, 3), (17, 3)], 'P')
 
 
 def t_head_bandage(buf, ctx):
@@ -126,24 +132,24 @@ def t_blind_eye(buf, ctx):
 
 
 def t_ruby_eye(buf, ctx):
-    _head_paint(buf, ctx, [(6, 5)], 'r')
-    _head_paint(buf, ctx, [(7, 5)], 'R')
+    _head_paint(buf, ctx, [(10, 7)], 'r')
+    _head_paint(buf, ctx, [(11, 7)], 'R')
 
 
 def t_wart(buf, ctx):
-    _head_paint(buf, ctx, [(11, 6)], 'd')
+    _head_paint(buf, ctx, [(12, 8)], 'd')
 
 
 def t_freckles(buf, ctx):
-    _head_paint(buf, ctx, [(6, 6), (11, 6), (6, 3), (11, 3)], 'd')
+    _head_paint(buf, ctx, [(9, 5), (9, 7), (17, 5), (17, 7)], 'd')
 
 
 def t_tattoo(buf, ctx):
-    _head_paint(buf, ctx, [(6, 3), (6, 6), (11, 3), (11, 6)], 'c')
+    _head_paint(buf, ctx, [(9, 4), (9, 8), (17, 4), (17, 8)], 'c')
 
 
 def t_double_fangs(buf, ctx):
-    _head_paint(buf, ctx, [(8, 8), (9, 8)], 'y')
+    _head_paint(buf, ctx, [(12, 11), (13, 11)], 'y')
 
 
 def t_glow_eyes(buf, ctx):
@@ -151,12 +157,12 @@ def t_glow_eyes(buf, ctx):
 
 
 def t_dark_veins(buf, ctx):
-    _head_paint(buf, ctx, [(6, 2), (7, 2), (10, 2), (11, 2)], 'v')
+    _head_paint(buf, ctx, [(9, 2), (10, 2), (16, 2), (17, 2)], 'v')
 
 
 def t_dirt(buf, ctx):
-    _head_paint(buf, ctx, [(7, 6), (10, 7)], 'c')
-    _arm_paint(buf, ctx, 'arm_r', (5, 6), 'c')
+    _head_paint(buf, ctx, [(11, 6), (16, 8)], 'c')
+    _arm_paint(buf, ctx, 'arm_l', (5, 6), 'c', cols=(1, 2, 3))
 
 
 DETAILS = {
@@ -170,17 +176,20 @@ DETAILS = {
 }
 
 SWAPS = {
-    'albino': {'g': 'A', 'l': 'a', 'd': 'E'},
-    'grizzled': {'g': 'd', 'l': 'g'},
-    'sooty': {'t': 'T', 'u': 't'},
+    'albino': {'e': 'E', 'd': 'E', 'j': 'A', 'g': 'A', 'l': 'a', 'f': 'a'},
+    'grizzled': {'f': 'l', 'l': 'g', 'g': 'j', 'j': 'd'},
+    'sooty': {'h': 'b', 'b': 'B', 'f': 'l', 'l': 'g'},
 }
 
 
 def _head_without_right_ear():
     head = copy.deepcopy(R.HEAD)
-    for y in range(3, 7):
-        for x in range(14, 18):
+    for y in range(1, 6):
+        for x in range(17, 24):
             head[y][x] = '.'
+    for x in range(17, 20):           # fecha o coto com contorno
+        if head[6][x] != '.':
+            head[6][x] = 'o'
     return head
 
 

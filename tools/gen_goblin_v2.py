@@ -23,6 +23,7 @@ sys.path.insert(0, str(ROOT / 'tools'))
 from PIL import Image                      # noqa: E402
 
 import goblin_anim as A                    # noqa: E402
+import goblin_rig as R                     # noqa: E402
 import goblin_variations as V              # noqa: E402
 
 OUT = ROOT / 'assets' / 'sprites' / 'goblins'
@@ -34,7 +35,7 @@ def write_set(prefix, variation, out_dir):
     n = 0
     for action in A.ACTIONS:
         for i, img in enumerate(frames[action]):
-            img.save(out_dir / f'{prefix}{action}_{i}.png')
+            R.save_png(img, out_dir / f'{prefix}{action}_{i}.png')
             n += 1
     return frames, n
 

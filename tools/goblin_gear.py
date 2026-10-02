@@ -34,14 +34,37 @@ def g(rows, w):
 
 
 # ------------------------------------------------------------- desenhos ----
-# CAPACETE — cobre a calota e desce num filete sobre as tempora; o rosto,
-# as orelhas e a boca continuam a vista.
+# Todos os desenhos abaixo foram remapeados para a geometria do goblin novo
+# (recortado da arte de referencia): cabeca 24x12, tronco 18x14, bracos
+# 8x9 / 7x7, pernas 8x4 / 7x4. O rosto, as orelhas e as botas ficam a vista.
+
+# CAPACETE — calota sobre o cranio (cols 8..18), orelhas livres.
 HELM = g([
-    ".....DDDDDDDD.....",
-    "....DMMLMMMMMD....",
-    "....DMMMMMMMMD....",
-    "....DMMMMMMMMD....",
-    "....DDDGGDDDDD....",
+    "........DDDDDDDDDDD.....",
+    "........DMMLLMMMMMD.....",
+    "........DMMMMMMMMMD.....",
+    "........DMMMMMMMMMD.....",
+    "........DDDGGGGDDDD.....",
+    "........................",
+    "........................",
+    "........................",
+    "........................",
+    "........................",
+    "........................",
+    "........................",
+], 24)
+
+# PEITORAL — placa sobre o peito; o cinto e o calcao continuam do goblin.
+CHEST = g([
+    ".....DDDDDDD......",
+    "....DMMMMMMMD.....",
+    "....DMMLLLMMD.....",
+    "....DMGGGGGMD.....",
+    "....DMMMMMMMD.....",
+    "....DDMMMMMDD.....",
+    "..................",
+    "..................",
+    "..................",
     "..................",
     "..................",
     "..................",
@@ -49,129 +72,129 @@ HELM = g([
     "..................",
 ], 18)
 
-# PEITORAL — placa do peito; o cinto e o calcao continuam do goblin.
-CHEST = g([
-    "..DDDDDD..",
-    ".DMMMMMMD.",
-    "DMMMMMMMMD",
-    "DMMMLLMMMD",
-    "DMMGGGGMMD",
-    "DMMMMMMMMD",
-    "DMMMMMMMMD",
-    "..........",
-    "..........",
-], 10)
+# OMBREIRAS — uma para cada braco (grades de larguras diferentes).
+PAULDRON_L = g([
+    "...DDDD.",
+    "...DMMD.",
+    "...DDDD.",
+    "........",
+    "........",
+    "........",
+    "........",
+    "........",
+    "........",
+], 8)
 
-# OMBREIRA — duas linhas sobre a manga, uma em cada braco.
-PAULDRON = g([
-    "DDD",
-    "DMD",
-    "...",
-    "...",
-    "...",
-    "...",
-    "...",
-    "...",
-], 3)
+PAULDRON_R = g([
+    "DDDD...",
+    "DMMD...",
+    "DDDD...",
+    ".......",
+    ".......",
+    ".......",
+    ".......",
+], 7)
 
-# CALCA — grevas sobre a coxa e a canela; a bota fica exposta.
-GREAVE = g([
-    "DDDD",
-    "DMMD",
-    "DMMD",
-    "DDDD",
-    "....",
-    "....",
-    "....",
-], 4)
+# GREVAS — placa sobre o cano da bota.
+GREAVE_L = g([
+    "..DDDDDD",
+    ".DDMMMDD",
+    "........",
+    "........",
+], 8)
 
-# CINTURA da calca, presa ao tronco.
+GREAVE_R = g([
+    "DDDDD..",
+    "DDMMDD.",
+    ".......",
+    ".......",
+], 7)
+
+# CINTURA da calca, presa ao tronco (linha do cinto do goblin).
 HIP = g([
-    "..........",
-    "..........",
-    "..........",
-    "..........",
-    "..........",
-    "..........",
-    "..........",
-    "..........",
-    "DMMMMMMMMD",
-], 10)
+    "..................",
+    "..................",
+    "..................",
+    "..................",
+    "..................",
+    "..................",
+    "..DDDDDDDDDDDD....",
+    "..DMMMMMMMMMMD....",
+    "..................",
+    "..................",
+    "..................",
+    "..................",
+    "..................",
+    "..................",
+], 18)
 
-# ---- armas: um desenho por orientacao da espada do rig ----
+# ---- armas: um desenho por orientacao da adaga do rig ----
+# Cada desenho cobre EXATAMENTE a silhueta da adaga nativa (overlay so
+# adiciona pixels, nunca apaga), por isso as grades batem com R.SWORDS.
 SWORD_SKIN = {
     'down': (g([
-        ".G.",
-        "GGG",
-        "MLM",
-        "MLM",
-        "MLM",
-        "MLM",
-        "MLM",
-        "MLM",
-        "MLM",
-        "MLM",
-        ".M.",
-    ], 3), 0, -2),
+        ".GG.",
+        "DGGD",
+        "DMLD",
+        "DMLD",
+        "DMLD",
+        ".DD.",
+    ], 4), 0, 0),
     'diag': (g([
-        ".....L",
-        "....LL",
-        "...LL.",
-        ".GLL..",
-        "GGM...",
-        "G.....",
-    ], 6), 0, 0),
+        "....D",
+        "...DD",
+        ".DDDM",
+        "DDLMD",
+        "GGLMD",
+        ".GDD.",
+    ], 5), 0, 0),
     'fwd': (g([
-        "GGMLLLLL",
-        ".GMLLLLL",
-        "...LLL..",
-    ], 8), 0, 0),
+        ".DDDDD.",
+        "DGGMMMD",
+        "DGGLLMD",
+        ".DDDDD.",
+    ], 7), 0, 0),
     'up': (g([
-        ".L.",
-        "MLM",
-        "MLM",
-        "MLM",
-        "MLM",
-        "GGG",
-        ".G.",
-    ], 3), 0, 0),
+        ".DD.",
+        "DMLD",
+        "DMLD",
+        "DMLD",
+        "DGGD",
+        ".GG.",
+    ], 4), 0, 0),
 }
 
 CLUB_SKIN = {
     'down': (g([
-        "DGGD",
-        "DGGD",
+        ".GG.",
         "DGGD",
         "DMMD",
         "DMLD",
         "DMMD",
-        "DMMD",
-        "DMMD",
-        "DMMD",
         ".DD.",
-    ], 4), -1, -1),
+    ], 4), 0, 0),
     'diag': (g([
-        "....MM",
-        "...MMD",
-        "..MMD.",
-        ".GMD..",
-        "GGD...",
-        "G.....",
-    ], 6), 0, 0),
+        "....M",
+        "...MM",
+        ".GMMM",
+        "GGMLM",
+        "GGMMD",
+        ".GDD.",
+    ], 5), 0, 0),
     'fwd': (g([
-        "GGMMMMDD",
-        ".GMMMMMD",
-        "...MMM..",
-    ], 8), 0, 0),
+        ".DMMMD.",
+        "GGMMMMD",
+        "GGMMLMD",
+        ".DMMMD.",
+    ], 7), 0, 0),
     'up': (g([
-        ".DD.",
+        ".MM.",
         "DMMD",
         "DMLD",
         "DMMD",
+        "DGGD",
         ".GG.",
-        ".GG.",
-        ".GG.",
-    ], 4), -1, 0),
+    ], 4), 0, 0),
 }
 
 SHIELD = g([
@@ -197,16 +220,16 @@ def helm(material):
 def chest(material):
     return [
         _layer('torso', CHEST, material),
-        _layer('arm_l', PAULDRON, material),
-        _layer('arm_r', PAULDRON, material),
+        _layer('arm_l', PAULDRON_L, material),
+        _layer('arm_r', PAULDRON_R, material),
     ]
 
 
 def pants(material):
     return [
         _layer('torso', HIP, material),
-        _layer('leg_l', GREAVE, material),
-        _layer('leg_r', GREAVE, material),
+        _layer('leg_l', GREAVE_L, material),
+        _layer('leg_r', GREAVE_R, material),
     ]
 
 
@@ -218,7 +241,8 @@ def weapon(skin, material):
 
 
 def shield(material):
-    return [_layer('arm_r', SHIELD, material, dx=1, dy=2)]
+    # Escudo no braco LIVRE (a adaga esta na mao direita, como na referencia).
+    return [_layer('arm_l', SHIELD, material, dx=-1, dy=2)]
 
 
 # ------------------------------------------------------------- catalogo ----
@@ -242,8 +266,8 @@ PIECES = {
 # Icones 16x16 do inventario: recorte da parte do corpo que a peca cobre.
 ICONS = {
     'av_cap_icon': ('av_cap', R.ANCHORS['head_box']),
-    'av_pei_icon': ('av_pei', (8, 16, 23, 24)),
-    'av_cal_icon': ('av_cal', (10, 23, 21, 31)),
+    'av_pei_icon': ('av_pei', (6, 17, 21, 28)),
+    'av_cal_icon': ('av_cal', (5, 23, 24, 31)),
 }
 
 

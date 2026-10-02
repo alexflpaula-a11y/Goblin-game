@@ -221,11 +221,13 @@ O conjunto **Avaritia** (peitoral, calça, capacete + 3 pares + conjunto complet
 
 PNGs **32×32** referenciados por **nome lógico** no `manifest.json`. Se um PNG não existir, um placeholder é desenhado automaticamente (o jogo nunca quebra). Os goblins têm **45 variações físicas** — dente dourado, tapa-olho, cicatrizes, albinismo, tatuagens e combinações — cada uma com os 62 quadros de `idle/walk/attack/hurt/death`.
 
-Desde a arte atual, nada disso é desenhado quadro a quadro: existe um **rig**. O goblin é um conjunto de partes em cores chapadas (cabeça, tronco, braços, pernas, espada); ao montar um quadro o rig posiciona as partes, **gera o contorno escuro automaticamente** a partir da silhueta e só então pinta rosto, variação e armadura. Por isso um ajuste no desenho se propaga para os 2852 quadros de uma vez.
+Desde a arte atual, nada disso é desenhado quadro a quadro: existe um **rig**. O goblin base **não é um desenho novo** — ele é recortado, pixel a pixel, da arte de referência em `art-source/goblins-v2/referencia.jpg` (64×64). O pipeline reduz a arte para a escala do jogo (26 px de altura num canvas 32×32), limpa a compressão JPEG numa paleta de 12 cores e **fatia o resultado em partes** (cabeça com as duas orelhas, tronco com o avental de couro, braço esquerdo, braço direito com a adaga, perna esquerda, perna direita, lâmina). Cada parte já carrega o contorno e o sombreado originais; o rig só reposiciona as peças por quadro e, por cima, pinta o rosto, a variação e a armadura. Por isso um ajuste no recorte se propaga para os 2852 quadros de uma vez.
+
+Comparação lado a lado em `art-source/goblins-v2/base-zoom.png`; a arte limpa em 64×64 fica em `referencia-limpa.png`.
 
 | arquivo | papel |
 | --- | --- |
-| `tools/goblin_rig.py` | partes do corpo, paleta, contorno automático, pontos de ancoragem |
+| `tools/goblin_rig.py` | partes recortadas da referência, paleta, pontos de ancoragem, PNG indexado |
 | `tools/goblin_anim.py` | as 62 poses das 5 animações |
 | `tools/goblin_variations.py` | as 45 aparências como receitas de traços (cicatriz, atadura, albinismo…) |
 | `tools/goblin_gear.py` | armaduras e armas, ancoradas às partes do corpo |

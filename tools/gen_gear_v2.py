@@ -91,18 +91,18 @@ def main():
         for action in A.ACTIONS:
             for i, img in enumerate(dressed[action]):
                 d = diff(img, base[action][i])
-                d.save(OVL / f'overlay_{prefix}_{action}_{i}.png')
+                R.save_png(d, OVL / f'overlay_{prefix}_{action}_{i}.png')
                 written += 1
                 if folder:
                     target = SPR / folder
                     target.mkdir(parents=True, exist_ok=True)
-                    img.save(target / f'{prefix}_{action}_{i}.png')
+                    R.save_png(img, target / f'{prefix}_{action}_{i}.png')
                     written += 1
         print(f'  {prefix:12s} ok')
 
     for icon_id, (prefix, box) in G.ICONS.items():
         src = dressed_cache[prefix]['idle'][0]
-        icon(src, box).save(SPR / 'avaritia' / f'{icon_id}.png')
+        R.save_png(icon(src, box), SPR / 'avaritia' / f'{icon_id}.png')
         written += 1
 
     # Folha de conferencia: goblin base + cada peca, em idle.

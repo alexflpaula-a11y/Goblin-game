@@ -20,16 +20,18 @@ ACTIONS = ('idle', 'walk', 'attack', 'hurt', 'death')
 
 
 def _pose(body=(0, 0), head=(0, 0), arm_l=(0, 0), arm_r=(0, 0),
-          leg_l=(0, 0), leg_r=(0, 0), sword=(0, 0), kind='down'):
+          leg_l=(0, 0), leg_r=(0, 0), sword=(0, 0), kind='diag'):
     """Monta a pose somando o deslocamento global `body` a cada parte."""
     bx, by = body
+    # Na referencia a adaga esta na mao DIREITA (lado direito do espectador),
+    # entao `arm_l` das tabelas de animacao e o braco da arma -> parte arm_r.
     return {
         'head':  (head[0] + bx, head[1] + by),
         'torso': (bx, by),
-        'arm_l': (arm_l[0] + bx, arm_l[1] + by),
-        'arm_r': (arm_r[0] + bx, arm_r[1] + by, True),
+        'arm_r': (arm_l[0] + bx, arm_l[1] + by),
+        'arm_l': (arm_r[0] + bx, arm_r[1] + by),
         'leg_l': (leg_l[0] + bx, leg_l[1] + by),
-        'leg_r': (leg_r[0] + bx, leg_r[1] + by, True),
+        'leg_r': (leg_r[0] + bx, leg_r[1] + by),
         'sword': (sword[0] + bx, sword[1] + by),
         '_sword': kind,
     }
@@ -80,24 +82,24 @@ def walk_poses():
 # ------------------------------------------------------------- attack ------
 # 0-4 recuo e espada erguida | 5-7 corte | 8-11 extensao | 12-16 retorno.
 ATTACK = [
-    # (dx corpo, dy corpo, dx braco, dy braco, tipo de espada)
-    (0, 0, 0, 0, 'down'),
-    (-1, 0, 0, -1, 'down'),
-    (-1, 0, 0, -2, 'diag'),
+    # (dx corpo, dy corpo, dx braco, dy braco, tipo de adaga)
+    (0, 0, 0, 0, 'diag'),
+    (-1, 0, 0, -1, 'diag'),
+    (-1, 0, 0, -2, 'up'),
     (-2, 0, 0, -3, 'up'),
-    (-2, 0, 0, -4, 'up'),
-    (-1, 0, 1, -4, 'up'),
-    (1, 0, 2, -2, 'diag'),
-    (2, -1, 3, 0, 'fwd'),
-    (2, 0, 4, 1, 'fwd'),
-    (2, 0, 4, 1, 'fwd'),
-    (1, 0, 3, 1, 'fwd'),
-    (1, 0, 2, 1, 'diag'),
+    (-2, 0, 0, -3, 'up'),
+    (-1, 0, 1, -3, 'up'),
+    (1, 0, 1, -1, 'diag'),
+    (2, -1, 2, 0, 'fwd'),
+    (2, 0, 2, 1, 'fwd'),
+    (2, 0, 2, 1, 'fwd'),
+    (1, 0, 2, 1, 'fwd'),
+    (1, 0, 1, 1, 'diag'),
     (0, 0, 1, 0, 'diag'),
-    (0, 0, 1, 0, 'down'),
-    (0, 0, 0, 0, 'down'),
-    (0, 0, 0, 0, 'down'),
-    (0, 0, 0, 0, 'down'),
+    (0, 0, 1, 0, 'diag'),
+    (0, 0, 0, 0, 'diag'),
+    (0, 0, 0, 0, 'diag'),
+    (0, 0, 0, 0, 'diag'),
 ]
 
 
@@ -226,7 +228,8 @@ def _fade(img, alpha):
 
 def _flash(buf):
     """Clareia a pele no quadro de impacto (dano visivel)."""
-    hit = {'g': 'l', 'd': 'g', 't': 'u', 'T': 't'}
+    hit = {'e': 'd', 'd': 'j', 'j': 'g', 'g': 'l', 'l': 'f',
+           'B': 'b', 'b': 'h'}
     for y in range(R.SIZE):
         for x in range(R.SIZE):
             c = buf[y][x]

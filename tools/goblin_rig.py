@@ -26,16 +26,21 @@ SIZE = 32
 
 # ---------------------------------------------------------------- paleta ----
 C = {
-    'o': (22, 32, 26, 255),      # contorno
-    'd': (64, 118, 56, 255),     # pele sombra
-    'g': (106, 168, 78, 255),     # pele base
-    'l': (152, 204, 110, 255),   # pele luz
+    'o': (24, 32, 22, 255),      # contorno
+    'e': (24, 78, 42, 255),      # pele verde profunda
+    'j': (60, 145, 86, 255),     # pele verde media
+    'f': (168, 235, 190, 255),   # pele verde brilho
+    'z': (150, 162, 148, 255),   # aco da adaga
+    'q': (205, 222, 205, 255),   # aco da adaga, brilho
+    'd': (44, 117, 67, 255),     # pele sombra
+    'g': (74, 178, 104, 255),     # pele base
+    'l': (104, 205, 132, 255),   # pele luz
     'T': (28, 52, 38, 255),      # tunica sombra
     't': (42, 74, 52, 255),      # tunica base
     'u': (58, 98, 66, 255),     # tunica luz
-    'B': (62, 42, 26, 255),      # couro sombra
-    'b': (104, 70, 42, 255),      # couro base
-    'h': (146, 104, 62, 255),    # couro luz
+    'B': (60, 48, 36, 255),      # couro sombra
+    'b': (106, 82, 62, 255),      # couro base
+    'h': (142, 112, 80, 255),    # couro luz
     'w': (240, 240, 222, 255),   # brilho do olho
     'p': (18, 24, 20, 255),      # pupila
     'y': (222, 214, 178, 255),   # presa
@@ -63,7 +68,7 @@ C = {
     'k': (14, 22, 18, 255),      # preto
 }
 
-SKIN_KEYS = ('d', 'g', 'l')
+SKIN_KEYS = ('e', 'd', 'j', 'g', 'l', 'f')
 
 
 def grid(rows):
@@ -76,133 +81,168 @@ def check(rows, w):
     return rows
 
 
-# ------------------------------------------------- partes (cores chapadas) --
-# Cabeca 18x10: cranio nas colunas 5..12, orelhas em folha nas pontas.
+# ------------------------------------------- partes (recortes da arte) --
 HEAD = check(grid([
-    ".....gggggggg.....",
-    "....gggggggggg....",
-    "....gggggggggg....",
-    ".ggoggggggggggogg.",
-    "gggoggggggggggoggg",
-    ".ggoggggggggggogg.",
-    "..goggggggggggog..",
-    "....gggggggggg....",
-    "....gggggggggg....",
-    ".....gggggggg.....",
-]), 18)
+    "........ooolgdoodgjoo...",
+    "...oooooeejllfjeljggeo..",
+    ".oojlljddllgglffddgldoo.",
+    "oodjjllljdjglgllledjljeo",
+    ".oooodjglfljlllgldedeooo",
+    "..o..oedjjgllgjlggjeo.o.",
+    "......oddgoojggoojjoo...",
+    "......oedjffgdlffjeo....",
+    "......oddjollddgojfo....",
+    "......oddjggjdjgglfo....",
+    "......oedgggeeeeggo.....",
+    ".....ooBdjjgggjydo......",
+]), 24)   # 24x12
 
-# Tronco 10x7 (tunica, cinto, calcao)
 TORSO = check(grid([
-    "..tttttt..",
-    ".tttttttt.",
-    "tttttttttt",
-    "tttuuuuttt",
-    "tttuuuuttt",
-    "tttttttttt",
-    "tttttttttt",
-    "bbbbhhbbbb",
-    "TTttttttTT",
-]), 10)
+    "....oBdggllgjddo..",
+    "....oBdgdeeeeeeo..",
+    ".....bbggjddBd....",
+    ".....Bbjgljdb.....",
+    ".....Bbdglldbo....",
+    ".....BbbjjjlbB....",
+    "...BbbBBbbbbBo....",
+    ".bbBbBoBBBBBbB....",
+    ".bbBBBBbbbbbbb....",
+    "oBBbBoBBbbbBBBBooo",
+    ".......BBBBo......",
+    ".......oBoBo......",
+    ".......ooooo......",
+    "...........o......",
+]), 18)   # 18x14
 
-# Braco 3x6 (manga curta, antebraco, mao)
-ARM = check(grid([
-    "ttt",
-    "ttt",
-    "ggg",
-    "ggg",
-    "ggg",
-    "ggg",
-    "ggg",
-    "ggg",
-]), 3)
+ARM_L = check(grid([
+    "....ode.",
+    "...oegd.",
+    "..ojlgjd",
+    ".ojgljeo",
+    "odgjeeoo",
+    "djggdooo",
+    "djgdjo..",
+    "oojg....",
+    "..oo....",
+]), 8)   # 8x9
 
-# Perna 4x6 (coxa + bota)
-LEG = check(grid([
-    "gggg",
-    "gggg",
-    "gggg",
-    "gggg",
-    "bbbb",
-    "bbbb",
-    "bbbb",
+ARM_R = check(grid([
+    ".geo...",
+    "dddo...",
+    ".djd...",
+    ".djjl..",
+    ".Belgeo",
+    ".ojjdo.",
+    ".oodeo.",
+]), 7)   # 7x7
+
+LEG_L = check(grid([
+    "..oBoBBo",
+    ".ooddjeo",
+    "oBbbboo.",
+    "oBBBoo..",
+]), 8)   # 8x4
+
+LEG_R = check(grid([
+    "djgeo..",
+    "edBBoo.",
+    "oBbbBoo",
+    "BoBBBoo",
+]), 7)   # 7x4
+
+# Adaga da referencia (empunhadura embaixo a esquerda, lamina para cima-direita)
+SWORD_DIAG = check(grid([
+    "....o",
+    "...oo",
+    ".oooB",
+    "oofzo",
+    "bbzBo",
+    ".joo.",
+]), 5)
+
+SWORD_DOWN = check(grid([
+    ".bb.",
+    "oBBo",
+    "ozqo",
+    "ozqo",
+    "ozqo",
+    ".oo.",
 ]), 4)
 
-# ------------------------------------------------------------- espadas ------
-SWORD_DOWN = check(grid([
-    ".b.",
-    "hhh",
-    "sss",
-    "sss",
-    "sss",
-    "sss",
-    "sss",
-    "sss",
-    ".s.",
-]), 3)
-
-SWORD_DIAG = check(grid([
-    ".....s",
-    "....ss",
-    "...ss.",
-    ".hss..",
-    "hhs...",
-    "b.....",
-]), 6)
+SWORD_UP = check(grid([
+    ".oo.",
+    "ozqo",
+    "ozqo",
+    "ozqo",
+    "oBBo",
+    ".bb.",
+]), 4)
 
 SWORD_FWD = check(grid([
-    "bhhsssss",
-    ".hsssssi",
-    "...sss..",
-]), 8)
-
-SWORD_UP = check(grid([
-    ".s.",
-    "sss",
-    "sss",
-    "sss",
-    "sss",
-    "hhh",
-    ".b.",
-]), 3)
+    ".ooooo.",
+    "obBzzzo",
+    "obBqqzo",
+    ".ooooo.",
+]), 7)
 
 SWORDS = {'down': SWORD_DOWN, 'diag': SWORD_DIAG, 'fwd': SWORD_FWD, 'up': SWORD_UP}
-SWORD_ANCHOR = {'down': (0, 0), 'diag': (-3, 0), 'fwd': (-5, 1), 'up': (0, -6)}
+SWORD_ANCHOR = {'down': (-1, 4), 'diag': (0, 0), 'fwd': (-3, 3), 'up': (-1, -1)}
 
 # -------------------------------------------------------------- posicoes ----
 REST = {
-    'head':  (7, 6),
-    'torso': (11, 16),
-    'arm_l': (8, 17),
-    'arm_r': (21, 17),
-    'leg_l': (11, 25),
-    'leg_r': (17, 25),
-    'sword': (6, 23),
+    'head':   (3, 6),
+    'torso':  (6, 18),
+    'arm_l':  (3, 18),
+    'arm_r':  (19, 20),
+    'leg_l':  (5, 28),
+    'leg_r':  (18, 28),
+    'sword':  (23, 18),
 }
 
-DRAW_ORDER = ['arm_r', 'leg_l', 'leg_r', 'torso', 'sword', 'head', 'arm_l']
+# O braco DIREITO (do espectador) e o que segura a adaga, como na referencia.
+DRAW_ORDER = ['arm_l', 'leg_l', 'leg_r', 'torso', 'sword', 'head', 'arm_r']
 
 # Detalhes do rosto, em coordenadas relativas a cabeca (18x10).
 FACE = {
-    (6, 1): 'l', (7, 1): 'l', (6, 2): 'l',
-    (6, 4): 'd', (7, 4): 'd', (10, 4): 'd', (11, 4): 'd',
-    (6, 5): 'p', (7, 5): 'p', (10, 5): 'p', (11, 5): 'p',
-    (8, 6): 'd', (9, 6): 'd',
-    (7, 8): 'y', (8, 8): 'm', (9, 8): 'm', (10, 8): 'y',
+    (10, 6): 'o', (11, 6): 'o', (15, 6): 'o', (16, 6): 'o',   # sobrancelhas
+    (10, 7): 'f', (11, 7): 'f', (15, 7): 'f', (16, 7): 'f',   # olhos
+    (13, 8): 'd', (14, 8): 'd', (13, 9): 'd',                 # focinho
+    (15, 11): 'y',                                            # presa
 }
 
 # Pontos de ancoragem usados pelos geradores de armadura (canvas 32x32, repouso).
 ANCHORS = {
-    'head_box': (7, 6, 24, 15),
-    'skull_box': (11, 6, 20, 15),
-    'ear_l': (7, 9, 10, 12),
-    'ear_r': (21, 9, 24, 12),
-    'torso_box': (11, 16, 20, 24),
-    'belt_y': 23,
-    'legs_box': (11, 25, 20, 31),
-    'hand_l': (9, 24),
-    'hand_r': (22, 24),
+    'head_box': (3, 6, 26, 17),
+    'skull_box': (9, 6, 21, 17),
+    'ear_l': (3, 8, 10, 11),
+    'ear_r': (19, 7, 26, 11),
+    'torso_box': (9, 18, 20, 29),
+    'belt_y': 24,
+    'legs_box': (5, 28, 24, 31),
+    'hand_l': (4, 23),
+    'hand_r': (23, 22),
     'ground_y': 31,
 }
+
+
+
+DEFAULT_PART = {
+    'head': HEAD, 'torso': TORSO, 'arm_l': ARM_L, 'arm_r': ARM_R,
+    'leg_l': LEG_L, 'leg_r': LEG_R,
+}
+HEAD_W = len(HEAD[0])
+
+
+def _outline_region(buf, cells):
+    """Contorna apenas os pixels de equipamento que ficam na borda."""
+    out = [row[:] for row in buf]
+    for x, y in cells:
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if not (0 <= nx < SIZE and 0 <= ny < SIZE) or buf[ny][nx] is None:
+                out[y][x] = 'o'
+                break
+    return out
 
 
 # ------------------------------------------------------------ renderizacao --
@@ -262,6 +302,33 @@ def to_image(buf):
     return img
 
 
+
+def save_png(img, path):
+    """Grava o sprite como PNG indexado (mesmos pixels, metade do tamanho).
+
+    O jogo embute todos os sprites em base64 no arquivo unico, entao cada
+    byte conta. Quadros com transparencia parcial (o fade da morte) nao
+    cabem em paleta e sao gravados em RGBA normal.
+    """
+    img = img.convert('RGBA')
+    data = list(img.getdata())
+    if any(0 < px[3] < 255 for px in data):
+        img.save(path, optimize=True)
+        return
+    opaque = sorted({px[:3] for px in data if px[3] == 255})
+    if len(opaque) > 255:
+        img.save(path, optimize=True)
+        return
+    index = {c: i + 1 for i, c in enumerate(opaque)}
+    out = Image.new('P', img.size, 0)
+    out.putdata([index[px[:3]] if px[3] == 255 else 0 for px in data])
+    pal = [0, 0, 0]
+    for c in opaque:
+        pal.extend(c)
+    out.putpalette(pal)
+    out.save(path, optimize=True, transparency=0)
+
+
 def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None,
             gear=None):
     """Monta um quadro. Retorna o buffer de chars (ainda nao convertido)."""
@@ -280,14 +347,8 @@ def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None,
             art = SWORDS[kind]
             ax, ay = SWORD_ANCHOR[kind]
             dx, dy = dx + ax, dy + ay
-        elif name.startswith('arm'):
-            art = extra_parts.get(name, ARM)
-        elif name.startswith('leg'):
-            art = extra_parts.get(name, LEG)
-        elif name == 'head':
-            art = extra_parts.get(name, HEAD)
         else:
-            art = extra_parts.get(name, TORSO)
+            art = extra_parts.get(name, DEFAULT_PART[name])
         bx, by = REST[name]
         ox, oy = bx + dx, by + dy
         ctx[name] = (ox, oy, flip)
@@ -318,8 +379,10 @@ def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None,
                     buf[py][px] = ch
                     gear_mask.add((px, py))
 
-    buf = _shade(buf)
-    buf = _outline(buf)
+    # A arte ja vem com contorno e sombreamento proprios (recortados da
+    # referencia), entao so o equipamento precisa de contorno automatico.
+    if gear_mask:
+        buf = _outline_region(buf, gear_mask)
 
     # Rosto por cima do contorno.
     if head_pos and pose.get('head') is not None and not pose.get('_faceless'):
@@ -328,7 +391,7 @@ def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None,
         if swap:
             face = {k: swap.get(v, v) for k, v in face.items()}
         for (fx, fy), ch in face.items():
-            x = hx + (17 - fx if hflip else fx)
+            x = hx + (HEAD_W - 1 - fx if hflip else fx)
             y = hy + fy
             if (0 <= x < SIZE and 0 <= y < SIZE
                     and buf[y][x] is not None and (x, y) not in gear_mask):
@@ -353,9 +416,7 @@ def render(pose, **kw):
 
 def base_pose(**over):
     p = {k: (0, 0) for k in DRAW_ORDER}
-    p['arm_r'] = (0, 0, True)
-    p['leg_r'] = (0, 0, True)
-    p['_sword'] = 'down'
+    p['_sword'] = 'diag'
     p.update(over)
     return p
 
