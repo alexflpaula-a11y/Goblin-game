@@ -42,7 +42,8 @@ def frames_with(layers):
     for action in A.ACTIONS:
         imgs = []
         for pose in A.POSES[action]():
-            gear = G.resolve(layers, pose.get('_sword', 'down'))
+            gear = G.resolve(layers, pose.get('_sword', 'down'),
+                             lay=pose.get('_lay') is not None)
             buf = R.compose(pose, gear=gear)
             if pose.get('_flash'):
                 A._flash(buf)

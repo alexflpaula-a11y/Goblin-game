@@ -297,6 +297,90 @@ ANCHORS = {
 
 
 
+# ----------------------------------------------------------- corpo caido ---
+# A pose de morto NAO sai de rotacao. Girar o goblin de pe num angulo
+# quebrado arrebenta o contorno de 1 px e embaralha o rosto; em 90 graus
+# exatos ele fica deitado na horizontal, que nao e a pose pedida. Entao o
+# corpo caido e um DESENHO proprio, na mesma paleta e no mesmo canvas de
+# 64x64: corpo na diagonal, botas embaixo a esquerda, cabeca em cima a
+# direita, um braco jogado acima da cabeca, o outro estendido, pernas
+# abertas e olhos fechados.
+#
+# A arte vem de art-source/goblins-v2/caido-limpa.png e e colada aqui pelo
+# mesmo motivo das outras partes: o rig nao depende de arquivo em tempo de
+# execucao. Para regerar: python3 tools/import_caido.py
+# Onde cai a mao aberta do braco estendido: e dai que pende a arma
+# equipada quando o goblin morre segurando alguma coisa.
+LAY_HAND = (44, 40)
+
+LAY = check(grid([
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "....................................kk..........................",
+    ".......................kk...........kgk.........................",
+    ".....................kkkgk..........kggk........................",
+    ".....................kgkggkkk.......kdggk.......................",
+    ".....................kgeggkek.......kdggk.......................",
+    "....................kkggdgkgk.......kddfgk......................",
+    "....................kkdgggdgk.......kgdgfk......................",
+    "....................kggggdggk.......kgdgfgk.....................",
+    ".....................kgggggk.......kgddgfgkkkkk.................",
+    ".....................kdggggk.......kdddggddjggdkk...............",
+    "......................kdgggk.......kdddglgggggggkk..............",
+    ".......................kdgggk......kedgggggggggggkk.............",
+    ".......................kdggfk......kdgggggggggggfgek............",
+    ".......................kdgggfk....kdggggggggggggffgk............",
+    "........................kggggk...kdgggggggggggggfffgk...........",
+    "........................kdggggkkkdgggdggggggggggfffgk...........",
+    ".........................kdgggkkkgggggegjdgggggggffgk...........",
+    ".........................kddgggkdggggggeeggggggggffgk...........",
+    "..........................kdggdeggggggggggggggggggggk...........",
+    "..........................kdggdeggggggggggggggggggggk...........",
+    "..........................kdgddeggggggggggdjgggggfgdkkk.........",
+    "..........................keddBeggggggggggjeggdggggfffgkk.......",
+    "..........................kkebBedgggdggggggdeeggggggggffgk......",
+    "..........................kBbbbBeggggeggggggddgggdeddddgfgkk....",
+    ".........................kBbbbhdedggggggggggggggdddddggddggk....",
+    "........................kbbhhhdddedggggggggggggdkdddgggkkkk.....",
+    "......................kkbbhhhdggddedggggggggggdkkkkkkkk.........",
+    "...................kkkBbBbhhdggggddeedggggggddk.................",
+    "..................kBbhBbzhhdggggggddeeedddddkk..................",
+    "................kkBbbhhBhzddgggggggddBBeeekk....................",
+    "...............kBbBBbbBBbbbddgggggddbBBBekk.....................",
+    "...............kbbBBBBkbBbBhddgggddhbbBdddk.....................",
+    "...............kkbbBkbbbbBhBhdddddhhhbdddgk.....................",
+    "..............kddebbbbhhhbbBbhdddhhhbeddgggk....................",
+    ".............kgddeBbbhhhhhBbhBhzhhhbkkddggggk...................",
+    ".....kkk..kkkgggdeBbbhhhhhhbBbbhzbbBkkkddggggk..................",
+    "....kbhhkkbBgggddekBbbhhhhhhbBbbBBBk...kdddggfk.................",
+    "....kbbhhbbbBddddkkkBbbhhhhhhbBbhBkk....kddggggk................",
+    ".....kbbhbbbBkdkk..kBBbbhhhhhhBBbhbk.....kkdggggkk..............",
+    "......kbbbbBBBk.....kBBbhhbbhbBBbbbk.......kjggggdkk............",
+    ".......kbbBBBk.......kBBbbbbbBBbBhBk........kgggggddk...........",
+    "........kBBBk.........kBBbbbbBBbbBk.........kggggddkk...........",
+    ".........kkk...........keBBbbbBBBBk.........kgddggjjk...........",
+    ".......................kdddBbBBkkk..........kjkkjgdk............",
+    "......................kdddddBBBk............kk..kkk.............",
+    "......................kddgddkkkk................................",
+    "....................kkddgggk....................................",
+    "...................kBBkdjjk.....................................",
+    "...................kBbbBdk......................................",
+    "..................kBbbbbBk......................................",
+    "..................kbbbbbBk......................................",
+    "..................kbbhhbkk......................................",
+    "...................kbbhhbk......................................",
+    "....................kbbhhk......................................",
+    ".....................kbbbk......................................",
+    "......................kkk.......................................",
+]), SIZE)   # 64x64
+
+
 DEFAULT_PART = {
     'head': HEAD, 'torso': TORSO, 'arm_l': ARM_L, 'arm_r': ARM_R,
     'leg_l': LEG_L, 'leg_r': LEG_R,
@@ -445,7 +529,17 @@ def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None,
     buf = _blank()
     head_pos = None
     ctx = {}
+
+    if pose.get('_lay') is not None:
+        # Corpo caido: um desenho inteiro, nao as partes remontadas. A pose
+        # so diz onde ele encosta no quadro (o quique ao bater no chao).
+        lx, ly = pose['_lay']
+        _blit(buf, LAY, lx, ly)
+        ctx['lay'] = (lx, ly, False)
+        ctx['sword'] = (lx + LAY_HAND[0], ly + LAY_HAND[1], False)
     for name in DRAW_ORDER:
+        if pose.get('_lay') is not None:
+            break
         spec = pose.get(name)
         if spec is None:
             continue
@@ -482,7 +576,10 @@ def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None,
     gear_mask = set()
     for piece in (gear or ()):
         anchor = piece['anchor']
-        if anchor not in ctx or pose.get(anchor) is None:
+        # 'lay' nao e uma parte do corpo: e o quadro inteiro do corpo caido.
+        viva = (pose.get('_lay') is not None if anchor == 'lay'
+                else pose.get(anchor) is not None)
+        if anchor not in ctx or not viva:
             continue
         ax, ay, aflip = ctx[anchor]
         gx = ax + (-piece.get('dx', 0) if aflip else piece.get('dx', 0))

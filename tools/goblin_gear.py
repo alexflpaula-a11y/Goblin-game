@@ -361,27 +361,116 @@ SWORD_SKIN = _reskin(SWORD_REMAP)
 CLUB_SKIN = _reskin(CLUB_REMAP)
 
 
+# ------------------------------------------- armadura sobre o corpo caido --
+# O corpo caido e um desenho inteiro, nao as partes remontadas (ver
+# goblin_rig.LAY), entao a armadura dele tambem e moldada sobre o desenho
+# inteiro: uma chapa de 64x64 por peca, no lugar exato que a peca cobre.
+# As regioes nao sao escritas pixel a pixel — sao LIDAS do desenho:
+#   calca e botas  = as tres manchas de couro (a maior e o avental)
+#   elmo           = o disco do cranio
+#   peitoral       = o que sobra entre o cranio e o avental
+#   ombreiras      = a raiz de cada braco
+# Assim, se o desenho do corpo caido mudar, a armadura o acompanha.
+from collections import deque as _deque                       # noqa: E402
+
+_COURO = ('B', 'b', 'h')
+
+
+def _manchas(pred):
+    """Separa em manchas ligadas os pixels do corpo caido que casam `pred`."""
+    n = R.SIZE
+    dentro = [[R.LAY[y][x] != '.' and pred(R.LAY[y][x]) for x in range(n)]
+              for y in range(n)]
+    visto = [[False] * n for _ in range(n)]
+    out = []
+    for y in range(n):
+        for x in range(n):
+            if dentro[y][x] and not visto[y][x]:
+                fila, visto[y][x], px = _deque([(x, y)]), True, []
+                while fila:
+                    cx, cy = fila.popleft()
+                    px.append((cx, cy))
+                    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                        nx, ny = cx + dx, cy + dy
+                        if (0 <= nx < n and 0 <= ny < n and dentro[ny][nx]
+                                and not visto[ny][nx]):
+                            visto[ny][nx] = True
+                            fila.append((nx, ny))
+                out.append(set(px))
+    return sorted(out, key=len, reverse=True)
+
+
+def _disco(cx, cy, r):
+    return {(x, y) for y in range(R.SIZE) for x in range(R.SIZE)
+            if R.LAY[y][x] != '.' and (x - cx) ** 2 + (y - cy) ** 2 <= r * r}
+
+
+_couro = _manchas(lambda c: c in _COURO)
+LAY_AVENTAL = _couro[0]
+LAY_BOTAS = sorted(_couro[1:3], key=lambda s: min(p[0] for p in s))
+LAY_CRANIO = _disco(44, 25, 9) - LAY_AVENTAL
+LAY_PEITO = ((_disco(33, 36, 9) | _disco(37, 33, 6))
+             - LAY_AVENTAL - LAY_CRANIO - LAY_BOTAS[0] - LAY_BOTAS[1])
+LAY_OMBRO_A = _disco(29, 28, 5) - LAY_AVENTAL - LAY_CRANIO - LAY_PEITO
+LAY_OMBRO_B = _disco(43, 42, 5) - LAY_AVENTAL - LAY_CRANIO - LAY_PEITO
+
+# Visor do elmo: as duas palpebras fechadas do desenho (import_caido.OLHOS).
+LAY_VISOR = [(38, 19), (39, 20), (40, 21), (41, 21), (42, 20),
+             (43, 24), (44, 25), (45, 26), (46, 26), (47, 25)]
+
+
+def _mold_lay(regiao, **kw):
+    return _mold(R.LAY, lambda x, y: (x, y) in regiao, **kw)
+
+
+HELM_LAY = _mold_lay(LAY_CRANIO, slits=LAY_VISOR,
+                     marks=[(40, 16, 'L'), (48, 22, 'L'), (37, 27, 'L')])
+CHEST_LAY = _mold_lay(LAY_PEITO, gems=[(33, 36), (34, 36), (33, 37), (34, 37)],
+                      marks=[(31, 33, 'L'), (37, 40, 'L')])
+HIP_LAY = _mold_lay(LAY_AVENTAL, gems=[(23, 38), (31, 45)],
+                    marks=[(x, 36, 'L') for x in range(20, 32)]
+                          + [(x, 37, 'M') for x in range(20, 32)])
+GREAVE_LAY_A = _mold_lay(LAY_BOTAS[0], flat=True)
+GREAVE_LAY_B = _mold_lay(LAY_BOTAS[1], flat=True)
+PAULDRON_LAY_A = _mold_lay(LAY_OMBRO_A, flat=True)
+PAULDRON_LAY_B = _mold_lay(LAY_OMBRO_B, flat=True)
+
+# O escudo cai ao lado do corpo, encostado no braco levantado.
+SHIELD_LAY_POS = (19, 11)
+
+
+def _lay(rows, material, dx=0, dy=0):
+    return {'anchor': 'lay', 'grid': paint(rows, material), 'dx': dx, 'dy': dy}
+
+
 def _layer(anchor, rows, material, dx=0, dy=0):
     return {'anchor': anchor, 'grid': paint(rows, material), 'dx': dx, 'dy': dy}
 
 
+# Cada peca declara a versao de PE e, em `lay`, a versao do corpo caido.
+# Sem isso a armadura sumia no quadro em que o goblin morre.
 def helm(material):
-    return [_layer('head', HELM, material)]
+    return [dict(_layer('head', HELM, material),
+                 lay=_lay(HELM_LAY, material))]
 
 
 def chest(material):
     return [
-        _layer('torso', CHEST, material),
-        _layer('arm_l', PAULDRON_L, material),
-        _layer('arm_r', PAULDRON_R, material),
+        dict(_layer('torso', CHEST, material), lay=_lay(CHEST_LAY, material)),
+        dict(_layer('arm_l', PAULDRON_L, material),
+             lay=_lay(PAULDRON_LAY_A, material)),
+        dict(_layer('arm_r', PAULDRON_R, material),
+             lay=_lay(PAULDRON_LAY_B, material)),
     ]
 
 
 def pants(material):
     return [
-        _layer('torso', HIP, material),
-        _layer('leg_l', GREAVE_L, material),
-        _layer('leg_r', GREAVE_R, material),
+        dict(_layer('torso', HIP, material), lay=_lay(HIP_LAY, material)),
+        dict(_layer('leg_l', GREAVE_L, material),
+             lay=_lay(GREAVE_LAY_A, material)),
+        dict(_layer('leg_r', GREAVE_R, material),
+             lay=_lay(GREAVE_LAY_B, material)),
     ]
 
 
@@ -394,9 +483,10 @@ def weapon(views, material):
 
 def shield(material):
     # Escudo no braco LIVRE (a adaga esta na mao direita, como na referencia).
-    return [_layer('arm_l', SHIELD, material,
-                   dx=(len(R.ARM_L[0]) - SHIELD_W) // 2,
-                   dy=(len(R.ARM_L) - SHIELD_H) // 2 + 1)]
+    return [dict(_layer('arm_l', SHIELD, material,
+                        dx=(len(R.ARM_L[0]) - SHIELD_W) // 2,
+                        dy=(len(R.ARM_L) - SHIELD_H) // 2 + 1),
+                 lay=_lay(SHIELD, material, *SHIELD_LAY_POS))]
 
 
 # ------------------------------------------------------------- catalogo ----
@@ -428,8 +518,13 @@ ICONS = {
 }
 
 
-def resolve(layers, kind):
-    """Troca as camadas 'by_kind' pela orientacao certa da arma."""
+def resolve(layers, kind, lay=False):
+    """Troca as camadas 'by_kind' pela orientacao certa da arma.
+
+    `lay=True` devolve a versao moldada sobre o corpo caido, quando a peca
+    tem uma. A arma nao precisa: ela so muda de orientacao e a mao do corpo
+    caido e mais uma ancora como qualquer outra.
+    """
     out = []
     for layer in layers:
         if 'by_kind' in layer:
@@ -437,6 +532,8 @@ def resolve(layers, kind):
                 continue
             rows, dx, dy = layer['by_kind'][kind]
             out.append({'anchor': 'sword', 'grid': rows, 'dx': dx, 'dy': dy})
+        elif lay and layer.get('lay'):
+            out.append(layer['lay'])
         else:
-            out.append(layer)
+            out.append({k: v for k, v in layer.items() if k != 'lay'})
     return out

@@ -202,51 +202,47 @@ DEATH_FRAMES = 24
 # (o tronco descia por cima das pernas, sem nada dobrar) e depois trocava
 # de pose de uma vez para o corpo deitado. Agora sao tres tempos:
 #
-#   0-9    AGACHA   as coxas comprimem de verdade (squash_rows), o quadril
+#   0-6    AGACHA   as coxas comprimem de verdade (squash_rows), o quadril
 #                   continua no chao e o ombro desce junto com a cabeca.
-#   10-13  TOMBA    o corpo inteiro gira em torno dos pes, alguns graus por
-#                   quadro, ate o angulo em que fica caido.
-#   14-23  CAIDO    quica uma vez, abre os membros e desaparece.
-#
-# LAY_ANGLE e a inclinacao do corpo no chao: a diagonal da imagem de
-# referencia, pes embaixo a esquerda e cabeca em cima a direita.
-LAY_ANGLE = 45
-LAY_PIVOT = (29, 62)       # entre as botas: e em torno delas que ele tomba
+#   7-9    DESABA   o joelho larga: as pernas voltam a esticar enquanto o
+#                   corpo despenca para a frente. E o contrario do
+#                   agachamento, e e o que liga o agachar ao tombo.
+#   10-12  TOMBA    entra o DESENHO do corpo caido, girado para tras, e ele
+#                   vai se assentando no chao.
+#   13-23  CAIDO    bate, quica uma vez e desaparece.
 
-DEATH_ANGLE = [0] * 10 + [10, 22, 33] + [LAY_ANGLE] * 11
-DEATH_LYING = DEATH_ANGLE.index(LAY_ANGLE)        # 13
-DEATH_TOPPLE = next(i for i, a in enumerate(DEATH_ANGLE) if a)   # 10
+# Do quadro 10 em diante o quadro nao e mais o corpo de pe: e o desenho do
+# corpo caido (R.LAY). Quem TOMBA e esse desenho — ele entra girado para
+# tras e vai se assentando no chao. Girar o corpo caido (e nao trocar de
+# pose de uma vez) e o que faz a queda terminar exatamente na pose da
+# imagem de referencia sem nenhum corte seco.
+DEATH_LYING = 10
+DEATH_LAY_TURN = [-40, -26, -13] + [0] * 11     # a partir do quadro 10
+LAY_PIVOT_CAIDO = (30, 50)                      # quadril, onde ele pivota
+DEATH_TOPPLE = DEATH_LYING    # o quadro em que ele deixa de estar de pe
 
-# Compressao do tronco quadro a quadro: dobra os joelhos ate o 9 e volta a
-# esticar enquanto tomba, porque o corpo se estende ao bater no chao.
-DEATH_SQUASH = [0, 0, 1, 2, 3, 4, 5, 6, 6, 6, 5, 3, 1] + [0] * 11
+# Compressao do tronco quadro a quadro: o joelho dobra ate o 6 e larga do
+# 7 ao 9 — e nesses tres quadros, com o corpo ja despencando para a
+# frente, que ele deixa de estar de pe.
+DEATH_SQUASH = [0, 0, 2, 4, 6, 7, 7, 5, 2, 0] + [0] * 14
 
-# Altura acima do chao depois de deitar: um quique curto e assenta.
 # Inclinacao para a frente e afundamento do corpo durante o agachamento.
-DEATH_FALL = [0, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3, 2, 1] + [0] * 11
-DEATH_DROP = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 3, 2, 1] + [0] * 11
-
-DEATH_LIFT = {13: 0, 14: 3, 15: 1, 16: 0}
-
-# Abertura dos membros no chao (0 = fechado, 1 = esparramado).
-DEATH_SPREAD = {13: 0.0, 14: 0.3, 15: 0.6, 16: 0.85, 17: 1.0}
+DEATH_FALL = [0, 0, 0, 1, 2, 2, 3, 4, 5, 6] + [0] * 14
+DEATH_DROP = [0, 0, 0, 1, 1, 2, 2, 2, 1, 0] + [0] * 14
 
 DEATH_ALPHA = ([255] * 19) + [226, 196, 162, 124, 86]
 
 
-def _spread(i):
-    if i < DEATH_LYING:
-        return 0.0
-    return DEATH_SPREAD.get(i, 1.0)
+# Assentamento do corpo caido: bate, quica uma vez e para. Sao os unicos
+# deslocamentos depois da queda — um corpo morto nao se mexe mais.
+DEATH_SETTLE = {13: (0, -3), 14: (0, -1), 15: (0, 0)}
 
 
-def _lift(i):
-    if i < DEATH_LYING:
-        return 0
-    for k in sorted(DEATH_LIFT, reverse=True):
+def _settle(i):
+    for k in sorted(DEATH_SETTLE, reverse=True):
         if i >= k:
-            return DEATH_LIFT[k]
-    return 0
+            return DEATH_SETTLE[k]
+    return (0, 0)
 
 
 def death_poses():
@@ -259,30 +255,26 @@ def death_poses():
             # alem de dobrar o joelho ele desaba para a frente: a cabeca
             # cai um pouco mais que o ombro e os bracos ficam soltos
             cai = DEATH_FALL[i]
+            # o braco acompanha o tronco, mas nunca mais que 3 px: passando
+            # disso ele descola do ombro e vira um pedaco solto no ar.
+            solto = min(3, cai)
             p = _pose(
                 body=(0, DEATH_DROP[i]),
                 head=(cai, dobra + min(2, cai)),
-                arm_l=(cai, dobra),           # bracos pendurados
-                arm_r=(-cai, dobra),
+                arm_l=(solto, dobra),         # bracos pendurados
+                arm_r=(-solto, dobra),
                 leg_l=(0, -DEATH_DROP[i]),    # as botas ficam plantadas
                 leg_r=(0, -DEATH_DROP[i]),
                 squash=dobra,
             )
         else:
-            # Deslocamentos ANTES da rotacao. O corpo gira no sentido
-            # horario, entao um deslocamento em X aqui vira abertura
-            # PERPENDICULAR ao corpo deitado — e isso que esparrama os
-            # membros. Mexer em Y aqui arrancaria a cabeca ou as pernas do
-            # tronco; o teste de corpo inteiro reprova.
-            k = _spread(i)
-            r = lambda v: round(v * k)
-            p = _pose(
-                head=(r(-2), 0),      # cabeca pendendo para um lado
-                arm_l=(r(-4), 0),     # um braco acima da cabeca
-                arm_r=(r(3), 0),      # o outro caido para baixo
-                leg_l=(r(-1), 0),     # pernas abertas
-                leg_r=(r(2), 0),
-            )
+            # Caido: o desenho proprio do corpo no chao.
+            p = {k: None for k in R.DRAW_ORDER}
+            p['_lay'] = _settle(i)
+            p['_lay_turn'] = DEATH_LAY_TURN[i - DEATH_LYING]
+            # a mao continua sendo uma ancora: a arma equipada cai junto
+            p['sword'] = (0, 0)
+            p['_sword'] = 'fwd'
         # o goblin fecha os olhos ja no meio do agachamento
         p['_eyes_shut'] = i >= 5
         p['_dead'] = i
@@ -307,14 +299,6 @@ POSES = {
 # exatos o corpo ficava deitado na horizontal, que nao e a imagem pedida.
 
 _PAD = 80
-_ORIGIN = {}
-
-
-def _rot_about(img, ang):
-    """Gira `ang` graus no sentido horario em torno de LAY_PIVOT."""
-    big = Image.new('RGBA', (_PAD * 2, _PAD * 2), (0, 0, 0, 0))
-    big.paste(img, (_PAD - LAY_PIVOT[0], _PAD - LAY_PIVOT[1]))
-    return big.rotate(-ang, resample=Image.NEAREST, center=(_PAD, _PAD))
 
 
 def _mend(img):
@@ -355,31 +339,21 @@ def _mend(img):
     return Image.fromarray(a.astype(np.uint8))
 
 
-def _origin(ang):
-    """Onde recortar o quadro girado. Calculado UMA vez por angulo, a partir
-    do goblin nu — se dependesse do conteudo, um elmo ou um escudo mudariam
-    o enquadramento e o overlay sairia deslocado do corpo."""
-    if ang not in _ORIGIN:
-        ref = _mend(_rot_about(R.to_image(R.compose(_pose())), ang))
-        bb = ref.getbbox()
-        t = min(1.0, ang / LAY_ANGLE)
-        # de pe, os pes nao saem do lugar; caido, o corpo fica centrado e
-        # encostado no chao. Entre os dois, a transicao e proporcional ao
-        # angulo, entao o tombo nao da nenhum salto de enquadramento.
-        pe = (_PAD - LAY_PIVOT[0], _PAD - LAY_PIVOT[1])
-        chao = ((bb[0] + bb[2]) // 2 - R.SIZE // 2,
-                bb[3] - (R.ANCHORS['ground_y'] + 1))
-        _ORIGIN[ang] = tuple(round(p + (c - p) * t) for p, c in zip(pe, chao))
-    return _ORIGIN[ang]
+def _tombar(img, ang):
+    """Gira o corpo CAIDO de volta para tras, em torno do quadril.
 
-
-def _lay_down(img, ang, lift):
-    """Deita o corpo: gira em torno dos pes e recorta de volta em 64x64."""
+    E assim que a queda e desenhada: nos ultimos quadros de pe o corpo vem
+    inclinado e vai assentando. Como o giro e do desenho que ja esta na
+    pose final, o movimento termina exatamente nela.
+    """
     if not ang:
         return img
-    big = _mend(_rot_about(img, ang))
-    ox, oy = _origin(ang)
-    return big.crop((ox, oy + lift, ox + R.SIZE, oy + lift + R.SIZE))
+    px, py = LAY_PIVOT_CAIDO
+    big = Image.new('RGBA', (_PAD * 2, _PAD * 2), (0, 0, 0, 0))
+    big.paste(img, (_PAD - px, _PAD - py))
+    big = _mend(big.rotate(-ang, resample=Image.NEAREST, center=(_PAD, _PAD)))
+    return big.crop((_PAD - px, _PAD - py, _PAD - px + R.SIZE,
+                     _PAD - py + R.SIZE))
 
 
 def _fade(img, alpha):
@@ -409,7 +383,9 @@ def post(img, pose):
     k = pose.get('_dead')
     if k is None:
         return img
-    return _fade(_lay_down(img, DEATH_ANGLE[k], _lift(k)), DEATH_ALPHA[k])
+    if pose.get('_lay') is not None:
+        img = _tombar(img, pose['_lay_turn'])
+    return _fade(img, DEATH_ALPHA[k])
 
 
 def render_action(action, variation=None):

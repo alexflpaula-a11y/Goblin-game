@@ -73,7 +73,9 @@ for nome, camadas in casos:
     partidos = []
     for acao in A.ACTIONS:
         for i, pose in enumerate(A.POSES[acao]()):
-            gear = G.resolve(camadas, pose['_sword']) if camadas else None
+            gear = (G.resolve(camadas, pose['_sword'],
+                              lay=pose.get('_lay') is not None)
+                    if camadas else None)
             img = R.to_image(R.compose(pose, gear=gear))
             if pedacos(img) > 1:
                 partidos.append(f'{acao}_{i}')
@@ -99,6 +101,9 @@ for acao in A.ACTIONS:
     pior, onde = 0, None
     for i in range(1, len(poses)):
         for k in PARTES:
+            # o corpo caído não usa as partes: é um desenho inteiro
+            if poses[i][k] is None or poses[i - 1][k] is None:
+                continue
             d = max(abs(poses[i][k][0] - poses[i - 1][k][0]),
                     abs(poses[i][k][1] - poses[i - 1][k][1]))
             if d > pior:
@@ -115,6 +120,8 @@ print()
 for acao in A.ACTIONS:
     pior = 0
     for p in A.POSES[acao]():
+        if p['torso'] is None:
+            continue
         ombro = (p['torso'][0], p['torso'][1] + (p.get('_squash') or {}).get('torso', 0))
         for k in ('arm_l', 'arm_r'):
             pior = max(pior, abs(p[k][0] - ombro[0]), abs(p[k][1] - ombro[1]))
@@ -128,31 +135,46 @@ caixas = [f.getbbox() or (0, 64, 0, 64) for f in quadros]
 topo = [b[1] for b in caixas]
 chao = [b[3] for b in caixas]
 
-agacha = topo[:A.DEATH_TOPPLE]
-ok(len(agacha) >= 8, 'morte: o agachamento tem quadros que cheguem',
+fundo = A.DEATH_SQUASH.index(max(A.DEATH_SQUASH))      # quadro mais agachado
+agacha = topo[:fundo + 1]
+ok(len(agacha) >= 5, 'morte: o agachamento tem quadros que cheguem',
    f'{len(agacha)} quadros')
 ok(all(b >= a for a, b in zip(agacha, agacha[1:])),
    'morte: agachando, o corpo só desce — nunca sobe de volta', str(agacha))
 ok(agacha[-1] - agacha[0] >= 8,
    'morte: o goblin agacha de verdade antes de cair',
    f'desceu só {agacha[-1] - agacha[0]} px')
+ok(A.DEATH_SQUASH[A.DEATH_TOPPLE - 1] < max(A.DEATH_SQUASH),
+   'morte: o joelho larga antes do tombo (não cai ainda agachado)',
+   str(A.DEATH_SQUASH[:A.DEATH_TOPPLE]))
 ok(all(c >= 60 for c in chao[:A.DEATH_TOPPLE]),
    'morte: agachando, os pés ficam plantados no chão', str(chao[:A.DEATH_TOPPLE]))
-ok(max(abs(b - a) for a, b in zip(topo, topo[1:])) <= 9,
+ok(max(abs(b - a) for a, b in zip(topo, topo[1:])) <= 10,
    'morte: nenhum quadro teleporta o corpo',
    str([b - a for a, b in zip(topo, topo[1:])]))
 
 # o corpo tem de encolher de verdade (joelho dobrando), não só descer
 alturas = [b[3] - b[1] for b in caixas]
-ok(alturas[A.DEATH_TOPPLE - 1] <= alturas[0] - 8,
+ok(alturas[fundo] <= alturas[0] - 8,
    'morte: o tronco comprime (não é só o corpo deslizando para baixo)',
    f'{alturas[0]} -> {alturas[A.DEATH_TOPPLE - 1]} px')
 
 # e tem de tombar até a diagonal da imagem de referência
-ok(A.DEATH_ANGLE[-1] == A.LAY_ANGLE and 30 <= A.LAY_ANGLE <= 50,
-   'morte: termina deitado na diagonal (30-50 graus)', str(A.LAY_ANGLE))
-giro = [b - a for a, b in zip(A.DEATH_ANGLE, A.DEATH_ANGLE[1:])]
-ok(max(giro) <= 15, 'morte: o tombo é gradual, não um corte seco', str(giro))
+# o corpo caído é um desenho próprio: comparar com o goblin DE PÉ, que é
+# estreito e alto. Deitado na diagonal ele é mais largo que o de pé — mas
+# não "mais largo que alto", porque o braço erguido continua subindo.
+caixa = quadros[-1].getbbox()
+de_pe = A.render_action('idle')[0].getbbox()
+ok((caixa[2] - caixa[0]) > (de_pe[2] - de_pe[0]) + 8,
+   'morte: termina deitado (bem mais largo que o goblin de pé)',
+   f'{caixa[2] - caixa[0]} px deitado vs {de_pe[2] - de_pe[0]} px de pé')
+ok(caixa[3] >= 62, 'morte: o corpo caído encosta no chão', str(caixa))
+giro = [abs(b - a) for a, b in zip(A.DEATH_LAY_TURN, A.DEATH_LAY_TURN[1:])]
+ok(max(giro) <= 18, 'morte: o tombo é gradual, não um corte seco', str(giro))
+ok(A.DEATH_LAY_TURN[-1] == 0,
+   'morte: o último quadro é o desenho do caído sem giro nenhum')
+ok(all(p['_lay'] is not None for p in A.POSES['death']()[A.DEATH_LYING:]),
+   'morte: o corpo caído é o desenho próprio (R.LAY), não o goblin girado')
 larg = [b[2] - b[0] for b in caixas]
 ok(larg[-1] >= larg[0] + 8,
    'morte: deitado, o corpo ocupa o chão (fica mais largo que de pé)',
@@ -167,7 +189,7 @@ nu = R.render(R.base_pose())
 armado = R.render(R.base_pose(_weapon=True))
 ok(nu.getbbox() != armado.getbbox() or list(nu.getdata()) != list(armado.getdata()),
    'o corpo base não desenha arma nenhuma')
-ok(all('sword' in A.POSES[a]()[0] for a in A.ACTIONS),
+ok(all('sword' in p for a in A.ACTIONS for p in A.POSES[a]()),
    'toda pose ainda expõe a âncora da mão (para a arma equipada encaixar)')
 for w in ('wpn_adaga_pedra', 'wpn_adaga_metal', 'wpn_adaga_madeira'):
     camadas = G.PIECES[w][0]
