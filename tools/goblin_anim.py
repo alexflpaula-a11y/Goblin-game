@@ -15,7 +15,7 @@ from PIL import Image
 
 import goblin_rig as R
 
-FRAME_COUNTS = {'idle': 5, 'walk': 8, 'attack': 17, 'hurt': 17, 'death': 24}
+FRAME_COUNTS = {'idle': 5, 'walk': 8, 'attack': 17, 'hurt': 17, 'death': 12}
 
 # Nenhuma parte pode andar mais que isto de um quadro para o outro. Era esse
 # o defeito do ataque antigo: o braco saltava 6 px de uma vez e parecia que
@@ -195,65 +195,49 @@ def hurt_poses():
 # reproduzido ABRINDO os membros: cada parte ganha um deslocamento antes da
 # rotacao, entao no chao o goblin fica com a cabeca num extremo, os bracos
 # abertos (um para cima, outro para baixo) e as pernas afastadas.
-DEATH_FRAMES = 24
+DEATH_FRAMES = 12
 
 # --- como a morte foi montada ---------------------------------------------
-# A morte nao e mais uma queda. Quando a vida chega a zero o goblin NAO
-# agacha e NAO tomba: ele fica de pe tremendo, banhado por uma luz
-# vermelha, enquanto a palavra GOBLINZED e escrita letra por letra em cima
-# dele. So depois que a escrita termina o corpo aparece — ja deitado.
+# Nao ha queda nenhuma. O golpe final mata na hora: o PRIMEIRO quadro da
+# animacao ja mostra o goblin no chao. Em cima dele estoura uma luz
+# vermelha e a palavra GOBLINZED e escrita de tres em tres letras.
 #
-#   0-1    GOLPE     a luz vermelha estoura e o corpo treme
-#   2-10   ESCRITA   uma letra de GOBLINZED por quadro, luz pulsando
-#   11-13  ESPERA    a palavra inteira na tela, a luz no auge
-#   14     DEITA     corte seco: o que aparece ja e o corpo no chao
-#   15-23  CAIDO     a luz esvazia, a palavra apaga e o corpo desaparece
+#   0      BAQUE     ele ja aparece caido, a luz no auge
+#   1-3    ESCRITA   GOBLINZED entra em tres lances (3, 6 e 9 letras)
+#   4-6    ESPERA    a palavra inteira, a luz comecando a esvaziar
+#   7-11   APAGA     luz, palavra e corpo somem juntos
 #
-# Trocar a queda por um corte seco e deliberado: o pedido era que ele so
-# aparecesse deitado DEPOIS da escrita. Por isso sumiram as tabelas de
-# agachamento e o giro do corpo caido — nao ha mais nada para interpolar
-# entre estar de pe e estar no chao.
+# Sao 12 quadros, metade do que era: o pedido foi que fosse mais rapido e
+# que ele ja aparecesse no chao, sem agachar e sem tombar.
 
 GOBLINZED = 'GOBLINZED'
-GOBLINZED_DEITA = 14          # primeiro quadro em que o corpo ja esta caido
+GOBLINZED_DEITA = 0           # ele ja comeca caido: a morte e instantanea
 
-# Quantas letras ja foram escritas em cada quadro.
-GOBLINZED_LETRAS = [0, 0] + list(range(1, 10)) + [9] * 13
+# Quantas letras ja foram escritas em cada quadro — de tres em tres, para
+# a palavra inteira estar na tela ja no quarto quadro.
+GOBLINZED_LETRAS = [0, 3, 6, 9] + [9] * 8
 
-# Opacidade da palavra: entra inteira junto com a primeira letra e so
-# apaga no fim, junto com o corpo.
-GOBLINZED_ALPHA = [0, 0] + [255] * 18 + [206, 158, 104, 48]
+# Opacidade da palavra: entra inteira com as primeiras letras e so apaga
+# no fim, junto com o corpo.
+GOBLINZED_ALPHA = [0] + [255] * 6 + [228, 188, 142, 94, 46]
 
-# Forca da luz vermelha, de 0 a 1. Estoura no golpe, pulsa enquanto a
-# palavra e escrita, chega ao auge no quadro em que ele cai e esvazia.
-DEATH_GLOW = ([1.0, 1.0]
-              + [0.72, 0.92, 0.74, 0.94, 0.76, 0.96, 0.78, 0.98, 0.84]
-              + [0.90, 1.00, 1.00]
-              + [0.78, 0.62, 0.48, 0.38, 0.29, 0.21, 0.15, 0.10, 0.05, 0.0])
+# Forca da luz vermelha, de 0 a 1. Estoura no baque e vai esvaziando.
+DEATH_GLOW = [1.0, 0.95, 0.90, 0.84, 0.74, 0.60, 0.48,
+              0.36, 0.26, 0.17, 0.09, 0.0]
 
-# Tremor horizontal enquanto ele ainda esta de pe: o corpo nao anda, so
-# estremece no lugar.
-DEATH_TREMOR = [0, -2, 2, -1, 1, -1, 1, 0, -1, 1, -1, 0, 1, 0]
-
-DEATH_ALPHA = ([255] * 20) + [222, 186, 146, 104]
+DEATH_ALPHA = ([255] * 8) + [226, 188, 144, 98]
 
 
 def death_poses():
+    """Todo quadro da morte ja e o corpo no chao. Nao ha pose de pe."""
     out = []
     for i in range(DEATH_FRAMES):
-        if i < GOBLINZED_DEITA:
-            # Ainda de pe: so o tremor. Nada de agachar — quem conta que
-            # ele morreu e a luz vermelha e a palavra, nao a pose.
-            p = _pose(body=(DEATH_TREMOR[i], 0))
-            p['_eyes_shut'] = i >= 2
-        else:
-            # Caido: o desenho proprio do corpo no chao, de bruços.
-            p = {k: None for k in R.DRAW_ORDER}
-            p['_lay'] = (0, 0)
-            # a mao continua sendo uma ancora: a arma equipada cai junto
-            p['sword'] = (0, 0)
-            p['_sword'] = 'fwd'
-            p['_eyes_shut'] = True
+        p = {k: None for k in R.DRAW_ORDER}
+        p['_lay'] = (0, 0)
+        # a mao continua sendo uma ancora: a arma equipada cai junto
+        p['sword'] = (0, 0)
+        p['_sword'] = 'fwd'
+        p['_eyes_shut'] = True
         p['_dead'] = i
         out.append(p)
     return out

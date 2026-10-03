@@ -130,7 +130,7 @@ for acao in A.ACTIONS:
     ok(pior <= 4, f'{acao}: braço nunca se afasta mais que 4 px do ombro',
        f'{pior} px')
 
-# ---- 4. a morte: GOBLINZED, luz vermelha e só então o corpo deitado ----
+# ---- 4. a morte: instantânea, com GOBLINZED em vermelho ----
 print()
 # sem efeitos = só o corpo. A palavra é, de propósito, um pedaço solto do
 # desenho; medir o corpo com ela na tela não mede nada.
@@ -139,73 +139,64 @@ com_efeito = A.render_action('death')
 caixas = [f.getbbox() or (0, 64, 0, 64) for f in quadros]
 poses = A.POSES['death']()
 
-deitado = list(range(A.GOBLINZED_DEITA, A.DEATH_FRAMES))
+ok(A.GOBLINZED_DEITA == 0 and all(p['_lay'] is not None for p in poses),
+   'morte: ele já aparece no chão no primeiro quadro (dano final mata na hora)')
+ok(all(p['torso'] is None for p in poses),
+   'morte: não sobrou nenhum quadro de pé — nada de agachar nem tombar')
+ok(len(set(caixas)) == 1,
+   'morte: o corpo não se mexe mais depois de cair', str(set(caixas)))
+ok(A.FRAME_COUNTS['death'] <= 12,
+   'morte: a cena é curta (o pedido foi que fosse mais rápida)',
+   f"{A.FRAME_COUNTS['death']} quadros")
 
-ok(all(poses[i].get('_lay') is None for i in range(A.GOBLINZED_DEITA)),
-   'morte: enquanto a palavra é escrita ele continua de pé')
-ok(all(poses[i].get('_lay') is not None for i in deitado),
-   'morte: depois da escrita o que aparece é o desenho do corpo caído')
-
-# a palavra tem de estar inteira ANTES de ele deitar — foi o pedido
+# a palavra entra rápido e inteira
 escritas = A.GOBLINZED_LETRAS
-ok(escritas[A.GOBLINZED_DEITA - 1] == len(A.GOBLINZED),
-   'morte: GOBLINZED termina de ser escrita antes de ele aparecer deitado',
-   f'{escritas[A.GOBLINZED_DEITA - 1]} de {len(A.GOBLINZED)} letras')
 ok(all(b >= a for a, b in zip(escritas, escritas[1:])),
    'morte: a palavra só cresce, nunca perde letra', str(escritas))
-ok(escritas[0] == 0 and max(escritas) == len(A.GOBLINZED),
-   'morte: a palavra começa vazia e chega a GOBLINZED inteira')
+ok(max(escritas) == len(A.GOBLINZED),
+   'morte: GOBLINZED aparece inteira', str(escritas))
+ok(escritas.index(len(A.GOBLINZED)) <= 4,
+   'morte: a palavra termina de ser escrita nos primeiros quadros',
+   f'só no quadro {escritas.index(len(A.GOBLINZED))}')
 ok(all(ch in A.FONTE for ch in A.GOBLINZED),
    'morte: a fonte tem todas as letras de GOBLINZED')
 
-# ... e tem de caber no quadro
 passo = A.LETRA_W + A.LETRA_GAP
 larg_txt = len(A.GOBLINZED) * passo - A.LETRA_GAP
 ok(larg_txt + 2 <= R.SIZE, 'morte: GOBLINZED cabe nos 64 px do quadro',
    f'{larg_txt} px')
-ok(A.TEXTO_Y + A.LETRA_H < R.REST['head'][1],
-   'morte: a palavra fica ACIMA da cabeça, não em cima do rosto')
+ok(A.TEXTO_Y + A.LETRA_H < min(b[1] for b in caixas),
+   'morte: a palavra fica ACIMA do corpo, sem cobrir o goblin')
 
-# o brilho vermelho acompanha a escrita e some depois
+# a luz vermelha acompanha a escrita e some depois
 brilho = A.DEATH_GLOW
 ok(len(brilho) == A.DEATH_FRAMES and len(A.GOBLINZED_LETRAS) == A.DEATH_FRAMES
    and len(A.GOBLINZED_ALPHA) == A.DEATH_FRAMES
    and len(A.DEATH_ALPHA) == A.DEATH_FRAMES,
-   'morte: todas as tabelas têm 24 entradas')
-ok(min(brilho[:A.GOBLINZED_DEITA]) > 0.5,
-   'morte: há brilho vermelho em todo quadro em que a palavra aparece',
-   str(brilho[:A.GOBLINZED_DEITA]))
+   f'morte: todas as tabelas têm {A.DEATH_FRAMES} entradas')
+ok(brilho[0] >= 0.9, 'morte: a luz estoura no quadro do baque', str(brilho[0]))
+ok(all(b <= a for a, b in zip(brilho, brilho[1:])),
+   'morte: a luz só esvazia, nunca volta a crescer', str(brilho))
 ok(brilho[-1] == 0, 'morte: o brilho se apaga no fim', str(brilho[-3:]))
-ok(A.GOBLINZED_ALPHA[-1] < A.GOBLINZED_ALPHA[A.GOBLINZED_DEITA],
+ok(A.GOBLINZED_ALPHA[-1] < A.GOBLINZED_ALPHA[1],
    'morte: a palavra apaga junto com o corpo')
 
-# o efeito tem de ser VISÍVEL: o quadro com luz difere do quadro sem luz
-difs = sum(1 for a, b in zip(com_efeito[5].getdata(), quadros[5].getdata())
+difs = sum(1 for a, b in zip(com_efeito[3].getdata(), quadros[3].getdata())
            if a != b)
 ok(difs > 400, 'morte: a luz vermelha e a palavra realmente aparecem',
    f'só {difs} px de diferença')
 
-# de pé ele não anda nem agacha: só treme
-tremor = A.DEATH_TREMOR
-ok(max(abs(t) for t in tremor) <= 2,
-   'morte: de pé ele só estremece, não sai do lugar', str(tremor))
-alt_pe = [caixas[i][3] - caixas[i][1] for i in range(A.GOBLINZED_DEITA)]
-ok(max(alt_pe) - min(alt_pe) <= 2,
-   'morte: ele NÃO agacha antes de cair (era o sprite que ficou estranho)',
-   f'altura variou {max(alt_pe) - min(alt_pe)} px')
-ok(all(caixas[i][3] >= 62 for i in range(A.GOBLINZED_DEITA)),
-   'morte: de pé os pés continuam no chão')
-
-# e o corpo caído é largo, deitado na diagonal e encostado no chão
+# o corpo caído é largo, deitado na diagonal rasa e encostado no chão
 caixa = caixas[-1]
-largura_pe = max(caixas[i][2] - caixas[i][0] for i in range(A.GOBLINZED_DEITA))
-ok((caixa[2] - caixa[0]) > largura_pe + 8,
-   'morte: deitado ele ocupa o chão (bem mais largo que de pé)',
-   f'{caixa[2] - caixa[0]} px deitado vs {largura_pe} px de pé')
+de_pe = A.render_action('idle', efeitos=False)[0].getbbox()
+larg, alt = caixa[2] - caixa[0], caixa[3] - caixa[1]
+ok(larg > (de_pe[2] - de_pe[0]) + 8,
+   'morte: deitado ele ocupa o chão (bem mais largo que o goblin de pé)',
+   f'{larg} px deitado vs {de_pe[2] - de_pe[0]} px de pé')
+ok(larg > alt,
+   'morte: o corpo está DEITADO — mais largo que alto, como na referência',
+   f'{larg} x {alt} px')
 ok(caixa[3] >= 62, 'morte: o corpo caído encosta no chão', str(caixa))
-ok(A.FRAME_COUNTS['death'] >= 20,
-   'morte tem quadros suficientes para a cena inteira ser lida',
-   str(A.FRAME_COUNTS['death']))
 
 # ---- 5. o goblin base está desarmado ----
 print()

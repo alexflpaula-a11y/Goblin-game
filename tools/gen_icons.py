@@ -554,7 +554,7 @@ def render(rows):
 # ---------------- peitoral de ferro: ícone + skins ----------------
 FERRO_SRC = os.path.join(ROOT, 'sprites/itens/peitoral_ferro')
 FERRO_ANIMS = [
-    ('idle', 5), ('walk', 8), ('attack', 17), ('hurt', 17), ('death', 15),
+    ('idle', 5), ('walk', 8), ('attack', 17), ('hurt', 17), ('death', 12),
 ]
 
 

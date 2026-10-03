@@ -85,56 +85,8 @@
       "path": "assets/sprites/avaritia/av_cal_death_11.png"
     },
     {
-      "id": "av_cal_death_12",
-      "path": "assets/sprites/avaritia/av_cal_death_12.png"
-    },
-    {
-      "id": "av_cal_death_13",
-      "path": "assets/sprites/avaritia/av_cal_death_13.png"
-    },
-    {
-      "id": "av_cal_death_14",
-      "path": "assets/sprites/avaritia/av_cal_death_14.png"
-    },
-    {
-      "id": "av_cal_death_15",
-      "path": "assets/sprites/avaritia/av_cal_death_15.png"
-    },
-    {
-      "id": "av_cal_death_16",
-      "path": "assets/sprites/avaritia/av_cal_death_16.png"
-    },
-    {
-      "id": "av_cal_death_17",
-      "path": "assets/sprites/avaritia/av_cal_death_17.png"
-    },
-    {
-      "id": "av_cal_death_18",
-      "path": "assets/sprites/avaritia/av_cal_death_18.png"
-    },
-    {
-      "id": "av_cal_death_19",
-      "path": "assets/sprites/avaritia/av_cal_death_19.png"
-    },
-    {
       "id": "av_cal_death_2",
       "path": "assets/sprites/avaritia/av_cal_death_2.png"
-    },
-    {
-      "id": "av_cal_death_20",
-      "path": "assets/sprites/avaritia/av_cal_death_20.png"
-    },
-    {
-      "id": "av_cal_death_21",
-      "path": "assets/sprites/avaritia/av_cal_death_21.png"
-    },
-    {
-      "id": "av_cal_death_22",
-      "path": "assets/sprites/avaritia/av_cal_death_22.png"
-    },
-    {
-      "id": "av_cal_death_23",
-      "path": "assets/sprites/avaritia/av_cal_death_23.png"
     },
     {
       "id": "av_cal_death_3",
@@ -441,56 +393,8 @@
       "path": "assets/sprites/avaritia/av_cap_cal_death_11.png"
     },
     {
-      "id": "av_cap_cal_death_12",
-      "path": "assets/sprites/avaritia/av_cap_cal_death_12.png"
-    },
-    {
-      "id": "av_cap_cal_death_13",
-      "path": "assets/sprites/avaritia/av_cap_cal_death_13.png"
-    },
-    {
-      "id": "av_cap_cal_death_14",
-      "path": "assets/sprites/avaritia/av_cap_cal_death_14.png"
-    },
-    {
-      "id": "av_cap_cal_death_15",
-      "path": "assets/sprites/avaritia/av_cap_cal_death_15.png"
-    },
-    {
-      "id": "av_cap_cal_death_16",
-      "path": "assets/sprites/avaritia/av_cap_cal_death_16.png"
-    },
-    {
-      "id": "av_cap_cal_death_17",
-      "path": "assets/sprites/avaritia/av_cap_cal_death_17.png"
-    },
-    {
-      "id": "av_cap_cal_death_18",
-      "path": "assets/sprites/avaritia/av_cap_cal_death_18.png"
-    },
-    {
-      "id": "av_cap_cal_death_19",
-      "path": "assets/sprites/avaritia/av_cap_cal_death_19.png"
-    },
-    {
       "id": "av_cap_cal_death_2",
       "path": "assets/sprites/avaritia/av_cap_cal_death_2.png"
-    },
-    {
-      "id": "av_cap_cal_death_20",
-      "path": "assets/sprites/avaritia/av_cap_cal_death_20.png"
-    },
-    {
-      "id": "av_cap_cal_death_21",
-      "path": "assets/sprites/avaritia/av_cap_cal_death_21.png"
-    },
-    {
-      "id": "av_cap_cal_death_22",
-      "path": "assets/sprites/avaritia/av_cap_cal_death_22.png"
-    },
-    {
-      "id": "av_cap_cal_death_23",
-      "path": "assets/sprites/avaritia/av_cap_cal_death_23.png"
     },
     {
       "id": "av_cap_cal_death_3",
@@ -657,56 +561,8 @@
       "path": "assets/sprites/avaritia/av_cap_death_11.png"
     },
     {
-      "id": "av_cap_death_12",
-      "path": "assets/sprites/avaritia/av_cap_death_12.png"
-    },
-    {
-      "id": "av_cap_death_13",
-      "path": "assets/sprites/avaritia/av_cap_death_13.png"
-    },
-    {
-      "id": "av_cap_death_14",
-      "path": "assets/sprites/avaritia/av_cap_death_14.png"
-    },
-    {
-      "id": "av_cap_death_15",
-      "path": "assets/sprites/avaritia/av_cap_death_15.png"
-    },
-    {
-      "id": "av_cap_death_16",
-      "path": "assets/sprites/avaritia/av_cap_death_16.png"
-    },
-    {
-      "id": "av_cap_death_17",
-      "path": "assets/sprites/avaritia/av_cap_death_17.png"
-    },
-    {
-      "id": "av_cap_death_18",
-      "path": "assets/sprites/avaritia/av_cap_death_18.png"
-    },
-    {
-      "id": "av_cap_death_19",
-      "path": "assets/sprites/avaritia/av_cap_death_19.png"
-    },
-    {
       "id": "av_cap_death_2",
       "path": "assets/sprites/avaritia/av_cap_death_2.png"
-    },
-    {
-      "id": "av_cap_death_20",
-      "path": "assets/sprites/avaritia/av_cap_death_20.png"
-    },
-    {
-      "id": "av_cap_death_21",
-      "path": "assets/sprites/avaritia/av_cap_death_21.png"
-    },
-    {
-      "id": "av_cap_death_22",
-      "path": "assets/sprites/avaritia/av_cap_death_22.png"
-    },
-    {
-      "id": "av_cap_death_23",
-      "path": "assets/sprites/avaritia/av_cap_death_23.png"
     },
     {
       "id": "av_cap_death_3",
@@ -913,56 +769,8 @@
       "path": "assets/sprites/avaritia/av_cap_pei_death_11.png"
     },
     {
-      "id": "av_cap_pei_death_12",
-      "path": "assets/sprites/avaritia/av_cap_pei_death_12.png"
-    },
-    {
-      "id": "av_cap_pei_death_13",
-      "path": "assets/sprites/avaritia/av_cap_pei_death_13.png"
-    },
-    {
-      "id": "av_cap_pei_death_14",
-      "path": "assets/sprites/avaritia/av_cap_pei_death_14.png"
-    },
-    {
-      "id": "av_cap_pei_death_15",
-      "path": "assets/sprites/avaritia/av_cap_pei_death_15.png"
-    },
-    {
-      "id": "av_cap_pei_death_16",
-      "path": "assets/sprites/avaritia/av_cap_pei_death_16.png"
-    },
-    {
-      "id": "av_cap_pei_death_17",
-      "path": "assets/sprites/avaritia/av_cap_pei_death_17.png"
-    },
-    {
-      "id": "av_cap_pei_death_18",
-      "path": "assets/sprites/avaritia/av_cap_pei_death_18.png"
-    },
-    {
-      "id": "av_cap_pei_death_19",
-      "path": "assets/sprites/avaritia/av_cap_pei_death_19.png"
-    },
-    {
       "id": "av_cap_pei_death_2",
       "path": "assets/sprites/avaritia/av_cap_pei_death_2.png"
-    },
-    {
-      "id": "av_cap_pei_death_20",
-      "path": "assets/sprites/avaritia/av_cap_pei_death_20.png"
-    },
-    {
-      "id": "av_cap_pei_death_21",
-      "path": "assets/sprites/avaritia/av_cap_pei_death_21.png"
-    },
-    {
-      "id": "av_cap_pei_death_22",
-      "path": "assets/sprites/avaritia/av_cap_pei_death_22.png"
-    },
-    {
-      "id": "av_cap_pei_death_23",
-      "path": "assets/sprites/avaritia/av_cap_pei_death_23.png"
     },
     {
       "id": "av_cap_pei_death_3",
@@ -1229,56 +1037,8 @@
       "path": "assets/sprites/avaritia/av_full_death_11.png"
     },
     {
-      "id": "av_full_death_12",
-      "path": "assets/sprites/avaritia/av_full_death_12.png"
-    },
-    {
-      "id": "av_full_death_13",
-      "path": "assets/sprites/avaritia/av_full_death_13.png"
-    },
-    {
-      "id": "av_full_death_14",
-      "path": "assets/sprites/avaritia/av_full_death_14.png"
-    },
-    {
-      "id": "av_full_death_15",
-      "path": "assets/sprites/avaritia/av_full_death_15.png"
-    },
-    {
-      "id": "av_full_death_16",
-      "path": "assets/sprites/avaritia/av_full_death_16.png"
-    },
-    {
-      "id": "av_full_death_17",
-      "path": "assets/sprites/avaritia/av_full_death_17.png"
-    },
-    {
-      "id": "av_full_death_18",
-      "path": "assets/sprites/avaritia/av_full_death_18.png"
-    },
-    {
-      "id": "av_full_death_19",
-      "path": "assets/sprites/avaritia/av_full_death_19.png"
-    },
-    {
       "id": "av_full_death_2",
       "path": "assets/sprites/avaritia/av_full_death_2.png"
-    },
-    {
-      "id": "av_full_death_20",
-      "path": "assets/sprites/avaritia/av_full_death_20.png"
-    },
-    {
-      "id": "av_full_death_21",
-      "path": "assets/sprites/avaritia/av_full_death_21.png"
-    },
-    {
-      "id": "av_full_death_22",
-      "path": "assets/sprites/avaritia/av_full_death_22.png"
-    },
-    {
-      "id": "av_full_death_23",
-      "path": "assets/sprites/avaritia/av_full_death_23.png"
     },
     {
       "id": "av_full_death_3",
@@ -1581,56 +1341,8 @@
       "path": "assets/sprites/avaritia/av_pei_cal_death_11.png"
     },
     {
-      "id": "av_pei_cal_death_12",
-      "path": "assets/sprites/avaritia/av_pei_cal_death_12.png"
-    },
-    {
-      "id": "av_pei_cal_death_13",
-      "path": "assets/sprites/avaritia/av_pei_cal_death_13.png"
-    },
-    {
-      "id": "av_pei_cal_death_14",
-      "path": "assets/sprites/avaritia/av_pei_cal_death_14.png"
-    },
-    {
-      "id": "av_pei_cal_death_15",
-      "path": "assets/sprites/avaritia/av_pei_cal_death_15.png"
-    },
-    {
-      "id": "av_pei_cal_death_16",
-      "path": "assets/sprites/avaritia/av_pei_cal_death_16.png"
-    },
-    {
-      "id": "av_pei_cal_death_17",
-      "path": "assets/sprites/avaritia/av_pei_cal_death_17.png"
-    },
-    {
-      "id": "av_pei_cal_death_18",
-      "path": "assets/sprites/avaritia/av_pei_cal_death_18.png"
-    },
-    {
-      "id": "av_pei_cal_death_19",
-      "path": "assets/sprites/avaritia/av_pei_cal_death_19.png"
-    },
-    {
       "id": "av_pei_cal_death_2",
       "path": "assets/sprites/avaritia/av_pei_cal_death_2.png"
-    },
-    {
-      "id": "av_pei_cal_death_20",
-      "path": "assets/sprites/avaritia/av_pei_cal_death_20.png"
-    },
-    {
-      "id": "av_pei_cal_death_21",
-      "path": "assets/sprites/avaritia/av_pei_cal_death_21.png"
-    },
-    {
-      "id": "av_pei_cal_death_22",
-      "path": "assets/sprites/avaritia/av_pei_cal_death_22.png"
-    },
-    {
-      "id": "av_pei_cal_death_23",
-      "path": "assets/sprites/avaritia/av_pei_cal_death_23.png"
     },
     {
       "id": "av_pei_cal_death_3",
@@ -1797,56 +1509,8 @@
       "path": "assets/sprites/avaritia/av_pei_death_11.png"
     },
     {
-      "id": "av_pei_death_12",
-      "path": "assets/sprites/avaritia/av_pei_death_12.png"
-    },
-    {
-      "id": "av_pei_death_13",
-      "path": "assets/sprites/avaritia/av_pei_death_13.png"
-    },
-    {
-      "id": "av_pei_death_14",
-      "path": "assets/sprites/avaritia/av_pei_death_14.png"
-    },
-    {
-      "id": "av_pei_death_15",
-      "path": "assets/sprites/avaritia/av_pei_death_15.png"
-    },
-    {
-      "id": "av_pei_death_16",
-      "path": "assets/sprites/avaritia/av_pei_death_16.png"
-    },
-    {
-      "id": "av_pei_death_17",
-      "path": "assets/sprites/avaritia/av_pei_death_17.png"
-    },
-    {
-      "id": "av_pei_death_18",
-      "path": "assets/sprites/avaritia/av_pei_death_18.png"
-    },
-    {
-      "id": "av_pei_death_19",
-      "path": "assets/sprites/avaritia/av_pei_death_19.png"
-    },
-    {
       "id": "av_pei_death_2",
       "path": "assets/sprites/avaritia/av_pei_death_2.png"
-    },
-    {
-      "id": "av_pei_death_20",
-      "path": "assets/sprites/avaritia/av_pei_death_20.png"
-    },
-    {
-      "id": "av_pei_death_21",
-      "path": "assets/sprites/avaritia/av_pei_death_21.png"
-    },
-    {
-      "id": "av_pei_death_22",
-      "path": "assets/sprites/avaritia/av_pei_death_22.png"
-    },
-    {
-      "id": "av_pei_death_23",
-      "path": "assets/sprites/avaritia/av_pei_death_23.png"
     },
     {
       "id": "av_pei_death_3",
@@ -2153,56 +1817,8 @@
       "path": "assets/sprites/goblins/ferro_pei_death_11.png"
     },
     {
-      "id": "ferro_pei_death_12",
-      "path": "assets/sprites/goblins/ferro_pei_death_12.png"
-    },
-    {
-      "id": "ferro_pei_death_13",
-      "path": "assets/sprites/goblins/ferro_pei_death_13.png"
-    },
-    {
-      "id": "ferro_pei_death_14",
-      "path": "assets/sprites/goblins/ferro_pei_death_14.png"
-    },
-    {
-      "id": "ferro_pei_death_15",
-      "path": "assets/sprites/goblins/ferro_pei_death_15.png"
-    },
-    {
-      "id": "ferro_pei_death_16",
-      "path": "assets/sprites/goblins/ferro_pei_death_16.png"
-    },
-    {
-      "id": "ferro_pei_death_17",
-      "path": "assets/sprites/goblins/ferro_pei_death_17.png"
-    },
-    {
-      "id": "ferro_pei_death_18",
-      "path": "assets/sprites/goblins/ferro_pei_death_18.png"
-    },
-    {
-      "id": "ferro_pei_death_19",
-      "path": "assets/sprites/goblins/ferro_pei_death_19.png"
-    },
-    {
       "id": "ferro_pei_death_2",
       "path": "assets/sprites/goblins/ferro_pei_death_2.png"
-    },
-    {
-      "id": "ferro_pei_death_20",
-      "path": "assets/sprites/goblins/ferro_pei_death_20.png"
-    },
-    {
-      "id": "ferro_pei_death_21",
-      "path": "assets/sprites/goblins/ferro_pei_death_21.png"
-    },
-    {
-      "id": "ferro_pei_death_22",
-      "path": "assets/sprites/goblins/ferro_pei_death_22.png"
-    },
-    {
-      "id": "ferro_pei_death_23",
-      "path": "assets/sprites/goblins/ferro_pei_death_23.png"
     },
     {
       "id": "ferro_pei_death_3",
@@ -2441,56 +2057,8 @@
       "path": "assets/sprites/goblins/goblin_death_11.png"
     },
     {
-      "id": "goblin_death_12",
-      "path": "assets/sprites/goblins/goblin_death_12.png"
-    },
-    {
-      "id": "goblin_death_13",
-      "path": "assets/sprites/goblins/goblin_death_13.png"
-    },
-    {
-      "id": "goblin_death_14",
-      "path": "assets/sprites/goblins/goblin_death_14.png"
-    },
-    {
-      "id": "goblin_death_15",
-      "path": "assets/sprites/goblins/goblin_death_15.png"
-    },
-    {
-      "id": "goblin_death_16",
-      "path": "assets/sprites/goblins/goblin_death_16.png"
-    },
-    {
-      "id": "goblin_death_17",
-      "path": "assets/sprites/goblins/goblin_death_17.png"
-    },
-    {
-      "id": "goblin_death_18",
-      "path": "assets/sprites/goblins/goblin_death_18.png"
-    },
-    {
-      "id": "goblin_death_19",
-      "path": "assets/sprites/goblins/goblin_death_19.png"
-    },
-    {
       "id": "goblin_death_2",
       "path": "assets/sprites/goblins/goblin_death_2.png"
-    },
-    {
-      "id": "goblin_death_20",
-      "path": "assets/sprites/goblins/goblin_death_20.png"
-    },
-    {
-      "id": "goblin_death_21",
-      "path": "assets/sprites/goblins/goblin_death_21.png"
-    },
-    {
-      "id": "goblin_death_22",
-      "path": "assets/sprites/goblins/goblin_death_22.png"
-    },
-    {
-      "id": "goblin_death_23",
-      "path": "assets/sprites/goblins/goblin_death_23.png"
     },
     {
       "id": "goblin_death_3",
@@ -2809,56 +2377,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_11.png"
     },
     {
-      "id": "overlay_av_cal_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_12.png"
-    },
-    {
-      "id": "overlay_av_cal_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_13.png"
-    },
-    {
-      "id": "overlay_av_cal_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_14.png"
-    },
-    {
-      "id": "overlay_av_cal_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_15.png"
-    },
-    {
-      "id": "overlay_av_cal_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_16.png"
-    },
-    {
-      "id": "overlay_av_cal_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_17.png"
-    },
-    {
-      "id": "overlay_av_cal_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_18.png"
-    },
-    {
-      "id": "overlay_av_cal_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_19.png"
-    },
-    {
       "id": "overlay_av_cal_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_2.png"
-    },
-    {
-      "id": "overlay_av_cal_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_20.png"
-    },
-    {
-      "id": "overlay_av_cal_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_21.png"
-    },
-    {
-      "id": "overlay_av_cal_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_22.png"
-    },
-    {
-      "id": "overlay_av_cal_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cal_death_23.png"
     },
     {
       "id": "overlay_av_cal_death_3",
@@ -3161,56 +2681,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_11.png"
     },
     {
-      "id": "overlay_av_cap_cal_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_12.png"
-    },
-    {
-      "id": "overlay_av_cap_cal_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_13.png"
-    },
-    {
-      "id": "overlay_av_cap_cal_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_14.png"
-    },
-    {
-      "id": "overlay_av_cap_cal_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_15.png"
-    },
-    {
-      "id": "overlay_av_cap_cal_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_16.png"
-    },
-    {
-      "id": "overlay_av_cap_cal_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_17.png"
-    },
-    {
-      "id": "overlay_av_cap_cal_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_18.png"
-    },
-    {
-      "id": "overlay_av_cap_cal_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_19.png"
-    },
-    {
       "id": "overlay_av_cap_cal_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_2.png"
-    },
-    {
-      "id": "overlay_av_cap_cal_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_20.png"
-    },
-    {
-      "id": "overlay_av_cap_cal_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_21.png"
-    },
-    {
-      "id": "overlay_av_cap_cal_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_22.png"
-    },
-    {
-      "id": "overlay_av_cap_cal_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_cal_death_23.png"
     },
     {
       "id": "overlay_av_cap_cal_death_3",
@@ -3377,56 +2849,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_11.png"
     },
     {
-      "id": "overlay_av_cap_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_12.png"
-    },
-    {
-      "id": "overlay_av_cap_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_13.png"
-    },
-    {
-      "id": "overlay_av_cap_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_14.png"
-    },
-    {
-      "id": "overlay_av_cap_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_15.png"
-    },
-    {
-      "id": "overlay_av_cap_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_16.png"
-    },
-    {
-      "id": "overlay_av_cap_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_17.png"
-    },
-    {
-      "id": "overlay_av_cap_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_18.png"
-    },
-    {
-      "id": "overlay_av_cap_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_19.png"
-    },
-    {
       "id": "overlay_av_cap_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_2.png"
-    },
-    {
-      "id": "overlay_av_cap_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_20.png"
-    },
-    {
-      "id": "overlay_av_cap_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_21.png"
-    },
-    {
-      "id": "overlay_av_cap_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_22.png"
-    },
-    {
-      "id": "overlay_av_cap_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_death_23.png"
     },
     {
       "id": "overlay_av_cap_death_3",
@@ -3629,56 +3053,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_11.png"
     },
     {
-      "id": "overlay_av_cap_pei_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_12.png"
-    },
-    {
-      "id": "overlay_av_cap_pei_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_13.png"
-    },
-    {
-      "id": "overlay_av_cap_pei_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_14.png"
-    },
-    {
-      "id": "overlay_av_cap_pei_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_15.png"
-    },
-    {
-      "id": "overlay_av_cap_pei_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_16.png"
-    },
-    {
-      "id": "overlay_av_cap_pei_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_17.png"
-    },
-    {
-      "id": "overlay_av_cap_pei_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_18.png"
-    },
-    {
-      "id": "overlay_av_cap_pei_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_19.png"
-    },
-    {
       "id": "overlay_av_cap_pei_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_2.png"
-    },
-    {
-      "id": "overlay_av_cap_pei_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_20.png"
-    },
-    {
-      "id": "overlay_av_cap_pei_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_21.png"
-    },
-    {
-      "id": "overlay_av_cap_pei_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_22.png"
-    },
-    {
-      "id": "overlay_av_cap_pei_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_cap_pei_death_23.png"
     },
     {
       "id": "overlay_av_cap_pei_death_3",
@@ -3945,56 +3321,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_11.png"
     },
     {
-      "id": "overlay_av_full_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_12.png"
-    },
-    {
-      "id": "overlay_av_full_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_13.png"
-    },
-    {
-      "id": "overlay_av_full_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_14.png"
-    },
-    {
-      "id": "overlay_av_full_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_15.png"
-    },
-    {
-      "id": "overlay_av_full_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_16.png"
-    },
-    {
-      "id": "overlay_av_full_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_17.png"
-    },
-    {
-      "id": "overlay_av_full_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_18.png"
-    },
-    {
-      "id": "overlay_av_full_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_19.png"
-    },
-    {
       "id": "overlay_av_full_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_2.png"
-    },
-    {
-      "id": "overlay_av_full_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_20.png"
-    },
-    {
-      "id": "overlay_av_full_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_21.png"
-    },
-    {
-      "id": "overlay_av_full_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_22.png"
-    },
-    {
-      "id": "overlay_av_full_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_full_death_23.png"
     },
     {
       "id": "overlay_av_full_death_3",
@@ -4297,56 +3625,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_11.png"
     },
     {
-      "id": "overlay_av_pei_cal_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_12.png"
-    },
-    {
-      "id": "overlay_av_pei_cal_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_13.png"
-    },
-    {
-      "id": "overlay_av_pei_cal_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_14.png"
-    },
-    {
-      "id": "overlay_av_pei_cal_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_15.png"
-    },
-    {
-      "id": "overlay_av_pei_cal_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_16.png"
-    },
-    {
-      "id": "overlay_av_pei_cal_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_17.png"
-    },
-    {
-      "id": "overlay_av_pei_cal_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_18.png"
-    },
-    {
-      "id": "overlay_av_pei_cal_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_19.png"
-    },
-    {
       "id": "overlay_av_pei_cal_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_2.png"
-    },
-    {
-      "id": "overlay_av_pei_cal_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_20.png"
-    },
-    {
-      "id": "overlay_av_pei_cal_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_21.png"
-    },
-    {
-      "id": "overlay_av_pei_cal_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_22.png"
-    },
-    {
-      "id": "overlay_av_pei_cal_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_cal_death_23.png"
     },
     {
       "id": "overlay_av_pei_cal_death_3",
@@ -4513,56 +3793,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_11.png"
     },
     {
-      "id": "overlay_av_pei_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_12.png"
-    },
-    {
-      "id": "overlay_av_pei_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_13.png"
-    },
-    {
-      "id": "overlay_av_pei_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_14.png"
-    },
-    {
-      "id": "overlay_av_pei_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_15.png"
-    },
-    {
-      "id": "overlay_av_pei_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_16.png"
-    },
-    {
-      "id": "overlay_av_pei_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_17.png"
-    },
-    {
-      "id": "overlay_av_pei_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_18.png"
-    },
-    {
-      "id": "overlay_av_pei_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_19.png"
-    },
-    {
       "id": "overlay_av_pei_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_2.png"
-    },
-    {
-      "id": "overlay_av_pei_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_20.png"
-    },
-    {
-      "id": "overlay_av_pei_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_21.png"
-    },
-    {
-      "id": "overlay_av_pei_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_22.png"
-    },
-    {
-      "id": "overlay_av_pei_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_av_pei_death_23.png"
     },
     {
       "id": "overlay_av_pei_death_3",
@@ -4797,56 +4029,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_11.png"
     },
     {
-      "id": "overlay_ferro_cal_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_12.png"
-    },
-    {
-      "id": "overlay_ferro_cal_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_13.png"
-    },
-    {
-      "id": "overlay_ferro_cal_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_14.png"
-    },
-    {
-      "id": "overlay_ferro_cal_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_15.png"
-    },
-    {
-      "id": "overlay_ferro_cal_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_16.png"
-    },
-    {
-      "id": "overlay_ferro_cal_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_17.png"
-    },
-    {
-      "id": "overlay_ferro_cal_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_18.png"
-    },
-    {
-      "id": "overlay_ferro_cal_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_19.png"
-    },
-    {
       "id": "overlay_ferro_cal_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_2.png"
-    },
-    {
-      "id": "overlay_ferro_cal_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_20.png"
-    },
-    {
-      "id": "overlay_ferro_cal_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_21.png"
-    },
-    {
-      "id": "overlay_ferro_cal_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_22.png"
-    },
-    {
-      "id": "overlay_ferro_cal_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cal_death_23.png"
     },
     {
       "id": "overlay_ferro_cal_death_3",
@@ -5081,56 +4265,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_11.png"
     },
     {
-      "id": "overlay_ferro_cap_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_12.png"
-    },
-    {
-      "id": "overlay_ferro_cap_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_13.png"
-    },
-    {
-      "id": "overlay_ferro_cap_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_14.png"
-    },
-    {
-      "id": "overlay_ferro_cap_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_15.png"
-    },
-    {
-      "id": "overlay_ferro_cap_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_16.png"
-    },
-    {
-      "id": "overlay_ferro_cap_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_17.png"
-    },
-    {
-      "id": "overlay_ferro_cap_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_18.png"
-    },
-    {
-      "id": "overlay_ferro_cap_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_19.png"
-    },
-    {
       "id": "overlay_ferro_cap_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_2.png"
-    },
-    {
-      "id": "overlay_ferro_cap_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_20.png"
-    },
-    {
-      "id": "overlay_ferro_cap_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_21.png"
-    },
-    {
-      "id": "overlay_ferro_cap_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_22.png"
-    },
-    {
-      "id": "overlay_ferro_cap_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_cap_death_23.png"
     },
     {
       "id": "overlay_ferro_cap_death_3",
@@ -5365,56 +4501,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_11.png"
     },
     {
-      "id": "overlay_ferro_pei_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_12.png"
-    },
-    {
-      "id": "overlay_ferro_pei_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_13.png"
-    },
-    {
-      "id": "overlay_ferro_pei_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_14.png"
-    },
-    {
-      "id": "overlay_ferro_pei_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_15.png"
-    },
-    {
-      "id": "overlay_ferro_pei_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_16.png"
-    },
-    {
-      "id": "overlay_ferro_pei_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_17.png"
-    },
-    {
-      "id": "overlay_ferro_pei_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_18.png"
-    },
-    {
-      "id": "overlay_ferro_pei_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_19.png"
-    },
-    {
       "id": "overlay_ferro_pei_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_2.png"
-    },
-    {
-      "id": "overlay_ferro_pei_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_20.png"
-    },
-    {
-      "id": "overlay_ferro_pei_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_21.png"
-    },
-    {
-      "id": "overlay_ferro_pei_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_22.png"
-    },
-    {
-      "id": "overlay_ferro_pei_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_ferro_pei_death_23.png"
     },
     {
       "id": "overlay_ferro_pei_death_3",
@@ -5649,56 +4737,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_11.png"
     },
     {
-      "id": "overlay_wpn_adaga_madeira_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_12.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_madeira_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_13.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_madeira_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_14.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_madeira_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_15.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_madeira_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_16.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_madeira_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_17.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_madeira_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_18.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_madeira_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_19.png"
-    },
-    {
       "id": "overlay_wpn_adaga_madeira_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_2.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_madeira_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_20.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_madeira_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_21.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_madeira_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_22.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_madeira_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_madeira_death_23.png"
     },
     {
       "id": "overlay_wpn_adaga_madeira_death_3",
@@ -5933,56 +4973,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_11.png"
     },
     {
-      "id": "overlay_wpn_adaga_metal_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_12.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_metal_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_13.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_metal_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_14.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_metal_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_15.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_metal_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_16.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_metal_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_17.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_metal_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_18.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_metal_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_19.png"
-    },
-    {
       "id": "overlay_wpn_adaga_metal_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_2.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_metal_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_20.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_metal_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_21.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_metal_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_22.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_metal_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_metal_death_23.png"
     },
     {
       "id": "overlay_wpn_adaga_metal_death_3",
@@ -6217,56 +5209,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_11.png"
     },
     {
-      "id": "overlay_wpn_adaga_pedra_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_12.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_pedra_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_13.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_pedra_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_14.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_pedra_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_15.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_pedra_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_16.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_pedra_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_17.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_pedra_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_18.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_pedra_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_19.png"
-    },
-    {
       "id": "overlay_wpn_adaga_pedra_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_2.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_pedra_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_20.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_pedra_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_21.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_pedra_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_22.png"
-    },
-    {
-      "id": "overlay_wpn_adaga_pedra_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_adaga_pedra_death_23.png"
     },
     {
       "id": "overlay_wpn_adaga_pedra_death_3",
@@ -6501,56 +5445,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_11.png"
     },
     {
-      "id": "overlay_wpn_clava_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_12.png"
-    },
-    {
-      "id": "overlay_wpn_clava_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_13.png"
-    },
-    {
-      "id": "overlay_wpn_clava_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_14.png"
-    },
-    {
-      "id": "overlay_wpn_clava_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_15.png"
-    },
-    {
-      "id": "overlay_wpn_clava_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_16.png"
-    },
-    {
-      "id": "overlay_wpn_clava_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_17.png"
-    },
-    {
-      "id": "overlay_wpn_clava_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_18.png"
-    },
-    {
-      "id": "overlay_wpn_clava_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_19.png"
-    },
-    {
       "id": "overlay_wpn_clava_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_2.png"
-    },
-    {
-      "id": "overlay_wpn_clava_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_20.png"
-    },
-    {
-      "id": "overlay_wpn_clava_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_21.png"
-    },
-    {
-      "id": "overlay_wpn_clava_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_22.png"
-    },
-    {
-      "id": "overlay_wpn_clava_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_clava_death_23.png"
     },
     {
       "id": "overlay_wpn_clava_death_3",
@@ -6785,56 +5681,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_11.png"
     },
     {
-      "id": "overlay_wpn_escudo_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_12.png"
-    },
-    {
-      "id": "overlay_wpn_escudo_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_13.png"
-    },
-    {
-      "id": "overlay_wpn_escudo_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_14.png"
-    },
-    {
-      "id": "overlay_wpn_escudo_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_15.png"
-    },
-    {
-      "id": "overlay_wpn_escudo_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_16.png"
-    },
-    {
-      "id": "overlay_wpn_escudo_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_17.png"
-    },
-    {
-      "id": "overlay_wpn_escudo_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_18.png"
-    },
-    {
-      "id": "overlay_wpn_escudo_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_19.png"
-    },
-    {
       "id": "overlay_wpn_escudo_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_2.png"
-    },
-    {
-      "id": "overlay_wpn_escudo_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_20.png"
-    },
-    {
-      "id": "overlay_wpn_escudo_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_21.png"
-    },
-    {
-      "id": "overlay_wpn_escudo_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_22.png"
-    },
-    {
-      "id": "overlay_wpn_escudo_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_escudo_death_23.png"
     },
     {
       "id": "overlay_wpn_escudo_death_3",
@@ -7069,56 +5917,8 @@
       "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_11.png"
     },
     {
-      "id": "overlay_wpn_espada_death_12",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_12.png"
-    },
-    {
-      "id": "overlay_wpn_espada_death_13",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_13.png"
-    },
-    {
-      "id": "overlay_wpn_espada_death_14",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_14.png"
-    },
-    {
-      "id": "overlay_wpn_espada_death_15",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_15.png"
-    },
-    {
-      "id": "overlay_wpn_espada_death_16",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_16.png"
-    },
-    {
-      "id": "overlay_wpn_espada_death_17",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_17.png"
-    },
-    {
-      "id": "overlay_wpn_espada_death_18",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_18.png"
-    },
-    {
-      "id": "overlay_wpn_espada_death_19",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_19.png"
-    },
-    {
       "id": "overlay_wpn_espada_death_2",
       "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_2.png"
-    },
-    {
-      "id": "overlay_wpn_espada_death_20",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_20.png"
-    },
-    {
-      "id": "overlay_wpn_espada_death_21",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_21.png"
-    },
-    {
-      "id": "overlay_wpn_espada_death_22",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_22.png"
-    },
-    {
-      "id": "overlay_wpn_espada_death_23",
-      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_espada_death_23.png"
     },
     {
       "id": "overlay_wpn_espada_death_3",
@@ -7437,56 +6237,8 @@
       "path": "assets/sprites/goblins/variant_01_dente_dourado_death_11.png"
     },
     {
-      "id": "variant_01_dente_dourado_death_12",
-      "path": "assets/sprites/goblins/variant_01_dente_dourado_death_12.png"
-    },
-    {
-      "id": "variant_01_dente_dourado_death_13",
-      "path": "assets/sprites/goblins/variant_01_dente_dourado_death_13.png"
-    },
-    {
-      "id": "variant_01_dente_dourado_death_14",
-      "path": "assets/sprites/goblins/variant_01_dente_dourado_death_14.png"
-    },
-    {
-      "id": "variant_01_dente_dourado_death_15",
-      "path": "assets/sprites/goblins/variant_01_dente_dourado_death_15.png"
-    },
-    {
-      "id": "variant_01_dente_dourado_death_16",
-      "path": "assets/sprites/goblins/variant_01_dente_dourado_death_16.png"
-    },
-    {
-      "id": "variant_01_dente_dourado_death_17",
-      "path": "assets/sprites/goblins/variant_01_dente_dourado_death_17.png"
-    },
-    {
-      "id": "variant_01_dente_dourado_death_18",
-      "path": "assets/sprites/goblins/variant_01_dente_dourado_death_18.png"
-    },
-    {
-      "id": "variant_01_dente_dourado_death_19",
-      "path": "assets/sprites/goblins/variant_01_dente_dourado_death_19.png"
-    },
-    {
       "id": "variant_01_dente_dourado_death_2",
       "path": "assets/sprites/goblins/variant_01_dente_dourado_death_2.png"
-    },
-    {
-      "id": "variant_01_dente_dourado_death_20",
-      "path": "assets/sprites/goblins/variant_01_dente_dourado_death_20.png"
-    },
-    {
-      "id": "variant_01_dente_dourado_death_21",
-      "path": "assets/sprites/goblins/variant_01_dente_dourado_death_21.png"
-    },
-    {
-      "id": "variant_01_dente_dourado_death_22",
-      "path": "assets/sprites/goblins/variant_01_dente_dourado_death_22.png"
-    },
-    {
-      "id": "variant_01_dente_dourado_death_23",
-      "path": "assets/sprites/goblins/variant_01_dente_dourado_death_23.png"
     },
     {
       "id": "variant_01_dente_dourado_death_3",
@@ -7721,56 +6473,8 @@
       "path": "assets/sprites/goblins/variant_02_tapa_olho_death_11.png"
     },
     {
-      "id": "variant_02_tapa_olho_death_12",
-      "path": "assets/sprites/goblins/variant_02_tapa_olho_death_12.png"
-    },
-    {
-      "id": "variant_02_tapa_olho_death_13",
-      "path": "assets/sprites/goblins/variant_02_tapa_olho_death_13.png"
-    },
-    {
-      "id": "variant_02_tapa_olho_death_14",
-      "path": "assets/sprites/goblins/variant_02_tapa_olho_death_14.png"
-    },
-    {
-      "id": "variant_02_tapa_olho_death_15",
-      "path": "assets/sprites/goblins/variant_02_tapa_olho_death_15.png"
-    },
-    {
-      "id": "variant_02_tapa_olho_death_16",
-      "path": "assets/sprites/goblins/variant_02_tapa_olho_death_16.png"
-    },
-    {
-      "id": "variant_02_tapa_olho_death_17",
-      "path": "assets/sprites/goblins/variant_02_tapa_olho_death_17.png"
-    },
-    {
-      "id": "variant_02_tapa_olho_death_18",
-      "path": "assets/sprites/goblins/variant_02_tapa_olho_death_18.png"
-    },
-    {
-      "id": "variant_02_tapa_olho_death_19",
-      "path": "assets/sprites/goblins/variant_02_tapa_olho_death_19.png"
-    },
-    {
       "id": "variant_02_tapa_olho_death_2",
       "path": "assets/sprites/goblins/variant_02_tapa_olho_death_2.png"
-    },
-    {
-      "id": "variant_02_tapa_olho_death_20",
-      "path": "assets/sprites/goblins/variant_02_tapa_olho_death_20.png"
-    },
-    {
-      "id": "variant_02_tapa_olho_death_21",
-      "path": "assets/sprites/goblins/variant_02_tapa_olho_death_21.png"
-    },
-    {
-      "id": "variant_02_tapa_olho_death_22",
-      "path": "assets/sprites/goblins/variant_02_tapa_olho_death_22.png"
-    },
-    {
-      "id": "variant_02_tapa_olho_death_23",
-      "path": "assets/sprites/goblins/variant_02_tapa_olho_death_23.png"
     },
     {
       "id": "variant_02_tapa_olho_death_3",
@@ -8005,56 +6709,8 @@
       "path": "assets/sprites/goblins/variant_04_orelha_furada_death_11.png"
     },
     {
-      "id": "variant_04_orelha_furada_death_12",
-      "path": "assets/sprites/goblins/variant_04_orelha_furada_death_12.png"
-    },
-    {
-      "id": "variant_04_orelha_furada_death_13",
-      "path": "assets/sprites/goblins/variant_04_orelha_furada_death_13.png"
-    },
-    {
-      "id": "variant_04_orelha_furada_death_14",
-      "path": "assets/sprites/goblins/variant_04_orelha_furada_death_14.png"
-    },
-    {
-      "id": "variant_04_orelha_furada_death_15",
-      "path": "assets/sprites/goblins/variant_04_orelha_furada_death_15.png"
-    },
-    {
-      "id": "variant_04_orelha_furada_death_16",
-      "path": "assets/sprites/goblins/variant_04_orelha_furada_death_16.png"
-    },
-    {
-      "id": "variant_04_orelha_furada_death_17",
-      "path": "assets/sprites/goblins/variant_04_orelha_furada_death_17.png"
-    },
-    {
-      "id": "variant_04_orelha_furada_death_18",
-      "path": "assets/sprites/goblins/variant_04_orelha_furada_death_18.png"
-    },
-    {
-      "id": "variant_04_orelha_furada_death_19",
-      "path": "assets/sprites/goblins/variant_04_orelha_furada_death_19.png"
-    },
-    {
       "id": "variant_04_orelha_furada_death_2",
       "path": "assets/sprites/goblins/variant_04_orelha_furada_death_2.png"
-    },
-    {
-      "id": "variant_04_orelha_furada_death_20",
-      "path": "assets/sprites/goblins/variant_04_orelha_furada_death_20.png"
-    },
-    {
-      "id": "variant_04_orelha_furada_death_21",
-      "path": "assets/sprites/goblins/variant_04_orelha_furada_death_21.png"
-    },
-    {
-      "id": "variant_04_orelha_furada_death_22",
-      "path": "assets/sprites/goblins/variant_04_orelha_furada_death_22.png"
-    },
-    {
-      "id": "variant_04_orelha_furada_death_23",
-      "path": "assets/sprites/goblins/variant_04_orelha_furada_death_23.png"
     },
     {
       "id": "variant_04_orelha_furada_death_3",
@@ -8289,56 +6945,8 @@
       "path": "assets/sprites/goblins/variant_07_cicatriz_death_11.png"
     },
     {
-      "id": "variant_07_cicatriz_death_12",
-      "path": "assets/sprites/goblins/variant_07_cicatriz_death_12.png"
-    },
-    {
-      "id": "variant_07_cicatriz_death_13",
-      "path": "assets/sprites/goblins/variant_07_cicatriz_death_13.png"
-    },
-    {
-      "id": "variant_07_cicatriz_death_14",
-      "path": "assets/sprites/goblins/variant_07_cicatriz_death_14.png"
-    },
-    {
-      "id": "variant_07_cicatriz_death_15",
-      "path": "assets/sprites/goblins/variant_07_cicatriz_death_15.png"
-    },
-    {
-      "id": "variant_07_cicatriz_death_16",
-      "path": "assets/sprites/goblins/variant_07_cicatriz_death_16.png"
-    },
-    {
-      "id": "variant_07_cicatriz_death_17",
-      "path": "assets/sprites/goblins/variant_07_cicatriz_death_17.png"
-    },
-    {
-      "id": "variant_07_cicatriz_death_18",
-      "path": "assets/sprites/goblins/variant_07_cicatriz_death_18.png"
-    },
-    {
-      "id": "variant_07_cicatriz_death_19",
-      "path": "assets/sprites/goblins/variant_07_cicatriz_death_19.png"
-    },
-    {
       "id": "variant_07_cicatriz_death_2",
       "path": "assets/sprites/goblins/variant_07_cicatriz_death_2.png"
-    },
-    {
-      "id": "variant_07_cicatriz_death_20",
-      "path": "assets/sprites/goblins/variant_07_cicatriz_death_20.png"
-    },
-    {
-      "id": "variant_07_cicatriz_death_21",
-      "path": "assets/sprites/goblins/variant_07_cicatriz_death_21.png"
-    },
-    {
-      "id": "variant_07_cicatriz_death_22",
-      "path": "assets/sprites/goblins/variant_07_cicatriz_death_22.png"
-    },
-    {
-      "id": "variant_07_cicatriz_death_23",
-      "path": "assets/sprites/goblins/variant_07_cicatriz_death_23.png"
     },
     {
       "id": "variant_07_cicatriz_death_3",
@@ -8573,56 +7181,8 @@
       "path": "assets/sprites/goblins/variant_08_albinismo_death_11.png"
     },
     {
-      "id": "variant_08_albinismo_death_12",
-      "path": "assets/sprites/goblins/variant_08_albinismo_death_12.png"
-    },
-    {
-      "id": "variant_08_albinismo_death_13",
-      "path": "assets/sprites/goblins/variant_08_albinismo_death_13.png"
-    },
-    {
-      "id": "variant_08_albinismo_death_14",
-      "path": "assets/sprites/goblins/variant_08_albinismo_death_14.png"
-    },
-    {
-      "id": "variant_08_albinismo_death_15",
-      "path": "assets/sprites/goblins/variant_08_albinismo_death_15.png"
-    },
-    {
-      "id": "variant_08_albinismo_death_16",
-      "path": "assets/sprites/goblins/variant_08_albinismo_death_16.png"
-    },
-    {
-      "id": "variant_08_albinismo_death_17",
-      "path": "assets/sprites/goblins/variant_08_albinismo_death_17.png"
-    },
-    {
-      "id": "variant_08_albinismo_death_18",
-      "path": "assets/sprites/goblins/variant_08_albinismo_death_18.png"
-    },
-    {
-      "id": "variant_08_albinismo_death_19",
-      "path": "assets/sprites/goblins/variant_08_albinismo_death_19.png"
-    },
-    {
       "id": "variant_08_albinismo_death_2",
       "path": "assets/sprites/goblins/variant_08_albinismo_death_2.png"
-    },
-    {
-      "id": "variant_08_albinismo_death_20",
-      "path": "assets/sprites/goblins/variant_08_albinismo_death_20.png"
-    },
-    {
-      "id": "variant_08_albinismo_death_21",
-      "path": "assets/sprites/goblins/variant_08_albinismo_death_21.png"
-    },
-    {
-      "id": "variant_08_albinismo_death_22",
-      "path": "assets/sprites/goblins/variant_08_albinismo_death_22.png"
-    },
-    {
-      "id": "variant_08_albinismo_death_23",
-      "path": "assets/sprites/goblins/variant_08_albinismo_death_23.png"
     },
     {
       "id": "variant_08_albinismo_death_3",
@@ -8857,56 +7417,8 @@
       "path": "assets/sprites/goblins/variant_09_queimaduras_death_11.png"
     },
     {
-      "id": "variant_09_queimaduras_death_12",
-      "path": "assets/sprites/goblins/variant_09_queimaduras_death_12.png"
-    },
-    {
-      "id": "variant_09_queimaduras_death_13",
-      "path": "assets/sprites/goblins/variant_09_queimaduras_death_13.png"
-    },
-    {
-      "id": "variant_09_queimaduras_death_14",
-      "path": "assets/sprites/goblins/variant_09_queimaduras_death_14.png"
-    },
-    {
-      "id": "variant_09_queimaduras_death_15",
-      "path": "assets/sprites/goblins/variant_09_queimaduras_death_15.png"
-    },
-    {
-      "id": "variant_09_queimaduras_death_16",
-      "path": "assets/sprites/goblins/variant_09_queimaduras_death_16.png"
-    },
-    {
-      "id": "variant_09_queimaduras_death_17",
-      "path": "assets/sprites/goblins/variant_09_queimaduras_death_17.png"
-    },
-    {
-      "id": "variant_09_queimaduras_death_18",
-      "path": "assets/sprites/goblins/variant_09_queimaduras_death_18.png"
-    },
-    {
-      "id": "variant_09_queimaduras_death_19",
-      "path": "assets/sprites/goblins/variant_09_queimaduras_death_19.png"
-    },
-    {
       "id": "variant_09_queimaduras_death_2",
       "path": "assets/sprites/goblins/variant_09_queimaduras_death_2.png"
-    },
-    {
-      "id": "variant_09_queimaduras_death_20",
-      "path": "assets/sprites/goblins/variant_09_queimaduras_death_20.png"
-    },
-    {
-      "id": "variant_09_queimaduras_death_21",
-      "path": "assets/sprites/goblins/variant_09_queimaduras_death_21.png"
-    },
-    {
-      "id": "variant_09_queimaduras_death_22",
-      "path": "assets/sprites/goblins/variant_09_queimaduras_death_22.png"
-    },
-    {
-      "id": "variant_09_queimaduras_death_23",
-      "path": "assets/sprites/goblins/variant_09_queimaduras_death_23.png"
     },
     {
       "id": "variant_09_queimaduras_death_3",
@@ -9141,56 +7653,8 @@
       "path": "assets/sprites/goblins/variant_10_corsario_death_11.png"
     },
     {
-      "id": "variant_10_corsario_death_12",
-      "path": "assets/sprites/goblins/variant_10_corsario_death_12.png"
-    },
-    {
-      "id": "variant_10_corsario_death_13",
-      "path": "assets/sprites/goblins/variant_10_corsario_death_13.png"
-    },
-    {
-      "id": "variant_10_corsario_death_14",
-      "path": "assets/sprites/goblins/variant_10_corsario_death_14.png"
-    },
-    {
-      "id": "variant_10_corsario_death_15",
-      "path": "assets/sprites/goblins/variant_10_corsario_death_15.png"
-    },
-    {
-      "id": "variant_10_corsario_death_16",
-      "path": "assets/sprites/goblins/variant_10_corsario_death_16.png"
-    },
-    {
-      "id": "variant_10_corsario_death_17",
-      "path": "assets/sprites/goblins/variant_10_corsario_death_17.png"
-    },
-    {
-      "id": "variant_10_corsario_death_18",
-      "path": "assets/sprites/goblins/variant_10_corsario_death_18.png"
-    },
-    {
-      "id": "variant_10_corsario_death_19",
-      "path": "assets/sprites/goblins/variant_10_corsario_death_19.png"
-    },
-    {
       "id": "variant_10_corsario_death_2",
       "path": "assets/sprites/goblins/variant_10_corsario_death_2.png"
-    },
-    {
-      "id": "variant_10_corsario_death_20",
-      "path": "assets/sprites/goblins/variant_10_corsario_death_20.png"
-    },
-    {
-      "id": "variant_10_corsario_death_21",
-      "path": "assets/sprites/goblins/variant_10_corsario_death_21.png"
-    },
-    {
-      "id": "variant_10_corsario_death_22",
-      "path": "assets/sprites/goblins/variant_10_corsario_death_22.png"
-    },
-    {
-      "id": "variant_10_corsario_death_23",
-      "path": "assets/sprites/goblins/variant_10_corsario_death_23.png"
     },
     {
       "id": "variant_10_corsario_death_3",
@@ -9425,56 +7889,8 @@
       "path": "assets/sprites/goblins/variant_13_sobrevivente_death_11.png"
     },
     {
-      "id": "variant_13_sobrevivente_death_12",
-      "path": "assets/sprites/goblins/variant_13_sobrevivente_death_12.png"
-    },
-    {
-      "id": "variant_13_sobrevivente_death_13",
-      "path": "assets/sprites/goblins/variant_13_sobrevivente_death_13.png"
-    },
-    {
-      "id": "variant_13_sobrevivente_death_14",
-      "path": "assets/sprites/goblins/variant_13_sobrevivente_death_14.png"
-    },
-    {
-      "id": "variant_13_sobrevivente_death_15",
-      "path": "assets/sprites/goblins/variant_13_sobrevivente_death_15.png"
-    },
-    {
-      "id": "variant_13_sobrevivente_death_16",
-      "path": "assets/sprites/goblins/variant_13_sobrevivente_death_16.png"
-    },
-    {
-      "id": "variant_13_sobrevivente_death_17",
-      "path": "assets/sprites/goblins/variant_13_sobrevivente_death_17.png"
-    },
-    {
-      "id": "variant_13_sobrevivente_death_18",
-      "path": "assets/sprites/goblins/variant_13_sobrevivente_death_18.png"
-    },
-    {
-      "id": "variant_13_sobrevivente_death_19",
-      "path": "assets/sprites/goblins/variant_13_sobrevivente_death_19.png"
-    },
-    {
       "id": "variant_13_sobrevivente_death_2",
       "path": "assets/sprites/goblins/variant_13_sobrevivente_death_2.png"
-    },
-    {
-      "id": "variant_13_sobrevivente_death_20",
-      "path": "assets/sprites/goblins/variant_13_sobrevivente_death_20.png"
-    },
-    {
-      "id": "variant_13_sobrevivente_death_21",
-      "path": "assets/sprites/goblins/variant_13_sobrevivente_death_21.png"
-    },
-    {
-      "id": "variant_13_sobrevivente_death_22",
-      "path": "assets/sprites/goblins/variant_13_sobrevivente_death_22.png"
-    },
-    {
-      "id": "variant_13_sobrevivente_death_23",
-      "path": "assets/sprites/goblins/variant_13_sobrevivente_death_23.png"
     },
     {
       "id": "variant_13_sobrevivente_death_3",
@@ -9709,56 +8125,8 @@
       "path": "assets/sprites/goblins/variant_14_anel_death_11.png"
     },
     {
-      "id": "variant_14_anel_death_12",
-      "path": "assets/sprites/goblins/variant_14_anel_death_12.png"
-    },
-    {
-      "id": "variant_14_anel_death_13",
-      "path": "assets/sprites/goblins/variant_14_anel_death_13.png"
-    },
-    {
-      "id": "variant_14_anel_death_14",
-      "path": "assets/sprites/goblins/variant_14_anel_death_14.png"
-    },
-    {
-      "id": "variant_14_anel_death_15",
-      "path": "assets/sprites/goblins/variant_14_anel_death_15.png"
-    },
-    {
-      "id": "variant_14_anel_death_16",
-      "path": "assets/sprites/goblins/variant_14_anel_death_16.png"
-    },
-    {
-      "id": "variant_14_anel_death_17",
-      "path": "assets/sprites/goblins/variant_14_anel_death_17.png"
-    },
-    {
-      "id": "variant_14_anel_death_18",
-      "path": "assets/sprites/goblins/variant_14_anel_death_18.png"
-    },
-    {
-      "id": "variant_14_anel_death_19",
-      "path": "assets/sprites/goblins/variant_14_anel_death_19.png"
-    },
-    {
       "id": "variant_14_anel_death_2",
       "path": "assets/sprites/goblins/variant_14_anel_death_2.png"
-    },
-    {
-      "id": "variant_14_anel_death_20",
-      "path": "assets/sprites/goblins/variant_14_anel_death_20.png"
-    },
-    {
-      "id": "variant_14_anel_death_21",
-      "path": "assets/sprites/goblins/variant_14_anel_death_21.png"
-    },
-    {
-      "id": "variant_14_anel_death_22",
-      "path": "assets/sprites/goblins/variant_14_anel_death_22.png"
-    },
-    {
-      "id": "variant_14_anel_death_23",
-      "path": "assets/sprites/goblins/variant_14_anel_death_23.png"
     },
     {
       "id": "variant_14_anel_death_3",
@@ -9993,56 +8361,8 @@
       "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_11.png"
     },
     {
-      "id": "variant_15_marca_de_nascenca_death_12",
-      "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_12.png"
-    },
-    {
-      "id": "variant_15_marca_de_nascenca_death_13",
-      "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_13.png"
-    },
-    {
-      "id": "variant_15_marca_de_nascenca_death_14",
-      "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_14.png"
-    },
-    {
-      "id": "variant_15_marca_de_nascenca_death_15",
-      "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_15.png"
-    },
-    {
-      "id": "variant_15_marca_de_nascenca_death_16",
-      "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_16.png"
-    },
-    {
-      "id": "variant_15_marca_de_nascenca_death_17",
-      "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_17.png"
-    },
-    {
-      "id": "variant_15_marca_de_nascenca_death_18",
-      "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_18.png"
-    },
-    {
-      "id": "variant_15_marca_de_nascenca_death_19",
-      "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_19.png"
-    },
-    {
       "id": "variant_15_marca_de_nascenca_death_2",
       "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_2.png"
-    },
-    {
-      "id": "variant_15_marca_de_nascenca_death_20",
-      "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_20.png"
-    },
-    {
-      "id": "variant_15_marca_de_nascenca_death_21",
-      "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_21.png"
-    },
-    {
-      "id": "variant_15_marca_de_nascenca_death_22",
-      "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_22.png"
-    },
-    {
-      "id": "variant_15_marca_de_nascenca_death_23",
-      "path": "assets/sprites/goblins/variant_15_marca_de_nascenca_death_23.png"
     },
     {
       "id": "variant_15_marca_de_nascenca_death_3",
@@ -10277,56 +8597,8 @@
       "path": "assets/sprites/goblins/variant_16_sem_orelha_death_11.png"
     },
     {
-      "id": "variant_16_sem_orelha_death_12",
-      "path": "assets/sprites/goblins/variant_16_sem_orelha_death_12.png"
-    },
-    {
-      "id": "variant_16_sem_orelha_death_13",
-      "path": "assets/sprites/goblins/variant_16_sem_orelha_death_13.png"
-    },
-    {
-      "id": "variant_16_sem_orelha_death_14",
-      "path": "assets/sprites/goblins/variant_16_sem_orelha_death_14.png"
-    },
-    {
-      "id": "variant_16_sem_orelha_death_15",
-      "path": "assets/sprites/goblins/variant_16_sem_orelha_death_15.png"
-    },
-    {
-      "id": "variant_16_sem_orelha_death_16",
-      "path": "assets/sprites/goblins/variant_16_sem_orelha_death_16.png"
-    },
-    {
-      "id": "variant_16_sem_orelha_death_17",
-      "path": "assets/sprites/goblins/variant_16_sem_orelha_death_17.png"
-    },
-    {
-      "id": "variant_16_sem_orelha_death_18",
-      "path": "assets/sprites/goblins/variant_16_sem_orelha_death_18.png"
-    },
-    {
-      "id": "variant_16_sem_orelha_death_19",
-      "path": "assets/sprites/goblins/variant_16_sem_orelha_death_19.png"
-    },
-    {
       "id": "variant_16_sem_orelha_death_2",
       "path": "assets/sprites/goblins/variant_16_sem_orelha_death_2.png"
-    },
-    {
-      "id": "variant_16_sem_orelha_death_20",
-      "path": "assets/sprites/goblins/variant_16_sem_orelha_death_20.png"
-    },
-    {
-      "id": "variant_16_sem_orelha_death_21",
-      "path": "assets/sprites/goblins/variant_16_sem_orelha_death_21.png"
-    },
-    {
-      "id": "variant_16_sem_orelha_death_22",
-      "path": "assets/sprites/goblins/variant_16_sem_orelha_death_22.png"
-    },
-    {
-      "id": "variant_16_sem_orelha_death_23",
-      "path": "assets/sprites/goblins/variant_16_sem_orelha_death_23.png"
     },
     {
       "id": "variant_16_sem_orelha_death_3",
@@ -10561,56 +8833,8 @@
       "path": "assets/sprites/goblins/variant_17_enfaixado_death_11.png"
     },
     {
-      "id": "variant_17_enfaixado_death_12",
-      "path": "assets/sprites/goblins/variant_17_enfaixado_death_12.png"
-    },
-    {
-      "id": "variant_17_enfaixado_death_13",
-      "path": "assets/sprites/goblins/variant_17_enfaixado_death_13.png"
-    },
-    {
-      "id": "variant_17_enfaixado_death_14",
-      "path": "assets/sprites/goblins/variant_17_enfaixado_death_14.png"
-    },
-    {
-      "id": "variant_17_enfaixado_death_15",
-      "path": "assets/sprites/goblins/variant_17_enfaixado_death_15.png"
-    },
-    {
-      "id": "variant_17_enfaixado_death_16",
-      "path": "assets/sprites/goblins/variant_17_enfaixado_death_16.png"
-    },
-    {
-      "id": "variant_17_enfaixado_death_17",
-      "path": "assets/sprites/goblins/variant_17_enfaixado_death_17.png"
-    },
-    {
-      "id": "variant_17_enfaixado_death_18",
-      "path": "assets/sprites/goblins/variant_17_enfaixado_death_18.png"
-    },
-    {
-      "id": "variant_17_enfaixado_death_19",
-      "path": "assets/sprites/goblins/variant_17_enfaixado_death_19.png"
-    },
-    {
       "id": "variant_17_enfaixado_death_2",
       "path": "assets/sprites/goblins/variant_17_enfaixado_death_2.png"
-    },
-    {
-      "id": "variant_17_enfaixado_death_20",
-      "path": "assets/sprites/goblins/variant_17_enfaixado_death_20.png"
-    },
-    {
-      "id": "variant_17_enfaixado_death_21",
-      "path": "assets/sprites/goblins/variant_17_enfaixado_death_21.png"
-    },
-    {
-      "id": "variant_17_enfaixado_death_22",
-      "path": "assets/sprites/goblins/variant_17_enfaixado_death_22.png"
-    },
-    {
-      "id": "variant_17_enfaixado_death_23",
-      "path": "assets/sprites/goblins/variant_17_enfaixado_death_23.png"
     },
     {
       "id": "variant_17_enfaixado_death_3",
@@ -10845,56 +9069,8 @@
       "path": "assets/sprites/goblins/variant_18_ileso_death_11.png"
     },
     {
-      "id": "variant_18_ileso_death_12",
-      "path": "assets/sprites/goblins/variant_18_ileso_death_12.png"
-    },
-    {
-      "id": "variant_18_ileso_death_13",
-      "path": "assets/sprites/goblins/variant_18_ileso_death_13.png"
-    },
-    {
-      "id": "variant_18_ileso_death_14",
-      "path": "assets/sprites/goblins/variant_18_ileso_death_14.png"
-    },
-    {
-      "id": "variant_18_ileso_death_15",
-      "path": "assets/sprites/goblins/variant_18_ileso_death_15.png"
-    },
-    {
-      "id": "variant_18_ileso_death_16",
-      "path": "assets/sprites/goblins/variant_18_ileso_death_16.png"
-    },
-    {
-      "id": "variant_18_ileso_death_17",
-      "path": "assets/sprites/goblins/variant_18_ileso_death_17.png"
-    },
-    {
-      "id": "variant_18_ileso_death_18",
-      "path": "assets/sprites/goblins/variant_18_ileso_death_18.png"
-    },
-    {
-      "id": "variant_18_ileso_death_19",
-      "path": "assets/sprites/goblins/variant_18_ileso_death_19.png"
-    },
-    {
       "id": "variant_18_ileso_death_2",
       "path": "assets/sprites/goblins/variant_18_ileso_death_2.png"
-    },
-    {
-      "id": "variant_18_ileso_death_20",
-      "path": "assets/sprites/goblins/variant_18_ileso_death_20.png"
-    },
-    {
-      "id": "variant_18_ileso_death_21",
-      "path": "assets/sprites/goblins/variant_18_ileso_death_21.png"
-    },
-    {
-      "id": "variant_18_ileso_death_22",
-      "path": "assets/sprites/goblins/variant_18_ileso_death_22.png"
-    },
-    {
-      "id": "variant_18_ileso_death_23",
-      "path": "assets/sprites/goblins/variant_18_ileso_death_23.png"
     },
     {
       "id": "variant_18_ileso_death_3",
@@ -11129,56 +9305,8 @@
       "path": "assets/sprites/goblins/variant_19_olho_cego_death_11.png"
     },
     {
-      "id": "variant_19_olho_cego_death_12",
-      "path": "assets/sprites/goblins/variant_19_olho_cego_death_12.png"
-    },
-    {
-      "id": "variant_19_olho_cego_death_13",
-      "path": "assets/sprites/goblins/variant_19_olho_cego_death_13.png"
-    },
-    {
-      "id": "variant_19_olho_cego_death_14",
-      "path": "assets/sprites/goblins/variant_19_olho_cego_death_14.png"
-    },
-    {
-      "id": "variant_19_olho_cego_death_15",
-      "path": "assets/sprites/goblins/variant_19_olho_cego_death_15.png"
-    },
-    {
-      "id": "variant_19_olho_cego_death_16",
-      "path": "assets/sprites/goblins/variant_19_olho_cego_death_16.png"
-    },
-    {
-      "id": "variant_19_olho_cego_death_17",
-      "path": "assets/sprites/goblins/variant_19_olho_cego_death_17.png"
-    },
-    {
-      "id": "variant_19_olho_cego_death_18",
-      "path": "assets/sprites/goblins/variant_19_olho_cego_death_18.png"
-    },
-    {
-      "id": "variant_19_olho_cego_death_19",
-      "path": "assets/sprites/goblins/variant_19_olho_cego_death_19.png"
-    },
-    {
       "id": "variant_19_olho_cego_death_2",
       "path": "assets/sprites/goblins/variant_19_olho_cego_death_2.png"
-    },
-    {
-      "id": "variant_19_olho_cego_death_20",
-      "path": "assets/sprites/goblins/variant_19_olho_cego_death_20.png"
-    },
-    {
-      "id": "variant_19_olho_cego_death_21",
-      "path": "assets/sprites/goblins/variant_19_olho_cego_death_21.png"
-    },
-    {
-      "id": "variant_19_olho_cego_death_22",
-      "path": "assets/sprites/goblins/variant_19_olho_cego_death_22.png"
-    },
-    {
-      "id": "variant_19_olho_cego_death_23",
-      "path": "assets/sprites/goblins/variant_19_olho_cego_death_23.png"
     },
     {
       "id": "variant_19_olho_cego_death_3",
@@ -11413,56 +9541,8 @@
       "path": "assets/sprites/goblins/variant_20_verruga_death_11.png"
     },
     {
-      "id": "variant_20_verruga_death_12",
-      "path": "assets/sprites/goblins/variant_20_verruga_death_12.png"
-    },
-    {
-      "id": "variant_20_verruga_death_13",
-      "path": "assets/sprites/goblins/variant_20_verruga_death_13.png"
-    },
-    {
-      "id": "variant_20_verruga_death_14",
-      "path": "assets/sprites/goblins/variant_20_verruga_death_14.png"
-    },
-    {
-      "id": "variant_20_verruga_death_15",
-      "path": "assets/sprites/goblins/variant_20_verruga_death_15.png"
-    },
-    {
-      "id": "variant_20_verruga_death_16",
-      "path": "assets/sprites/goblins/variant_20_verruga_death_16.png"
-    },
-    {
-      "id": "variant_20_verruga_death_17",
-      "path": "assets/sprites/goblins/variant_20_verruga_death_17.png"
-    },
-    {
-      "id": "variant_20_verruga_death_18",
-      "path": "assets/sprites/goblins/variant_20_verruga_death_18.png"
-    },
-    {
-      "id": "variant_20_verruga_death_19",
-      "path": "assets/sprites/goblins/variant_20_verruga_death_19.png"
-    },
-    {
       "id": "variant_20_verruga_death_2",
       "path": "assets/sprites/goblins/variant_20_verruga_death_2.png"
-    },
-    {
-      "id": "variant_20_verruga_death_20",
-      "path": "assets/sprites/goblins/variant_20_verruga_death_20.png"
-    },
-    {
-      "id": "variant_20_verruga_death_21",
-      "path": "assets/sprites/goblins/variant_20_verruga_death_21.png"
-    },
-    {
-      "id": "variant_20_verruga_death_22",
-      "path": "assets/sprites/goblins/variant_20_verruga_death_22.png"
-    },
-    {
-      "id": "variant_20_verruga_death_23",
-      "path": "assets/sprites/goblins/variant_20_verruga_death_23.png"
     },
     {
       "id": "variant_20_verruga_death_3",
@@ -11697,56 +9777,8 @@
       "path": "assets/sprites/goblins/variant_21_sardas_death_11.png"
     },
     {
-      "id": "variant_21_sardas_death_12",
-      "path": "assets/sprites/goblins/variant_21_sardas_death_12.png"
-    },
-    {
-      "id": "variant_21_sardas_death_13",
-      "path": "assets/sprites/goblins/variant_21_sardas_death_13.png"
-    },
-    {
-      "id": "variant_21_sardas_death_14",
-      "path": "assets/sprites/goblins/variant_21_sardas_death_14.png"
-    },
-    {
-      "id": "variant_21_sardas_death_15",
-      "path": "assets/sprites/goblins/variant_21_sardas_death_15.png"
-    },
-    {
-      "id": "variant_21_sardas_death_16",
-      "path": "assets/sprites/goblins/variant_21_sardas_death_16.png"
-    },
-    {
-      "id": "variant_21_sardas_death_17",
-      "path": "assets/sprites/goblins/variant_21_sardas_death_17.png"
-    },
-    {
-      "id": "variant_21_sardas_death_18",
-      "path": "assets/sprites/goblins/variant_21_sardas_death_18.png"
-    },
-    {
-      "id": "variant_21_sardas_death_19",
-      "path": "assets/sprites/goblins/variant_21_sardas_death_19.png"
-    },
-    {
       "id": "variant_21_sardas_death_2",
       "path": "assets/sprites/goblins/variant_21_sardas_death_2.png"
-    },
-    {
-      "id": "variant_21_sardas_death_20",
-      "path": "assets/sprites/goblins/variant_21_sardas_death_20.png"
-    },
-    {
-      "id": "variant_21_sardas_death_21",
-      "path": "assets/sprites/goblins/variant_21_sardas_death_21.png"
-    },
-    {
-      "id": "variant_21_sardas_death_22",
-      "path": "assets/sprites/goblins/variant_21_sardas_death_22.png"
-    },
-    {
-      "id": "variant_21_sardas_death_23",
-      "path": "assets/sprites/goblins/variant_21_sardas_death_23.png"
     },
     {
       "id": "variant_21_sardas_death_3",
@@ -11981,56 +10013,8 @@
       "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_11.png"
     },
     {
-      "id": "variant_22_tatuagem_facial_death_12",
-      "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_12.png"
-    },
-    {
-      "id": "variant_22_tatuagem_facial_death_13",
-      "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_13.png"
-    },
-    {
-      "id": "variant_22_tatuagem_facial_death_14",
-      "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_14.png"
-    },
-    {
-      "id": "variant_22_tatuagem_facial_death_15",
-      "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_15.png"
-    },
-    {
-      "id": "variant_22_tatuagem_facial_death_16",
-      "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_16.png"
-    },
-    {
-      "id": "variant_22_tatuagem_facial_death_17",
-      "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_17.png"
-    },
-    {
-      "id": "variant_22_tatuagem_facial_death_18",
-      "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_18.png"
-    },
-    {
-      "id": "variant_22_tatuagem_facial_death_19",
-      "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_19.png"
-    },
-    {
       "id": "variant_22_tatuagem_facial_death_2",
       "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_2.png"
-    },
-    {
-      "id": "variant_22_tatuagem_facial_death_20",
-      "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_20.png"
-    },
-    {
-      "id": "variant_22_tatuagem_facial_death_21",
-      "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_21.png"
-    },
-    {
-      "id": "variant_22_tatuagem_facial_death_22",
-      "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_22.png"
-    },
-    {
-      "id": "variant_22_tatuagem_facial_death_23",
-      "path": "assets/sprites/goblins/variant_22_tatuagem_facial_death_23.png"
     },
     {
       "id": "variant_22_tatuagem_facial_death_3",
@@ -12265,56 +10249,8 @@
       "path": "assets/sprites/goblins/variant_23_presas_duplas_death_11.png"
     },
     {
-      "id": "variant_23_presas_duplas_death_12",
-      "path": "assets/sprites/goblins/variant_23_presas_duplas_death_12.png"
-    },
-    {
-      "id": "variant_23_presas_duplas_death_13",
-      "path": "assets/sprites/goblins/variant_23_presas_duplas_death_13.png"
-    },
-    {
-      "id": "variant_23_presas_duplas_death_14",
-      "path": "assets/sprites/goblins/variant_23_presas_duplas_death_14.png"
-    },
-    {
-      "id": "variant_23_presas_duplas_death_15",
-      "path": "assets/sprites/goblins/variant_23_presas_duplas_death_15.png"
-    },
-    {
-      "id": "variant_23_presas_duplas_death_16",
-      "path": "assets/sprites/goblins/variant_23_presas_duplas_death_16.png"
-    },
-    {
-      "id": "variant_23_presas_duplas_death_17",
-      "path": "assets/sprites/goblins/variant_23_presas_duplas_death_17.png"
-    },
-    {
-      "id": "variant_23_presas_duplas_death_18",
-      "path": "assets/sprites/goblins/variant_23_presas_duplas_death_18.png"
-    },
-    {
-      "id": "variant_23_presas_duplas_death_19",
-      "path": "assets/sprites/goblins/variant_23_presas_duplas_death_19.png"
-    },
-    {
       "id": "variant_23_presas_duplas_death_2",
       "path": "assets/sprites/goblins/variant_23_presas_duplas_death_2.png"
-    },
-    {
-      "id": "variant_23_presas_duplas_death_20",
-      "path": "assets/sprites/goblins/variant_23_presas_duplas_death_20.png"
-    },
-    {
-      "id": "variant_23_presas_duplas_death_21",
-      "path": "assets/sprites/goblins/variant_23_presas_duplas_death_21.png"
-    },
-    {
-      "id": "variant_23_presas_duplas_death_22",
-      "path": "assets/sprites/goblins/variant_23_presas_duplas_death_22.png"
-    },
-    {
-      "id": "variant_23_presas_duplas_death_23",
-      "path": "assets/sprites/goblins/variant_23_presas_duplas_death_23.png"
     },
     {
       "id": "variant_23_presas_duplas_death_3",
@@ -12549,56 +10485,8 @@
       "path": "assets/sprites/goblins/variant_24_olho_rubi_death_11.png"
     },
     {
-      "id": "variant_24_olho_rubi_death_12",
-      "path": "assets/sprites/goblins/variant_24_olho_rubi_death_12.png"
-    },
-    {
-      "id": "variant_24_olho_rubi_death_13",
-      "path": "assets/sprites/goblins/variant_24_olho_rubi_death_13.png"
-    },
-    {
-      "id": "variant_24_olho_rubi_death_14",
-      "path": "assets/sprites/goblins/variant_24_olho_rubi_death_14.png"
-    },
-    {
-      "id": "variant_24_olho_rubi_death_15",
-      "path": "assets/sprites/goblins/variant_24_olho_rubi_death_15.png"
-    },
-    {
-      "id": "variant_24_olho_rubi_death_16",
-      "path": "assets/sprites/goblins/variant_24_olho_rubi_death_16.png"
-    },
-    {
-      "id": "variant_24_olho_rubi_death_17",
-      "path": "assets/sprites/goblins/variant_24_olho_rubi_death_17.png"
-    },
-    {
-      "id": "variant_24_olho_rubi_death_18",
-      "path": "assets/sprites/goblins/variant_24_olho_rubi_death_18.png"
-    },
-    {
-      "id": "variant_24_olho_rubi_death_19",
-      "path": "assets/sprites/goblins/variant_24_olho_rubi_death_19.png"
-    },
-    {
       "id": "variant_24_olho_rubi_death_2",
       "path": "assets/sprites/goblins/variant_24_olho_rubi_death_2.png"
-    },
-    {
-      "id": "variant_24_olho_rubi_death_20",
-      "path": "assets/sprites/goblins/variant_24_olho_rubi_death_20.png"
-    },
-    {
-      "id": "variant_24_olho_rubi_death_21",
-      "path": "assets/sprites/goblins/variant_24_olho_rubi_death_21.png"
-    },
-    {
-      "id": "variant_24_olho_rubi_death_22",
-      "path": "assets/sprites/goblins/variant_24_olho_rubi_death_22.png"
-    },
-    {
-      "id": "variant_24_olho_rubi_death_23",
-      "path": "assets/sprites/goblins/variant_24_olho_rubi_death_23.png"
     },
     {
       "id": "variant_24_olho_rubi_death_3",
@@ -12833,56 +10721,8 @@
       "path": "assets/sprites/goblins/variant_26_veterano_death_11.png"
     },
     {
-      "id": "variant_26_veterano_death_12",
-      "path": "assets/sprites/goblins/variant_26_veterano_death_12.png"
-    },
-    {
-      "id": "variant_26_veterano_death_13",
-      "path": "assets/sprites/goblins/variant_26_veterano_death_13.png"
-    },
-    {
-      "id": "variant_26_veterano_death_14",
-      "path": "assets/sprites/goblins/variant_26_veterano_death_14.png"
-    },
-    {
-      "id": "variant_26_veterano_death_15",
-      "path": "assets/sprites/goblins/variant_26_veterano_death_15.png"
-    },
-    {
-      "id": "variant_26_veterano_death_16",
-      "path": "assets/sprites/goblins/variant_26_veterano_death_16.png"
-    },
-    {
-      "id": "variant_26_veterano_death_17",
-      "path": "assets/sprites/goblins/variant_26_veterano_death_17.png"
-    },
-    {
-      "id": "variant_26_veterano_death_18",
-      "path": "assets/sprites/goblins/variant_26_veterano_death_18.png"
-    },
-    {
-      "id": "variant_26_veterano_death_19",
-      "path": "assets/sprites/goblins/variant_26_veterano_death_19.png"
-    },
-    {
       "id": "variant_26_veterano_death_2",
       "path": "assets/sprites/goblins/variant_26_veterano_death_2.png"
-    },
-    {
-      "id": "variant_26_veterano_death_20",
-      "path": "assets/sprites/goblins/variant_26_veterano_death_20.png"
-    },
-    {
-      "id": "variant_26_veterano_death_21",
-      "path": "assets/sprites/goblins/variant_26_veterano_death_21.png"
-    },
-    {
-      "id": "variant_26_veterano_death_22",
-      "path": "assets/sprites/goblins/variant_26_veterano_death_22.png"
-    },
-    {
-      "id": "variant_26_veterano_death_23",
-      "path": "assets/sprites/goblins/variant_26_veterano_death_23.png"
     },
     {
       "id": "variant_26_veterano_death_3",
@@ -13117,56 +10957,8 @@
       "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_11.png"
     },
     {
-      "id": "variant_27_queimado_enfaixado_death_12",
-      "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_12.png"
-    },
-    {
-      "id": "variant_27_queimado_enfaixado_death_13",
-      "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_13.png"
-    },
-    {
-      "id": "variant_27_queimado_enfaixado_death_14",
-      "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_14.png"
-    },
-    {
-      "id": "variant_27_queimado_enfaixado_death_15",
-      "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_15.png"
-    },
-    {
-      "id": "variant_27_queimado_enfaixado_death_16",
-      "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_16.png"
-    },
-    {
-      "id": "variant_27_queimado_enfaixado_death_17",
-      "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_17.png"
-    },
-    {
-      "id": "variant_27_queimado_enfaixado_death_18",
-      "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_18.png"
-    },
-    {
-      "id": "variant_27_queimado_enfaixado_death_19",
-      "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_19.png"
-    },
-    {
       "id": "variant_27_queimado_enfaixado_death_2",
       "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_2.png"
-    },
-    {
-      "id": "variant_27_queimado_enfaixado_death_20",
-      "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_20.png"
-    },
-    {
-      "id": "variant_27_queimado_enfaixado_death_21",
-      "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_21.png"
-    },
-    {
-      "id": "variant_27_queimado_enfaixado_death_22",
-      "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_22.png"
-    },
-    {
-      "id": "variant_27_queimado_enfaixado_death_23",
-      "path": "assets/sprites/goblins/variant_27_queimado_enfaixado_death_23.png"
     },
     {
       "id": "variant_27_queimado_enfaixado_death_3",
@@ -13401,56 +11193,8 @@
       "path": "assets/sprites/goblins/variant_28_albino_rubi_death_11.png"
     },
     {
-      "id": "variant_28_albino_rubi_death_12",
-      "path": "assets/sprites/goblins/variant_28_albino_rubi_death_12.png"
-    },
-    {
-      "id": "variant_28_albino_rubi_death_13",
-      "path": "assets/sprites/goblins/variant_28_albino_rubi_death_13.png"
-    },
-    {
-      "id": "variant_28_albino_rubi_death_14",
-      "path": "assets/sprites/goblins/variant_28_albino_rubi_death_14.png"
-    },
-    {
-      "id": "variant_28_albino_rubi_death_15",
-      "path": "assets/sprites/goblins/variant_28_albino_rubi_death_15.png"
-    },
-    {
-      "id": "variant_28_albino_rubi_death_16",
-      "path": "assets/sprites/goblins/variant_28_albino_rubi_death_16.png"
-    },
-    {
-      "id": "variant_28_albino_rubi_death_17",
-      "path": "assets/sprites/goblins/variant_28_albino_rubi_death_17.png"
-    },
-    {
-      "id": "variant_28_albino_rubi_death_18",
-      "path": "assets/sprites/goblins/variant_28_albino_rubi_death_18.png"
-    },
-    {
-      "id": "variant_28_albino_rubi_death_19",
-      "path": "assets/sprites/goblins/variant_28_albino_rubi_death_19.png"
-    },
-    {
       "id": "variant_28_albino_rubi_death_2",
       "path": "assets/sprites/goblins/variant_28_albino_rubi_death_2.png"
-    },
-    {
-      "id": "variant_28_albino_rubi_death_20",
-      "path": "assets/sprites/goblins/variant_28_albino_rubi_death_20.png"
-    },
-    {
-      "id": "variant_28_albino_rubi_death_21",
-      "path": "assets/sprites/goblins/variant_28_albino_rubi_death_21.png"
-    },
-    {
-      "id": "variant_28_albino_rubi_death_22",
-      "path": "assets/sprites/goblins/variant_28_albino_rubi_death_22.png"
-    },
-    {
-      "id": "variant_28_albino_rubi_death_23",
-      "path": "assets/sprites/goblins/variant_28_albino_rubi_death_23.png"
     },
     {
       "id": "variant_28_albino_rubi_death_3",
@@ -13685,56 +11429,8 @@
       "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_11.png"
     },
     {
-      "id": "variant_29_guerreiro_marcado_death_12",
-      "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_12.png"
-    },
-    {
-      "id": "variant_29_guerreiro_marcado_death_13",
-      "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_13.png"
-    },
-    {
-      "id": "variant_29_guerreiro_marcado_death_14",
-      "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_14.png"
-    },
-    {
-      "id": "variant_29_guerreiro_marcado_death_15",
-      "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_15.png"
-    },
-    {
-      "id": "variant_29_guerreiro_marcado_death_16",
-      "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_16.png"
-    },
-    {
-      "id": "variant_29_guerreiro_marcado_death_17",
-      "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_17.png"
-    },
-    {
-      "id": "variant_29_guerreiro_marcado_death_18",
-      "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_18.png"
-    },
-    {
-      "id": "variant_29_guerreiro_marcado_death_19",
-      "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_19.png"
-    },
-    {
       "id": "variant_29_guerreiro_marcado_death_2",
       "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_2.png"
-    },
-    {
-      "id": "variant_29_guerreiro_marcado_death_20",
-      "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_20.png"
-    },
-    {
-      "id": "variant_29_guerreiro_marcado_death_21",
-      "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_21.png"
-    },
-    {
-      "id": "variant_29_guerreiro_marcado_death_22",
-      "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_22.png"
-    },
-    {
-      "id": "variant_29_guerreiro_marcado_death_23",
-      "path": "assets/sprites/goblins/variant_29_guerreiro_marcado_death_23.png"
     },
     {
       "id": "variant_29_guerreiro_marcado_death_3",
@@ -13969,56 +11665,8 @@
       "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_11.png"
     },
     {
-      "id": "variant_30_sobrevivente_ferido_death_12",
-      "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_12.png"
-    },
-    {
-      "id": "variant_30_sobrevivente_ferido_death_13",
-      "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_13.png"
-    },
-    {
-      "id": "variant_30_sobrevivente_ferido_death_14",
-      "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_14.png"
-    },
-    {
-      "id": "variant_30_sobrevivente_ferido_death_15",
-      "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_15.png"
-    },
-    {
-      "id": "variant_30_sobrevivente_ferido_death_16",
-      "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_16.png"
-    },
-    {
-      "id": "variant_30_sobrevivente_ferido_death_17",
-      "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_17.png"
-    },
-    {
-      "id": "variant_30_sobrevivente_ferido_death_18",
-      "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_18.png"
-    },
-    {
-      "id": "variant_30_sobrevivente_ferido_death_19",
-      "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_19.png"
-    },
-    {
       "id": "variant_30_sobrevivente_ferido_death_2",
       "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_2.png"
-    },
-    {
-      "id": "variant_30_sobrevivente_ferido_death_20",
-      "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_20.png"
-    },
-    {
-      "id": "variant_30_sobrevivente_ferido_death_21",
-      "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_21.png"
-    },
-    {
-      "id": "variant_30_sobrevivente_ferido_death_22",
-      "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_22.png"
-    },
-    {
-      "id": "variant_30_sobrevivente_ferido_death_23",
-      "path": "assets/sprites/goblins/variant_30_sobrevivente_ferido_death_23.png"
     },
     {
       "id": "variant_30_sobrevivente_ferido_death_3",
@@ -14253,56 +11901,8 @@
       "path": "assets/sprites/goblins/variant_31_mistico_death_11.png"
     },
     {
-      "id": "variant_31_mistico_death_12",
-      "path": "assets/sprites/goblins/variant_31_mistico_death_12.png"
-    },
-    {
-      "id": "variant_31_mistico_death_13",
-      "path": "assets/sprites/goblins/variant_31_mistico_death_13.png"
-    },
-    {
-      "id": "variant_31_mistico_death_14",
-      "path": "assets/sprites/goblins/variant_31_mistico_death_14.png"
-    },
-    {
-      "id": "variant_31_mistico_death_15",
-      "path": "assets/sprites/goblins/variant_31_mistico_death_15.png"
-    },
-    {
-      "id": "variant_31_mistico_death_16",
-      "path": "assets/sprites/goblins/variant_31_mistico_death_16.png"
-    },
-    {
-      "id": "variant_31_mistico_death_17",
-      "path": "assets/sprites/goblins/variant_31_mistico_death_17.png"
-    },
-    {
-      "id": "variant_31_mistico_death_18",
-      "path": "assets/sprites/goblins/variant_31_mistico_death_18.png"
-    },
-    {
-      "id": "variant_31_mistico_death_19",
-      "path": "assets/sprites/goblins/variant_31_mistico_death_19.png"
-    },
-    {
       "id": "variant_31_mistico_death_2",
       "path": "assets/sprites/goblins/variant_31_mistico_death_2.png"
-    },
-    {
-      "id": "variant_31_mistico_death_20",
-      "path": "assets/sprites/goblins/variant_31_mistico_death_20.png"
-    },
-    {
-      "id": "variant_31_mistico_death_21",
-      "path": "assets/sprites/goblins/variant_31_mistico_death_21.png"
-    },
-    {
-      "id": "variant_31_mistico_death_22",
-      "path": "assets/sprites/goblins/variant_31_mistico_death_22.png"
-    },
-    {
-      "id": "variant_31_mistico_death_23",
-      "path": "assets/sprites/goblins/variant_31_mistico_death_23.png"
     },
     {
       "id": "variant_31_mistico_death_3",
@@ -14537,56 +12137,8 @@
       "path": "assets/sprites/goblins/variant_32_brigao_death_11.png"
     },
     {
-      "id": "variant_32_brigao_death_12",
-      "path": "assets/sprites/goblins/variant_32_brigao_death_12.png"
-    },
-    {
-      "id": "variant_32_brigao_death_13",
-      "path": "assets/sprites/goblins/variant_32_brigao_death_13.png"
-    },
-    {
-      "id": "variant_32_brigao_death_14",
-      "path": "assets/sprites/goblins/variant_32_brigao_death_14.png"
-    },
-    {
-      "id": "variant_32_brigao_death_15",
-      "path": "assets/sprites/goblins/variant_32_brigao_death_15.png"
-    },
-    {
-      "id": "variant_32_brigao_death_16",
-      "path": "assets/sprites/goblins/variant_32_brigao_death_16.png"
-    },
-    {
-      "id": "variant_32_brigao_death_17",
-      "path": "assets/sprites/goblins/variant_32_brigao_death_17.png"
-    },
-    {
-      "id": "variant_32_brigao_death_18",
-      "path": "assets/sprites/goblins/variant_32_brigao_death_18.png"
-    },
-    {
-      "id": "variant_32_brigao_death_19",
-      "path": "assets/sprites/goblins/variant_32_brigao_death_19.png"
-    },
-    {
       "id": "variant_32_brigao_death_2",
       "path": "assets/sprites/goblins/variant_32_brigao_death_2.png"
-    },
-    {
-      "id": "variant_32_brigao_death_20",
-      "path": "assets/sprites/goblins/variant_32_brigao_death_20.png"
-    },
-    {
-      "id": "variant_32_brigao_death_21",
-      "path": "assets/sprites/goblins/variant_32_brigao_death_21.png"
-    },
-    {
-      "id": "variant_32_brigao_death_22",
-      "path": "assets/sprites/goblins/variant_32_brigao_death_22.png"
-    },
-    {
-      "id": "variant_32_brigao_death_23",
-      "path": "assets/sprites/goblins/variant_32_brigao_death_23.png"
     },
     {
       "id": "variant_32_brigao_death_3",
@@ -14821,56 +12373,8 @@
       "path": "assets/sprites/goblins/variant_33_amaldicoado_death_11.png"
     },
     {
-      "id": "variant_33_amaldicoado_death_12",
-      "path": "assets/sprites/goblins/variant_33_amaldicoado_death_12.png"
-    },
-    {
-      "id": "variant_33_amaldicoado_death_13",
-      "path": "assets/sprites/goblins/variant_33_amaldicoado_death_13.png"
-    },
-    {
-      "id": "variant_33_amaldicoado_death_14",
-      "path": "assets/sprites/goblins/variant_33_amaldicoado_death_14.png"
-    },
-    {
-      "id": "variant_33_amaldicoado_death_15",
-      "path": "assets/sprites/goblins/variant_33_amaldicoado_death_15.png"
-    },
-    {
-      "id": "variant_33_amaldicoado_death_16",
-      "path": "assets/sprites/goblins/variant_33_amaldicoado_death_16.png"
-    },
-    {
-      "id": "variant_33_amaldicoado_death_17",
-      "path": "assets/sprites/goblins/variant_33_amaldicoado_death_17.png"
-    },
-    {
-      "id": "variant_33_amaldicoado_death_18",
-      "path": "assets/sprites/goblins/variant_33_amaldicoado_death_18.png"
-    },
-    {
-      "id": "variant_33_amaldicoado_death_19",
-      "path": "assets/sprites/goblins/variant_33_amaldicoado_death_19.png"
-    },
-    {
       "id": "variant_33_amaldicoado_death_2",
       "path": "assets/sprites/goblins/variant_33_amaldicoado_death_2.png"
-    },
-    {
-      "id": "variant_33_amaldicoado_death_20",
-      "path": "assets/sprites/goblins/variant_33_amaldicoado_death_20.png"
-    },
-    {
-      "id": "variant_33_amaldicoado_death_21",
-      "path": "assets/sprites/goblins/variant_33_amaldicoado_death_21.png"
-    },
-    {
-      "id": "variant_33_amaldicoado_death_22",
-      "path": "assets/sprites/goblins/variant_33_amaldicoado_death_22.png"
-    },
-    {
-      "id": "variant_33_amaldicoado_death_23",
-      "path": "assets/sprites/goblins/variant_33_amaldicoado_death_23.png"
     },
     {
       "id": "variant_33_amaldicoado_death_3",
@@ -15105,56 +12609,8 @@
       "path": "assets/sprites/goblins/variant_34_sardento_death_11.png"
     },
     {
-      "id": "variant_34_sardento_death_12",
-      "path": "assets/sprites/goblins/variant_34_sardento_death_12.png"
-    },
-    {
-      "id": "variant_34_sardento_death_13",
-      "path": "assets/sprites/goblins/variant_34_sardento_death_13.png"
-    },
-    {
-      "id": "variant_34_sardento_death_14",
-      "path": "assets/sprites/goblins/variant_34_sardento_death_14.png"
-    },
-    {
-      "id": "variant_34_sardento_death_15",
-      "path": "assets/sprites/goblins/variant_34_sardento_death_15.png"
-    },
-    {
-      "id": "variant_34_sardento_death_16",
-      "path": "assets/sprites/goblins/variant_34_sardento_death_16.png"
-    },
-    {
-      "id": "variant_34_sardento_death_17",
-      "path": "assets/sprites/goblins/variant_34_sardento_death_17.png"
-    },
-    {
-      "id": "variant_34_sardento_death_18",
-      "path": "assets/sprites/goblins/variant_34_sardento_death_18.png"
-    },
-    {
-      "id": "variant_34_sardento_death_19",
-      "path": "assets/sprites/goblins/variant_34_sardento_death_19.png"
-    },
-    {
       "id": "variant_34_sardento_death_2",
       "path": "assets/sprites/goblins/variant_34_sardento_death_2.png"
-    },
-    {
-      "id": "variant_34_sardento_death_20",
-      "path": "assets/sprites/goblins/variant_34_sardento_death_20.png"
-    },
-    {
-      "id": "variant_34_sardento_death_21",
-      "path": "assets/sprites/goblins/variant_34_sardento_death_21.png"
-    },
-    {
-      "id": "variant_34_sardento_death_22",
-      "path": "assets/sprites/goblins/variant_34_sardento_death_22.png"
-    },
-    {
-      "id": "variant_34_sardento_death_23",
-      "path": "assets/sprites/goblins/variant_34_sardento_death_23.png"
     },
     {
       "id": "variant_34_sardento_death_3",
@@ -15389,56 +12845,8 @@
       "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_11.png"
     },
     {
-      "id": "variant_35_cacador_marcado_death_12",
-      "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_12.png"
-    },
-    {
-      "id": "variant_35_cacador_marcado_death_13",
-      "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_13.png"
-    },
-    {
-      "id": "variant_35_cacador_marcado_death_14",
-      "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_14.png"
-    },
-    {
-      "id": "variant_35_cacador_marcado_death_15",
-      "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_15.png"
-    },
-    {
-      "id": "variant_35_cacador_marcado_death_16",
-      "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_16.png"
-    },
-    {
-      "id": "variant_35_cacador_marcado_death_17",
-      "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_17.png"
-    },
-    {
-      "id": "variant_35_cacador_marcado_death_18",
-      "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_18.png"
-    },
-    {
-      "id": "variant_35_cacador_marcado_death_19",
-      "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_19.png"
-    },
-    {
       "id": "variant_35_cacador_marcado_death_2",
       "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_2.png"
-    },
-    {
-      "id": "variant_35_cacador_marcado_death_20",
-      "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_20.png"
-    },
-    {
-      "id": "variant_35_cacador_marcado_death_21",
-      "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_21.png"
-    },
-    {
-      "id": "variant_35_cacador_marcado_death_22",
-      "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_22.png"
-    },
-    {
-      "id": "variant_35_cacador_marcado_death_23",
-      "path": "assets/sprites/goblins/variant_35_cacador_marcado_death_23.png"
     },
     {
       "id": "variant_35_cacador_marcado_death_3",
@@ -15673,56 +13081,8 @@
       "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_11.png"
     },
     {
-      "id": "variant_36_pirata_queimado_death_12",
-      "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_12.png"
-    },
-    {
-      "id": "variant_36_pirata_queimado_death_13",
-      "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_13.png"
-    },
-    {
-      "id": "variant_36_pirata_queimado_death_14",
-      "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_14.png"
-    },
-    {
-      "id": "variant_36_pirata_queimado_death_15",
-      "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_15.png"
-    },
-    {
-      "id": "variant_36_pirata_queimado_death_16",
-      "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_16.png"
-    },
-    {
-      "id": "variant_36_pirata_queimado_death_17",
-      "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_17.png"
-    },
-    {
-      "id": "variant_36_pirata_queimado_death_18",
-      "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_18.png"
-    },
-    {
-      "id": "variant_36_pirata_queimado_death_19",
-      "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_19.png"
-    },
-    {
       "id": "variant_36_pirata_queimado_death_2",
       "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_2.png"
-    },
-    {
-      "id": "variant_36_pirata_queimado_death_20",
-      "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_20.png"
-    },
-    {
-      "id": "variant_36_pirata_queimado_death_21",
-      "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_21.png"
-    },
-    {
-      "id": "variant_36_pirata_queimado_death_22",
-      "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_22.png"
-    },
-    {
-      "id": "variant_36_pirata_queimado_death_23",
-      "path": "assets/sprites/goblins/variant_36_pirata_queimado_death_23.png"
     },
     {
       "id": "variant_36_pirata_queimado_death_3",
@@ -15957,56 +13317,8 @@
       "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_11.png"
     },
     {
-      "id": "variant_37_albino_cicatrizado_death_12",
-      "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_12.png"
-    },
-    {
-      "id": "variant_37_albino_cicatrizado_death_13",
-      "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_13.png"
-    },
-    {
-      "id": "variant_37_albino_cicatrizado_death_14",
-      "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_14.png"
-    },
-    {
-      "id": "variant_37_albino_cicatrizado_death_15",
-      "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_15.png"
-    },
-    {
-      "id": "variant_37_albino_cicatrizado_death_16",
-      "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_16.png"
-    },
-    {
-      "id": "variant_37_albino_cicatrizado_death_17",
-      "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_17.png"
-    },
-    {
-      "id": "variant_37_albino_cicatrizado_death_18",
-      "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_18.png"
-    },
-    {
-      "id": "variant_37_albino_cicatrizado_death_19",
-      "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_19.png"
-    },
-    {
       "id": "variant_37_albino_cicatrizado_death_2",
       "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_2.png"
-    },
-    {
-      "id": "variant_37_albino_cicatrizado_death_20",
-      "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_20.png"
-    },
-    {
-      "id": "variant_37_albino_cicatrizado_death_21",
-      "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_21.png"
-    },
-    {
-      "id": "variant_37_albino_cicatrizado_death_22",
-      "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_22.png"
-    },
-    {
-      "id": "variant_37_albino_cicatrizado_death_23",
-      "path": "assets/sprites/goblins/variant_37_albino_cicatrizado_death_23.png"
     },
     {
       "id": "variant_37_albino_cicatrizado_death_3",
@@ -16241,56 +13553,8 @@
       "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_11.png"
     },
     {
-      "id": "variant_38_guerreiro_enfaixado_death_12",
-      "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_12.png"
-    },
-    {
-      "id": "variant_38_guerreiro_enfaixado_death_13",
-      "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_13.png"
-    },
-    {
-      "id": "variant_38_guerreiro_enfaixado_death_14",
-      "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_14.png"
-    },
-    {
-      "id": "variant_38_guerreiro_enfaixado_death_15",
-      "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_15.png"
-    },
-    {
-      "id": "variant_38_guerreiro_enfaixado_death_16",
-      "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_16.png"
-    },
-    {
-      "id": "variant_38_guerreiro_enfaixado_death_17",
-      "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_17.png"
-    },
-    {
-      "id": "variant_38_guerreiro_enfaixado_death_18",
-      "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_18.png"
-    },
-    {
-      "id": "variant_38_guerreiro_enfaixado_death_19",
-      "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_19.png"
-    },
-    {
       "id": "variant_38_guerreiro_enfaixado_death_2",
       "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_2.png"
-    },
-    {
-      "id": "variant_38_guerreiro_enfaixado_death_20",
-      "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_20.png"
-    },
-    {
-      "id": "variant_38_guerreiro_enfaixado_death_21",
-      "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_21.png"
-    },
-    {
-      "id": "variant_38_guerreiro_enfaixado_death_22",
-      "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_22.png"
-    },
-    {
-      "id": "variant_38_guerreiro_enfaixado_death_23",
-      "path": "assets/sprites/goblins/variant_38_guerreiro_enfaixado_death_23.png"
     },
     {
       "id": "variant_38_guerreiro_enfaixado_death_3",
@@ -16525,56 +13789,8 @@
       "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_11.png"
     },
     {
-      "id": "variant_39_oraculo_rubi_death_12",
-      "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_12.png"
-    },
-    {
-      "id": "variant_39_oraculo_rubi_death_13",
-      "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_13.png"
-    },
-    {
-      "id": "variant_39_oraculo_rubi_death_14",
-      "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_14.png"
-    },
-    {
-      "id": "variant_39_oraculo_rubi_death_15",
-      "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_15.png"
-    },
-    {
-      "id": "variant_39_oraculo_rubi_death_16",
-      "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_16.png"
-    },
-    {
-      "id": "variant_39_oraculo_rubi_death_17",
-      "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_17.png"
-    },
-    {
-      "id": "variant_39_oraculo_rubi_death_18",
-      "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_18.png"
-    },
-    {
-      "id": "variant_39_oraculo_rubi_death_19",
-      "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_19.png"
-    },
-    {
       "id": "variant_39_oraculo_rubi_death_2",
       "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_2.png"
-    },
-    {
-      "id": "variant_39_oraculo_rubi_death_20",
-      "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_20.png"
-    },
-    {
-      "id": "variant_39_oraculo_rubi_death_21",
-      "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_21.png"
-    },
-    {
-      "id": "variant_39_oraculo_rubi_death_22",
-      "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_22.png"
-    },
-    {
-      "id": "variant_39_oraculo_rubi_death_23",
-      "path": "assets/sprites/goblins/variant_39_oraculo_rubi_death_23.png"
     },
     {
       "id": "variant_39_oraculo_rubi_death_3",
@@ -16809,56 +14025,8 @@
       "path": "assets/sprites/goblins/variant_40_presas_douradas_death_11.png"
     },
     {
-      "id": "variant_40_presas_douradas_death_12",
-      "path": "assets/sprites/goblins/variant_40_presas_douradas_death_12.png"
-    },
-    {
-      "id": "variant_40_presas_douradas_death_13",
-      "path": "assets/sprites/goblins/variant_40_presas_douradas_death_13.png"
-    },
-    {
-      "id": "variant_40_presas_douradas_death_14",
-      "path": "assets/sprites/goblins/variant_40_presas_douradas_death_14.png"
-    },
-    {
-      "id": "variant_40_presas_douradas_death_15",
-      "path": "assets/sprites/goblins/variant_40_presas_douradas_death_15.png"
-    },
-    {
-      "id": "variant_40_presas_douradas_death_16",
-      "path": "assets/sprites/goblins/variant_40_presas_douradas_death_16.png"
-    },
-    {
-      "id": "variant_40_presas_douradas_death_17",
-      "path": "assets/sprites/goblins/variant_40_presas_douradas_death_17.png"
-    },
-    {
-      "id": "variant_40_presas_douradas_death_18",
-      "path": "assets/sprites/goblins/variant_40_presas_douradas_death_18.png"
-    },
-    {
-      "id": "variant_40_presas_douradas_death_19",
-      "path": "assets/sprites/goblins/variant_40_presas_douradas_death_19.png"
-    },
-    {
       "id": "variant_40_presas_douradas_death_2",
       "path": "assets/sprites/goblins/variant_40_presas_douradas_death_2.png"
-    },
-    {
-      "id": "variant_40_presas_douradas_death_20",
-      "path": "assets/sprites/goblins/variant_40_presas_douradas_death_20.png"
-    },
-    {
-      "id": "variant_40_presas_douradas_death_21",
-      "path": "assets/sprites/goblins/variant_40_presas_douradas_death_21.png"
-    },
-    {
-      "id": "variant_40_presas_douradas_death_22",
-      "path": "assets/sprites/goblins/variant_40_presas_douradas_death_22.png"
-    },
-    {
-      "id": "variant_40_presas_douradas_death_23",
-      "path": "assets/sprites/goblins/variant_40_presas_douradas_death_23.png"
     },
     {
       "id": "variant_40_presas_douradas_death_3",
@@ -17093,56 +14261,8 @@
       "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_11.png"
     },
     {
-      "id": "variant_41_veterano_enfaixado_death_12",
-      "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_12.png"
-    },
-    {
-      "id": "variant_41_veterano_enfaixado_death_13",
-      "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_13.png"
-    },
-    {
-      "id": "variant_41_veterano_enfaixado_death_14",
-      "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_14.png"
-    },
-    {
-      "id": "variant_41_veterano_enfaixado_death_15",
-      "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_15.png"
-    },
-    {
-      "id": "variant_41_veterano_enfaixado_death_16",
-      "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_16.png"
-    },
-    {
-      "id": "variant_41_veterano_enfaixado_death_17",
-      "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_17.png"
-    },
-    {
-      "id": "variant_41_veterano_enfaixado_death_18",
-      "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_18.png"
-    },
-    {
-      "id": "variant_41_veterano_enfaixado_death_19",
-      "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_19.png"
-    },
-    {
       "id": "variant_41_veterano_enfaixado_death_2",
       "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_2.png"
-    },
-    {
-      "id": "variant_41_veterano_enfaixado_death_20",
-      "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_20.png"
-    },
-    {
-      "id": "variant_41_veterano_enfaixado_death_21",
-      "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_21.png"
-    },
-    {
-      "id": "variant_41_veterano_enfaixado_death_22",
-      "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_22.png"
-    },
-    {
-      "id": "variant_41_veterano_enfaixado_death_23",
-      "path": "assets/sprites/goblins/variant_41_veterano_enfaixado_death_23.png"
     },
     {
       "id": "variant_41_veterano_enfaixado_death_3",
@@ -17377,56 +14497,8 @@
       "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_11.png"
     },
     {
-      "id": "variant_42_queimado_tatuado_death_12",
-      "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_12.png"
-    },
-    {
-      "id": "variant_42_queimado_tatuado_death_13",
-      "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_13.png"
-    },
-    {
-      "id": "variant_42_queimado_tatuado_death_14",
-      "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_14.png"
-    },
-    {
-      "id": "variant_42_queimado_tatuado_death_15",
-      "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_15.png"
-    },
-    {
-      "id": "variant_42_queimado_tatuado_death_16",
-      "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_16.png"
-    },
-    {
-      "id": "variant_42_queimado_tatuado_death_17",
-      "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_17.png"
-    },
-    {
-      "id": "variant_42_queimado_tatuado_death_18",
-      "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_18.png"
-    },
-    {
-      "id": "variant_42_queimado_tatuado_death_19",
-      "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_19.png"
-    },
-    {
       "id": "variant_42_queimado_tatuado_death_2",
       "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_2.png"
-    },
-    {
-      "id": "variant_42_queimado_tatuado_death_20",
-      "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_20.png"
-    },
-    {
-      "id": "variant_42_queimado_tatuado_death_21",
-      "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_21.png"
-    },
-    {
-      "id": "variant_42_queimado_tatuado_death_22",
-      "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_22.png"
-    },
-    {
-      "id": "variant_42_queimado_tatuado_death_23",
-      "path": "assets/sprites/goblins/variant_42_queimado_tatuado_death_23.png"
     },
     {
       "id": "variant_42_queimado_tatuado_death_3",
@@ -17661,56 +14733,8 @@
       "path": "assets/sprites/goblins/variant_43_albino_sardento_death_11.png"
     },
     {
-      "id": "variant_43_albino_sardento_death_12",
-      "path": "assets/sprites/goblins/variant_43_albino_sardento_death_12.png"
-    },
-    {
-      "id": "variant_43_albino_sardento_death_13",
-      "path": "assets/sprites/goblins/variant_43_albino_sardento_death_13.png"
-    },
-    {
-      "id": "variant_43_albino_sardento_death_14",
-      "path": "assets/sprites/goblins/variant_43_albino_sardento_death_14.png"
-    },
-    {
-      "id": "variant_43_albino_sardento_death_15",
-      "path": "assets/sprites/goblins/variant_43_albino_sardento_death_15.png"
-    },
-    {
-      "id": "variant_43_albino_sardento_death_16",
-      "path": "assets/sprites/goblins/variant_43_albino_sardento_death_16.png"
-    },
-    {
-      "id": "variant_43_albino_sardento_death_17",
-      "path": "assets/sprites/goblins/variant_43_albino_sardento_death_17.png"
-    },
-    {
-      "id": "variant_43_albino_sardento_death_18",
-      "path": "assets/sprites/goblins/variant_43_albino_sardento_death_18.png"
-    },
-    {
-      "id": "variant_43_albino_sardento_death_19",
-      "path": "assets/sprites/goblins/variant_43_albino_sardento_death_19.png"
-    },
-    {
       "id": "variant_43_albino_sardento_death_2",
       "path": "assets/sprites/goblins/variant_43_albino_sardento_death_2.png"
-    },
-    {
-      "id": "variant_43_albino_sardento_death_20",
-      "path": "assets/sprites/goblins/variant_43_albino_sardento_death_20.png"
-    },
-    {
-      "id": "variant_43_albino_sardento_death_21",
-      "path": "assets/sprites/goblins/variant_43_albino_sardento_death_21.png"
-    },
-    {
-      "id": "variant_43_albino_sardento_death_22",
-      "path": "assets/sprites/goblins/variant_43_albino_sardento_death_22.png"
-    },
-    {
-      "id": "variant_43_albino_sardento_death_23",
-      "path": "assets/sprites/goblins/variant_43_albino_sardento_death_23.png"
     },
     {
       "id": "variant_43_albino_sardento_death_3",
@@ -17945,56 +14969,8 @@
       "path": "assets/sprites/goblins/variant_44_brigao_cego_death_11.png"
     },
     {
-      "id": "variant_44_brigao_cego_death_12",
-      "path": "assets/sprites/goblins/variant_44_brigao_cego_death_12.png"
-    },
-    {
-      "id": "variant_44_brigao_cego_death_13",
-      "path": "assets/sprites/goblins/variant_44_brigao_cego_death_13.png"
-    },
-    {
-      "id": "variant_44_brigao_cego_death_14",
-      "path": "assets/sprites/goblins/variant_44_brigao_cego_death_14.png"
-    },
-    {
-      "id": "variant_44_brigao_cego_death_15",
-      "path": "assets/sprites/goblins/variant_44_brigao_cego_death_15.png"
-    },
-    {
-      "id": "variant_44_brigao_cego_death_16",
-      "path": "assets/sprites/goblins/variant_44_brigao_cego_death_16.png"
-    },
-    {
-      "id": "variant_44_brigao_cego_death_17",
-      "path": "assets/sprites/goblins/variant_44_brigao_cego_death_17.png"
-    },
-    {
-      "id": "variant_44_brigao_cego_death_18",
-      "path": "assets/sprites/goblins/variant_44_brigao_cego_death_18.png"
-    },
-    {
-      "id": "variant_44_brigao_cego_death_19",
-      "path": "assets/sprites/goblins/variant_44_brigao_cego_death_19.png"
-    },
-    {
       "id": "variant_44_brigao_cego_death_2",
       "path": "assets/sprites/goblins/variant_44_brigao_cego_death_2.png"
-    },
-    {
-      "id": "variant_44_brigao_cego_death_20",
-      "path": "assets/sprites/goblins/variant_44_brigao_cego_death_20.png"
-    },
-    {
-      "id": "variant_44_brigao_cego_death_21",
-      "path": "assets/sprites/goblins/variant_44_brigao_cego_death_21.png"
-    },
-    {
-      "id": "variant_44_brigao_cego_death_22",
-      "path": "assets/sprites/goblins/variant_44_brigao_cego_death_22.png"
-    },
-    {
-      "id": "variant_44_brigao_cego_death_23",
-      "path": "assets/sprites/goblins/variant_44_brigao_cego_death_23.png"
     },
     {
       "id": "variant_44_brigao_cego_death_3",
@@ -18229,56 +15205,8 @@
       "path": "assets/sprites/goblins/variant_45_fanatico_death_11.png"
     },
     {
-      "id": "variant_45_fanatico_death_12",
-      "path": "assets/sprites/goblins/variant_45_fanatico_death_12.png"
-    },
-    {
-      "id": "variant_45_fanatico_death_13",
-      "path": "assets/sprites/goblins/variant_45_fanatico_death_13.png"
-    },
-    {
-      "id": "variant_45_fanatico_death_14",
-      "path": "assets/sprites/goblins/variant_45_fanatico_death_14.png"
-    },
-    {
-      "id": "variant_45_fanatico_death_15",
-      "path": "assets/sprites/goblins/variant_45_fanatico_death_15.png"
-    },
-    {
-      "id": "variant_45_fanatico_death_16",
-      "path": "assets/sprites/goblins/variant_45_fanatico_death_16.png"
-    },
-    {
-      "id": "variant_45_fanatico_death_17",
-      "path": "assets/sprites/goblins/variant_45_fanatico_death_17.png"
-    },
-    {
-      "id": "variant_45_fanatico_death_18",
-      "path": "assets/sprites/goblins/variant_45_fanatico_death_18.png"
-    },
-    {
-      "id": "variant_45_fanatico_death_19",
-      "path": "assets/sprites/goblins/variant_45_fanatico_death_19.png"
-    },
-    {
       "id": "variant_45_fanatico_death_2",
       "path": "assets/sprites/goblins/variant_45_fanatico_death_2.png"
-    },
-    {
-      "id": "variant_45_fanatico_death_20",
-      "path": "assets/sprites/goblins/variant_45_fanatico_death_20.png"
-    },
-    {
-      "id": "variant_45_fanatico_death_21",
-      "path": "assets/sprites/goblins/variant_45_fanatico_death_21.png"
-    },
-    {
-      "id": "variant_45_fanatico_death_22",
-      "path": "assets/sprites/goblins/variant_45_fanatico_death_22.png"
-    },
-    {
-      "id": "variant_45_fanatico_death_23",
-      "path": "assets/sprites/goblins/variant_45_fanatico_death_23.png"
     },
     {
       "id": "variant_45_fanatico_death_3",
@@ -18513,56 +15441,8 @@
       "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_11.png"
     },
     {
-      "id": "variant_46_marcado_rubi_death_12",
-      "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_12.png"
-    },
-    {
-      "id": "variant_46_marcado_rubi_death_13",
-      "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_13.png"
-    },
-    {
-      "id": "variant_46_marcado_rubi_death_14",
-      "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_14.png"
-    },
-    {
-      "id": "variant_46_marcado_rubi_death_15",
-      "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_15.png"
-    },
-    {
-      "id": "variant_46_marcado_rubi_death_16",
-      "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_16.png"
-    },
-    {
-      "id": "variant_46_marcado_rubi_death_17",
-      "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_17.png"
-    },
-    {
-      "id": "variant_46_marcado_rubi_death_18",
-      "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_18.png"
-    },
-    {
-      "id": "variant_46_marcado_rubi_death_19",
-      "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_19.png"
-    },
-    {
       "id": "variant_46_marcado_rubi_death_2",
       "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_2.png"
-    },
-    {
-      "id": "variant_46_marcado_rubi_death_20",
-      "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_20.png"
-    },
-    {
-      "id": "variant_46_marcado_rubi_death_21",
-      "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_21.png"
-    },
-    {
-      "id": "variant_46_marcado_rubi_death_22",
-      "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_22.png"
-    },
-    {
-      "id": "variant_46_marcado_rubi_death_23",
-      "path": "assets/sprites/goblins/variant_46_marcado_rubi_death_23.png"
     },
     {
       "id": "variant_46_marcado_rubi_death_3",
@@ -18797,56 +15677,8 @@
       "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_11.png"
     },
     {
-      "id": "variant_47_sobrevivente_sujo_death_12",
-      "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_12.png"
-    },
-    {
-      "id": "variant_47_sobrevivente_sujo_death_13",
-      "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_13.png"
-    },
-    {
-      "id": "variant_47_sobrevivente_sujo_death_14",
-      "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_14.png"
-    },
-    {
-      "id": "variant_47_sobrevivente_sujo_death_15",
-      "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_15.png"
-    },
-    {
-      "id": "variant_47_sobrevivente_sujo_death_16",
-      "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_16.png"
-    },
-    {
-      "id": "variant_47_sobrevivente_sujo_death_17",
-      "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_17.png"
-    },
-    {
-      "id": "variant_47_sobrevivente_sujo_death_18",
-      "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_18.png"
-    },
-    {
-      "id": "variant_47_sobrevivente_sujo_death_19",
-      "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_19.png"
-    },
-    {
       "id": "variant_47_sobrevivente_sujo_death_2",
       "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_2.png"
-    },
-    {
-      "id": "variant_47_sobrevivente_sujo_death_20",
-      "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_20.png"
-    },
-    {
-      "id": "variant_47_sobrevivente_sujo_death_21",
-      "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_21.png"
-    },
-    {
-      "id": "variant_47_sobrevivente_sujo_death_22",
-      "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_22.png"
-    },
-    {
-      "id": "variant_47_sobrevivente_sujo_death_23",
-      "path": "assets/sprites/goblins/variant_47_sobrevivente_sujo_death_23.png"
     },
     {
       "id": "variant_47_sobrevivente_sujo_death_3",
@@ -19081,56 +15913,8 @@
       "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_11.png"
     },
     {
-      "id": "variant_48_corsario_tatuado_death_12",
-      "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_12.png"
-    },
-    {
-      "id": "variant_48_corsario_tatuado_death_13",
-      "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_13.png"
-    },
-    {
-      "id": "variant_48_corsario_tatuado_death_14",
-      "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_14.png"
-    },
-    {
-      "id": "variant_48_corsario_tatuado_death_15",
-      "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_15.png"
-    },
-    {
-      "id": "variant_48_corsario_tatuado_death_16",
-      "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_16.png"
-    },
-    {
-      "id": "variant_48_corsario_tatuado_death_17",
-      "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_17.png"
-    },
-    {
-      "id": "variant_48_corsario_tatuado_death_18",
-      "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_18.png"
-    },
-    {
-      "id": "variant_48_corsario_tatuado_death_19",
-      "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_19.png"
-    },
-    {
       "id": "variant_48_corsario_tatuado_death_2",
       "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_2.png"
-    },
-    {
-      "id": "variant_48_corsario_tatuado_death_20",
-      "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_20.png"
-    },
-    {
-      "id": "variant_48_corsario_tatuado_death_21",
-      "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_21.png"
-    },
-    {
-      "id": "variant_48_corsario_tatuado_death_22",
-      "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_22.png"
-    },
-    {
-      "id": "variant_48_corsario_tatuado_death_23",
-      "path": "assets/sprites/goblins/variant_48_corsario_tatuado_death_23.png"
     },
     {
       "id": "variant_48_corsario_tatuado_death_3",
@@ -19365,56 +16149,8 @@
       "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_11.png"
     },
     {
-      "id": "variant_49_guerreiro_dourado_death_12",
-      "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_12.png"
-    },
-    {
-      "id": "variant_49_guerreiro_dourado_death_13",
-      "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_13.png"
-    },
-    {
-      "id": "variant_49_guerreiro_dourado_death_14",
-      "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_14.png"
-    },
-    {
-      "id": "variant_49_guerreiro_dourado_death_15",
-      "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_15.png"
-    },
-    {
-      "id": "variant_49_guerreiro_dourado_death_16",
-      "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_16.png"
-    },
-    {
-      "id": "variant_49_guerreiro_dourado_death_17",
-      "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_17.png"
-    },
-    {
-      "id": "variant_49_guerreiro_dourado_death_18",
-      "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_18.png"
-    },
-    {
-      "id": "variant_49_guerreiro_dourado_death_19",
-      "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_19.png"
-    },
-    {
       "id": "variant_49_guerreiro_dourado_death_2",
       "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_2.png"
-    },
-    {
-      "id": "variant_49_guerreiro_dourado_death_20",
-      "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_20.png"
-    },
-    {
-      "id": "variant_49_guerreiro_dourado_death_21",
-      "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_21.png"
-    },
-    {
-      "id": "variant_49_guerreiro_dourado_death_22",
-      "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_22.png"
-    },
-    {
-      "id": "variant_49_guerreiro_dourado_death_23",
-      "path": "assets/sprites/goblins/variant_49_guerreiro_dourado_death_23.png"
     },
     {
       "id": "variant_49_guerreiro_dourado_death_3",
@@ -19649,56 +16385,8 @@
       "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_11.png"
     },
     {
-      "id": "variant_50_amaldicoado_enfaixado_death_12",
-      "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_12.png"
-    },
-    {
-      "id": "variant_50_amaldicoado_enfaixado_death_13",
-      "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_13.png"
-    },
-    {
-      "id": "variant_50_amaldicoado_enfaixado_death_14",
-      "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_14.png"
-    },
-    {
-      "id": "variant_50_amaldicoado_enfaixado_death_15",
-      "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_15.png"
-    },
-    {
-      "id": "variant_50_amaldicoado_enfaixado_death_16",
-      "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_16.png"
-    },
-    {
-      "id": "variant_50_amaldicoado_enfaixado_death_17",
-      "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_17.png"
-    },
-    {
-      "id": "variant_50_amaldicoado_enfaixado_death_18",
-      "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_18.png"
-    },
-    {
-      "id": "variant_50_amaldicoado_enfaixado_death_19",
-      "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_19.png"
-    },
-    {
       "id": "variant_50_amaldicoado_enfaixado_death_2",
       "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_2.png"
-    },
-    {
-      "id": "variant_50_amaldicoado_enfaixado_death_20",
-      "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_20.png"
-    },
-    {
-      "id": "variant_50_amaldicoado_enfaixado_death_21",
-      "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_21.png"
-    },
-    {
-      "id": "variant_50_amaldicoado_enfaixado_death_22",
-      "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_22.png"
-    },
-    {
-      "id": "variant_50_amaldicoado_enfaixado_death_23",
-      "path": "assets/sprites/goblins/variant_50_amaldicoado_enfaixado_death_23.png"
     },
     {
       "id": "variant_50_amaldicoado_enfaixado_death_3",
@@ -19933,56 +16621,8 @@
       "path": "assets/sprites/goblins/variant_51_mutilado_death_11.png"
     },
     {
-      "id": "variant_51_mutilado_death_12",
-      "path": "assets/sprites/goblins/variant_51_mutilado_death_12.png"
-    },
-    {
-      "id": "variant_51_mutilado_death_13",
-      "path": "assets/sprites/goblins/variant_51_mutilado_death_13.png"
-    },
-    {
-      "id": "variant_51_mutilado_death_14",
-      "path": "assets/sprites/goblins/variant_51_mutilado_death_14.png"
-    },
-    {
-      "id": "variant_51_mutilado_death_15",
-      "path": "assets/sprites/goblins/variant_51_mutilado_death_15.png"
-    },
-    {
-      "id": "variant_51_mutilado_death_16",
-      "path": "assets/sprites/goblins/variant_51_mutilado_death_16.png"
-    },
-    {
-      "id": "variant_51_mutilado_death_17",
-      "path": "assets/sprites/goblins/variant_51_mutilado_death_17.png"
-    },
-    {
-      "id": "variant_51_mutilado_death_18",
-      "path": "assets/sprites/goblins/variant_51_mutilado_death_18.png"
-    },
-    {
-      "id": "variant_51_mutilado_death_19",
-      "path": "assets/sprites/goblins/variant_51_mutilado_death_19.png"
-    },
-    {
       "id": "variant_51_mutilado_death_2",
       "path": "assets/sprites/goblins/variant_51_mutilado_death_2.png"
-    },
-    {
-      "id": "variant_51_mutilado_death_20",
-      "path": "assets/sprites/goblins/variant_51_mutilado_death_20.png"
-    },
-    {
-      "id": "variant_51_mutilado_death_21",
-      "path": "assets/sprites/goblins/variant_51_mutilado_death_21.png"
-    },
-    {
-      "id": "variant_51_mutilado_death_22",
-      "path": "assets/sprites/goblins/variant_51_mutilado_death_22.png"
-    },
-    {
-      "id": "variant_51_mutilado_death_23",
-      "path": "assets/sprites/goblins/variant_51_mutilado_death_23.png"
     },
     {
       "id": "variant_51_mutilado_death_3",

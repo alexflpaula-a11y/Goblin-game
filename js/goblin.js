@@ -13,7 +13,7 @@ const ATTRS = ['poderDestrutivo', 'potencialMagico', 'vitalidade',
   'velocidade', 'precisao', 'potencialEvolucao'];
 
 // As 45 aparências fornecidas pelo autor, mantidas na ordem numérica dos GIFs.
-// Cada uma possui os 71 quadros: idle 5, walk 8, attack 17, hurt 17, death 24.
+// Cada uma possui os 59 quadros: idle 5, walk 8, attack 17, hurt 17, death 12.
 const VARIATIONS = [
   '01_dente_dourado', '02_tapa_olho', '04_orelha_furada', '07_cicatriz', '08_albinismo',
   '09_queimaduras', '10_corsario', '13_sobrevivente', '14_anel', '15_marca_de_nascenca',

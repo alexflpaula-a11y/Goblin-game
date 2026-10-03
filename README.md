@@ -191,7 +191,7 @@ art-source/         arte-fonte do autor (NÃO carregada em runtime)
 python3 tools/build_singlefile.py          # gera o vila-de-goblins-jogavel.html
 python3 tools/gen_sprites.py               # (re)gera a pixel art de prédios e comidas
 python3 tools/gen_icons.py                 # (re)gera ícones 16×16 de itens/habilidades
-python3 tools/gen_goblin_v2.py             # goblin base + as 45 variações (3266 quadros)
+python3 tools/gen_goblin_v2.py             # goblin base + as 45 variações (2714 quadros)
 python3 tools/gen_gear_v2.py               # armaduras e armas encaixadas no goblin
 python3 tools/gen_goblin_variations.py     # (legado) extraía as variações dos GIFs antigos
 python3 tools/unbuild.py            # extrai a fonte de volta a partir do build
@@ -219,27 +219,29 @@ bash    tools/test.sh               # roda as 7 suítes de teste
 
 O conjunto **Avaritia** (peitoral, calça, capacete + 3 pares + conjunto completo, 62 frames cada) vive em `sprites/itens/` e é gerado por `sprites/itens/gerar_item.py` / `gerar_conjunto.py` a partir dos frames do goblin no `window.EMBEDDED` do jogo — apenas recolor de pixels existentes.
 
-PNGs referenciados por **nome lógico** no `manifest.json` — **64×64 para os goblins** (resolução nativa da arte de referência) e 32×32 para o resto. Se um PNG não existir, um placeholder é desenhado automaticamente (o jogo nunca quebra). Os goblins têm **45 variações físicas** — dente dourado, tapa-olho, cicatrizes, albinismo, tatuagens e combinações — cada uma com os 71 quadros de `idle/walk/attack/hurt/death`. O goblin **nasce desarmado**: a arma só aparece quando é equipada.
+PNGs referenciados por **nome lógico** no `manifest.json` — **64×64 para os goblins** (resolução nativa da arte de referência) e 32×32 para o resto. Se um PNG não existir, um placeholder é desenhado automaticamente (o jogo nunca quebra). Os goblins têm **45 variações físicas** — dente dourado, tapa-olho, cicatrizes, albinismo, tatuagens e combinações — cada uma com os 59 quadros de `idle/walk/attack/hurt/death`. O goblin **nasce desarmado**: a arma só aparece quando é equipada.
 
-Desde a arte atual, nada disso é desenhado quadro a quadro: existe um **rig**. O goblin base **não é um desenho novo** — ele é a arte de referência em `art-source/goblins-v2/referencia.jpg`, usada na **resolução nativa dela (64×64)**, sem redução. O pipeline limpa a compressão JPEG numa paleta de 12 cores (`referencia-limpa.png`) e **fatia o resultado em partes**: cabeça 38×20 com as duas orelhas, tronco 28×23 com o avental de couro, braço esquerdo 13×14, braço direito 11×11 com a adaga, pernas 12×7 / 10×7 e a lâmina 9×9. Cada parte já carrega o contorno e o sombreado originais — a pose de repouso recomposta é **pixel a pixel idêntica** à referência. O rig só reposiciona as peças por quadro e, por cima, pinta rosto, variação e armadura, então um ajuste no recorte se propaga para os 3266 quadros de uma vez.
+Desde a arte atual, nada disso é desenhado quadro a quadro: existe um **rig**. O goblin base **não é um desenho novo** — ele é a arte de referência em `art-source/goblins-v2/referencia.jpg`, usada na **resolução nativa dela (64×64)**, sem redução. O pipeline limpa a compressão JPEG numa paleta de 12 cores (`referencia-limpa.png`) e **fatia o resultado em partes**: cabeça 38×20 com as duas orelhas, tronco 28×23 com o avental de couro, braço esquerdo 13×14, braço direito 11×11 com a adaga, pernas 12×7 / 10×7 e a lâmina 9×9. Cada parte já carrega o contorno e o sombreado originais — a pose de repouso recomposta é **pixel a pixel idêntica** à referência. O rig só reposiciona as peças por quadro e, por cima, pinta rosto, variação e armadura, então um ajuste no recorte se propaga para os 2714 quadros de uma vez.
 
 Os goblins são, portanto, os únicos sprites **64×64** do jogo. Nada no código precisou de alinhamento manual: todas as chamadas de desenho já passam largura/altura explícitas e o compositor de equipamento (`js/assetLoader.js`) usa o tamanho real do sprite base.
 
-Comparação lado a lado em `art-source/goblins-v2/base-zoom.png`; folha de conferência completa (71 quadros + 45 variações + 16 equipamentos) em `conferencia.png`.
+Comparação lado a lado em `art-source/goblins-v2/base-zoom.png`; folha de conferência completa (59 quadros + 45 variações + 16 equipamentos) em `conferencia.png`.
 
 | arquivo | papel |
 | --- | --- |
 | `tools/goblin_rig.py` | partes recortadas da referência, paleta, pontos de ancoragem, PNG indexado |
-| `tools/goblin_anim.py` | as 71 poses das 5 animações, incluindo a morte em 24 quadros |
+| `tools/goblin_anim.py` | as 59 poses das 5 animações, incluindo a morte instantânea em 12 quadros |
 | `tools/goblin_variations.py` | as 45 aparências como receitas de traços (cicatriz, atadura, albinismo…) |
 | `tools/goblin_gear.py` | armaduras e armas, ancoradas às partes do corpo |
 | `tools/gen_goblin_v2.py` / `tools/gen_gear_v2.py` | geram os PNGs |
 
 Cada traço de variação é aplicado em coordenadas **relativas à cabeça/braço daquele quadro**, então a marca acompanha o goblin em qualquer pose — e cada traço tem corpo, luz e sombra, para ser reconhecido no tamanho em que o jogo desenha o goblin.
 
-A **morte** não é mais uma queda. Quando a vida chega a zero o goblin **não agacha e não tomba**: ele fica de pé estremecendo, banhado por uma **luz vermelha**, enquanto a palavra **GOBLINZED** é escrita letra por letra acima dele. Só depois que a escrita termina o corpo aparece — **já deitado**, num corte seco. São 24 quadros: golpe (0–1), escrita (2–10), espera com a palavra inteira (11–13), o corpo caído (14) e o apagar da luz, da palavra e do corpo (15–23).
+A **morte é instantânea**. O golpe final não derruba o goblin: o **primeiro quadro da animação já mostra ele no chão**. Em cima dele estoura uma **luz vermelha** e a palavra **GOBLINZED** é escrita de três em três letras. São 12 quadros — baque (0), escrita (1–3), espera (4–6) e o apagar da luz, da palavra e do corpo (7–11). Não existe agachamento nem tombo: não há nada a interpolar entre estar de pé e estar no chão.
 
-O corpo caído é um desenho próprio de 64×64 (`R.LAY`), feito a partir da pose de referência: **de bruços, de costas para a câmera**, eixo na diagonal, botas embaixo à esquerda, cabeça em cima à direita, as duas orelhas abertas no chão, as costas do macacão à mostra e os braços jogados para os lados. Não há rosto: a cara está enfiada no chão. Para regerar a partir da arte-fonte: `python3 tools/import_caido.py`.
+O corpo caído é um desenho próprio de 64×64 (`R.LAY`): **de bruços, de costas para a câmera**, despencado numa **diagonal rasa** — mais largo que alto, como na imagem de referência. Botas embaixo à esquerda, cabeça lá na direita, as orelhas abertas no chão, as costas do macacão à mostra. Não há rosto: a cara está enfiada no chão. Para regerar a partir da arte-fonte: `python3 tools/import_caido.py`.
+
+Esse giro de 24° que deita o corpo é feito por **superamostragem**: cada pixel vira um bloco de 16×16, o bloco é girado inteiro com NEAREST (sem inventar cor nenhuma) e a cor que volta para a célula é a **moda** do bloco. Girar um sprite de 64×64 direto num ângulo quebrado destrói o contorno de 1 px e abre buracos no miolo; girar grande e reduzir depois não perde nada. Média ou mediana também não servem — inventariam tons fora da paleta.
 
 A luz vermelha e a palavra são desenhadas de forma **determinística**, sem olhar a silhueta do quadro. Isso não é detalhe: o gerador de equipamento monta cada overlay como a **diferença** entre o quadro vestido e o quadro nu — se a luz seguisse o contorno, toda armadura levaria junto uma franja vermelha que não é dela. Do jeito que está, luz e letras se cancelam na subtração. Pelo mesmo motivo `post()` aceita `efeitos=False`: os testes medem o corpo, e a palavra é, de propósito, um pedaço solto do desenho.
 

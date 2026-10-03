@@ -18,13 +18,15 @@ desenho grande no sprite 64x64 que o jogo usa:
   4. remove pixels soltos e fecha buracos
   5. devolve o relevo que a reducao achatou (quina clara do lado da
      luz, quina escura do lado oposto)
-  6. encosta o corpo no chao e centra no quadro de 64x64
+  6. deita mais o corpo: gira 24 graus por superamostragem, que e o
+     unico jeito de girar pixel art sem esfarelar o contorno
+  7. encosta o corpo no chao e centra no quadro de 64x64
 
     python3 tools/import_caido.py
 """
 
 import sys
-from collections import deque
+from collections import Counter, deque
 from pathlib import Path
 
 import numpy as np
@@ -99,11 +101,16 @@ def _vizinhos(m):
     return (p[:-2, 1:-1].astype(int) + p[2:, 1:-1] + p[1:-1, :-2] + p[1:-1, 2:])
 
 
-def limpar(buf):
-    """Tira pixel solto, fecha buraco e redesenha o contorno."""
+def limpar(buf, passes=2):
+    """Tira pixel solto, fecha buraco e redesenha o contorno.
+
+    `passes` maior alisa mais a silhueta. Depois do giro a borda sai
+    serrilhada — cada degrau da rotacao vira um dente de 1 px — e e
+    preciso mais de uma passada para a linha voltar a ser limpa.
+    """
     h = len(buf)
     m = np.array([[c is not None for c in linha] for linha in buf])
-    for _ in range(2):
+    for _ in range(passes):
         buraco = (~m) & (_vizinhos(m) >= 3)
         for y, x in zip(*np.nonzero(buraco)):
             perto = [buf[y + dy][x + dx] for dy, dx in
@@ -112,6 +119,7 @@ def limpar(buf):
             cheio = [c for c in perto if c != 'k'] or perto
             buf[y][x] = cheio[0]
         m |= buraco
+        # dente de 1 px: pixel preso a silhueta por um lado so
         solto = m & (_vizinhos(m) <= 1)
         for y, x in zip(*np.nonzero(solto)):
             buf[y][x] = None
@@ -159,6 +167,47 @@ def retocar(buf):
     return novo
 
 
+# Inclinacao final do corpo no chao. A arte nasce com o eixo perto de 50
+# graus; a imagem de referencia mostra um corpo bem mais deitado, mais
+# largo que alto. Girar 24 graus iguala a proporcao (52x45 px).
+GIRO = 24
+SUPER = 16          # fator de superamostragem do giro
+
+
+def girar(buf, ang=GIRO):
+    """Deita mais o corpo sem esfarelar o desenho.
+
+    Girar um sprite de 64x64 direto em angulo quebrado destroi tudo: o
+    contorno de 1 px vira pontilhado e o miolo abre buracos. O truque e
+    girar GRANDE e so depois reduzir: cada pixel vira um bloco de 16x16,
+    o bloco e girado inteiro (NEAREST, sem inventar cor nenhuma) e a cor
+    que volta para a celula e a MODA do bloco, isto e, a cor que mais
+    aparece ali. Nada de mediana nem de media — qualquer uma das duas
+    inventaria tons que nao estao na paleta.
+    """
+    if not ang:
+        return buf
+    n = R.SIZE
+    s = SUPER
+    grande = R.to_image(buf).resize((n * s, n * s), Image.NEAREST)
+    tela = Image.new('RGBA', (n * s * 2, n * s * 2), (0, 0, 0, 0))
+    tela.paste(grande, (n * s // 2, n * s // 2))
+    tela = tela.rotate(-ang, resample=Image.NEAREST, center=(n * s, n * s))
+    a = np.array(tela)
+    inv = {v: k for k, v in R.C.items()}
+    novo = [[None] * n for _ in range(n)]
+    meia = n // 2
+    for y in range(n):
+        for x in range(n):
+            cel = a[(y + meia) * s:(y + meia + 1) * s,
+                    (x + meia) * s:(x + meia + 1) * s].reshape(-1, 4)
+            cores = [tuple(int(v) for v in c) for c in cel if c[3] > 128]
+            # a celula so existe se o corpo cobrir boa parte dela
+            if len(cores) >= s * s * 0.45:
+                novo[y][x] = inv.get(Counter(cores).most_common(1)[0][0], 'k')
+    return novo
+
+
 def encostar_no_chao(buf):
     """Centra na horizontal e encosta a base do corpo no chao do quadro."""
     cheios = [(x, y) for y in range(R.SIZE) for x in range(R.SIZE)
@@ -177,8 +226,8 @@ def encostar_no_chao(buf):
 
 def main():
     rgb = reduzir(Image.open(ENTRADA))
-    buf = limpar(para_paleta(rgb, tirar_fundo(rgb)))
-    buf = encostar_no_chao(retocar(buf))
+    buf = limpar(para_paleta(rgb, tirar_fundo(rgb)), passes=4)
+    buf = encostar_no_chao(limpar(girar(retocar(buf))))
     img = R.to_image(buf)
     R.save_png(img, SAIDA)
     cheios = sum(1 for linha in buf for c in linha if c is not None)

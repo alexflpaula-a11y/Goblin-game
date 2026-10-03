@@ -302,17 +302,18 @@ ANCHORS = {
 # quebrado arrebenta o contorno de 1 px e embaralha o rosto; em 90 graus
 # exatos ele fica deitado na horizontal, que nao e a pose pedida. Entao o
 # corpo caido e um DESENHO proprio, na mesma paleta e no mesmo canvas de
-# 64x64: DE BRUCOS, de costas para a camera, corpo na diagonal, botas
-# embaixo a esquerda e cabeca em cima a direita, as duas orelhas abertas
-# no chao, as costas do macacao a mostra e os bracos jogados para os
-# lados. Nao ha rosto nenhum: a cara esta enfiada no chao.
+# 64x64: DE BRUCOS, de costas para a camera, despencado numa diagonal
+# RASA (mais largo que alto, como na imagem de referencia): botas
+# embaixo a esquerda, cabeca la na direita, as orelhas abertas no chao,
+# as costas do macacao a mostra e os membros jogados para os lados.
+# Nao ha rosto nenhum: a cara esta enfiada no chao.
 #
 # A arte vem de art-source/goblins-v2/caido-limpa.png e e colada aqui pelo
 # mesmo motivo das outras partes: o rig nao depende de arquivo em tempo de
 # execucao. Para regerar: python3 tools/import_caido.py
 # Onde cai a mao aberta do braco estendido: e dai que pende a arma
 # equipada quando o goblin morre segurando alguma coisa.
-LAY_HAND = (48, 45)
+LAY_HAND = (50, 44)
 
 LAY = check(grid([
     "................................................................",
@@ -328,57 +329,57 @@ LAY = check(grid([
     "................................................................",
     "................................................................",
     "................................................................",
-    "..............................kkk...............................",
-    "..............................kglk..............................",
-    "...............................kglkk............................",
-    "...............................kggglk...........................",
-    "...............................kdggglkkkkkkk....................",
-    "...............................kddgggdklllllkk..................",
-    "...............................kdddgggllfgggggk.................",
-    ".................kk.............kdddglgggggggggk................",
-    "................kdgk............kdddgggggggggggk................",
-    "...............kdgggk............kdgggggggggggggk...............",
-    "..............kdggggdkkk.........kdgggggggggggggk...............",
-    "..............kgggggggllkkk.....kddgggggggggggggk...............",
-    "..............kdgggggggggllkkkkkkddgggggggggggggkk..............",
-    "...............kkkkdgggggggllffgkkdggggggggggggglfkk............",
-    "...................kkkdgggggggggbBBdgggggggggggggglgk...........",
-    ".....................kkkddgggggbbBggddggggggggdggggggkk.........",
-    "........................kkddggbbbbggggdggggggdddddddgggk........",
-    "..........................kdgbbbbggggggdddddddddddddddkk........",
-    "..........................kdgbbbggggggggkddddkkkkkkkkk..........",
-    ".........................kdgbbbbggggggggBBddkk..................",
-    ".........................kgbbbbggggggggbbbkk....................",
-    "........................kdBbbbdgggggggbbbbgk....................",
-    ".......................kbbbbbbgggggggbbbbgglk...................",
-    "......................kBBbbbbeggggggbbbbgggglk..................",
-    ".....................kBhBBBbbbBggggbbbbggggglk..................",
-    "....................kBhbbbBBbbbbegbbbbgddgggglk.................",
-    "..................kkBhbbbbbBBBbbbebbbbddkdgggglk................",
-    "................kkhhhbbbbbbbbBBbbbbbbddkkkdggggdk...............",
-    "...............khhbbbbbbbbbbbbBBbbbbddk...kdggggkk..............",
-    "..............khhbbbbbbbbbbbbbbBBbbbdk.....kdggggk..............",
-    "........kkk...kdbbbbbbbbbbbbbbbbBBbbbk......kdgggdkkk...........",
-    ".......kBkhkkklgeBbbbbBBbbbbbbbbbBBbk........kdggggggk..........",
-    ".......kBBhhklgggBBbbBkkBbbbbbbbbbBk..........kdggggkk..........",
-    ".......kBBkbbegggdBBBk..kBbbbbbbbbBk...........kgggggk..........",
-    ".......kBBBkbbegddkBk....kBbbbbbbbk............kggggdk..........",
-    "........kBBkbbeddkkk......kBBBbbbbk.............kdgdk...........",
-    ".........kBBkbbkk.........kBbbbbbbk..............kkk............",
-    ".........kBBkbk...........kBbbbbbk..............................",
-    "..........kkkk...........kBBbbbbbk..............................",
-    ".........................kgdBbbbbk..............................",
-    "........................kgggdBbbBk..............................",
-    "......................kkbegggdBBk...............................",
-    ".....................kBkbbegddkk................................",
-    ".....................kBBbbedkk..................................",
-    ".....................kBBkbbk....................................",
-    ".....................kBBkbk.....................................",
-    "......................kBBBk.....................................",
-    "......................kBBBk.....................................",
-    "......................kBBBk.....................................",
-    ".......................kBBk.....................................",
-    "........................kk......................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    "................................................................",
+    ".........................................kk.....................",
+    "..........................kk.............kkk....................",
+    ".......................kkknk.............klk....................",
+    "......................knllllk............klfk...................",
+    "......................kgglglk...........knggkk..................",
+    "......................kjjjggnk..........kngglk..................",
+    "......................kkjjjglkk.........kndglfk.................",
+    "........................kkjjgffk........kddggnkkk...............",
+    ".........................kkjjllkkk......kdddggkffkk.............",
+    "..........................kkegglfk......kddgglfffffk............",
+    "...........................kkjjllfkk....kdgggglggllfk...........",
+    "............................keeggfffkkkknggggggggglllk..........",
+    ".............................kkggglfflknnggggggggggglk..........",
+    "..............................kddggllhkkngggggggggggllk.........",
+    "..............................kddgggbbbBgggggggggggggkk.........",
+    ".............................kkdgbbbbbbldggggggggggggjk.........",
+    "............................kkllbbbbbbggddgggggggggggjk.........",
+    "..........................kknbhbbbbbgggggggggggggggggk..........",
+    ".......................kkkbhhbbbbbbgggggggdjgggggggggk..........",
+    ".......kkkk.....kkkkkkkbbhbhbbbbdgggggggggddgggggggglk..........",
+    ".......kbkhk..kkhhhhhhhhhbbBbbbbgggggggggggkddgjgggggfkk........",
+    "......kkbbhkkkknhhhhhhhbbbbBBbbegggggggggggBeeeeeeegggfk........",
+    "......kBBkbhkfflhbbbbbbbbbbbBbbBggggggggbbbBeeeeeeeeeglk........",
+    ".......kBBkhdllgBbbbbbbbbbbbBBbbbggggbbbbbbhkekkkkeeeeelkk......",
+    ".......kBkkbhlgjBBbBBBbbbbbbbBBbbegbbbbbbbbgkk....kkkeeggk......",
+    ".......kBBkBeejeeBBBBBBbbbbbbbBbbebbbbbbbgggfk......kkkekk......",
+    ".......kBBkBBeeekBBkkkBbbbbbbbBBbbbbbbjeggggfk........kkkk......",
+    "........kkkkkkkkkkk...kbbbbbbbBBbbbbBeeeeggglk..................",
+    "......................kBbbbbbbbBbbbeeekkkggglk..................",
+    ".......................kbbbbbbbBBBBekkkkkegggk..................",
+    ".......................kBbbbbbbBBBBk.....kgggfk.................",
+    ".......................kBBbbbbBBBkk......kggggk.................",
+    "......................kkbbbbbbBBk........kegggk.................",
+    ".....................kbbbbbbBBBk..........kgggkk................",
+    ".................kkkkllbbbbbBBk...........kggggk................",
+    "...............kkbkhdlgBbbbbBk............keggnk................",
+    "...............kbBhhhljdBbBBk..............kggglkk..............",
+    "...............kbBhBejjeBBBBk..............kgggllk..............",
+    "...............kBkkBeekekBkk...............kjgglkk..............",
+    "...............kBBBkkkkkkk.................kjjjjjk..............",
+    "..............kBBBBk........................kjeek...............",
+    "..............kBBBk.........................kkkk................",
+    "...............kBBk.............................................",
+    "...............kkkk.............................................",
 ]), SIZE)   # 64x64
 
 
