@@ -88,7 +88,9 @@ quebradas = []
 for vid in V.ORDER:
     var = V.build(vid)
     for a in A.ACTIONS:
-        for i, f in enumerate(A.render_action(a, var)):
+        # efeitos=False: a palavra GOBLINZED e o halo vermelho são
+        # peças soltas de propósito e mascarariam um membro realmente solto
+        for i, f in enumerate(A.render_action(a, var, efeitos=False)):
             if pedacos(f) > 1:
                 quebradas.append(f'{vid}/{a}_{i}')
 ok(not quebradas, f'as {len(V.ORDER)} variações: nada solto em nenhum quadro',
@@ -128,59 +130,81 @@ for acao in A.ACTIONS:
     ok(pior <= 4, f'{acao}: braço nunca se afasta mais que 4 px do ombro',
        f'{pior} px')
 
-# ---- 4. a morte agacha, tomba e deita — sem teleportar ----
+# ---- 4. a morte: GOBLINZED, luz vermelha e só então o corpo deitado ----
 print()
-quadros = A.render_action('death')
+# sem efeitos = só o corpo. A palavra é, de propósito, um pedaço solto do
+# desenho; medir o corpo com ela na tela não mede nada.
+quadros = A.render_action('death', efeitos=False)
+com_efeito = A.render_action('death')
 caixas = [f.getbbox() or (0, 64, 0, 64) for f in quadros]
-topo = [b[1] for b in caixas]
-chao = [b[3] for b in caixas]
+poses = A.POSES['death']()
 
-fundo = A.DEATH_SQUASH.index(max(A.DEATH_SQUASH))      # quadro mais agachado
-agacha = topo[:fundo + 1]
-ok(len(agacha) >= 5, 'morte: o agachamento tem quadros que cheguem',
-   f'{len(agacha)} quadros')
-ok(all(b >= a for a, b in zip(agacha, agacha[1:])),
-   'morte: agachando, o corpo só desce — nunca sobe de volta', str(agacha))
-ok(agacha[-1] - agacha[0] >= 8,
-   'morte: o goblin agacha de verdade antes de cair',
-   f'desceu só {agacha[-1] - agacha[0]} px')
-ok(A.DEATH_SQUASH[A.DEATH_TOPPLE - 1] < max(A.DEATH_SQUASH),
-   'morte: o joelho larga antes do tombo (não cai ainda agachado)',
-   str(A.DEATH_SQUASH[:A.DEATH_TOPPLE]))
-ok(all(c >= 60 for c in chao[:A.DEATH_TOPPLE]),
-   'morte: agachando, os pés ficam plantados no chão', str(chao[:A.DEATH_TOPPLE]))
-ok(max(abs(b - a) for a, b in zip(topo, topo[1:])) <= 10,
-   'morte: nenhum quadro teleporta o corpo',
-   str([b - a for a, b in zip(topo, topo[1:])]))
+deitado = list(range(A.GOBLINZED_DEITA, A.DEATH_FRAMES))
 
-# o corpo tem de encolher de verdade (joelho dobrando), não só descer
-alturas = [b[3] - b[1] for b in caixas]
-ok(alturas[fundo] <= alturas[0] - 8,
-   'morte: o tronco comprime (não é só o corpo deslizando para baixo)',
-   f'{alturas[0]} -> {alturas[A.DEATH_TOPPLE - 1]} px')
+ok(all(poses[i].get('_lay') is None for i in range(A.GOBLINZED_DEITA)),
+   'morte: enquanto a palavra é escrita ele continua de pé')
+ok(all(poses[i].get('_lay') is not None for i in deitado),
+   'morte: depois da escrita o que aparece é o desenho do corpo caído')
 
-# e tem de tombar até a diagonal da imagem de referência
-# o corpo caído é um desenho próprio: comparar com o goblin DE PÉ, que é
-# estreito e alto. Deitado na diagonal ele é mais largo que o de pé — mas
-# não "mais largo que alto", porque o braço erguido continua subindo.
-caixa = quadros[-1].getbbox()
-de_pe = A.render_action('idle')[0].getbbox()
-ok((caixa[2] - caixa[0]) > (de_pe[2] - de_pe[0]) + 8,
-   'morte: termina deitado (bem mais largo que o goblin de pé)',
-   f'{caixa[2] - caixa[0]} px deitado vs {de_pe[2] - de_pe[0]} px de pé')
+# a palavra tem de estar inteira ANTES de ele deitar — foi o pedido
+escritas = A.GOBLINZED_LETRAS
+ok(escritas[A.GOBLINZED_DEITA - 1] == len(A.GOBLINZED),
+   'morte: GOBLINZED termina de ser escrita antes de ele aparecer deitado',
+   f'{escritas[A.GOBLINZED_DEITA - 1]} de {len(A.GOBLINZED)} letras')
+ok(all(b >= a for a, b in zip(escritas, escritas[1:])),
+   'morte: a palavra só cresce, nunca perde letra', str(escritas))
+ok(escritas[0] == 0 and max(escritas) == len(A.GOBLINZED),
+   'morte: a palavra começa vazia e chega a GOBLINZED inteira')
+ok(all(ch in A.FONTE for ch in A.GOBLINZED),
+   'morte: a fonte tem todas as letras de GOBLINZED')
+
+# ... e tem de caber no quadro
+passo = A.LETRA_W + A.LETRA_GAP
+larg_txt = len(A.GOBLINZED) * passo - A.LETRA_GAP
+ok(larg_txt + 2 <= R.SIZE, 'morte: GOBLINZED cabe nos 64 px do quadro',
+   f'{larg_txt} px')
+ok(A.TEXTO_Y + A.LETRA_H < R.REST['head'][1],
+   'morte: a palavra fica ACIMA da cabeça, não em cima do rosto')
+
+# o brilho vermelho acompanha a escrita e some depois
+brilho = A.DEATH_GLOW
+ok(len(brilho) == A.DEATH_FRAMES and len(A.GOBLINZED_LETRAS) == A.DEATH_FRAMES
+   and len(A.GOBLINZED_ALPHA) == A.DEATH_FRAMES
+   and len(A.DEATH_ALPHA) == A.DEATH_FRAMES,
+   'morte: todas as tabelas têm 24 entradas')
+ok(min(brilho[:A.GOBLINZED_DEITA]) > 0.5,
+   'morte: há brilho vermelho em todo quadro em que a palavra aparece',
+   str(brilho[:A.GOBLINZED_DEITA]))
+ok(brilho[-1] == 0, 'morte: o brilho se apaga no fim', str(brilho[-3:]))
+ok(A.GOBLINZED_ALPHA[-1] < A.GOBLINZED_ALPHA[A.GOBLINZED_DEITA],
+   'morte: a palavra apaga junto com o corpo')
+
+# o efeito tem de ser VISÍVEL: o quadro com luz difere do quadro sem luz
+difs = sum(1 for a, b in zip(com_efeito[5].getdata(), quadros[5].getdata())
+           if a != b)
+ok(difs > 400, 'morte: a luz vermelha e a palavra realmente aparecem',
+   f'só {difs} px de diferença')
+
+# de pé ele não anda nem agacha: só treme
+tremor = A.DEATH_TREMOR
+ok(max(abs(t) for t in tremor) <= 2,
+   'morte: de pé ele só estremece, não sai do lugar', str(tremor))
+alt_pe = [caixas[i][3] - caixas[i][1] for i in range(A.GOBLINZED_DEITA)]
+ok(max(alt_pe) - min(alt_pe) <= 2,
+   'morte: ele NÃO agacha antes de cair (era o sprite que ficou estranho)',
+   f'altura variou {max(alt_pe) - min(alt_pe)} px')
+ok(all(caixas[i][3] >= 62 for i in range(A.GOBLINZED_DEITA)),
+   'morte: de pé os pés continuam no chão')
+
+# e o corpo caído é largo, deitado na diagonal e encostado no chão
+caixa = caixas[-1]
+largura_pe = max(caixas[i][2] - caixas[i][0] for i in range(A.GOBLINZED_DEITA))
+ok((caixa[2] - caixa[0]) > largura_pe + 8,
+   'morte: deitado ele ocupa o chão (bem mais largo que de pé)',
+   f'{caixa[2] - caixa[0]} px deitado vs {largura_pe} px de pé')
 ok(caixa[3] >= 62, 'morte: o corpo caído encosta no chão', str(caixa))
-giro = [abs(b - a) for a, b in zip(A.DEATH_LAY_TURN, A.DEATH_LAY_TURN[1:])]
-ok(max(giro) <= 18, 'morte: o tombo é gradual, não um corte seco', str(giro))
-ok(A.DEATH_LAY_TURN[-1] == 0,
-   'morte: o último quadro é o desenho do caído sem giro nenhum')
-ok(all(p['_lay'] is not None for p in A.POSES['death']()[A.DEATH_LYING:]),
-   'morte: o corpo caído é o desenho próprio (R.LAY), não o goblin girado')
-larg = [b[2] - b[0] for b in caixas]
-ok(larg[-1] >= larg[0] + 8,
-   'morte: deitado, o corpo ocupa o chão (fica mais largo que de pé)',
-   f'{larg[0]} -> {larg[-1]} px')
 ok(A.FRAME_COUNTS['death'] >= 20,
-   'morte tem quadros suficientes para a queda ser lida',
+   'morte tem quadros suficientes para a cena inteira ser lida',
    str(A.FRAME_COUNTS['death']))
 
 # ---- 5. o goblin base está desarmado ----
@@ -235,8 +259,8 @@ for vid in V.ORDER:
         continue
     var = V.build(vid)
     for a in ('walk', 'attack', 'hurt'):
-        f = A.render_action(a, var)[3]
-        if diferenca(f, A.render_action(a)[3]) < 8:
+        f = A.render_action(a, var, efeitos=False)[3]
+        if diferenca(f, A.render_action(a, efeitos=False)[3]) < 8:
             somem.append(f'{vid}/{a}')
 ok(not somem, 'a marca da variação aparece também andando, atacando e apanhando',
    ', '.join(somem[:6]))

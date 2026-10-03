@@ -16,7 +16,9 @@ desenho grande no sprite 64x64 que o jogo usa:
   3. troca cada cor pela MAIS PROXIMA da paleta do goblin, para o corpo
      caido ser feito exatamente das mesmas cores do corpo de pe
   4. remove pixels soltos e fecha buracos
-  5. encosta o corpo no chao e centra no quadro de 64x64
+  5. devolve o relevo que a reducao achatou (quina clara do lado da
+     luz, quina escura do lado oposto)
+  6. encosta o corpo no chao e centra no quadro de 64x64
 
     python3 tools/import_caido.py
 """
@@ -119,6 +121,44 @@ def limpar(buf):
     return buf
 
 
+# Luz vindo de cima a esquerda, igual a do goblin de pe.
+LUZ = (-0.62, -0.78)
+CLARO = {'e': 'd', 'd': 'n', 'n': 'j', 'j': 'g', 'g': 'l', 'l': 'f', 'f': 'f',
+         'B': 'b', 'b': 'h', 'h': 'h', 'z': 'q', 'q': 'q'}
+ESCURO = {'d': 'e', 'n': 'd', 'j': 'n', 'g': 'j', 'l': 'g', 'f': 'l',
+          'e': 'e', 'b': 'B', 'h': 'b', 'B': 'B', 'q': 'z', 'z': 'z'}
+
+
+def retocar(buf):
+    """Devolve volume ao desenho reduzido.
+
+    A reducao por mediana achata tudo: o corpo caido saia com a cabeca e os
+    bracos chapados, sem o relevo que o goblin de pe tem. Aqui cada pixel
+    olha dois passos na direcao da luz e dois na direcao contraria: se do
+    lado da luz ja acabou o corpo, ele esta na quina iluminada e sobe um
+    tom; se quem acabou foi o lado oposto, esta na quina de sombra e desce.
+    E a mesma regra de sempre, so que aplicada depois da reducao.
+    """
+    n = R.SIZE
+
+    def vazio(x, y):
+        return not (0 <= x < n and 0 <= y < n) or buf[y][x] in (None, 'k')
+
+    novo = [linha[:] for linha in buf]
+    for y in range(n):
+        for x in range(n):
+            ch = buf[y][x]
+            if ch is None or ch == 'k' or ch not in CLARO:
+                continue
+            luz = vazio(round(x + LUZ[0] * 2), round(y + LUZ[1] * 2))
+            sombra = vazio(round(x - LUZ[0] * 2), round(y - LUZ[1] * 2))
+            if luz and not sombra:
+                novo[y][x] = CLARO[ch]
+            elif sombra and not luz:
+                novo[y][x] = ESCURO[ch]
+    return novo
+
+
 def encostar_no_chao(buf):
     """Centra na horizontal e encosta a base do corpo no chao do quadro."""
     cheios = [(x, y) for y in range(R.SIZE) for x in range(R.SIZE)
@@ -138,7 +178,7 @@ def encostar_no_chao(buf):
 def main():
     rgb = reduzir(Image.open(ENTRADA))
     buf = limpar(para_paleta(rgb, tirar_fundo(rgb)))
-    buf = encostar_no_chao(buf)
+    buf = encostar_no_chao(retocar(buf))
     img = R.to_image(buf)
     R.save_png(img, SAIDA)
     cheios = sum(1 for linha in buf for c in linha if c is not None)

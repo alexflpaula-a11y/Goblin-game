@@ -198,85 +198,62 @@ def hurt_poses():
 DEATH_FRAMES = 24
 
 # --- como a morte foi montada ---------------------------------------------
-# O defeito antigo era duplo: o goblin "afundava" dentro das proprias botas
-# (o tronco descia por cima das pernas, sem nada dobrar) e depois trocava
-# de pose de uma vez para o corpo deitado. Agora sao tres tempos:
+# A morte nao e mais uma queda. Quando a vida chega a zero o goblin NAO
+# agacha e NAO tomba: ele fica de pe tremendo, banhado por uma luz
+# vermelha, enquanto a palavra GOBLINZED e escrita letra por letra em cima
+# dele. So depois que a escrita termina o corpo aparece — ja deitado.
 #
-#   0-6    AGACHA   as coxas comprimem de verdade (squash_rows), o quadril
-#                   continua no chao e o ombro desce junto com a cabeca.
-#   7-9    DESABA   o joelho larga: as pernas voltam a esticar enquanto o
-#                   corpo despenca para a frente. E o contrario do
-#                   agachamento, e e o que liga o agachar ao tombo.
-#   10-12  TOMBA    entra o DESENHO do corpo caido, girado para tras, e ele
-#                   vai se assentando no chao.
-#   13-23  CAIDO    bate, quica uma vez e desaparece.
+#   0-1    GOLPE     a luz vermelha estoura e o corpo treme
+#   2-10   ESCRITA   uma letra de GOBLINZED por quadro, luz pulsando
+#   11-13  ESPERA    a palavra inteira na tela, a luz no auge
+#   14     DEITA     corte seco: o que aparece ja e o corpo no chao
+#   15-23  CAIDO     a luz esvazia, a palavra apaga e o corpo desaparece
+#
+# Trocar a queda por um corte seco e deliberado: o pedido era que ele so
+# aparecesse deitado DEPOIS da escrita. Por isso sumiram as tabelas de
+# agachamento e o giro do corpo caido — nao ha mais nada para interpolar
+# entre estar de pe e estar no chao.
 
-# Do quadro 10 em diante o quadro nao e mais o corpo de pe: e o desenho do
-# corpo caido (R.LAY). Quem TOMBA e esse desenho — ele entra girado para
-# tras e vai se assentando no chao. Girar o corpo caido (e nao trocar de
-# pose de uma vez) e o que faz a queda terminar exatamente na pose da
-# imagem de referencia sem nenhum corte seco.
-DEATH_LYING = 10
-DEATH_LAY_TURN = [-40, -26, -13] + [0] * 11     # a partir do quadro 10
-LAY_PIVOT_CAIDO = (30, 50)                      # quadril, onde ele pivota
-DEATH_TOPPLE = DEATH_LYING    # o quadro em que ele deixa de estar de pe
+GOBLINZED = 'GOBLINZED'
+GOBLINZED_DEITA = 14          # primeiro quadro em que o corpo ja esta caido
 
-# Compressao do tronco quadro a quadro: o joelho dobra ate o 6 e larga do
-# 7 ao 9 — e nesses tres quadros, com o corpo ja despencando para a
-# frente, que ele deixa de estar de pe.
-DEATH_SQUASH = [0, 0, 2, 4, 6, 7, 7, 5, 2, 0] + [0] * 14
+# Quantas letras ja foram escritas em cada quadro.
+GOBLINZED_LETRAS = [0, 0] + list(range(1, 10)) + [9] * 13
 
-# Inclinacao para a frente e afundamento do corpo durante o agachamento.
-DEATH_FALL = [0, 0, 0, 1, 2, 2, 3, 4, 5, 6] + [0] * 14
-DEATH_DROP = [0, 0, 0, 1, 1, 2, 2, 2, 1, 0] + [0] * 14
+# Opacidade da palavra: entra inteira junto com a primeira letra e so
+# apaga no fim, junto com o corpo.
+GOBLINZED_ALPHA = [0, 0] + [255] * 18 + [206, 158, 104, 48]
 
-DEATH_ALPHA = ([255] * 19) + [226, 196, 162, 124, 86]
+# Forca da luz vermelha, de 0 a 1. Estoura no golpe, pulsa enquanto a
+# palavra e escrita, chega ao auge no quadro em que ele cai e esvazia.
+DEATH_GLOW = ([1.0, 1.0]
+              + [0.72, 0.92, 0.74, 0.94, 0.76, 0.96, 0.78, 0.98, 0.84]
+              + [0.90, 1.00, 1.00]
+              + [0.78, 0.62, 0.48, 0.38, 0.29, 0.21, 0.15, 0.10, 0.05, 0.0])
 
+# Tremor horizontal enquanto ele ainda esta de pe: o corpo nao anda, so
+# estremece no lugar.
+DEATH_TREMOR = [0, -2, 2, -1, 1, -1, 1, 0, -1, 1, -1, 0, 1, 0]
 
-# Assentamento do corpo caido: bate, quica uma vez e para. Sao os unicos
-# deslocamentos depois da queda — um corpo morto nao se mexe mais.
-DEATH_SETTLE = {13: (0, -3), 14: (0, -1), 15: (0, 0)}
-
-
-def _settle(i):
-    for k in sorted(DEATH_SETTLE, reverse=True):
-        if i >= k:
-            return DEATH_SETTLE[k]
-    return (0, 0)
+DEATH_ALPHA = ([255] * 20) + [222, 186, 146, 104]
 
 
 def death_poses():
     out = []
     for i in range(DEATH_FRAMES):
-        dobra = DEATH_SQUASH[i]
-        if i < DEATH_LYING:
-            # De pe (ou tombando): o que o quadro desenha e sempre o goblin
-            # agachado. Quem deita o corpo e a rotacao, depois.
-            # alem de dobrar o joelho ele desaba para a frente: a cabeca
-            # cai um pouco mais que o ombro e os bracos ficam soltos
-            cai = DEATH_FALL[i]
-            # o braco acompanha o tronco, mas nunca mais que 3 px: passando
-            # disso ele descola do ombro e vira um pedaco solto no ar.
-            solto = min(3, cai)
-            p = _pose(
-                body=(0, DEATH_DROP[i]),
-                head=(cai, dobra + min(2, cai)),
-                arm_l=(solto, dobra),         # bracos pendurados
-                arm_r=(-solto, dobra),
-                leg_l=(0, -DEATH_DROP[i]),    # as botas ficam plantadas
-                leg_r=(0, -DEATH_DROP[i]),
-                squash=dobra,
-            )
+        if i < GOBLINZED_DEITA:
+            # Ainda de pe: so o tremor. Nada de agachar — quem conta que
+            # ele morreu e a luz vermelha e a palavra, nao a pose.
+            p = _pose(body=(DEATH_TREMOR[i], 0))
+            p['_eyes_shut'] = i >= 2
         else:
-            # Caido: o desenho proprio do corpo no chao.
+            # Caido: o desenho proprio do corpo no chao, de bruços.
             p = {k: None for k in R.DRAW_ORDER}
-            p['_lay'] = _settle(i)
-            p['_lay_turn'] = DEATH_LAY_TURN[i - DEATH_LYING]
+            p['_lay'] = (0, 0)
             # a mao continua sendo uma ancora: a arma equipada cai junto
             p['sword'] = (0, 0)
             p['_sword'] = 'fwd'
-        # o goblin fecha os olhos ja no meio do agachamento
-        p['_eyes_shut'] = i >= 5
+            p['_eyes_shut'] = True
         p['_dead'] = i
         out.append(p)
     return out
@@ -292,68 +269,120 @@ POSES = {
 
 
 # ---------------------------------------------------------- pos-processo ----
-# Girar pixel art num angulo quebrado estraga o desenho: o contorno de 1 px
-# vira pontilhado e abrem-se buracos no meio do corpo. Por isso o giro vem
-# sempre acompanhado de `_mend`, que remonta a silhueta depois da rotacao.
-# E so com ele que a diagonal da referencia fica possivel — em 90 graus
-# exatos o corpo ficava deitado na horizontal, que nao e a imagem pedida.
+# O que transforma os quadros de pe em quadros de MORTE nao esta no rig:
+# e a luz vermelha e a palavra GOBLINZED, as duas aplicadas aqui, depois
+# de o corpo ja estar desenhado.
+#
+# As duas sao desenhadas de forma DETERMINISTICA — nao dependem da
+# silhueta do quadro. Isso importa porque o gerador de equipamento monta
+# cada overlay como a diferenca entre o quadro vestido e o quadro nu: se a
+# luz seguisse o contorno, cada armadura levaria junto uma franja vermelha
+# que nao e dela. Do jeito que esta, luz e letras se cancelam na subtracao
+# e o overlay sai so com a peca.
 
-_PAD = 80
+VERMELHO = (255, 64, 48)          # a luz
+LETRA = (236, 42, 42)             # o corpo da letra
+LETRA_ALTO = (255, 138, 120)      # o brilho em cima da letra
+LETRA_BORDA = (56, 6, 10)         # o contorno, para ler sobre qualquer fundo
+
+GLOW_CENTRO = (32, 34)
+GLOW_RAIO = 26
+GLOW_FAIXAS = (140, 100, 62, 28)          # degraus de opacidade, do centro
 
 
-def _mend(img):
-    """Reconstroi a silhueta depois de uma rotacao em angulo quebrado.
+def _halo():
+    """Auréola vermelha, desenhada uma vez e reaproveitada.
 
-    1. tapa os buracos abertos pelo giro, com a cor de um vizinho;
-    2. apaga os pixels soltos que ficaram pendurados na borda;
-    3. redesenha o contorno, que a rotacao tinha deixado pontilhado.
+    Em DEGRAUS chapados, nao em degrade continuo: alem de combinar com o
+    resto da arte, um degrade de 64x64 em cada um dos 24 quadros de morte
+    de cada variacao engordava o jogo em megabytes de pixel quase igual.
     """
-    import numpy as np
-
-    a = np.array(img).astype(int)
-    m = a[:, :, 3] > 0
-    h, w = m.shape
-    k = R.C['k'][:3]
-
-    def vizinhos(mask):
-        p = np.zeros((h + 2, w + 2), bool)
-        p[1:-1, 1:-1] = mask
-        return (p[:-2, 1:-1].astype(int) + p[2:, 1:-1]
-                + p[1:-1, :-2] + p[1:-1, 2:])
-
-    for _ in range(2):
-        buraco = (~m) & (vizinhos(m) >= 3)
-        for y, x in zip(*np.nonzero(buraco)):
-            perto = [a[y + dy, x + dx] for dy, dx in ((-1, 0), (1, 0), (0, -1), (0, 1))
-                     if 0 <= y + dy < h and 0 <= x + dx < w and m[y + dy, x + dx]]
-            cheio = [c for c in perto if tuple(c[:3]) != k] or perto
-            a[y, x] = cheio[0]
-        m |= buraco
-        solto = m & (vizinhos(m) <= 1)
-        a[solto] = 0
-        m &= ~solto
-
-    borda = m & (vizinhos(m) < 4)
-    a[borda, :3] = k
-    a[borda, 3] = 255
-    return Image.fromarray(a.astype(np.uint8))
+    if _halo.cache is None:
+        img = Image.new('RGBA', (R.SIZE, R.SIZE), (0, 0, 0, 0))
+        px = img.load()
+        cx, cy = GLOW_CENTRO
+        n = len(GLOW_FAIXAS)
+        for y in range(R.SIZE):
+            for x in range(R.SIZE):
+                d = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5 / GLOW_RAIO
+                if d < 1.0:
+                    px[x, y] = VERMELHO + (GLOW_FAIXAS[min(n - 1, int(d * n))],)
+        _halo.cache = img
+    return _halo.cache
 
 
-def _tombar(img, ang):
-    """Gira o corpo CAIDO de volta para tras, em torno do quadril.
+_halo.cache = None
 
-    E assim que a queda e desenhada: nos ultimos quadros de pe o corpo vem
-    inclinado e vai assentando. Como o giro e do desenho que ja esta na
-    pose final, o movimento termina exatamente nela.
-    """
-    if not ang:
+
+def _brilho(img, k):
+    """Banha o quadro em luz vermelha: halo por tras e tinta no corpo."""
+    if k <= 0:
         return img
-    px, py = LAY_PIVOT_CAIDO
-    big = Image.new('RGBA', (_PAD * 2, _PAD * 2), (0, 0, 0, 0))
-    big.paste(img, (_PAD - px, _PAD - py))
-    big = _mend(big.rotate(-ang, resample=Image.NEAREST, center=(_PAD, _PAD)))
-    return big.crop((_PAD - px, _PAD - py, _PAD - px + R.SIZE,
-                     _PAD - py + R.SIZE))
+    halo = _halo().copy()
+    # o k tambem anda em degraus, para os quadros se repetirem mais
+    passo = max(1, int(round(k * 8)))
+    halo.putalpha(halo.getchannel('A').point(lambda v: v * passo // 8))
+    fundo = Image.new('RGBA', img.size, (0, 0, 0, 0))
+    fundo.alpha_composite(halo)
+    # tinta: mistura cada pixel do corpo com o vermelho, sem mexer no alfa
+    corpo = img.convert('RGBA')
+    chapa = Image.new('RGBA', img.size, VERMELHO + (255,))
+    chapa.putalpha(corpo.getchannel('A'))
+    # a tinta tambem anda em degraus: quadros vizinhos saem iguais e o
+    # arquivo unico do jogo nao engorda com 24 vermelhos quase iguais
+    corpo = Image.blend(corpo, chapa, round(min(0.62, 0.62 * k) * 4) / 4)
+    corpo.putalpha(img.getchannel('A'))
+    fundo.alpha_composite(corpo)
+    return fundo
+
+
+# Fonte 4x5 so com as letras de GOBLINZED. E o maior tamanho que deixa a
+# palavra inteira (9 letras = 44 px) caber nos 64 px do quadro.
+FONTE = {
+    'G': ['####', '#...', '#.##', '#..#', '####'],
+    'O': ['####', '#..#', '#..#', '#..#', '####'],
+    'B': ['###.', '#..#', '###.', '#..#', '###.'],
+    'L': ['#...', '#...', '#...', '#...', '####'],
+    'I': ['####', '.##.', '.##.', '.##.', '####'],
+    'N': ['#..#', '##.#', '#.##', '#..#', '#..#'],
+    'Z': ['####', '...#', '.##.', '#...', '####'],
+    'E': ['####', '#...', '###.', '#...', '####'],
+    'D': ['###.', '#..#', '#..#', '#..#', '###.'],
+}
+LETRA_W, LETRA_H, LETRA_GAP = 4, 5, 1
+TEXTO_Y = 7
+
+
+def _escrever(img, letras, alpha):
+    """Escreve GOBLINZED por cima do quadro, da esquerda para a direita."""
+    if letras <= 0 or alpha <= 0:
+        return img
+    passo = LETRA_W + LETRA_GAP
+    largura = len(GOBLINZED) * passo - LETRA_GAP
+    x0 = (R.SIZE - largura) // 2
+    marcados = set()
+    for n, ch in enumerate(GOBLINZED[:letras]):
+        bx = x0 + n * passo
+        for dy, linha in enumerate(FONTE[ch]):
+            for dx, c in enumerate(linha):
+                if c == '#':
+                    marcados.add((bx + dx, TEXTO_Y + dy))
+    camada = Image.new('RGBA', img.size, (0, 0, 0, 0))
+    px = camada.load()
+    # contorno primeiro, para a palavra ler sobre o corpo e sobre o fundo
+    for (x, y) in marcados:
+        for ox in (-1, 0, 1):
+            for oy in (-1, 0, 1):
+                q = (x + ox, y + oy)
+                if q not in marcados and 0 <= q[0] < R.SIZE and 0 <= q[1] < R.SIZE:
+                    px[q] = LETRA_BORDA + (255,)
+    for (x, y) in marcados:
+        # a linha de cima de cada letra e mais clara: da relevo
+        px[x, y] = (LETRA_ALTO if (x, y - 1) not in marcados else LETRA) + (255,)
+    camada.putalpha(camada.getchannel('A').point(lambda v: v * alpha // 255))
+    out = img.copy()
+    out.alpha_composite(camada)
+    return out
 
 
 def _fade(img, alpha):
@@ -376,19 +405,25 @@ def _flash(buf):
                 buf[y][x] = hit[c]
 
 
-def post(img, pose):
-    """Pos-processo da morte (giro + desvanecer). O gerador de equipamento
-    usa exatamente esta funcao, senao o overlay sai de um quadro e o corpo
-    de outro."""
+def post(img, pose, efeitos=True):
+    """Pos-processo da morte: luz vermelha, desvanecer e a palavra.
+
+    `efeitos=False` devolve so o corpo, sem luz nem letras. E o que os
+    testes usam: a palavra GOBLINZED e, de proposito, um pedaco solto do
+    desenho, e sem esta chave ela seria reprovada como membro descolado.
+    """
     k = pose.get('_dead')
     if k is None:
         return img
-    if pose.get('_lay') is not None:
-        img = _tombar(img, pose['_lay_turn'])
-    return _fade(img, DEATH_ALPHA[k])
+    if efeitos:
+        img = _brilho(img, DEATH_GLOW[k])
+    img = _fade(img, DEATH_ALPHA[k])
+    if efeitos:
+        img = _escrever(img, GOBLINZED_LETRAS[k], GOBLINZED_ALPHA[k])
+    return img
 
 
-def render_action(action, variation=None):
+def render_action(action, variation=None, efeitos=True):
     """Retorna a lista de Images de uma animacao, ja com a variacao aplicada."""
     frames = []
     swap = variation.get('swap') if variation else None
@@ -398,7 +433,7 @@ def render_action(action, variation=None):
         buf = R.compose(pose, variation=detail, swap=swap, extra_parts=parts)
         if pose.get('_flash'):
             _flash(buf)
-        frames.append(post(R.to_image(buf), pose))
+        frames.append(post(R.to_image(buf), pose, efeitos))
     assert len(frames) == FRAME_COUNTS[action], (action, len(frames))
     return frames
 
