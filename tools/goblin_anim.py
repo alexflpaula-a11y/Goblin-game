@@ -46,7 +46,7 @@ ACTIONS = ('idle', 'walk', 'attack', 'hurt', 'death')
 
 
 def _pose(body=(0, 0), head=(0, 0), arm_l=(0, 0), arm_r=(0, 0),
-          leg_l=(0, 0), leg_r=(0, 0), sword=None, kind='diag'):
+          leg_l=(0, 0), leg_r=(0, 0), sword=None, kind='diag', squash=0):
     """Monta a pose somando o deslocamento global `body` a cada parte.
 
     `sword` nao e uma parte do corpo: e a ANCORA da mao que segura a arma.
@@ -68,6 +68,9 @@ def _pose(body=(0, 0), head=(0, 0), arm_l=(0, 0), arm_r=(0, 0),
         'leg_r': (leg_r[0] + bx, leg_r[1] + by),
         'sword': (sword[0] + bx, sword[1] + by),
         '_sword': kind,
+        # quanto o tronco comprime neste quadro (agachar); ver
+        # goblin_rig.squash_rows
+        '_squash': {'torso': squash} if squash else None,
     }
 
 
@@ -193,19 +196,40 @@ def hurt_poses():
 # rotacao, entao no chao o goblin fica com a cabeca num extremo, os bracos
 # abertos (um para cima, outro para baixo) e as pernas afastadas.
 DEATH_FRAMES = 24
-DEATH_LYING = 12           # a partir daqui o corpo esta na horizontal
 
-#            0  1  2  3  4  5  6  7  8  9 10 11
-DEATH_SINK = [0, 0, 1, 3, 5, 7, 9, 10, 11, 12, 13, 13]
-DEATH_PITCH = [0, 0, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8]   # tronco tombando
+# --- como a morte foi montada ---------------------------------------------
+# O defeito antigo era duplo: o goblin "afundava" dentro das proprias botas
+# (o tronco descia por cima das pernas, sem nada dobrar) e depois trocava
+# de pose de uma vez para o corpo deitado. Agora sao tres tempos:
+#
+#   0-9    AGACHA   as coxas comprimem de verdade (squash_rows), o quadril
+#                   continua no chao e o ombro desce junto com a cabeca.
+#   10-13  TOMBA    o corpo inteiro gira em torno dos pes, alguns graus por
+#                   quadro, ate o angulo em que fica caido.
+#   14-23  CAIDO    quica uma vez, abre os membros e desaparece.
+#
+# LAY_ANGLE e a inclinacao do corpo no chao: a diagonal da imagem de
+# referencia, pes embaixo a esquerda e cabeca em cima a direita.
+LAY_ANGLE = 45
+LAY_PIVOT = (29, 62)       # entre as botas: e em torno delas que ele tomba
 
-# Altura acima do chao depois de deitar: 12 ainda esta no ar, 13 bate,
-# 14 quica, 15 em diante esta assentado.
-DEATH_LIFT = {12: 9, 13: 0, 14: 2, 15: 0}
+DEATH_ANGLE = [0] * 10 + [10, 22, 33] + [LAY_ANGLE] * 11
+DEATH_LYING = DEATH_ANGLE.index(LAY_ANGLE)        # 13
+DEATH_TOPPLE = next(i for i, a in enumerate(DEATH_ANGLE) if a)   # 10
 
-# Abertura dos membros no chao (0 = fechado, 1 = esparramado). Entra aos
-# poucos nos quadros 15-18 para o corpo "relaxar" depois do baque.
-DEATH_SPREAD = {12: 0.0, 13: 0.0, 14: 0.35, 15: 0.6, 16: 0.85, 17: 1.0}
+# Compressao do tronco quadro a quadro: dobra os joelhos ate o 9 e volta a
+# esticar enquanto tomba, porque o corpo se estende ao bater no chao.
+DEATH_SQUASH = [0, 0, 1, 2, 3, 4, 5, 6, 6, 6, 5, 3, 1] + [0] * 11
+
+# Altura acima do chao depois de deitar: um quique curto e assenta.
+# Inclinacao para a frente e afundamento do corpo durante o agachamento.
+DEATH_FALL = [0, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3, 2, 1] + [0] * 11
+DEATH_DROP = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 3, 2, 1] + [0] * 11
+
+DEATH_LIFT = {13: 0, 14: 3, 15: 1, 16: 0}
+
+# Abertura dos membros no chao (0 = fechado, 1 = esparramado).
+DEATH_SPREAD = {13: 0.0, 14: 0.3, 15: 0.6, 16: 0.85, 17: 1.0}
 
 DEATH_ALPHA = ([255] * 19) + [226, 196, 162, 124, 86]
 
@@ -228,35 +252,39 @@ def _lift(i):
 def death_poses():
     out = []
     for i in range(DEATH_FRAMES):
+        dobra = DEATH_SQUASH[i]
         if i < DEATH_LYING:
-            afunda = DEATH_SINK[i]
-            tomba = DEATH_PITCH[i]
+            # De pe (ou tombando): o que o quadro desenha e sempre o goblin
+            # agachado. Quem deita o corpo e a rotacao, depois.
+            # alem de dobrar o joelho ele desaba para a frente: a cabeca
+            # cai um pouco mais que o ombro e os bracos ficam soltos
+            cai = DEATH_FALL[i]
             p = _pose(
-                body=(tomba, afunda),
-                head=(tomba, min(2, afunda // 3)),
-                arm_l=(-1 if i >= 2 else 0, min(2, afunda // 4)),
-                arm_r=(1 if i >= 2 else 0, min(2, afunda // 4)),
-                # as pernas ficam no chao: cancelam o afundamento do corpo
-                leg_l=(-1 if i >= 3 else 0, -afunda),
-                leg_r=(1 if i >= 3 else 0, -afunda),
+                body=(0, DEATH_DROP[i]),
+                head=(cai, dobra + min(2, cai)),
+                arm_l=(cai, dobra),           # bracos pendurados
+                arm_r=(-cai, dobra),
+                leg_l=(0, -DEATH_DROP[i]),    # as botas ficam plantadas
+                leg_r=(0, -DEATH_DROP[i]),
+                squash=dobra,
             )
         else:
-            # Deslocamentos ANTES da rotacao. Depois do giro de 90 graus no
-            # sentido horario, (dx, dy) vira (-dy, dx) — por isso abrir os
-            # bracos no chao se escreve como deslocamento em X aqui.
-            # So ha deslocamento em X: depois do giro ele vira deslocamento
-            # VERTICAL, que e justamente o esparramado que se quer no chao.
-            # Mexer em Y aqui arrancaria a cabeca ou as pernas do tronco —
-            # medido, nao chutado (ver teste de corpo inteiro em test.sh).
+            # Deslocamentos ANTES da rotacao. O corpo gira no sentido
+            # horario, entao um deslocamento em X aqui vira abertura
+            # PERPENDICULAR ao corpo deitado — e isso que esparrama os
+            # membros. Mexer em Y aqui arrancaria a cabeca ou as pernas do
+            # tronco; o teste de corpo inteiro reprova.
             k = _spread(i)
             r = lambda v: round(v * k)
             p = _pose(
                 head=(r(-2), 0),      # cabeca pendendo para um lado
-                arm_l=(r(-3), 0),     # braco de cima, aberto
-                arm_r=(r(3), 0),      # braco de baixo, aberto
-                leg_l=(0, 0),         # pernas juntas: assim as duas botas
-                leg_r=(r(1), 0),      # continuam legiveis como um par
+                arm_l=(r(-4), 0),     # um braco acima da cabeca
+                arm_r=(r(3), 0),      # o outro caido para baixo
+                leg_l=(r(-1), 0),     # pernas abertas
+                leg_r=(r(2), 0),
             )
+        # o goblin fecha os olhos ja no meio do agachamento
+        p['_eyes_shut'] = i >= 5
         p['_dead'] = i
         out.append(p)
     return out
@@ -272,33 +300,86 @@ POSES = {
 
 
 # ---------------------------------------------------------- pos-processo ----
-_LAY_OFFSET = None
+# Girar pixel art num angulo quebrado estraga o desenho: o contorno de 1 px
+# vira pontilhado e abrem-se buracos no meio do corpo. Por isso o giro vem
+# sempre acompanhado de `_mend`, que remonta a silhueta depois da rotacao.
+# E so com ele que a diagonal da referencia fica possivel — em 90 graus
+# exatos o corpo ficava deitado na horizontal, que nao e a imagem pedida.
+
+_PAD = 80
+_ORIGIN = {}
 
 
-def _lay_offset():
-    """Deslocamento fixo do corpo deitado.
+def _rot_about(img, ang):
+    """Gira `ang` graus no sentido horario em torno de LAY_PIVOT."""
+    big = Image.new('RGBA', (_PAD * 2, _PAD * 2), (0, 0, 0, 0))
+    big.paste(img, (_PAD - LAY_PIVOT[0], _PAD - LAY_PIVOT[1]))
+    return big.rotate(-ang, resample=Image.NEAREST, center=(_PAD, _PAD))
 
-    E calculado UMA vez a partir do goblin nu. Usar sempre o mesmo valor e
-    essencial: se o enquadramento dependesse do conteudo do quadro, um
-    escudo ou um elmo mudariam a silhueta e o overlay sairia desalinhado
-    do corpo na animacao de morte.
+
+def _mend(img):
+    """Reconstroi a silhueta depois de uma rotacao em angulo quebrado.
+
+    1. tapa os buracos abertos pelo giro, com a cor de um vizinho;
+    2. apaga os pixels soltos que ficaram pendurados na borda;
+    3. redesenha o contorno, que a rotacao tinha deixado pontilhado.
     """
-    global _LAY_OFFSET
-    if _LAY_OFFSET is None:
-        ref = R.to_image(R.compose(_pose())).transpose(Image.ROTATE_270)
+    import numpy as np
+
+    a = np.array(img).astype(int)
+    m = a[:, :, 3] > 0
+    h, w = m.shape
+    k = R.C['k'][:3]
+
+    def vizinhos(mask):
+        p = np.zeros((h + 2, w + 2), bool)
+        p[1:-1, 1:-1] = mask
+        return (p[:-2, 1:-1].astype(int) + p[2:, 1:-1]
+                + p[1:-1, :-2] + p[1:-1, 2:])
+
+    for _ in range(2):
+        buraco = (~m) & (vizinhos(m) >= 3)
+        for y, x in zip(*np.nonzero(buraco)):
+            perto = [a[y + dy, x + dx] for dy, dx in ((-1, 0), (1, 0), (0, -1), (0, 1))
+                     if 0 <= y + dy < h and 0 <= x + dx < w and m[y + dy, x + dx]]
+            cheio = [c for c in perto if tuple(c[:3]) != k] or perto
+            a[y, x] = cheio[0]
+        m |= buraco
+        solto = m & (vizinhos(m) <= 1)
+        a[solto] = 0
+        m &= ~solto
+
+    borda = m & (vizinhos(m) < 4)
+    a[borda, :3] = k
+    a[borda, 3] = 255
+    return Image.fromarray(a.astype(np.uint8))
+
+
+def _origin(ang):
+    """Onde recortar o quadro girado. Calculado UMA vez por angulo, a partir
+    do goblin nu — se dependesse do conteudo, um elmo ou um escudo mudariam
+    o enquadramento e o overlay sairia deslocado do corpo."""
+    if ang not in _ORIGIN:
+        ref = _mend(_rot_about(R.to_image(R.compose(_pose())), ang))
         bb = ref.getbbox()
-        _LAY_OFFSET = ((R.SIZE - (bb[2] - bb[0])) // 2 - bb[0],
-                       R.ANCHORS['ground_y'] + 1 - bb[3])
-    return _LAY_OFFSET
+        t = min(1.0, ang / LAY_ANGLE)
+        # de pe, os pes nao saem do lugar; caido, o corpo fica centrado e
+        # encostado no chao. Entre os dois, a transicao e proporcional ao
+        # angulo, entao o tombo nao da nenhum salto de enquadramento.
+        pe = (_PAD - LAY_PIVOT[0], _PAD - LAY_PIVOT[1])
+        chao = ((bb[0] + bb[2]) // 2 - R.SIZE // 2,
+                bb[3] - (R.ANCHORS['ground_y'] + 1))
+        _ORIGIN[ang] = tuple(round(p + (c - p) * t) for p, c in zip(pe, chao))
+    return _ORIGIN[ang]
 
 
-def _lay_down(img, lift):
-    """Deita o corpo com rotacao exata de 90 graus (sem perda de pixels)."""
-    dx, dy = _lay_offset()
-    rot = img.transpose(Image.ROTATE_270)
-    out = Image.new('RGBA', (R.SIZE, R.SIZE), (0, 0, 0, 0))
-    out.paste(rot, (dx, dy - lift), rot)
-    return out
+def _lay_down(img, ang, lift):
+    """Deita o corpo: gira em torno dos pes e recorta de volta em 64x64."""
+    if not ang:
+        return img
+    big = _mend(_rot_about(img, ang))
+    ox, oy = _origin(ang)
+    return big.crop((ox, oy + lift, ox + R.SIZE, oy + lift + R.SIZE))
 
 
 def _fade(img, alpha):
@@ -321,6 +402,16 @@ def _flash(buf):
                 buf[y][x] = hit[c]
 
 
+def post(img, pose):
+    """Pos-processo da morte (giro + desvanecer). O gerador de equipamento
+    usa exatamente esta funcao, senao o overlay sai de um quadro e o corpo
+    de outro."""
+    k = pose.get('_dead')
+    if k is None:
+        return img
+    return _fade(_lay_down(img, DEATH_ANGLE[k], _lift(k)), DEATH_ALPHA[k])
+
+
 def render_action(action, variation=None):
     """Retorna a lista de Images de uma animacao, ja com a variacao aplicada."""
     frames = []
@@ -331,13 +422,7 @@ def render_action(action, variation=None):
         buf = R.compose(pose, variation=detail, swap=swap, extra_parts=parts)
         if pose.get('_flash'):
             _flash(buf)
-        img = R.to_image(buf)
-        if action == 'death':
-            k = pose['_dead']
-            if k >= DEATH_LYING:
-                img = _lay_down(img, _lift(k))
-            img = _fade(img, DEATH_ALPHA[k])
-        frames.append(img)
+        frames.append(post(R.to_image(buf), pose))
     assert len(frames) == FRAME_COUNTS[action], (action, len(frames))
     return frames
 

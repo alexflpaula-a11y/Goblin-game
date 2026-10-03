@@ -158,21 +158,41 @@ HIP = _mold(R.TORSO, lambda x, y: y >= 11, gems=[(7, 13), (18, 13)],
 GREAVE_L = _mold(R.LEG_L, lambda x, y: True, flat=True)
 GREAVE_R = _mold(R.LEG_R, lambda x, y: True, flat=True)
 
-# Escudo redondo: tabuas verticais (as colunas em L sao as juntas), aro
-# escuro em volta e umbo de metal no centro.
-SHIELD = g([
-    "...DDDD...",
-    "..DMLMMD..",
-    ".DMLMMLMD.",
-    "DMLMMLMMLD",
-    "DMLMGGGGLD",
-    "DMLMGAAGLD",
-    "DMLMGGGGLD",
-    "DMLMMLMMLD",
-    ".DMLMMLMD.",
-    "..DMLMMD..",
-    "...DDDD...",
-], 10)
+# Escudo redondo. Antes ele tinha 10x11 e sumia atras do braco; agora
+# cobre o antebraco inteiro e sobra para fora, que e o que faz um escudo
+# parecer escudo. O desenho e construido, nao escrito a mao, para o circulo
+# sair redondo em qualquer tamanho:
+#   aro escuro em volta -> tabuas verticais (as colunas em L sao as juntas)
+#   -> umbo de metal no centro.
+SHIELD_W, SHIELD_H = 15, 17
+
+
+def _round_shield(w, h):
+    cx, cy = (w - 1) / 2, (h - 1) / 2
+    out = [['.'] * w for _ in range(h)]
+    for y in range(h):
+        for x in range(w):
+            d = ((x - cx) / (w / 2)) ** 2 + ((y - cy) / (h / 2)) ** 2
+            if d > 1.0:
+                continue
+            if d > 0.66:                       # aro
+                out[y][x] = 'D'
+            elif d > 0.52:                     # bisel por dentro do aro
+                out[y][x] = 'M'
+            else:                              # tabuas
+                out[y][x] = 'L' if (x - int(cx)) % 3 == 0 else 'M'
+    # umbo: chapa de metal no meio, com brilho
+    for y in range(h):
+        for x in range(w):
+            dx, dy = abs(x - cx), abs(y - cy)
+            if dx <= 2.2 and dy <= 2.2 and dx + dy <= 3.4:
+                out[y][x] = 'G'
+    out[int(cy)][int(cx)] = 'A'
+    out[int(cy)][int(cx) + 1] = 'A'
+    return out
+
+
+SHIELD = _round_shield(SHIELD_W, SHIELD_H)
 
 # ------------------------------------------------------------------ armas --
 # O goblin nasce DESARMADO: a adaga deixou de fazer parte do corpo e virou
@@ -317,22 +337,6 @@ ADAGA = _views(ADAGA_DOWN, ADAGA_DIAG)
 ESPADA = _views(ESPADA_DOWN, ESPADA_DIAG)
 CLAVA = _views(CLAVA_DOWN, CLAVA_DIAG)
 
-# Escudo redondo: tabuas verticais (as colunas em L sao as juntas), aro
-# escuro em volta e umbo de metal no centro.
-SHIELD = g([
-    "...DDDD...",
-    "..DMLMMD..",
-    ".DMLMMLMD.",
-    "DMLMMLMMLD",
-    "DMLMGGGGLD",
-    "DMLMGAAGLD",
-    "DMLMGGGGLD",
-    "DMLMMLMMLD",
-    ".DMLMMLMD.",
-    "..DMLMMD..",
-    "...DDDD...",
-], 10)
-
 # ---- armas: reskin da propria adaga do rig ----
 # Em vez de desenhar cada orientacao a mao (e arriscar deixar um pixel da
 # adaga original aparecendo por baixo, ja que overlay so ADICIONA), as armas
@@ -355,22 +359,6 @@ def _reskin(remap):
 
 SWORD_SKIN = _reskin(SWORD_REMAP)
 CLUB_SKIN = _reskin(CLUB_REMAP)
-
-# Escudo redondo: tabuas verticais (as colunas em L sao as juntas), aro
-# escuro em volta e umbo de metal no centro.
-SHIELD = g([
-    "...DDDD...",
-    "..DMLMMD..",
-    ".DMLMMLMD.",
-    "DMLMMLMMLD",
-    "DMLMGGGGLD",
-    "DMLMGAAGLD",
-    "DMLMGGGGLD",
-    "DMLMMLMMLD",
-    ".DMLMMLMD.",
-    "..DMLMMD..",
-    "...DDDD...",
-], 10)
 
 
 def _layer(anchor, rows, material, dx=0, dy=0):
@@ -406,7 +394,9 @@ def weapon(views, material):
 
 def shield(material):
     # Escudo no braco LIVRE (a adaga esta na mao direita, como na referencia).
-    return [_layer('arm_l', SHIELD, material, dx=-1, dy=3)]
+    return [_layer('arm_l', SHIELD, material,
+                   dx=(len(R.ARM_L[0]) - SHIELD_W) // 2,
+                   dy=(len(R.ARM_L) - SHIELD_H) // 2 + 1)]
 
 
 # ------------------------------------------------------------- catalogo ----

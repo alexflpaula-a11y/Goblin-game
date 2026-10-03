@@ -400,10 +400,48 @@ def save_png(img, path):
     out.save(path, optimize=True, transparency=0)
 
 
+def squash_rows(grid, n, lo, hi):
+    """Encolhe `grid` em n linhas, tirando linhas da faixa [lo, hi).
+
+    Serve para o goblin AGACHAR. Antes, agachar era so empurrar o tronco
+    para baixo, e o corpo afundava por dentro das pernas — parecia que ele
+    encolhia dentro das botas. Aqui as linhas somem de verdade: as coxas
+    comprimem, o quadril continua no chao e o ombro desce.
+
+    A altura final e a mesma (as linhas que sairam viram vazio no TOPO), de
+    propositio: assim a armadura que veste a parte passa pelo mesmo encolhe
+    e continua encaixada pixel a pixel, sem nenhum alinhamento manual.
+    """
+    cand = list(range(lo, min(hi, len(grid))))
+    n = max(0, min(n, len(cand)))
+    if not n:
+        return grid
+    # linhas espalhadas por igual: comprimir sempre no mesmo ponto criaria
+    # uma dobra, comprimir espalhado le como joelho flexionando
+    fora = {c for i, c in enumerate(cand)
+            if ((i + 1) * n) // len(cand) > (i * n) // len(cand)}
+    w = len(grid[0])
+    return ([['.'] * w for _ in range(len(fora))]
+            + [list(row) for i, row in enumerate(grid) if i not in fora])
+
+
+# Faixa de cada parte que pode comprimir. So o tronco agacha, e so da
+# cintura para baixo: as linhas 14-19 do desenho sao a barra da calca e as
+# coxas. Comprimir mais acima comeria a calca inteira e o goblin parecia
+# que estava perdendo a roupa, nao dobrando o joelho.
+SQUASH_BAND = {'torso': (14, 20)}
+
+
+def _squash_part(name, art, n):
+    lo, hi = SQUASH_BAND.get(name, (len(art) // 2, len(art) - 1))
+    return squash_rows(art, n, lo, hi)
+
+
 def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None,
             gear=None):
     """Monta um quadro. Retorna o buffer de chars (ainda nao convertido)."""
     extra_parts = extra_parts or {}
+    squash = pose.get('_squash') or {}
     buf = _blank()
     head_pos = None
     ctx = {}
@@ -428,6 +466,8 @@ def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None,
             art = SWORDS[kind]
         else:
             art = extra_parts.get(name, DEFAULT_PART[name])
+            if squash.get(name):
+                art = _squash_part(name, art, squash[name])
         bx, by = REST[name]
         ox, oy = bx + dx, by + dy
         ctx[name] = (ox, oy, flip)
@@ -448,6 +488,13 @@ def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None,
         gx = ax + (-piece.get('dx', 0) if aflip else piece.get('dx', 0))
         gy = ay + piece.get('dy', 0)
         art = piece['grid']
+        # A peca encolhe junto com a parte que veste (ver squash_rows): so
+        # vale quando ela cobre a parte inteira, que e o caso do peitoral e
+        # da calca. Escudo e ombreira sao retalhos soltos e ficam de fora.
+        n = squash.get(anchor, 0)
+        if n and piece.get('dy', 0) == 0 and \
+                len(art) == len(DEFAULT_PART.get(anchor, art)):
+            art = _squash_part(anchor, art, n)
         rows = [list(reversed(r)) for r in art] if aflip else art
         for yy, row in enumerate(rows):
             for xx, ch in enumerate(row):
@@ -475,6 +522,24 @@ def compose(pose, variation=None, swap=None, extra_parts=None, overlay=None,
             if (0 <= x < SIZE and 0 <= y < SIZE
                     and buf[y][x] is not None and (x, y) not in gear_mask):
                 buf[y][x] = ch
+        if pose.get('_eyes_shut'):
+            # Morto de olho aberto fica com cara de susto, e os 2 px de
+            # pupila somem no giro da queda. Fechar o olho vira uma linha
+            # escura, que sobrevive a rotacao e le como morto.
+            lid = {}
+            for k in ('eye_l', 'pupil_l', 'eye_r', 'pupil_r'):
+                for cx, cy in FACE_CELLS[k]:
+                    lid[(cx, cy)] = 'd'
+            for (cx, cy) in list(lid):
+                if (cx, cy + 1) not in lid:
+                    lid[(cx, cy)] = 'k'
+            for (fx, fy), ch in lid.items():
+                x = hx + (HEAD_W - 1 - fx if hflip else fx)
+                y = hy + fy
+                if (0 <= x < SIZE and 0 <= y < SIZE
+                        and buf[y][x] is not None and (x, y) not in gear_mask):
+                    buf[y][x] = ch
+
         if variation:
             variation(buf, ctx, gear_mask)
 

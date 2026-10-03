@@ -46,13 +46,7 @@ def frames_with(layers):
             buf = R.compose(pose, gear=gear)
             if pose.get('_flash'):
                 A._flash(buf)
-            img = R.to_image(buf)
-            if action == 'death':
-                k = pose['_dead']
-                if k >= A.DEATH_LYING:
-                    img = A._lay_down(img, A._lift(k))
-                img = A._fade(img, A.DEATH_ALPHA[k])
-            imgs.append(img)
+            imgs.append(A.post(R.to_image(buf), pose))
         out[action] = imgs
     return out
 

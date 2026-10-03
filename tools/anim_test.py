@@ -79,13 +79,18 @@ for nome, camadas in casos:
                 partidos.append(f'{acao}_{i}')
     ok(not partidos, f'{nome}: nenhum membro descola', ', '.join(partidos[:6]))
 
-# uma variação de cada tipo de troca, para cobrir pele/partes trocadas
-for vid in ('16_sem_orelha', '08_albinismo', '51_mutilado'):
+# AS 45 VARIAÇÕES, uma a uma. Elas pintam adornos que podem sair da
+# silhueta (brinco, ponta da bandana): se um deles ficar flutuando ao lado
+# da cabeça, aparece aqui como pedaço solto.
+quebradas = []
+for vid in V.ORDER:
     var = V.build(vid)
-    partidos = [f'{a}_{i}' for a in A.ACTIONS
-                for i, f in enumerate(A.render_action(a, var)) if pedacos(f) > 1]
-    ok(not partidos, f'variação {vid}: nenhum membro descola',
-       ', '.join(partidos[:6]))
+    for a in A.ACTIONS:
+        for i, f in enumerate(A.render_action(a, var)):
+            if pedacos(f) > 1:
+                quebradas.append(f'{vid}/{a}_{i}')
+ok(not quebradas, f'as {len(V.ORDER)} variações: nada solto em nenhum quadro',
+   ', '.join(quebradas[:6]))
 
 # ---- 2. movimento contínuo: nada de salto ----
 print()
@@ -104,30 +109,54 @@ for acao in A.ACTIONS:
        f'{pior} px em {onde}')
 
 # ---- 3. braço sempre preso ao ombro ----
+# O ombro desce junto com a compressão do tronco (agachar), então a
+# referência do braço é o ombro, não a origem do tronco.
 print()
 for acao in A.ACTIONS:
     pior = 0
     for p in A.POSES[acao]():
+        ombro = (p['torso'][0], p['torso'][1] + (p.get('_squash') or {}).get('torso', 0))
         for k in ('arm_l', 'arm_r'):
-            pior = max(pior, abs(p[k][0] - p['torso'][0]),
-                       abs(p[k][1] - p['torso'][1]))
-    ok(pior <= 3, f'{acao}: braço nunca se afasta mais que 3 px do tronco',
+            pior = max(pior, abs(p[k][0] - ombro[0]), abs(p[k][1] - ombro[1]))
+    ok(pior <= 4, f'{acao}: braço nunca se afasta mais que 4 px do ombro',
        f'{pior} px')
 
-# ---- 4. a morte desce, não teleporta ----
+# ---- 4. a morte agacha, tomba e deita — sem teleportar ----
 print()
-alturas = []
-for i, f in enumerate(A.render_action('death')):
-    bb = f.getbbox()
-    alturas.append(bb[1] if bb else 64)        # topo da silhueta
-queda = alturas[:A.DEATH_LYING]
-ok(len(queda) >= 10, 'morte tem uma descida longa antes de deitar',
-   f'{len(queda)} quadros')
-ok(all(b >= a for a, b in zip(queda, queda[1:])),
-   'morte: o corpo só desce, nunca sobe de volta', str(queda))
-ok(queda[-1] - queda[0] >= 10,
-   'morte: o goblin realmente agacha antes de cair',
-   f'desceu {queda[-1] - queda[0]} px')
+quadros = A.render_action('death')
+caixas = [f.getbbox() or (0, 64, 0, 64) for f in quadros]
+topo = [b[1] for b in caixas]
+chao = [b[3] for b in caixas]
+
+agacha = topo[:A.DEATH_TOPPLE]
+ok(len(agacha) >= 8, 'morte: o agachamento tem quadros que cheguem',
+   f'{len(agacha)} quadros')
+ok(all(b >= a for a, b in zip(agacha, agacha[1:])),
+   'morte: agachando, o corpo só desce — nunca sobe de volta', str(agacha))
+ok(agacha[-1] - agacha[0] >= 8,
+   'morte: o goblin agacha de verdade antes de cair',
+   f'desceu só {agacha[-1] - agacha[0]} px')
+ok(all(c >= 60 for c in chao[:A.DEATH_TOPPLE]),
+   'morte: agachando, os pés ficam plantados no chão', str(chao[:A.DEATH_TOPPLE]))
+ok(max(abs(b - a) for a, b in zip(topo, topo[1:])) <= 9,
+   'morte: nenhum quadro teleporta o corpo',
+   str([b - a for a, b in zip(topo, topo[1:])]))
+
+# o corpo tem de encolher de verdade (joelho dobrando), não só descer
+alturas = [b[3] - b[1] for b in caixas]
+ok(alturas[A.DEATH_TOPPLE - 1] <= alturas[0] - 8,
+   'morte: o tronco comprime (não é só o corpo deslizando para baixo)',
+   f'{alturas[0]} -> {alturas[A.DEATH_TOPPLE - 1]} px')
+
+# e tem de tombar até a diagonal da imagem de referência
+ok(A.DEATH_ANGLE[-1] == A.LAY_ANGLE and 30 <= A.LAY_ANGLE <= 50,
+   'morte: termina deitado na diagonal (30-50 graus)', str(A.LAY_ANGLE))
+giro = [b - a for a, b in zip(A.DEATH_ANGLE, A.DEATH_ANGLE[1:])]
+ok(max(giro) <= 15, 'morte: o tombo é gradual, não um corte seco', str(giro))
+larg = [b[2] - b[0] for b in caixas]
+ok(larg[-1] >= larg[0] + 8,
+   'morte: deitado, o corpo ocupa o chão (fica mais largo que de pé)',
+   f'{larg[0]} -> {larg[-1]} px')
 ok(A.FRAME_COUNTS['death'] >= 20,
    'morte tem quadros suficientes para a queda ser lida',
    str(A.FRAME_COUNTS['death']))
@@ -146,6 +175,49 @@ for w in ('wpn_adaga_pedra', 'wpn_adaga_metal', 'wpn_adaga_madeira'):
     com = R.to_image(R.compose(pose, gear=G.resolve(camadas, pose['_sword'])))
     sem = R.to_image(R.compose(pose))
     ok(list(com.getdata()) != list(sem.getdata()), f'{w} aparece na mão')
+
+# ---- 6. as 45 variações são visíveis e distintas entre si ----
+# Era o defeito: quase toda variação mudava 1 ou 2 pixels e, lado a lado,
+# as 45 pareciam o mesmo goblin.
+print()
+base = A.render_action('idle')[0]
+
+
+def diferenca(a, b):
+    pa, pb = list(a.getdata()), list(b.getdata())
+    return sum(1 for x, y in zip(pa, pb) if x != y)
+
+
+quadros = {vid: A.render_action('idle', V.build(vid))[0] for vid in V.ORDER}
+fracas = [(vid, diferenca(f, base)) for vid, f in quadros.items()
+          if vid != '18_ileso' and diferenca(f, base) < 14]
+ok(not fracas, 'toda variação muda pelo menos 14 px do goblin base',
+   ', '.join(f'{v} ({n} px)' for v, n in fracas))
+
+ok(diferenca(quadros['18_ileso'], base) == 0,
+   '18_ileso é exatamente o goblin base (é a variação "sem marca")')
+
+iguais = []
+nomes = list(quadros)
+for i, a in enumerate(nomes):
+    for b in nomes[i + 1:]:
+        if diferenca(quadros[a], quadros[b]) < 6:
+            iguais.append(f'{a} ≈ {b}')
+ok(not iguais, 'não há duas variações parecidas demais entre si',
+   ', '.join(iguais[:6]))
+
+# a marca tem de acompanhar o goblin em TODA pose, não só na parada
+somem = []
+for vid in V.ORDER:
+    if vid == '18_ileso':
+        continue
+    var = V.build(vid)
+    for a in ('walk', 'attack', 'hurt'):
+        f = A.render_action(a, var)[3]
+        if diferenca(f, A.render_action(a)[3]) < 8:
+            somem.append(f'{vid}/{a}')
+ok(not somem, 'a marca da variação aparece também andando, atacando e apanhando',
+   ', '.join(somem[:6]))
 
 print(f'\n  {passou} passaram · {len(falhas)} falharam')
 sys.exit(1 if falhas else 0)

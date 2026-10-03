@@ -191,7 +191,7 @@ art-source/         arte-fonte do autor (NÃO carregada em runtime)
 python3 tools/build_singlefile.py          # gera o vila-de-goblins-jogavel.html
 python3 tools/gen_sprites.py               # (re)gera a pixel art de prédios e comidas
 python3 tools/gen_icons.py                 # (re)gera ícones 16×16 de itens/habilidades
-python3 tools/gen_goblin_v2.py             # goblin base + as 45 variações (2852 quadros)
+python3 tools/gen_goblin_v2.py             # goblin base + as 45 variações (3266 quadros)
 python3 tools/gen_gear_v2.py               # armaduras e armas encaixadas no goblin
 python3 tools/gen_goblin_variations.py     # (legado) extraía as variações dos GIFs antigos
 python3 tools/unbuild.py            # extrai a fonte de volta a partir do build
@@ -219,23 +219,27 @@ bash    tools/test.sh               # roda as 7 suítes de teste
 
 O conjunto **Avaritia** (peitoral, calça, capacete + 3 pares + conjunto completo, 62 frames cada) vive em `sprites/itens/` e é gerado por `sprites/itens/gerar_item.py` / `gerar_conjunto.py` a partir dos frames do goblin no `window.EMBEDDED` do jogo — apenas recolor de pixels existentes.
 
-PNGs referenciados por **nome lógico** no `manifest.json` — **64×64 para os goblins** (resolução nativa da arte de referência) e 32×32 para o resto. Se um PNG não existir, um placeholder é desenhado automaticamente (o jogo nunca quebra). Os goblins têm **45 variações físicas** — dente dourado, tapa-olho, cicatrizes, albinismo, tatuagens e combinações — cada uma com os 62 quadros de `idle/walk/attack/hurt/death`.
+PNGs referenciados por **nome lógico** no `manifest.json` — **64×64 para os goblins** (resolução nativa da arte de referência) e 32×32 para o resto. Se um PNG não existir, um placeholder é desenhado automaticamente (o jogo nunca quebra). Os goblins têm **45 variações físicas** — dente dourado, tapa-olho, cicatrizes, albinismo, tatuagens e combinações — cada uma com os 71 quadros de `idle/walk/attack/hurt/death`. O goblin **nasce desarmado**: a arma só aparece quando é equipada.
 
-Desde a arte atual, nada disso é desenhado quadro a quadro: existe um **rig**. O goblin base **não é um desenho novo** — ele é a arte de referência em `art-source/goblins-v2/referencia.jpg`, usada na **resolução nativa dela (64×64)**, sem redução. O pipeline limpa a compressão JPEG numa paleta de 12 cores (`referencia-limpa.png`) e **fatia o resultado em partes**: cabeça 38×20 com as duas orelhas, tronco 28×23 com o avental de couro, braço esquerdo 13×14, braço direito 11×11 com a adaga, pernas 12×7 / 10×7 e a lâmina 9×9. Cada parte já carrega o contorno e o sombreado originais — a pose de repouso recomposta é **pixel a pixel idêntica** à referência. O rig só reposiciona as peças por quadro e, por cima, pinta rosto, variação e armadura, então um ajuste no recorte se propaga para os 2852 quadros de uma vez.
+Desde a arte atual, nada disso é desenhado quadro a quadro: existe um **rig**. O goblin base **não é um desenho novo** — ele é a arte de referência em `art-source/goblins-v2/referencia.jpg`, usada na **resolução nativa dela (64×64)**, sem redução. O pipeline limpa a compressão JPEG numa paleta de 12 cores (`referencia-limpa.png`) e **fatia o resultado em partes**: cabeça 38×20 com as duas orelhas, tronco 28×23 com o avental de couro, braço esquerdo 13×14, braço direito 11×11 com a adaga, pernas 12×7 / 10×7 e a lâmina 9×9. Cada parte já carrega o contorno e o sombreado originais — a pose de repouso recomposta é **pixel a pixel idêntica** à referência. O rig só reposiciona as peças por quadro e, por cima, pinta rosto, variação e armadura, então um ajuste no recorte se propaga para os 3266 quadros de uma vez.
 
 Os goblins são, portanto, os únicos sprites **64×64** do jogo. Nada no código precisou de alinhamento manual: todas as chamadas de desenho já passam largura/altura explícitas e o compositor de equipamento (`js/assetLoader.js`) usa o tamanho real do sprite base.
 
-Comparação lado a lado em `art-source/goblins-v2/base-zoom.png`; folha de conferência completa (62 quadros + 45 variações + 13 equipamentos) em `conferencia.png`.
+Comparação lado a lado em `art-source/goblins-v2/base-zoom.png`; folha de conferência completa (71 quadros + 45 variações + 16 equipamentos) em `conferencia.png`.
 
 | arquivo | papel |
 | --- | --- |
 | `tools/goblin_rig.py` | partes recortadas da referência, paleta, pontos de ancoragem, PNG indexado |
-| `tools/goblin_anim.py` | as 62 poses das 5 animações |
+| `tools/goblin_anim.py` | as 71 poses das 5 animações, incluindo a morte em 24 quadros |
 | `tools/goblin_variations.py` | as 45 aparências como receitas de traços (cicatriz, atadura, albinismo…) |
 | `tools/goblin_gear.py` | armaduras e armas, ancoradas às partes do corpo |
 | `tools/gen_goblin_v2.py` / `tools/gen_gear_v2.py` | geram os PNGs |
 
-Cada traço de variação é aplicado em coordenadas **relativas à cabeça/braço daquele quadro**, então a marca acompanha o goblin em qualquer pose. Os overlays de armadura também não são desenhados à mão: são a **diferença** entre o quadro vestido e o mesmo quadro nu, o que torna o encaixe exato por construção. Prédios, recursos e comidas são pixel art autoral gerada por `tools/gen_sprites.py`.
+Cada traço de variação é aplicado em coordenadas **relativas à cabeça/braço daquele quadro**, então a marca acompanha o goblin em qualquer pose — e cada traço tem corpo, luz e sombra, para ser reconhecido no tamanho em que o jogo desenha o goblin.
+
+A **morte** tem três tempos: o goblin agacha (as coxas comprimem de verdade, o quadril continua no chão), tomba girando em torno dos pés e só então fica caído na diagonal. Girar pixel art num ângulo quebrado destrói o contorno, então o giro vem sempre seguido de `_mend`, que tapa os buracos e redesenha a linha — é o que torna a diagonal possível.
+
+`tools/anim_test.py` (rodado por `tools/test.sh`) é a rede de segurança disso: ele reprova membro solto em **qualquer** quadro de **qualquer** animação, nu, com cada peça e nas 45 variações; salto de pose entre quadros; morte sem agachamento; e variação que mude menos de 14 px do goblin base ou que seja parecida demais com outra. Os overlays de armadura também não são desenhados à mão: são a **diferença** entre o quadro vestido e o mesmo quadro nu, o que torna o encaixe exato por construção. Prédios, recursos e comidas são pixel art autoral gerada por `tools/gen_sprites.py`.
 
 ## 🌐 Idiomas
 
