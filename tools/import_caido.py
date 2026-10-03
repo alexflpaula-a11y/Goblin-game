@@ -2,10 +2,11 @@
 """
 Converte a arte do goblin CAIDO em sprite de verdade.
 
-A pose do corpo caido (diagonal, pes embaixo a esquerda e cabeca em cima a
-direita, um braco acima da cabeca e o outro estendido) nao sai de rotacao:
-girar o goblin de pe num angulo quebrado arrebenta o contorno e embaralha o
-rosto. Ela foi desenhada a parte, em
+A pose do corpo caido — DE BRUCOS, de costas para a camera, na diagonal,
+botas embaixo a esquerda e cabeca em cima a direita, membros abertos — nao
+sai de rotacao: girar o goblin de pe num angulo quebrado arrebenta o
+contorno, e de qualquer forma continuaria mostrando o rosto, que deitado
+assim esta enfiado no chao. Ela foi desenhada a parte, em
 `art-source/goblins-v2/caido-gerado.png`, e este script transforma aquele
 desenho grande no sprite 64x64 que o jogo usa:
 
@@ -15,8 +16,7 @@ desenho grande no sprite 64x64 que o jogo usa:
   3. troca cada cor pela MAIS PROXIMA da paleta do goblin, para o corpo
      caido ser feito exatamente das mesmas cores do corpo de pe
   4. remove pixels soltos e fecha buracos
-  5. repinta as duas palpebras fechadas, que a reducao engole
-  6. encosta o corpo no chao e centra no quadro de 64x64
+  5. encosta o corpo no chao e centra no quadro de 64x64
 
     python3 tools/import_caido.py
 """
@@ -119,22 +119,6 @@ def limpar(buf):
     return buf
 
 
-# As duas palpebras fechadas existem no desenho grande, mas em um verde a
-# um passo do verde da pele: a reducao por mediana as engole. Elas sao
-# repintadas aqui, nas mesmas posicoes do desenho, com contraste que
-# sobrevive ao tamanho em que o jogo desenha o goblin.
-OLHOS = [[(38, 19), (39, 20), (40, 21), (41, 21), (42, 20)],
-         [(43, 24), (44, 25), (45, 26), (46, 26), (47, 25)]]
-
-
-def pintar_olhos(buf):
-    for linha in OLHOS:
-        for i, (x, y) in enumerate(linha):
-            if buf[y][x] is not None:
-                buf[y][x] = 'e' if 0 < i < len(linha) - 1 else 'd'
-    return buf
-
-
 def encostar_no_chao(buf):
     """Centra na horizontal e encosta a base do corpo no chao do quadro."""
     cheios = [(x, y) for y in range(R.SIZE) for x in range(R.SIZE)
@@ -154,7 +138,7 @@ def encostar_no_chao(buf):
 def main():
     rgb = reduzir(Image.open(ENTRADA))
     buf = limpar(para_paleta(rgb, tirar_fundo(rgb)))
-    buf = encostar_no_chao(pintar_olhos(buf))
+    buf = encostar_no_chao(buf)
     img = R.to_image(buf)
     R.save_png(img, SAIDA)
     cheios = sum(1 for linha in buf for c in linha if c is not None)

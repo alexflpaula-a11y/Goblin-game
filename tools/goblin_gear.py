@@ -406,17 +406,24 @@ def _disco(cx, cy, r):
 
 
 _couro = _manchas(lambda c: c in _COURO)
-LAY_AVENTAL = _couro[0]
-LAY_BOTAS = sorted(_couro[1:3], key=lambda s: min(p[0] for p in s))
-LAY_CRANIO = _disco(44, 25, 9) - LAY_AVENTAL
-LAY_PEITO = ((_disco(33, 36, 9) | _disco(37, 33, 6))
-             - LAY_AVENTAL - LAY_CRANIO - LAY_BOTAS[0] - LAY_BOTAS[1])
-LAY_OMBRO_A = _disco(29, 28, 5) - LAY_AVENTAL - LAY_CRANIO - LAY_PEITO
-LAY_OMBRO_B = _disco(43, 42, 5) - LAY_AVENTAL - LAY_CRANIO - LAY_PEITO
 
-# Visor do elmo: as duas palpebras fechadas do desenho (import_caido.OLHOS).
-LAY_VISOR = [(38, 19), (39, 20), (40, 21), (41, 21), (42, 20),
-             (43, 24), (44, 25), (45, 26), (46, 26), (47, 25)]
+# O macacao e uma mancha so no corpo caido (costas + calca). O corte em
+# dois sai da propria altura: deitado de bruços na diagonal, o que esta
+# acima da linha da cintura e o dorso, o que esta abaixo e a calca.
+LAY_MACACAO = _couro[0]
+LAY_CINTURA = 40
+LAY_DORSO = {p for p in LAY_MACACAO if p[1] < LAY_CINTURA}
+LAY_CALCA = {p for p in LAY_MACACAO if p[1] >= LAY_CINTURA}
+LAY_BOTAS = sorted(_couro[1:3], key=lambda s: min(p[0] for p in s))
+
+LAY_CRANIO = _disco(40, 24, 9) - LAY_MACACAO
+LAY_PEITO = (LAY_DORSO | _disco(33, 31, 5)) - LAY_CRANIO - LAY_CALCA
+LAY_OMBRO_A = _disco(29, 28, 5) - LAY_MACACAO - LAY_CRANIO - LAY_PEITO
+LAY_OMBRO_B = _disco(44, 32, 5) - LAY_MACACAO - LAY_CRANIO - LAY_PEITO
+
+# Deitado de bruços nao ha rosto a mostra, entao o elmo nao tem visor —
+# o que aparece dele e so a calota, inteira.
+LAY_VISOR = []
 
 
 def _mold_lay(regiao, **kw):
@@ -424,19 +431,20 @@ def _mold_lay(regiao, **kw):
 
 
 HELM_LAY = _mold_lay(LAY_CRANIO, slits=LAY_VISOR,
-                     marks=[(40, 16, 'L'), (48, 22, 'L'), (37, 27, 'L')])
-CHEST_LAY = _mold_lay(LAY_PEITO, gems=[(33, 36), (34, 36), (33, 37), (34, 37)],
-                      marks=[(31, 33, 'L'), (37, 40, 'L')])
-HIP_LAY = _mold_lay(LAY_AVENTAL, gems=[(23, 38), (31, 45)],
-                    marks=[(x, 36, 'L') for x in range(20, 32)]
-                          + [(x, 37, 'M') for x in range(20, 32)])
+                     marks=[(38, 19, 'L'), (45, 23, 'L'), (36, 28, 'L')])
+CHEST_LAY = _mold_lay(LAY_PEITO, gems=[(30, 33), (31, 33), (30, 34), (31, 34)],
+                      marks=[(27, 30, 'L'), (34, 37, 'L')])
+HIP_LAY = _mold_lay(LAY_CALCA, gems=[(24, 44), (30, 50)],
+                    marks=[(x, 41, 'L') for x in range(18, 36)]
+                          + [(x, 42, 'M') for x in range(18, 36)])
 GREAVE_LAY_A = _mold_lay(LAY_BOTAS[0], flat=True)
 GREAVE_LAY_B = _mold_lay(LAY_BOTAS[1], flat=True)
 PAULDRON_LAY_A = _mold_lay(LAY_OMBRO_A, flat=True)
 PAULDRON_LAY_B = _mold_lay(LAY_OMBRO_B, flat=True)
 
-# O escudo cai ao lado do corpo, encostado no braco levantado.
-SHIELD_LAY_POS = (19, 11)
+# O escudo cai ao lado do corpo, encostado na mao do braco aberto
+# para a esquerda — solto no chao ele seria reprovado como peca descolada.
+SHIELD_LAY_POS = (9, 15)
 
 
 def _lay(rows, material, dx=0, dy=0):
