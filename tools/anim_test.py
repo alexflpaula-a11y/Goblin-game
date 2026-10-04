@@ -226,9 +226,14 @@ def diferenca(a, b):
 
 
 quadros = {vid: A.render_action('idle', V.build(vid))[0] for vid in V.ORDER}
+# O piso era 14 px e isso saiu pela culatra: para passar no teste, traco
+# pequeno virava mancha grande (verruga de 3x3, dente do tamanho do
+# focinho, marca de nascenca cobrindo meia testa). Uma presa de ouro de
+# 10 px saturados se ve de longe; um borrao de 20 px so polui o desenho.
+# O que o teste tem de garantir e que a marca EXISTE, nao que ela e grande.
 fracas = [(vid, diferenca(f, base)) for vid, f in quadros.items()
-          if vid != '18_ileso' and diferenca(f, base) < 14]
-ok(not fracas, 'toda variação muda pelo menos 14 px do goblin base',
+          if vid != '18_ileso' and diferenca(f, base) < 9]
+ok(not fracas, 'toda variação muda pelo menos 9 px do goblin base',
    ', '.join(f'{v} ({n} px)' for v, n in fracas))
 
 ok(diferenca(quadros['18_ileso'], base) == 0,
