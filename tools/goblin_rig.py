@@ -253,33 +253,47 @@ DRAW_ORDER = ['arm_l', 'leg_l', 'leg_r', 'torso', 'sword', 'head', 'arm_r']
 
 # Detalhes do rosto, em coordenadas relativas a cabeca (18x10).
 FACE_CELLS = {
-    'eye_l':   [(16, 13), (17, 13), (16, 14), (17, 14), (18, 14)],
-    'pupil_l': [(18, 13)],
-    'eye_r':   [(25, 13), (25, 14)],
-    'pupil_r': [(26, 13), (27, 13), (28, 13)],
-    'brow_l':  [(15, 12), (16, 12), (17, 12)],
-    'brow_r':  [(24, 12), (25, 12), (26, 12)],
+    # Os olhos ficam nas linhas 12-15 da cabeca. A arte de referencia so
+    # tem, ali, uns pixels de verde mais claro: de longe o rosto some e o
+    # goblin vira uma mancha de folhas. Por isso o rosto DEIXA de ser lido
+    # da arte e passa a ser desenhado — branco com pupila escura, como no
+    # sprite antigo, que era o que fazia o olho aparecer.
+    # Olho de 4 px com a pupila de 2 px NO MEIO: sobra branco dos dois
+    # lados dela. Com a pupila na beirada ela se perdia no contorno e o
+    # olho virava um quadradinho branco sem olhar.
+    'brow_l':  [(14, 12), (15, 12), (16, 12), (17, 12)],
+    'eye_l':   [(14, 13), (17, 13), (14, 14), (17, 14)],
+    'pupil_l': [(15, 13), (16, 13), (15, 14), (16, 14)],
+    'under_l': [(14, 15), (15, 15), (16, 15), (17, 15)],
+    'brow_r':  [(23, 12), (24, 12), (25, 12), (26, 12)],
+    'eye_r':   [(23, 13), (26, 13), (23, 14), (26, 14)],
+    'pupil_r': [(24, 13), (25, 13), (24, 14), (25, 14)],
+    'under_r': [(23, 15), (24, 15), (25, 15), (26, 15)],
     'tusk':    [(21, 18), (22, 18)],
 }
 
+# Cor de cada parte do rosto. As variacoes mexem AQUI (swap), entao um
+# olho de rubi e so trocar 'w' por vermelho nas celulas do olho.
+FACE_TINTA = {
+    'brow_l': 'k', 'brow_r': 'k',        # sobrancelha: a linha que da o olhar
+    'eye_l': 'w', 'eye_r': 'w',          # esclera
+    'pupil_l': 'k', 'pupil_r': 'k',      # pupila
+    'under_l': 'e', 'under_r': 'e',      # sombra embaixo, para o olho assentar
+    'tusk': 'w',
+}
 
-def _face_from_art():
-    """O rosto nao e redesenhado: e lido da propria arte.
 
-    Antes o rig pintava retangulos chapados por cima dos olhos, o que matava
-    a pupila e o sombreado do original. Agora FACE devolve exatamente os
-    pixels que ja estao no recorte, entao repintar e um no-op visual — ele
-    existe so para que `swap` e as variacoes saibam onde o rosto fica.
-    """
+def _face_art():
+    """Monta o rosto a partir de FACE_CELLS/FACE_TINTA, dentro da cabeca."""
     out = {}
-    for cells in FACE_CELLS.values():
+    for nome, cells in FACE_CELLS.items():
         for x, y in cells:
             if 0 <= y < len(HEAD) and 0 <= x < len(HEAD[0]) and HEAD[y][x] != '.':
-                out[(x, y)] = HEAD[y][x]
+                out[(x, y)] = FACE_TINTA[nome]
     return out
 
 
-FACE = _face_from_art()
+FACE = _face_art()
 
 # Pontos de ancoragem usados pelos geradores de armadura (canvas 32x32, repouso).
 ANCHORS = {

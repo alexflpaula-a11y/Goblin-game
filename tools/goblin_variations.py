@@ -56,8 +56,8 @@ FOREHEAD = [(x, y) for y in range(8, 13) for x in range(12, 28)]
 CROWN = [(x, y) for y in range(1, 7) for x in range(13, 30)]
 EAR_L_CORE = [(x, y) for y in (5, 6, 7) for x in range(2, 11)]
 EAR_R_CORE = [(x, y) for y in (4, 5, 6, 7) for x in range(28, 34)]
-EAR_L_LOBE = [(1, 7), (2, 7)]
-EAR_R_LOBE = [(33, 7), (34, 7)]
+EAR_L_LOBE = [(2, 8), (3, 8), (4, 8), (5, 8)]
+EAR_R_LOBE = [(32, 7), (33, 7), (34, 7)]
 CHEEK_L = [(12, 15), (12, 16), (12, 17), (13, 18)]
 CHEEK_R = [(26, 15), (26, 16), (25, 17), (25, 18)]
 
@@ -69,8 +69,14 @@ def _put(buf, x, y, ch):
 
 _MASK = set()
 
+# Regra desta rodada: NENHUM traco tapa o olho. So o tapa-olho e o olho
+# cego podem mexer ali, e passando sobre_olhos=True de proposito. Era isso
+# que fazia metade das 45 variacoes ficarem sem olhar.
+OLHOS = set(EYE_L + EYE_R + PUPIL_L + PUPIL_R + BROW_L + BROW_R)
 
-def _head_paint(buf, ctx, cells, ch, over_outline=False, add=False):
+
+def _head_paint(buf, ctx, cells, ch, over_outline=False, add=False,
+                sobre_olhos=False):
     """Pinta celulas em coordenadas da CABECA, em qualquer quadro.
 
     `add=True` deixa o traco sair da silhueta — e o que permite pendurar um
@@ -83,6 +89,8 @@ def _head_paint(buf, ctx, cells, ch, over_outline=False, add=False):
         return
     hx, hy, flip = ctx['head']
     for fx, fy in cells:
+        if not sobre_olhos and (fx, fy) in OLHOS:
+            continue
         x = hx + (R.HEAD_W - 1 - fx if flip else fx)
         y = hy + fy
         if 0 <= x < R.SIZE and 0 <= y < R.SIZE and (x, y) not in _MASK:
@@ -116,95 +124,102 @@ def _arm_paint(buf, ctx, part, rows, ch, cols=None):
 
 def t_gold_tooth(buf, ctx):
     """Presa de ouro: uma lasca grande subindo do labio, nao um ponto."""
-    _head_paint(buf, ctx, [(19, 15), (20, 15), (21, 15)], 'u')
-    _head_paint(buf, ctx, [(x, y) for y in (16, 17, 18) for x in (19, 20, 21)],
-                'Y')
-    _head_paint(buf, ctx, [(21, 16), (21, 17), (19, 18), (20, 19), (21, 19)],
-                'G')
-    _head_paint(buf, ctx, [(22, 17), (22, 18), (18, 18)], 'y')
+    # Presa de ouro saindo do labio de baixo. A versao anterior ocupava
+    # 3x5 no meio da cara e virava um bico amarelo.
+    _head_paint(buf, ctx, [(20, 16), (19, 17), (20, 17), (21, 17),
+                           (19, 18), (20, 18), (21, 18)], 'Y')
+    _head_paint(buf, ctx, [(19, 17), (20, 16)], 'u')
+    _head_paint(buf, ctx, [(18, 17), (18, 18), (22, 17), (22, 18),
+                           (19, 19), (20, 19), (21, 19)], 'G')
 
 
 def t_eyepatch(buf, ctx):
     """Tapa-olho: a placa cobre o olho inteiro e a tira atravessa a cabeca."""
-    placa = [(x, y) for y in (12, 13, 14, 15) for x in range(23, 30)]
-    _head_paint(buf, ctx, placa, 'K', over_outline=True)
-    _head_paint(buf, ctx, [(24, 12), (25, 12), (24, 13)], 'x', over_outline=True)
-    # tira atravessando a testa. Ela vai em escada (um passo para o lado,
-    # um para cima): em diagonal pura a tira sai pontilhada.
-    tira = [(22, 11), (21, 11), (21, 10), (20, 10), (19, 10), (19, 9),
-            (18, 9), (17, 9), (16, 9), (16, 8), (15, 8), (14, 8), (13, 8),
-            (12, 8), (12, 7), (11, 7), (10, 7), (9, 7), (8, 7)]
-    _head_paint(buf, ctx, tira, 'K', over_outline=True)
+    # A placa cobre SO o olho direito, com as quinas cortadas. Antes era
+    # um retangulo 7x4 que comia meia cara.
+    placa = ([(x, 12) for x in range(23, 27)]
+             + [(x, 13) for x in range(23, 28)]
+             + [(x, 14) for x in range(23, 28)]
+             + [(x, 15) for x in range(24, 27)])
+    _head_paint(buf, ctx, placa, 'K', over_outline=True, sobre_olhos=True)
+    _head_paint(buf, ctx, [(24, 13), (25, 13)], 'x',
+                over_outline=True, sobre_olhos=True)
+    # tira de 1 px subindo em escada ate a orelha, acima da sobrancelha
+    tira = [(22, 12), (22, 11), (21, 11), (20, 11), (20, 10), (19, 10),
+            (18, 10), (17, 10), (16, 10), (16, 9), (15, 9), (14, 9),
+            (13, 9), (12, 9), (12, 8), (11, 8), (10, 8), (9, 8)]
+    _head_paint(buf, ctx, tira, 'K', over_outline=True, sobre_olhos=True)
 
 
-def _hoop(x0, y0):
-    """Argola de ouro 4x4, pendurada a partir de (x0, y0).
+def _hoop(cx, y0):
+    """Argola de ouro 3x4 pendurada do lobo, com o furo escuro no meio.
 
-    O anel e FECHADO de proposito. Um anel desenhado so com as quinas fica
-    preso a orelha apenas pela diagonal, e um pixel que so encosta pela
-    quina conta como pedaco solto — o teste das 45 variacoes reprova.
+    A versao anterior era um bloco 4x4 de ouro solto dois pixels abaixo da
+    orelha: na tela virava um cubinho dourado flutuando. Agora o pino sai
+    DO lobo (y0 encosta na orelha) e o miolo fica em 'k', que e o que faz
+    o olho ler um anel e nao um quadrado.
     """
-    # as quinas saem em ouro escuro: e o que arredonda o anel sem abrir
-    # buraco na ligacao com a orelha
-    return ([(x0, y0, 'G'), (x0 + 1, y0, 'u'), (x0 + 2, y0, 'Y'),
-             (x0 + 3, y0, 'G'),
-             (x0, y0 + 1, 'Y'), (x0 + 3, y0 + 1, 'Y'),
-             (x0, y0 + 2, 'Y'), (x0 + 3, y0 + 2, 'Y'),
-             (x0, y0 + 3, 'G'), (x0 + 1, y0 + 3, 'G'),
-             (x0 + 2, y0 + 3, 'G'), (x0 + 3, y0 + 3, 'G')])
+    return ([(cx, y0, 'u')]                                   # pino no lobo
+            + [(cx - 1, y0 + 1, 'Y'), (cx, y0 + 1, 'k'),
+               (cx + 1, y0 + 1, 'Y')]
+            + [(cx - 1, y0 + 2, 'Y'), (cx, y0 + 2, 'k'),
+               (cx + 1, y0 + 2, 'Y')]
+            + [(cx - 1, y0 + 3, 'G'), (cx, y0 + 3, 'Y'),
+               (cx + 1, y0 + 3, 'G')])
 
 
-def _put_hoop(buf, ctx, x0, y0):
-    for x, y, ch in _hoop(x0, y0):
+def _put_hoop(buf, ctx, cx, y0):
+    for x, y, ch in _hoop(cx, y0):
         _head_paint(buf, ctx, [(x, y)], ch, over_outline=True, add=True)
 
 
 def t_ear_ring(buf, ctx):
-    """Uma argola, na orelha esquerda. Pendurada FORA da orelha."""
+    """Uma argola, na orelha esquerda. Pendurada do lobo."""
     _head_paint(buf, ctx, EAR_L_LOBE, 'G', over_outline=True)
-    _put_hoop(buf, ctx, 1, 9)
+    _put_hoop(buf, ctx, 3, 9)
 
 
 def t_earring(buf, ctx):
     """Um par de argolas, uma em cada orelha."""
     _head_paint(buf, ctx, EAR_L_LOBE + EAR_R_LOBE, 'G', over_outline=True)
-    _put_hoop(buf, ctx, 1, 9)
-    _put_hoop(buf, ctx, 31, 9)
+    _put_hoop(buf, ctx, 3, 9)
+    _put_hoop(buf, ctx, 33, 8)
 
 
 def t_scar(buf, ctx):
     """Cicatriz costurada descendo da testa ate a bochecha."""
-    corte = [(14, 8), (14, 9), (14, 10), (14, 11), (14, 12),
-             (13, 13), (13, 14), (13, 15), (13, 16), (13, 17)]
+    # passa POR FORA do olho (coluna 12-13), nunca por cima dele
+    corte = [(13, 7), (13, 8), (13, 9), (13, 10), (13, 11),
+             (12, 12), (12, 13), (12, 14), (12, 15), (12, 16)]
     _head_paint(buf, ctx, corte, 'f', over_outline=True)
-    pontos = [(13, 9), (15, 9), (13, 11), (15, 11),
-              (12, 14), (14, 14), (12, 16), (14, 16)]
+    pontos = [(12, 8), (14, 8), (12, 10), (14, 10),
+              (11, 13), (13, 13), (11, 15), (13, 15)]
     _head_paint(buf, ctx, pontos, 'e')
 
 
 def t_burns(buf, ctx):
     """Queimadura: mancha grande e viva no rosto, no ombro e no braco."""
-    _head_paint(buf, ctx, [(25, 15), (26, 15), (27, 15),
-                           (24, 16), (25, 16), (26, 16), (27, 16),
-                           (24, 17), (25, 17), (26, 17),
-                           (24, 18), (25, 18)], 'Q')
-    _head_paint(buf, ctx, [(25, 16), (26, 17)], 'Z')
-    _head_paint(buf, ctx, [(27, 14), (28, 15), (23, 18), (26, 18)], 'R')
-    # respingo irregular descendo pelo braco
-    _arm_paint(buf, ctx, 'arm_l', (2,), 'Q', cols=range(6, 9))
-    _arm_paint(buf, ctx, 'arm_l', (3,), 'Q', cols=range(5, 10))
-    _arm_paint(buf, ctx, 'arm_l', (4,), 'Q', cols=range(4, 10))
-    _arm_paint(buf, ctx, 'arm_l', (5,), 'Q', cols=range(4, 9))
-    _arm_paint(buf, ctx, 'arm_l', (6,), 'Q', cols=range(5, 8))
-    _arm_paint(buf, ctx, 'arm_l', (4,), 'Z', cols=range(6, 8))
-    _arm_paint(buf, ctx, 'arm_l', (7,), 'R', cols=range(5, 7))
+    # Mancha na tempora/bochecha DIREITA, longe da boca e do olho. Antes
+    # ela cobria o focinho inteiro e parecia sangue escorrendo.
+    _head_paint(buf, ctx, [(26, 16), (27, 16), (28, 16),
+                           (26, 17), (27, 17), (28, 17),
+                           (26, 18), (27, 18)], 'Q')
+    _head_paint(buf, ctx, [(27, 17)], 'Z')
+    _head_paint(buf, ctx, [(25, 17), (28, 18), (27, 19)], 'R')
+    # respingo no ombro, pequeno e irregular
+    _arm_paint(buf, ctx, 'arm_l', (3,), 'Q', cols=range(6, 9))
+    _arm_paint(buf, ctx, 'arm_l', (4,), 'Q', cols=range(5, 9))
+    _arm_paint(buf, ctx, 'arm_l', (5,), 'R', cols=range(6, 8))
+    _arm_paint(buf, ctx, 'arm_l', (4,), 'Z', cols=range(6, 7))
 
 
 # Faixas na cabeca: ficam na TESTA, acima dos olhos, e seguem a largura do
 # cranio linha a linha. Antes eram um retangulo chapado que cobria os olhos e
 # transbordava pelas orelhas — parecia um bone, nao uma faixa.
-BANDAGE_ROWS = {9: (6, 31), 10: (7, 29), 11: (7, 29)}
-BANDANA_ROWS = {8: (6, 31), 9: (6, 31), 10: (7, 29)}
+# Elas ficam no CRANIO (colunas 12..29), nunca atravessando as orelhas:
+# a faixa larga de ponta a ponta era o que virava uma tabua na cara.
+BANDAGE_ROWS = {8: (13, 29), 9: (12, 30), 10: (12, 30), 11: (13, 29)}
+BANDANA_ROWS = {9: (12, 29), 10: (12, 29), 11: (12, 29)}
 
 
 def _band(spans):
@@ -227,17 +242,21 @@ def _weave(spans, claro, escuro):
 # As pontas da bandana caem em ESCADA, nunca em diagonal pura: um pixel
 # que so encosta pela quina fica solto na tela e o teste de corpo inteiro
 # reprova (foi assim que a ponta antiga saiu voando ao lado da cabeca).
-BANDANA_TAIL = [(6, 11), (6, 12), (5, 12), (5, 13), (5, 14), (4, 14),
-                (4, 15), (4, 16), (3, 16)]
-BANDANA_TAIL_SHADOW = [(6, 13), (5, 15), (4, 17), (3, 17)]
+BANDANA_TAIL = [(11, 11), (11, 12), (10, 12), (10, 13)]
+BANDANA_TAIL_SHADOW = [(11, 13)]
 
 
 def t_bandana(buf, ctx):
     """Bandana vermelha cobrindo a testa, com no e a ponta caida."""
-    for cells, ch in _weave(BANDANA_ROWS, 'r', 'R'):
-        _head_paint(buf, ctx, cells, ch)
-    _head_paint(buf, ctx, _band({8: (13, 25)}), 'y')               # luz
-    _head_paint(buf, ctx, [(7, 10), (8, 10), (7, 11), (8, 11)], 'r',
+    # Pano LISO: tres linhas de vermelho, luz em cima e sombra embaixo.
+    # Com o tear diagonal o vermelho ficava malhado e parecia uma cobra.
+    # Faixa RETA logo acima da sobrancelha. Quando ela acompanhava o alto
+    # do cranio (que e inclinado) o vermelho descia pela orelha e virava
+    # uma cobra atravessada na cabeca.
+    _head_paint(buf, ctx, _band(BANDANA_ROWS), 'r')
+    _head_paint(buf, ctx, [(x, 9) for x in range(14, 27)], 'Z')    # luz
+    _head_paint(buf, ctx, [(x, 11) for x in range(12, 29)], 'R')   # borda
+    _head_paint(buf, ctx, [(11, 9), (11, 10)], 'R',
                 over_outline=True)                                 # no
     _head_paint(buf, ctx, BANDANA_TAIL, 'r', over_outline=True, add=True)
     _head_paint(buf, ctx, BANDANA_TAIL_SHADOW, 'R', over_outline=True, add=True)
@@ -253,22 +272,29 @@ def t_arm_bandage(buf, ctx):
 
 def t_birthmark(buf, ctx):
     """Marca de nascenca: mancha roxa larga sobre metade da testa."""
-    _head_paint(buf, ctx, [(x, y) for y in (8, 9, 10, 11, 12)
-                           for x in range(22, 28)], 'P')
-    _head_paint(buf, ctx, [(23, 9), (24, 9), (23, 10)], 'V')
-    _head_paint(buf, ctx, [(x, 13) for x in range(23, 27)], 'v')
-    _head_paint(buf, ctx, [(21, 10), (21, 11), (28, 10), (28, 11)], 'v')
+    # Mancha na tempora direita, acima da sobrancelha. Antes era um bloco
+    # 6x5 roxo chapado cobrindo meia testa.
+    # Contorno irregular de proposito: um retangulo roxo vira um cubo
+    # colado na cara, uma mancha de nascenca tem borda rasgada.
+    _head_paint(buf, ctx, [(25, 15), (26, 16), (27, 16),
+                           (24, 17), (25, 17), (26, 17),
+                           (25, 18), (26, 18), (27, 18),
+                           (26, 19), (27, 15), (24, 15)], 'P')
+    _head_paint(buf, ctx, [(26, 17), (25, 18)], 'V')
+    _head_paint(buf, ctx, [(24, 16), (28, 17), (27, 19), (24, 18),
+                           (28, 18), (25, 19)], 'v')
 
 
 def t_head_bandage(buf, ctx):
     """Cabeca enfaixada: a atadura da a volta e uma ponta desce pela tempora."""
     for cells, ch in _weave(BADAGE := BANDAGE_ROWS, 'W', 'X'):
         _head_paint(buf, ctx, cells, ch)
-    _head_paint(buf, ctx, [(x, 9) for x in range(14, 20)], 'w')    # luz
-    # ponta solta descendo pela tempora, sem encostar no olho
-    _head_paint(buf, ctx, [(10, 12), (10, 13), (11, 13), (11, 14)], 'W',
+    _head_paint(buf, ctx, [(x, 9) for x in range(15, 21)], 'w')    # luz
+    _head_paint(buf, ctx, [(x, 11) for x in range(13, 29)], 'X')   # borda
+    # ponta solta descendo pela tempora, por fora do olho
+    _head_paint(buf, ctx, [(12, 12), (12, 13), (11, 13), (11, 14)], 'W',
                 over_outline=True)
-    _head_paint(buf, ctx, [(11, 13)], 'X')
+    _head_paint(buf, ctx, [(11, 15), (12, 14)], 'X', over_outline=True)
 
 
 # Regra dos olhos: a esclera continua sendo a do desenho original. So a
@@ -276,41 +302,50 @@ def t_head_bandage(buf, ctx):
 # deixava um retangulo colorido no lugar do olho.
 def t_blind_eye(buf, ctx):
     """Olho cego: a pupila fica leitosa e um corte atravessa a palpebra."""
-    _head_paint(buf, ctx, PUPIL_L + EYE_L, 'w', over_outline=True)
-    _head_paint(buf, ctx, [(17, 14), (18, 13)], 'X')
-    # corte fundo atravessando a palpebra, de cima a baixo
-    _head_paint(buf, ctx, [(16, 10), (16, 11), (17, 11), (17, 12),
-                           (18, 15), (18, 16), (17, 16), (17, 17)], 'f',
+    # o olho inteiro vira leitoso: a pupila some, e isso que le "cego"
+    _head_paint(buf, ctx, EYE_L + PUPIL_L, 'w',
+                over_outline=True, sobre_olhos=True)
+    _head_paint(buf, ctx, [(16, 14), (17, 13), (15, 13)], 'X',
+                sobre_olhos=True)
+    # corte fundo passando por cima e por baixo da palpebra
+    _head_paint(buf, ctx, [(16, 9), (16, 10), (16, 11),
+                           (16, 16), (16, 17), (16, 18)], 'f',
                 over_outline=True)
-    _head_paint(buf, ctx, [(15, 11), (18, 12), (19, 16), (16, 17)], 'e')
+    _head_paint(buf, ctx, [(15, 11), (17, 10), (15, 17), (17, 16)], 'e')
 
 
 def t_ruby_eye(buf, ctx):
     """Olho de rubi: pupila acesa, com o brilho em volta."""
-    _head_paint(buf, ctx, PUPIL_L, 'r', over_outline=True)
-    _head_paint(buf, ctx, EYE_L, 'R', over_outline=True)
-    _head_paint(buf, ctx, [(17, 13)], 'r')
-    # o brilho vermelho bate na pele em volta do olho
-    _head_paint(buf, ctx, [(15, 12), (16, 12), (17, 12), (18, 12),
-                           (16, 15), (17, 15), (18, 15),
-                           (15, 13), (19, 13), (15, 14), (19, 14)], 'Q')
+    # a esclera continua branca: so a pupila acende. Pintar o olho todo
+    # de vermelho apagava o olhar e virava um quadradinho colorido.
+    _head_paint(buf, ctx, PUPIL_L, 'r',
+                over_outline=True, sobre_olhos=True)
+    _head_paint(buf, ctx, [(16, 14)], 'R', sobre_olhos=True)
+    # o brilho bate so na pele logo ao lado do olho
+    _head_paint(buf, ctx, [(18, 13), (18, 14), (13, 13), (13, 14),
+                           (18, 12)] + R.FACE_CELLS['under_l'], 'Q')
+    _head_paint(buf, ctx, [(14, 12), (17, 12)], 'R', sobre_olhos=True)
 
 
 def t_wart(buf, ctx):
     """Verruga grande no focinho, com volume."""
-    _head_paint(buf, ctx, [(x, y) for y in (14, 15, 16) for x in (19, 20, 21)]
-                + [(20, 17), (21, 17), (22, 15), (22, 16)], 'e')
-    _head_paint(buf, ctx, [(19, 14), (20, 14), (19, 15)], 'd')
-    _head_paint(buf, ctx, [(23, 15), (23, 16), (22, 17), (21, 18)], 'k')
-    # segunda verruga, menor, no queixo
-    _head_paint(buf, ctx, [(16, 18), (17, 18), (16, 19)], 'e')
+    # Caroco pequeno no focinho, na cor da pele (verruga nao e roxa) com
+    # sombra embaixo para dar volume. Antes ocupava 3x3+ e virava mancha.
+    _head_paint(buf, ctx, [(19, 16), (20, 16), (19, 17), (20, 17)], 'd')
+    _head_paint(buf, ctx, [(19, 16)], 'n')
+    _head_paint(buf, ctx, [(21, 16), (21, 17), (19, 18), (20, 18)], 'k')
+    # segunda verruga, menor, na bochecha direita
+    _head_paint(buf, ctx, [(26, 17), (26, 18)], 'd')
+    _head_paint(buf, ctx, [(27, 17)], 'k')
+    # terceira, na saliencia da testa
+    _head_paint(buf, ctx, [(14, 10), (15, 10)], 'd')
+    _head_paint(buf, ctx, [(14, 11), (15, 11)], 'k')
 
 
 # Sardas de 1 px desaparecem no sombreado da pele. Cada sarda e um par de
 # pixels, com um ponto mais escuro ao lado, para virar mancha e nao ruido.
-FRECKLES = [(13, 10), (16, 10), (12, 13), (15, 13), (12, 16), (15, 16),
-            (18, 16), (26, 10), (29, 10), (24, 12), (27, 12),
-            (24, 16), (27, 16), (21, 15)]
+FRECKLES = [(13, 9), (16, 9), (12, 16), (15, 16), (18, 16),
+            (26, 9), (29, 9), (24, 17), (27, 16), (21, 15), (19, 19)]
 
 
 def t_freckles(buf, ctx):
@@ -322,16 +357,20 @@ def t_freckles(buf, ctx):
 
 def t_tattoo(buf, ctx):
     """Tatuagem facial: tracos largos em azul descendo pelas duas faces."""
-    for x in (14, 15):
-        _head_paint(buf, ctx, [(x, y) for y in range(8, 13)], 'I')
-    for x in (26, 27):
-        _head_paint(buf, ctx, [(x, y) for y in range(8, 13)], 'I')
-    _head_paint(buf, ctx, [(15, y) for y in range(8, 13)], 't')
-    _head_paint(buf, ctx, [(26, y) for y in range(8, 13)], 't')
-    _head_paint(buf, ctx, [(13, 15), (13, 16), (14, 17),
-                           (26, 15), (26, 16), (25, 17)], 'I')
-    _head_paint(buf, ctx, [(x, 7) for x in (14, 15, 26, 27)], 'J')
-    _head_paint(buf, ctx, [(19, 12), (20, 12), (21, 12), (22, 12)], 'J')
+    # dois tracos finos nas temporas, por FORA dos olhos, e marcas na
+    # bochecha. A versao larga descia por cima da sobrancelha.
+    # Duas riscas por face: uma descendo a tempora (por fora do olho) e
+    # uma na bochecha. Antes eram barras largas pintadas sobre as orelhas.
+    for x in (12, 13):
+        _head_paint(buf, ctx, [(x, y) for y in range(10, 13)], 'I')
+    for x in (28, 29):
+        _head_paint(buf, ctx, [(x, y) for y in range(10, 13)], 'I')
+    _head_paint(buf, ctx, [(13, 10), (28, 10)], 't')
+    _head_paint(buf, ctx, [(12, 16), (13, 16), (12, 17), (13, 17),
+                           (27, 16), (28, 16), (27, 17), (28, 17)], 'I')
+    _head_paint(buf, ctx, [(12, 16), (28, 16)], 't')
+    _head_paint(buf, ctx, [(x, 13) for x in (12, 28)], 'J')
+    _head_paint(buf, ctx, [(20, 10), (21, 10), (20, 9)], 'J')
 
 
 def t_double_fangs(buf, ctx):
@@ -346,32 +385,38 @@ def t_double_fangs(buf, ctx):
 
 def t_glow_eyes(buf, ctx):
     """Olhos acesos: os dois brilham e espalham luz na pele em volta."""
-    _head_paint(buf, ctx, PUPIL_L + PUPIL_R + EYE_L + EYE_R, 'Y',
-                over_outline=True)
-    _head_paint(buf, ctx, [(17, 13), (26, 13)], 'u')
-    _head_paint(buf, ctx, [(15, 12), (19, 12), (15, 15), (19, 15),
-                           (24, 12), (29, 12), (24, 15), (29, 15)], 'G')
+    # esclera dourada + pupila clara: o olho continua tendo DUAS cores,
+    # entao ainda se le um olho, so que aceso.
+    _head_paint(buf, ctx, EYE_L + EYE_R, 'G',
+                over_outline=True, sobre_olhos=True)
+    _head_paint(buf, ctx, PUPIL_L + PUPIL_R, 'u',
+                over_outline=True, sobre_olhos=True)
+    # so um respingo de luz no canto de cada olho. Pontos de ouro dos
+    # dois lados faziam o goblin parecer de oculos.
+    _head_paint(buf, ctx, [(18, 12), (27, 12)], 'G')
 
 
 def t_dark_veins(buf, ctx):
     """Veias amaldicoadas: grossas, subindo da testa para o alto do cranio."""
-    esq = [(15, 5), (15, 6), (16, 7), (16, 8), (16, 9), (17, 10), (17, 11),
-           (16, 12), (14, 7), (13, 8), (18, 9), (19, 10)]
-    dir_ = [(27, 5), (27, 6), (27, 7), (26, 8), (26, 9), (26, 10), (27, 11),
-            (27, 12), (29, 8), (30, 9), (24, 10), (23, 11)]
+    # As veias ficam DENTRO do cranio (linhas 7..11). Quando subiam ate a
+    # linha 5 elas saiam pelo alto da cabeca e viravam antenas roxas.
+    esq = [(15, 8), (15, 9), (16, 9), (16, 10), (16, 11),
+           (14, 10), (13, 11), (18, 10), (19, 11)]
+    dir_ = [(27, 8), (27, 9), (26, 9), (26, 10), (26, 11),
+            (28, 10), (29, 11), (24, 10), (23, 11)]
     _head_paint(buf, ctx, esq + dir_, 'v')
-    _head_paint(buf, ctx, [(16, 6), (26, 9), (17, 10), (27, 7)], 'P')
+    _head_paint(buf, ctx, [(15, 9), (26, 10), (16, 10), (27, 9)], 'P')
 
 
 def t_dirt(buf, ctx):
     """Encardido: barro borrado na cara, no queixo e nos dois bracos."""
-    borrao = ([(x, y) for y in (14, 15, 16) for x in range(11, 15)]
-              + [(x, y) for y in (17, 18) for x in range(12, 16)]
-              + [(x, 19) for x in range(17, 24)]
-              + [(x, y) for y in (16, 17) for x in range(25, 28)]
-              + [(28, 11), (27, 10), (12, 11), (13, 10)])
+    borrao = ([(x, y) for y in (16, 17) for x in range(11, 14)]
+              + [(x, 18) for x in range(12, 15)]
+              + [(x, 19) for x in range(18, 23)]
+              + [(x, 17) for x in range(26, 29)]
+              + [(27, 18), (10, 11), (29, 11)])
     _head_paint(buf, ctx, borrao, 'c')
-    _head_paint(buf, ctx, [(12, 15), (13, 17), (19, 19), (26, 16)], 'B')
+    _head_paint(buf, ctx, [(12, 16), (13, 18), (19, 19), (27, 17)], 'B')
     _arm_paint(buf, ctx, 'arm_l', range(6, 11), 'c', cols=range(0, 8))
     _arm_paint(buf, ctx, 'arm_r', range(7, 12), 'c', cols=range(1, 8))
 
@@ -392,7 +437,11 @@ SWAPS = {
     # O contorno NAO vira pele. Antes 'k' virava rosa junto com o resto e o
     # goblin perdia a silhueta inteira — ficava um borrao. Agora a linha de
     # contorno so esquenta de tom e continua sendo a mais escura do desenho.
-    'albino': {'k': 'U', 'e': 'F', 'd': 'E', 'n': 'E', 'j': 'A',
+    # O contorno 'k' NAO entra na troca: alem de segurar a silhueta, ele
+    # e a linha do macacao de couro. Quando virava marrom claro, o macacao
+    # desbotava junto com a pele e o goblin ficava rosa inteiro — nos
+    # sprites antigos o albino sempre manteve o couro marrom.
+    'albino': {'e': 'F', 'd': 'E', 'n': 'E', 'j': 'A',
                'g': 'A', 'l': 'a', 'f': 'a'},
     'grizzled': {'f': 'l', 'l': 'g', 'g': 'j', 'j': 'n', 'n': 'd', 'd': 'e'},
     # Encardido: a pele inteira perde um tom e o couro escurece, senao a
