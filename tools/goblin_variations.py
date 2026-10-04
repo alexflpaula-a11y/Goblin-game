@@ -137,14 +137,14 @@ def t_eyepatch(buf, ctx):
     """Tapa-olho: a placa cobre o olho inteiro e a tira atravessa a cabeca."""
     # A placa cobre SO o olho direito, com as quinas cortadas. Antes era
     # um retangulo 7x4 que comia meia cara.
-    placa = ([(x, 12) for x in range(23, 27)]
-             + [(x, 13) for x in range(23, 28)]
-             + [(x, 14) for x in range(23, 28)]
-             + [(x, 15) for x in range(24, 27)])
+    placa = ([(x, 12) for x in range(23, 28)]
+             + [(x, 13) for x in range(23, 29)]
+             + [(x, 14) for x in range(23, 29)]
+             + [(x, 15) for x in range(24, 28)])
     _head_paint(buf, ctx, placa, 'K', over_outline=True, sobre_olhos=True)
-    _head_paint(buf, ctx, [(24, 13), (25, 13)], 'x',
-                over_outline=True, sobre_olhos=True)
     # tira de 1 px subindo em escada ate a orelha, acima da sobrancelha
+    _head_paint(buf, ctx, [(25, 13), (26, 13)], 'x',
+                over_outline=True, sobre_olhos=True)
     tira = [(22, 12), (22, 11), (21, 11), (20, 11), (20, 10), (19, 10),
             (18, 10), (17, 10), (16, 10), (16, 9), (15, 9), (14, 9),
             (13, 9), (12, 9), (12, 8), (11, 8), (10, 8), (9, 8)]
@@ -305,7 +305,7 @@ def t_blind_eye(buf, ctx):
     # o olho inteiro vira leitoso: a pupila some, e isso que le "cego"
     _head_paint(buf, ctx, EYE_L + PUPIL_L, 'w',
                 over_outline=True, sobre_olhos=True)
-    _head_paint(buf, ctx, [(16, 14), (17, 13), (15, 13)], 'X',
+    _head_paint(buf, ctx, [(16, 14), (18, 14), (18, 13)], 'X',
                 sobre_olhos=True)
     # corte fundo passando por cima e por baixo da palpebra
     _head_paint(buf, ctx, [(16, 9), (16, 10), (16, 11),
@@ -318,13 +318,13 @@ def t_ruby_eye(buf, ctx):
     """Olho de rubi: pupila acesa, com o brilho em volta."""
     # a esclera continua branca: so a pupila acende. Pintar o olho todo
     # de vermelho apagava o olhar e virava um quadradinho colorido.
-    _head_paint(buf, ctx, PUPIL_L, 'r',
+    _head_paint(buf, ctx, EYE_L + PUPIL_L, 'R',
                 over_outline=True, sobre_olhos=True)
-    _head_paint(buf, ctx, [(16, 14)], 'R', sobre_olhos=True)
-    # o brilho bate so na pele logo ao lado do olho
-    _head_paint(buf, ctx, [(18, 13), (18, 14), (13, 13), (13, 14),
-                           (18, 12)] + R.FACE_CELLS['under_l'], 'Q')
-    _head_paint(buf, ctx, [(14, 12), (17, 12)], 'R', sobre_olhos=True)
+    _head_paint(buf, ctx, PUPIL_L + [(16, 13)], 'r',
+                over_outline=True, sobre_olhos=True)
+    # o brilho bate na pele em volta do olho
+    _head_paint(buf, ctx, [(15, 13), (15, 14), (19, 13), (19, 14),
+                           (15, 15), (16, 15), (17, 15), (18, 15)], 'Q')
 
 
 def t_wart(buf, ctx):
@@ -387,7 +387,7 @@ def t_glow_eyes(buf, ctx):
     """Olhos acesos: os dois brilham e espalham luz na pele em volta."""
     # esclera dourada + pupila clara: o olho continua tendo DUAS cores,
     # entao ainda se le um olho, so que aceso.
-    _head_paint(buf, ctx, EYE_L + EYE_R, 'G',
+    _head_paint(buf, ctx, EYE_L + EYE_R + PUPIL_L + PUPIL_R, 'Y',
                 over_outline=True, sobre_olhos=True)
     _head_paint(buf, ctx, PUPIL_L + PUPIL_R, 'u',
                 over_outline=True, sobre_olhos=True)
