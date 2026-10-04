@@ -421,6 +421,9 @@ def t_dirt(buf, ctx):
     _arm_paint(buf, ctx, 'arm_r', range(7, 12), 'c', cols=range(1, 8))
 
 
+# Tracos que SAO o olho: so eles podem pintar sobre a esclera.
+OLHO_PROPRIO = ('eyepatch', 'blind_eye', 'ruby_eye', 'glow_eyes')
+
 DETAILS = {
     'gold_tooth': t_gold_tooth, 'eyepatch': t_eyepatch, 'ear_ring': t_ear_ring,
     'earring': t_earring, 'scar': t_scar, 'burns': t_burns, 'bandana': t_bandana,
@@ -528,10 +531,37 @@ ORDER = list(RECIPES)
 assert len(ORDER) == 45, len(ORDER)
 
 
+# O branco do olho e o tom 'f' da propria arte. As trocas de paleta que
+# escurecem a pele (grizzled, sooty) tambem pegavam esse 'f' e o olho do
+# goblin ficava com o fundo VERDE, sem contraste com a pupila. O branco do
+# olho nao e pele: ele nao acompanha a troca.
+SCLERA = R.FACE_CELLS['eye_l'] + R.FACE_CELLS['eye_r']
+# ordem de preferencia: o tom original primeiro; se a troca mexer nele,
+# cai para o proximo claro que a troca NAO toca (senao o swap final, que
+# roda depois dos detalhes, escureceria o olho de novo)
+SCLERA_TONS = ('f', 'q', 'w', 'W')
+
+
+def _sclera_livre(swap):
+    """Primeiro tom claro que a troca de paleta nao altera."""
+    for ch in SCLERA_TONS:
+        if ch not in swap:
+            return ch
+    return 'w'
+
+
+def t_eye_white(ch):
+    """Devolve um detalhe que repinta o branco dos dois olhos com `ch`."""
+    def aplicar(buf, ctx):
+        _head_paint(buf, ctx, SCLERA, ch, over_outline=True, sobre_olhos=True)
+    return aplicar
+
+
 def build(variation_id):
     """Converte a receita no dicionario que goblin_anim.render_action espera."""
     traits = RECIPES[variation_id]
     swap, parts, details = {}, {}, []
+    olho_coberto = False
     for t in traits:
         if t in SWAPS:
             swap.update(SWAPS[t])
@@ -539,8 +569,15 @@ def build(variation_id):
             parts.update(PARTS[t]())
         elif t in DETAILS:
             details.append(DETAILS[t])
+            olho_coberto = olho_coberto or t in OLHO_PROPRIO
         else:
             raise KeyError(f'traco desconhecido: {t} ({variation_id})')
+
+    # Se a troca de paleta mexeu no branco do olho, devolve o branco. Vai
+    # na FRENTE dos detalhes de olho (tapa-olho, rubi, cego, acesos), que
+    # tem o direito de pintar por cima.
+    if 'f' in swap and not olho_coberto:
+        details.insert(0, t_eye_white(_sclera_livre(swap)))
 
     def detail(buf, ctx, mask=()):
         global _MASK
