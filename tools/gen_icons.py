@@ -177,6 +177,63 @@ ICONS = {
     "................",
 ],
 
+'item_adaga_pedra': [
+    "................",
+    "................",
+    "..........ss....",
+    ".........sSSs...",
+    "........sSzSs...",
+    ".......sSSzs....",
+    "......sSSzs.....",
+    ".....sSSzs......",
+    "....ssSzs.......",
+    "...okkko........",
+    "..okdddko.......",
+    ".okdco..........",
+    ".okc............",
+    "..k.............",
+    "................",
+    "................",
+],
+
+'item_adaga_metal': [
+    "................",
+    "................",
+    "..........bb....",
+    ".........bBBb...",
+    "........bBSBb...",
+    ".......bBBSb....",
+    "......bBBSb.....",
+    ".....bBBSb......",
+    "....bbBSb.......",
+    "...okkko........",
+    "..okdddko.......",
+    ".okdco..........",
+    ".okc............",
+    "..k.............",
+    "................",
+    "................",
+],
+
+'item_adaga_madeira': [
+    "................",
+    "................",
+    "..........ll....",
+    ".........lwwl...",
+    "........lwdwl...",
+    ".......lwwdl....",
+    "......lwwdl.....",
+    ".....lwwdl......",
+    "....llwdl.......",
+    "...xkkkx........",
+    "..xkdddkx.......",
+    ".xkdcx..........",
+    ".xkc............",
+    "..k.............",
+    "................",
+    "................",
+],
+
 'item_espada_ferro': [
     "................",
     "...........ss...",
@@ -497,7 +554,7 @@ def render(rows):
 # ---------------- peitoral de ferro: ícone + skins ----------------
 FERRO_SRC = os.path.join(ROOT, 'sprites/itens/peitoral_ferro')
 FERRO_ANIMS = [
-    ('idle', 5), ('walk', 8), ('attack', 17), ('hurt', 17), ('death', 15),
+    ('idle', 5), ('walk', 8), ('attack', 17), ('hurt', 17), ('death', 12),
 ]
 
 
@@ -516,16 +573,11 @@ def main():
     shutil.copyfile(os.path.join(FERRO_SRC, 'icon.png'), icon_dst)
     novos.append({'id': 'item_peitoral_ferro', 'path': 'assets/sprites/items/item_peitoral_ferro.png'})
 
-    # 3) peitoral_ferro: skins do goblin equipado (ferro_pei_{anim}_{n})
-    for anim, n in FERRO_ANIMS:
-        for i in range(n):
-            src = os.path.join(FERRO_SRC, f'goblin_{anim}_{i}.png')
-            dst = os.path.join(GOB_DIR, f'ferro_pei_{anim}_{i}.png')
-            shutil.copyfile(src, dst)
-            novos.append({
-                'id': f'ferro_pei_{anim}_{i}',
-                'path': f'assets/sprites/goblins/ferro_pei_{anim}_{i}.png',
-            })
+    # 3) peitoral_ferro vestido: NAO sai mais daqui.
+    # Estas skins eram copias hand-made do goblin ANTIGO (e so com os 15
+    # quadros de morte de antes). Quem monta ferro_pei agora e o
+    # tools/gen_gear_v2.py, em cima do goblin atual e dos 24 quadros de
+    # morte — copiar por cima aqui ressuscitava o goblin velho.
 
     # 4) prédio do armazém (gerado pelo gen_sprites.py)
     novos.append({
@@ -550,7 +602,7 @@ def main():
         f.write('\n')
 
     print(f'OK — {len(ICONS)} ícones desenhados, '
-          f'{len(FERRO_ANIMS) and sum(n for _, n in FERRO_ANIMS)} skins ferro_pei, '
+          f'0 skins ferro_pei (vem do gen_gear_v2.py), '
           f'+{added} entradas no manifest (total {len(manifest["sprites"])}).')
 
 

@@ -67,7 +67,15 @@ function makeNoise(seed, cell) {
 // Usado para nunca pedir um quadro que não existe (ex.: sair do 'walk'
 // no quadro 7 e cair no 'idle', que só vai até 4) — o que fazia aparecer
 // o placeholder "VAR" piscando entre uma ação e outra.
-const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 15 };
+// A morte passou de 15 para 24 quadros: antes o goblin aparecia deitado de
+// um quadro para o outro; agora ele cambaleia, cede os joelhos, tomba e só
+// então fica estirado no chão.
+// Quantos quadros tem cada animação. ESTA é a única fonte: todo avanço de
+// quadro lê daqui. Antes cada ponto do arquivo trazia o número na mão
+// (`% 10` para um 'attack' de 17 quadros, `% 12` para um 'idle' de 5), e o
+// resultado era o goblin cortando a machadada no meio e voltando ao
+// começo, e piscando ao rezar porque pedia quadros que não existem.
+const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 12 };
 
 // ---------- Goblin que passeia / trabalha ----------
 class GoblinWalker {
@@ -124,7 +132,7 @@ class GoblinWalker {
           this.face = dx >= 0 ? 1 : -1;
           this.anim = 'walk';
           this.animT += dt;
-          if (this.animT > 0.10) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
+          if (this.animT > 0.10) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
         }
         return;
       } else {
@@ -134,7 +142,7 @@ class GoblinWalker {
         this.face = 1;
         this.anim = 'attack';
         this.animT += dt;
-        if (this.animT > 0.09) { this.animT = 0; this.frame = (this.frame + 1) % 10; }
+        if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
         api.onBuild?.(structure, this.goblin, dt);
         if (structure.construction?.status !== 'building') {
           if (structure.construction) structure.construction.working = false;
@@ -168,7 +176,7 @@ class GoblinWalker {
           this.face = dx >= 0 ? 1 : -1;
           this.anim = 'walk';
           this.animT += dt;
-          if (this.animT > 0.10) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
+          if (this.animT > 0.10) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
         }
         return;
       } else {
@@ -176,7 +184,7 @@ class GoblinWalker {
         this.face = -1;
         this.anim = 'attack';
         this.animT += dt;
-        if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % 10; }
+        if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
         // Só o cozinheiro líder atualiza o relógio; a velocidade considera
         // todos os colegas que chegaram à panela.
         if (meal.worker === this.i) api.onCook?.(meal, this.goblin, dt);
@@ -213,7 +221,7 @@ class GoblinWalker {
           this.face = dx >= 0 ? 1 : -1;
           this.anim = 'walk';
           this.animT += dt;
-          if (this.animT > 0.10) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
+          if (this.animT > 0.10) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
         }
         return;
       } else {
@@ -223,7 +231,7 @@ class GoblinWalker {
         this.face = 1;
         this.anim = 'attack';
         this.animT += dt;
-        if (this.animT > 0.09) { this.animT = 0; this.frame = (this.frame + 1) % 10; }
+        if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
         api.onBuild?.(structure, this.goblin, dt);
         if (structure.construction?.status !== 'building') {
           if (structure.construction) structure.construction.working = false;
@@ -257,7 +265,7 @@ class GoblinWalker {
           this.face = dx >= 0 ? 1 : -1;
           this.anim = 'walk';
           this.animT += dt;
-          if (this.animT > 0.10) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
+          if (this.animT > 0.10) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
         }
         return;
       } else {
@@ -265,7 +273,7 @@ class GoblinWalker {
         this.face = -1;
         this.anim = 'attack';
         this.animT += dt;
-        if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % 10; }
+        if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
         // Só o cozinheiro líder atualiza o relógio; a velocidade considera
         // todos os colegas que chegaram à panela.
         if (meal.worker === this.i) api.onCook?.(meal, this.goblin, dt);
@@ -294,14 +302,18 @@ class GoblinWalker {
           this.face = dx >= 0 ? 1 : -1;
           this.anim = 'walk';
           this.animT += dt;
-          if (this.animT > 0.09) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
+          if (this.animT > 0.09) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
         }
       } else {
-        // Reverência em 12 poses por ciclo usando os quadros idle existentes.
+        // Reverência: o ciclo de 'idle' inteiro, devagar. Antes esta linha
+        // pedia 12 poses de uma animação que só tem 5 — os quadros 5 a 11
+        // simplesmente não existem, e era isso que fazia o goblin em
+        // oração piscar e travar. Hoje a contagem vem de ANIM_FRAMES, que
+        // é a mesma tabela que o gerador de sprites usa.
         this.x = target.x; this.y = target.y; this.face = target.face;
         this.anim = 'idle';
         this.animT += dt;
-        if (this.animT > 0.12) { this.animT = 0; this.frame = (this.frame + 1) % 12; }
+        if (this.animT > 0.12) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
       }
       return;
     }
@@ -323,14 +335,14 @@ class GoblinWalker {
           this.face = dx >= 0 ? 1 : -1;
           this.anim = 'walk';
           this.animT += dt;
-          if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
+          if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
         }
         return;
       } else { // work
         this.anim = 'attack';
         this.face = node.x >= this.x ? 1 : -1;
         this.animT += dt;
-        if (this.animT > 0.09) { this.animT = 0; this.frame = (this.frame + 1) % 10; }
+        if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
         const g = api.village?.goblins?.[this.i];
         // velocidade e força aceleram o ciclo de trabalho
         const mul = g ? Math.max(0.4, 1 - (g.velocidade + g.poderDestrutivo) / 80) : 1;
@@ -352,7 +364,7 @@ class GoblinWalker {
       this.wait -= dt;
       this.anim = 'idle';
       this.animT += dt;
-      if (this.animT > 0.22) { this.animT = 0; this.frame = (this.frame + 1) % 5; }
+      if (this.animT > 0.22) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
       if (this.wait <= 0) this.pickTarget();
       return;
     }
@@ -369,7 +381,7 @@ class GoblinWalker {
     this.face = dx >= 0 ? 1 : -1;
     this.anim = 'walk';
     this.animT += dt;
-    if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
+    if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % ANIM_FRAMES[this.anim]; }
   }
 
   draw(ctx, time = 0) {

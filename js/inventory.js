@@ -45,7 +45,11 @@ const ITEMS = [
   { id: 'anel_cobre', slot: 'anel', icon: 'item_anel_cobre', price: 50 },
   { id: 'anel_rubi', slot: 'anel', icon: 'item_anel_rubi', price: 110 },
   { id: 'colar_presas', slot: 'colar', icon: 'item_colar_presas', price: 70 },
-  // armas
+  // armas — o goblin NASCE DESARMADO; a adaga deixou de fazer parte do
+  // corpo dele e virou equipamento, entao arma agora é escolha do jogador.
+  { id: 'adaga_madeira', slot: 'arma_primaria', icon: 'item_adaga_madeira', price: 12 },
+  { id: 'adaga_pedra', slot: 'arma_primaria', icon: 'item_adaga_pedra', price: 20 },
+  { id: 'adaga_metal', slot: 'arma_primaria', icon: 'item_adaga_metal', price: 45 },
   { id: 'espada_ferro', slot: 'arma_primaria', icon: 'item_espada_ferro', price: 80 },
   { id: 'clava_goblin', slot: 'arma_primaria', icon: 'item_clava_goblin', price: 30 },
   { id: 'escudo_madeira', slot: 'arma_secundaria', icon: 'item_escudo_madeira', price: 55 },

@@ -269,7 +269,8 @@ const missingA = abilities.ABILITIES.map((a) => a.icon).filter((s) => !haveSprit
 check('toda habilidade tem ícone no manifest', missingA.length === 0, missingA.join(', '));
 // skins do goblin equipado (ferro_pei / avaritia) cobrem as animações usadas
 const gear = req('gear.js');
-const anims = [['idle', 5], ['walk', 8], ['attack', 17], ['hurt', 17], ['death', 15]];
+// mesma contagem de tools/goblin_anim.py: 5+8+17+17+12 = 59 quadros
+const anims = [['idle', 5], ['walk', 8], ['attack', 17], ['hurt', 17], ['death', 12]];
 const skinMissing = [];
 for (const ver of ['ferro_pei', 'av_full', 'av_cap_pei', 'av_pei_cal', 'av_cap_cal', 'av_pei', 'av_cap', 'av_cal']) {
   for (const [anim, n] of anims) {
@@ -290,7 +291,7 @@ for (const variant of VARIATIONS) {
     }
   }
 }
-check('as 45 variações cobrem os 62 quadros', variationMissing.length === 0,
+check('as 45 variações cobrem os 59 quadros', variationMissing.length === 0,
   variationMissing.slice(0, 4).join(', '));
 
 const overlayMissing = [];
@@ -306,7 +307,7 @@ check('overlays preservam variações sob equipamento', overlayMissing.length ==
   overlayMissing.slice(0, 4).join(', '));
 
 // peças de ferro e armas só têm OVERLAY (sem sprite completo): todas devem
-// cobrir os 62 quadros para aparecerem em qualquer animação.
+// cobrir os 59 quadros para aparecerem em qualquer animação.
 const gearOverlayMissing = [];
 for (const ver of ['ferro_cap', 'ferro_cal', 'wpn_espada', 'wpn_clava', 'wpn_escudo']) {
   for (const [anim, n] of anims) {
@@ -353,6 +354,31 @@ const missingMods = orderFiles.filter((n) => !fs.existsSync(path.join(ROOT, 'js'
 check('todo módulo do _order.json existe', missingMods.length === 0, missingMods.join(', '));
 check('_order.json não inclui o loader', !orderFiles.includes('loader.js'));
 check('main.js é o último a carregar', orderFiles[orderFiles.length - 1] === 'main.js');
+
+// ---------------------------------------------------------------- //
+//  NENHUM AVANÇO DE QUADRO PODE TRAZER A CONTAGEM NA MÃO            //
+// ---------------------------------------------------------------- //
+// O goblin trabalhando ficava estranho por causa disto: o world.js
+// avançava o 'attack' com `% 10`, mas 'attack' tem 17 quadros — a
+// machadada era cortada no meio e voltava ao começo de supetão. E a
+// reverência pedia `% 12` de um 'idle' que só tem 5, ou seja quadros que
+// não existem. Toda contagem tem de vir de ANIM_FRAMES.
+const worldSrc = fs.readFileSync(path.join(ROOT, 'js/world.js'), 'utf8');
+const naMao = [...worldSrc.matchAll(/\(this\.frame \+ 1\) % (\d+)/g)]
+  .map((m) => m[1]);
+check('nenhum avanço de quadro traz o número de quadros escrito na mão',
+  naMao.length === 0, `ainda há ${naMao.length}: % ${naMao.join(', % ')}`);
+const porTabela = [...worldSrc.matchAll(
+  /\(this\.frame \+ 1\) % ANIM_FRAMES\[this\.anim\]/g)].length;
+check('todo avanço de quadro lê a contagem de ANIM_FRAMES',
+  porTabela >= 14, `só ${porTabela} pontos`);
+// e a tabela do JS tem de bater com a do gerador de sprites
+const esperado = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 12 };
+const tabela = worldSrc.match(/const ANIM_FRAMES = \{([^}]*)\}/)[1];
+const lidos = Object.fromEntries([...tabela.matchAll(/(\w+):\s*(\d+)/g)]
+  .map((m) => [m[1], Number(m[2])]));
+check('ANIM_FRAMES do jogo bate com a contagem dos sprites',
+  JSON.stringify(lidos) === JSON.stringify(esperado), JSON.stringify(lidos));
 
 console.log(`\n  ${pass} passaram · ${fail} falharam`);
 if (fail) {
