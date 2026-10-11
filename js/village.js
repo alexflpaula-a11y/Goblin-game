@@ -118,7 +118,7 @@ class Village {
     this.unlimited = !!data?.unlimited;
     // Materiais especiais são produzidos apenas pelas divindades e ficam
     // guardados para as futuras receitas do Altar/Runas.
-    for (const k of ['wood', 'stone', 'ore', 'food', 'gold',
+    for (const k of ['wood', 'stone', 'ore', 'food', 'gold', 'goblin_gems',
       'hardwood', 'ancient_wood', 'refined_ore', 'arcane_ore']) {
       if (this.res[k] == null) this.res[k] = 0;
     }

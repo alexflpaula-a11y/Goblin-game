@@ -85,6 +85,13 @@ function itemsForSlot(village, slotKey) {
     .filter((i) => i.have > 0);
 }
 
+/** Todos os equipamentos guardados no armazém, na ordem do catálogo. */
+function storedItems(village) {
+  return ITEMS
+    .map((i) => ({ ...i, have: village.items?.[i.id] || 0 }))
+    .filter((i) => i.have > 0);
+}
+
 /**
  * Equipa um item do armazém num espaço do goblin.
  * O que estava no espaço volta para o armazém. Retorna true se deu.
@@ -122,5 +129,5 @@ function equippedCount(goblin) {
 module.exports = {
   SLOT_TYPES, EQUIP_SLOTS, ITEMS,
   byId, priceOf, slotTypeOf, accepts, slotName,
-  itemsForSlot, equip, unequip, equippedCount,
+  itemsForSlot, storedItems, equip, unequip, equippedCount,
 };

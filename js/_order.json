@@ -18,5 +18,7 @@
   "inventory.js",
   "abilities.js",
   "market.js",
+  "battle.js",
+  "raid.js",
   "main.js"
 ]

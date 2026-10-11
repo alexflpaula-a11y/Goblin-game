@@ -89,7 +89,12 @@ class Input {
       const wasPinch = this.pinchActive;
       this.pointers.delete(e.pointerId);
       if (this.pointers.size < 2) { this.pinchActive = false; this.prevDist = 0; }
-      if (ptr && !wasPinch) this.release = { x: ptr.x, y: ptr.y, moved: ptr.moved };
+      if (ptr && !wasPinch) {
+        this.release = {
+          x: ptr.x, y: ptr.y, moved: ptr.moved,
+          dist: Math.hypot(ptr.x - ptr.x0, ptr.y - ptr.y0),
+        };
+      }
       if (ptr && !wasPinch && !ptr.moved && performance.now() - ptr.t0 < 350) {
         this.tap = { x: ptr.x, y: ptr.y };
       }

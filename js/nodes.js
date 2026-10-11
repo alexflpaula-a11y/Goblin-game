@@ -48,7 +48,26 @@ class Nodes {
     } else {
       this.list = this.generate();
     }
+    this.keepouts = [];
     this.enforceIslandCaps();
+  }
+
+  /** Zona proibida para árvores/pedras (ex.: o balão na praia). */
+  forbid(x, y, r) {
+    this.keepouts = this.keepouts || [];
+    this.keepouts.push({ x, y, r });
+  }
+
+  _blocked(x, y) {
+    return (this.keepouts || []).some((k) => Math.hypot(x - k.x, y - k.y) < k.r);
+  }
+
+  /** Remove árvores e pedras perto de um ponto (clareira do balão). */
+  clearAround(x, y, r) {
+    this.list = this.list.filter((n) => {
+      if (n.type !== 'tree' && n.type !== 'rock') return true;
+      return Math.hypot(n.x - x, n.y - y) >= r;
+    });
   }
 
   generate() {
@@ -68,8 +87,9 @@ class Nodes {
         if (this.world.tiles[ty * WORLD.COLS + tx] !== 3) continue; // só grama
         const x = tx * WORLD.TILE + 8 + Math.floor(rnd() * 8) - 4;
         const y = ty * WORLD.TILE + 8 + Math.floor(rnd() * 8) - 4;
-        // longe da clareira da vila
+        // longe da clareira da vila e de zonas proibidas (balão)
         if (Math.hypot(x - clearing.x, y - clearing.y) < clearing.r + 24) continue;
+        if (this._blocked(x, y)) continue;
         // distância mínima entre nós
         let ok = true;
         for (const n of out) {
@@ -133,6 +153,7 @@ class Nodes {
       // Além de conferir cada prédio, preserva uma faixa larga em torno
       // da clareira, inclusive quando a vila ainda tem poucas estruturas.
       if (Math.hypot(x - clearing.x, y - clearing.y) < clearing.r + 72) continue;
+      if (this._blocked(x, y)) continue;
       if ((structures || []).some((s) => Math.hypot(x - s.x, y - s.y) < minFromStructures)) continue;
       if (this.list.some((n) => !n.depleted && Math.hypot(x - n.x, y - n.y) < 38)) continue;
       if (origin) {

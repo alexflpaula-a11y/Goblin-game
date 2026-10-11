@@ -193,7 +193,7 @@ ok(v.items.espada_ferro === 1, 'item de volta ao armazém (o do corpo; o do esto
 ok(!g0.equip.arma_primaria, 'espaço de arma vazio agora');
 
 // ---------- habilidades ----------
-ok(abilities.SKILL_SLOTS === 2, '2 espaços de habilidade por goblin');
+ok(abilities.SKILL_SLOTS === 3, '3 espaços de habilidade por goblin');
 const warrior = new Goblin({ name: 'Thrak', specialty: 'warrior' });
 const mage = new Goblin({ name: 'Zuggut', specialty: 'mage' });
 ok(abilities.canEquip(warrior, abilities.byId('golpe_brutal')), 'guerreiro usa Golpe Brutal');

@@ -108,5 +108,22 @@
       "calca_avaritia": 90,
       "capacete_avaritia": 150
     }
+  },
+  "combat": {
+    "alertTiles": 6,
+    "playerSpeed": 54,
+    "enemySpeed": 38,
+    "bossRushSpeed": 120,
+    "gold": 14,
+    "gems": 2,
+    "balloonRepair": {
+      "wood": 30,
+      "stone": 20,
+      "gold": 15
+    },
+    "balloonUpgrade": [
+      { "wood": 55, "stone": 40, "gold": 45 },
+      { "wood": 90, "stone": 70, "gold": 80 }
+    ]
   }
 }

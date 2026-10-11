@@ -154,7 +154,9 @@ js/
   cooking.js        receitas, pratos que curam
   market.js         mercado: vender e comprar por ouro
   inventory.js      armazém: catálogo de itens, espaços, equipar/desequipar
-  abilities.js      catálogo de habilidades (2 espaços por goblin)
+  abilities.js      catálogo de habilidades (3 espaços por goblin)
+  raid.js           balão, mapa das ilhas, exploração e patrulhas
+  battle.js         combate por turnos (ataque normal)
   gear.js           sprites do goblin conforme o que ELE vestiu (Avaritia/ferro)
   ui.js             UI imediata no canvas + visual rústico goblin
   assetLoader.js    sprites reais ou placeholder automático
@@ -235,4 +237,6 @@ em `js/save.js`; o sistema (save/load/autosave a cada 10s) continua intacto.
 
 **Etapa 1.7 — Armazém & Inventário:** o **Armazém** (vila nv 2, melhorável: 16/24/32 espaços) abre o inventário da vila com todos os recursos + despensa numa área e os **itens de equipamento em slots** na outra. 13 equipamentos (sem status por enquanto): conjunto Avaritia (peitoral 120, capacete 150, calça 90 ouro), conjunto de ferro (capacete 45, peitoral 60, calça 40), botas de couro, anel de cobre/rubi, colar de presas, espada, clava e escudo. A interface de equipar tem **9 espaços rodando o goblin** (capacete, peitoral, botas, calça, 2 anéis, arma primária, arma secundária e colar) + aba **Alimentos** (alimentar goblins) + aba **Habilidades** (2 espaços por goblin, por especialidade + genéricas). Cada goblin veste o que quiser — as peças Avaritia e o peitoral de ferro mudam o sprite individualmente.
 
-**A seguir:** Fase 2 (Ferraria, Altar, Bazar) → Fase 3 (combate por turnos — quando os equipamentos ganham status). Roadmap completo em [`docs/planejamento-jogo-gnomos.md`](docs/planejamento-jogo-gnomos.md).
+**Combate (início da Fase 3):** no canto da ilha há um **balão de ar quente abandonado**. Consertado, o botão 🎈 abre o mapa do arquipélago (ilhas em linha no mar, arraste para o lado). Em cada ilha inimiga o grupo de até **4 goblins** anda em formação; patrulhas de 4 alertam a 6 blocos (`!`) e se confundem (`?`) ao perder o rastro. Estruturas no centro dão **ouro + gemas goblinéias**; o Chefe corre atrás se você tentar destruí-las. Encostar num grupo ou no Chefe abre uma **batalha por turnos** (por enquanto só ataque normal — 3 espaços de habilidade já existem, mas entram depois).
+
+**A seguir:** habilidades na batalha, status nos equipamentos, Ferraria/Altar/Bazar. Roadmap completo em [`docs/planejamento-jogo-gnomos.md`](docs/planejamento-jogo-gnomos.md).

@@ -180,7 +180,7 @@ ok(has('eqdo_anel2_:_anel_cobre'), 'anel II também aceita');
 console.log('\x1b[1mTAP — aba habilidades\x1b[0m');
 tapRegion('eqtab_2');
 ok(regions().some((r) => r.id.startsWith('abeq_')), 'catálogo de habilidades listado');
-ok(has('abslot_0') && has('abslot_1'), '2 espaços de habilidade');
+ok(has('abslot_0') && has('abslot_1') && has('abslot_2'), '3 espaços de habilidade');
 ok(!regions().some((r) => r.id.startsWith('slot_')), 'anel de espaços sumiu nesta aba');
 
 tapRegion('abeq_investida');

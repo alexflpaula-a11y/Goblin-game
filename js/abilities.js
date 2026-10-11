@@ -2,15 +2,16 @@
 // abilities.js — Habilidades que os goblins podem equipar.
 //
 // Parte 2 trará as batalhas por turnos; por enquanto as
-// habilidades são escolhas visuais (2 espaços por goblin):
+// habilidades são escolhas visuais (3 espaços por goblin):
 // cada goblin pode equipar as habilidades da própria
-// especialidade + as genéricas (spec: null).
+// especialidade + as genéricas (spec: null). O ataque normal
+// da batalha não ocupa espaço.
 //
-// goblin.skills = [ 'investida', null ]  (2 espaços)
+// goblin.skills = [ 'investida', null, null ]  (3 espaços)
 // ============================================================
 
-// Quantos espaços de habilidade cada goblin tem.
-const SKILL_SLOTS = 2;
+// Quantos espaços de habilidade cada goblin tem (além do ataque).
+const SKILL_SLOTS = 3;
 
 // Catálogo: `spec` null = qualquer goblin pode equipar.
 const ABILITIES = [
