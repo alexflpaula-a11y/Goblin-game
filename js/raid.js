@@ -13,6 +13,7 @@ const gear = require('gear.js');
 const { WORLD } = require('world.js');
 const { Goblin, VARIATIONS } = require('goblin.js');
 const { BAL } = require('balance.js');
+const { creatureFrames } = require('creatures.js');
 
 const TILE = 16;
 const RAID = {
@@ -34,6 +35,11 @@ const ENEMY_SPEED = 38;
 const BOSS_RUSH_SPEED = 120;
 const CONFUSED_TIME = 1.2;
 const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 15 };
+// Caça com histerese: o grupo para de correr ao chegar a HUNT_REACH e só volta
+// a correr quando o animal passa de HUNT_CHASE. Entre as duas distâncias o estado
+// anterior (correr ou golpear) é mantido, então não há ataque/andar piscando.
+const HUNT_REACH = 22;
+const HUNT_CHASE = 30;
 
 const FORMATION = [
   { dx: -11, dy: -7 }, { dx: 11, dy: -7 },
@@ -525,7 +531,7 @@ function drawAnimal(ctx, a, time) {
   ctx.imageSmoothingEnabled = false;
   if (a.kind === 'wolf') {
     const anim = a.anim || 'idle';
-    const n = ANIM_FRAMES[anim] || 5;
+    const n = creatureFrames('wolf', anim);
     const spr = getSprite('wolf_' + anim + '_' + ((a.frame || 0) % n));
     ctx.drawImage(spr, -24, -30, 48, 32);
   } else {
@@ -1104,7 +1110,9 @@ class RaidIsland {
     const speed = Math.max(PLAYER_SPEED, combatCfg().playerSpeed || 0);
     if (p.job?.type === 'hunt' && p.job.obj?.alive) {
       const a = p.job.obj;
-      p.target = Math.hypot(p.x - a.x, p.y - a.y) > 18 ? { x: a.x, y: a.y + 4 } : null;
+      const d = Math.hypot(p.x - a.x, p.y - a.y);
+      if (d > HUNT_CHASE) p.target = { x: a.x, y: a.y + 4 };
+      else if (d <= HUNT_REACH) p.target = null;
     }
     if (p.target) {
       const dx = p.target.x - p.x, dy = p.target.y - p.y;
@@ -1164,7 +1172,7 @@ class RaidIsland {
       if (!a?.alive) {
         p.job = null;
         p.anim = 'idle';
-      } else if (Math.hypot(p.x - a.x, p.y - a.y) > 18) {
+      } else if (Math.hypot(p.x - a.x, p.y - a.y) > HUNT_CHASE) {
         p.target = { x: a.x, y: a.y + 8 };
       } else {
         p.anim = 'attack';
@@ -1192,7 +1200,7 @@ class RaidIsland {
     if (job.type === 'hunt') {
       const a = job.obj;
       if (!a?.alive) { this.party.job = null; return; }
-      if (Math.hypot(this.party.x - a.x, this.party.y - a.y) > 18) {
+      if (Math.hypot(this.party.x - a.x, this.party.y - a.y) > HUNT_CHASE) {
         this.party.target = { x: a.x, y: a.y + 8 };
       }
       return;
@@ -1269,11 +1277,22 @@ class RaidIsland {
 
   _animalRoute(a, away) {
     const angle = away ? Math.atan2(a.y - this.party.y, a.x - this.party.x) : this.rng() * Math.PI * 2;
+    const clear = (dx, dy) => [0.25, 0.5, 0.75, 1].every((t) => this.walkable(a.x + dx * t, a.y + dy * t));
     // Search along a clear segment, not just a walkable end point across water.
-    for (const turn of [0, 0.5, -0.5, 1, -1, 1.6, -1.6, 2.4, -2.4, Math.PI]) {
-      const distance = away ? 64 : 26 + this.rng() * 28;
-      const dx = Math.cos(angle + turn) * distance, dy = Math.sin(angle + turn) * distance;
-      if (![0.25, 0.5, 0.75, 1].every((t) => this.walkable(a.x + dx * t, a.y + dy * t))) continue;
+    const distances = away ? [64, 40] : [26 + this.rng() * 28];
+    for (const distance of distances) {
+      for (const turn of [0, 0.5, -0.5, 1, -1, 1.6, -1.6, 2.4, -2.4, Math.PI]) {
+        const dx = Math.cos(angle + turn) * distance, dy = Math.sin(angle + turn) * distance;
+        if (!clear(dx, dy)) continue;
+        a.wx = a.x + dx; a.wy = a.y + dy;
+        return true;
+      }
+    }
+    // Cornered: any clear short dash keeps it running instead of freezing on the spot.
+    for (let k = 0; k < 16; k++) {
+      const ang = (k / 16) * Math.PI * 2;
+      const dx = Math.cos(ang) * 28, dy = Math.sin(ang) * 28;
+      if (!clear(dx, dy)) continue;
       a.wx = a.x + dx; a.wy = a.y + dy;
       return true;
     }
@@ -1306,10 +1325,17 @@ class RaidIsland {
       const ox = a.x, oy = a.y;
       this._stepToward(a, a.wx, a.wy, a.fleeing ? 30 : 18, dt);
       const moving = Math.hypot(a.x - ox, a.y - oy) > 0.001;
-      const anim = moving ? 'walk' : 'idle';
+      if (a.fleeing && !moving) {
+        // Blocked by water/edge: after a beat, pick a new escape instead of standing still.
+        a.stuckT = (a.stuckT || 0) + dt;
+        if (a.stuckT > 0.2) { a.stuckT = 0; this._animalRoute(a, true); a.routeT = 0.4; }
+      } else {
+        a.stuckT = 0;
+      }
+      // A fleeing animal keeps its legs moving even when it is pinned, never a frozen pose.
+      const anim = (moving || a.fleeing) ? 'walk' : 'idle';
       if (a.anim !== anim) { a.frame = 0; a.animT = 0; }
       a.anim = anim;
-      if (!moving && a.fleeing) a.routeT = 0;
       this._tickAnimalAnim(a, dt);
     }
   }

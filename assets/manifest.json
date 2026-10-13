@@ -1781,6 +1781,10 @@
       "path": "assets/sprites/raid/bg_den_twins.png"
     },
     {
+      "id": "bg_den_passage",
+      "path": "assets/sprites/raid/bg_den_passage.png"
+    },
+    {
       "id": "building_altar_1",
       "path": "assets/sprites/buildings/building_altar_1.png"
     },
@@ -5743,502 +5747,6 @@
     {
       "id": "skill_toque_curativo",
       "path": "assets/sprites/items/skill_toque_curativo.png"
-    },
-    {
-      "id": "twin_jaw_attack_0",
-      "path": "assets/sprites/raid/twin_jaw_attack_0.png"
-    },
-    {
-      "id": "twin_jaw_attack_1",
-      "path": "assets/sprites/raid/twin_jaw_attack_1.png"
-    },
-    {
-      "id": "twin_jaw_attack_10",
-      "path": "assets/sprites/raid/twin_jaw_attack_10.png"
-    },
-    {
-      "id": "twin_jaw_attack_11",
-      "path": "assets/sprites/raid/twin_jaw_attack_11.png"
-    },
-    {
-      "id": "twin_jaw_attack_12",
-      "path": "assets/sprites/raid/twin_jaw_attack_12.png"
-    },
-    {
-      "id": "twin_jaw_attack_13",
-      "path": "assets/sprites/raid/twin_jaw_attack_13.png"
-    },
-    {
-      "id": "twin_jaw_attack_14",
-      "path": "assets/sprites/raid/twin_jaw_attack_14.png"
-    },
-    {
-      "id": "twin_jaw_attack_15",
-      "path": "assets/sprites/raid/twin_jaw_attack_15.png"
-    },
-    {
-      "id": "twin_jaw_attack_16",
-      "path": "assets/sprites/raid/twin_jaw_attack_16.png"
-    },
-    {
-      "id": "twin_jaw_attack_2",
-      "path": "assets/sprites/raid/twin_jaw_attack_2.png"
-    },
-    {
-      "id": "twin_jaw_attack_3",
-      "path": "assets/sprites/raid/twin_jaw_attack_3.png"
-    },
-    {
-      "id": "twin_jaw_attack_4",
-      "path": "assets/sprites/raid/twin_jaw_attack_4.png"
-    },
-    {
-      "id": "twin_jaw_attack_5",
-      "path": "assets/sprites/raid/twin_jaw_attack_5.png"
-    },
-    {
-      "id": "twin_jaw_attack_6",
-      "path": "assets/sprites/raid/twin_jaw_attack_6.png"
-    },
-    {
-      "id": "twin_jaw_attack_7",
-      "path": "assets/sprites/raid/twin_jaw_attack_7.png"
-    },
-    {
-      "id": "twin_jaw_attack_8",
-      "path": "assets/sprites/raid/twin_jaw_attack_8.png"
-    },
-    {
-      "id": "twin_jaw_attack_9",
-      "path": "assets/sprites/raid/twin_jaw_attack_9.png"
-    },
-    {
-      "id": "twin_jaw_death_0",
-      "path": "assets/sprites/raid/twin_jaw_death_0.png"
-    },
-    {
-      "id": "twin_jaw_death_1",
-      "path": "assets/sprites/raid/twin_jaw_death_1.png"
-    },
-    {
-      "id": "twin_jaw_death_10",
-      "path": "assets/sprites/raid/twin_jaw_death_10.png"
-    },
-    {
-      "id": "twin_jaw_death_11",
-      "path": "assets/sprites/raid/twin_jaw_death_11.png"
-    },
-    {
-      "id": "twin_jaw_death_12",
-      "path": "assets/sprites/raid/twin_jaw_death_12.png"
-    },
-    {
-      "id": "twin_jaw_death_13",
-      "path": "assets/sprites/raid/twin_jaw_death_13.png"
-    },
-    {
-      "id": "twin_jaw_death_14",
-      "path": "assets/sprites/raid/twin_jaw_death_14.png"
-    },
-    {
-      "id": "twin_jaw_death_2",
-      "path": "assets/sprites/raid/twin_jaw_death_2.png"
-    },
-    {
-      "id": "twin_jaw_death_3",
-      "path": "assets/sprites/raid/twin_jaw_death_3.png"
-    },
-    {
-      "id": "twin_jaw_death_4",
-      "path": "assets/sprites/raid/twin_jaw_death_4.png"
-    },
-    {
-      "id": "twin_jaw_death_5",
-      "path": "assets/sprites/raid/twin_jaw_death_5.png"
-    },
-    {
-      "id": "twin_jaw_death_6",
-      "path": "assets/sprites/raid/twin_jaw_death_6.png"
-    },
-    {
-      "id": "twin_jaw_death_7",
-      "path": "assets/sprites/raid/twin_jaw_death_7.png"
-    },
-    {
-      "id": "twin_jaw_death_8",
-      "path": "assets/sprites/raid/twin_jaw_death_8.png"
-    },
-    {
-      "id": "twin_jaw_death_9",
-      "path": "assets/sprites/raid/twin_jaw_death_9.png"
-    },
-    {
-      "id": "twin_jaw_hurt_0",
-      "path": "assets/sprites/raid/twin_jaw_hurt_0.png"
-    },
-    {
-      "id": "twin_jaw_hurt_1",
-      "path": "assets/sprites/raid/twin_jaw_hurt_1.png"
-    },
-    {
-      "id": "twin_jaw_hurt_10",
-      "path": "assets/sprites/raid/twin_jaw_hurt_10.png"
-    },
-    {
-      "id": "twin_jaw_hurt_11",
-      "path": "assets/sprites/raid/twin_jaw_hurt_11.png"
-    },
-    {
-      "id": "twin_jaw_hurt_12",
-      "path": "assets/sprites/raid/twin_jaw_hurt_12.png"
-    },
-    {
-      "id": "twin_jaw_hurt_13",
-      "path": "assets/sprites/raid/twin_jaw_hurt_13.png"
-    },
-    {
-      "id": "twin_jaw_hurt_14",
-      "path": "assets/sprites/raid/twin_jaw_hurt_14.png"
-    },
-    {
-      "id": "twin_jaw_hurt_15",
-      "path": "assets/sprites/raid/twin_jaw_hurt_15.png"
-    },
-    {
-      "id": "twin_jaw_hurt_16",
-      "path": "assets/sprites/raid/twin_jaw_hurt_16.png"
-    },
-    {
-      "id": "twin_jaw_hurt_2",
-      "path": "assets/sprites/raid/twin_jaw_hurt_2.png"
-    },
-    {
-      "id": "twin_jaw_hurt_3",
-      "path": "assets/sprites/raid/twin_jaw_hurt_3.png"
-    },
-    {
-      "id": "twin_jaw_hurt_4",
-      "path": "assets/sprites/raid/twin_jaw_hurt_4.png"
-    },
-    {
-      "id": "twin_jaw_hurt_5",
-      "path": "assets/sprites/raid/twin_jaw_hurt_5.png"
-    },
-    {
-      "id": "twin_jaw_hurt_6",
-      "path": "assets/sprites/raid/twin_jaw_hurt_6.png"
-    },
-    {
-      "id": "twin_jaw_hurt_7",
-      "path": "assets/sprites/raid/twin_jaw_hurt_7.png"
-    },
-    {
-      "id": "twin_jaw_hurt_8",
-      "path": "assets/sprites/raid/twin_jaw_hurt_8.png"
-    },
-    {
-      "id": "twin_jaw_hurt_9",
-      "path": "assets/sprites/raid/twin_jaw_hurt_9.png"
-    },
-    {
-      "id": "twin_jaw_idle_0",
-      "path": "assets/sprites/raid/twin_jaw_idle_0.png"
-    },
-    {
-      "id": "twin_jaw_idle_1",
-      "path": "assets/sprites/raid/twin_jaw_idle_1.png"
-    },
-    {
-      "id": "twin_jaw_idle_2",
-      "path": "assets/sprites/raid/twin_jaw_idle_2.png"
-    },
-    {
-      "id": "twin_jaw_idle_3",
-      "path": "assets/sprites/raid/twin_jaw_idle_3.png"
-    },
-    {
-      "id": "twin_jaw_idle_4",
-      "path": "assets/sprites/raid/twin_jaw_idle_4.png"
-    },
-    {
-      "id": "twin_jaw_walk_0",
-      "path": "assets/sprites/raid/twin_jaw_walk_0.png"
-    },
-    {
-      "id": "twin_jaw_walk_1",
-      "path": "assets/sprites/raid/twin_jaw_walk_1.png"
-    },
-    {
-      "id": "twin_jaw_walk_2",
-      "path": "assets/sprites/raid/twin_jaw_walk_2.png"
-    },
-    {
-      "id": "twin_jaw_walk_3",
-      "path": "assets/sprites/raid/twin_jaw_walk_3.png"
-    },
-    {
-      "id": "twin_jaw_walk_4",
-      "path": "assets/sprites/raid/twin_jaw_walk_4.png"
-    },
-    {
-      "id": "twin_jaw_walk_5",
-      "path": "assets/sprites/raid/twin_jaw_walk_5.png"
-    },
-    {
-      "id": "twin_jaw_walk_6",
-      "path": "assets/sprites/raid/twin_jaw_walk_6.png"
-    },
-    {
-      "id": "twin_jaw_walk_7",
-      "path": "assets/sprites/raid/twin_jaw_walk_7.png"
-    },
-    {
-      "id": "twin_paw_attack_0",
-      "path": "assets/sprites/raid/twin_paw_attack_0.png"
-    },
-    {
-      "id": "twin_paw_attack_1",
-      "path": "assets/sprites/raid/twin_paw_attack_1.png"
-    },
-    {
-      "id": "twin_paw_attack_10",
-      "path": "assets/sprites/raid/twin_paw_attack_10.png"
-    },
-    {
-      "id": "twin_paw_attack_11",
-      "path": "assets/sprites/raid/twin_paw_attack_11.png"
-    },
-    {
-      "id": "twin_paw_attack_12",
-      "path": "assets/sprites/raid/twin_paw_attack_12.png"
-    },
-    {
-      "id": "twin_paw_attack_13",
-      "path": "assets/sprites/raid/twin_paw_attack_13.png"
-    },
-    {
-      "id": "twin_paw_attack_14",
-      "path": "assets/sprites/raid/twin_paw_attack_14.png"
-    },
-    {
-      "id": "twin_paw_attack_15",
-      "path": "assets/sprites/raid/twin_paw_attack_15.png"
-    },
-    {
-      "id": "twin_paw_attack_16",
-      "path": "assets/sprites/raid/twin_paw_attack_16.png"
-    },
-    {
-      "id": "twin_paw_attack_2",
-      "path": "assets/sprites/raid/twin_paw_attack_2.png"
-    },
-    {
-      "id": "twin_paw_attack_3",
-      "path": "assets/sprites/raid/twin_paw_attack_3.png"
-    },
-    {
-      "id": "twin_paw_attack_4",
-      "path": "assets/sprites/raid/twin_paw_attack_4.png"
-    },
-    {
-      "id": "twin_paw_attack_5",
-      "path": "assets/sprites/raid/twin_paw_attack_5.png"
-    },
-    {
-      "id": "twin_paw_attack_6",
-      "path": "assets/sprites/raid/twin_paw_attack_6.png"
-    },
-    {
-      "id": "twin_paw_attack_7",
-      "path": "assets/sprites/raid/twin_paw_attack_7.png"
-    },
-    {
-      "id": "twin_paw_attack_8",
-      "path": "assets/sprites/raid/twin_paw_attack_8.png"
-    },
-    {
-      "id": "twin_paw_attack_9",
-      "path": "assets/sprites/raid/twin_paw_attack_9.png"
-    },
-    {
-      "id": "twin_paw_death_0",
-      "path": "assets/sprites/raid/twin_paw_death_0.png"
-    },
-    {
-      "id": "twin_paw_death_1",
-      "path": "assets/sprites/raid/twin_paw_death_1.png"
-    },
-    {
-      "id": "twin_paw_death_10",
-      "path": "assets/sprites/raid/twin_paw_death_10.png"
-    },
-    {
-      "id": "twin_paw_death_11",
-      "path": "assets/sprites/raid/twin_paw_death_11.png"
-    },
-    {
-      "id": "twin_paw_death_12",
-      "path": "assets/sprites/raid/twin_paw_death_12.png"
-    },
-    {
-      "id": "twin_paw_death_13",
-      "path": "assets/sprites/raid/twin_paw_death_13.png"
-    },
-    {
-      "id": "twin_paw_death_14",
-      "path": "assets/sprites/raid/twin_paw_death_14.png"
-    },
-    {
-      "id": "twin_paw_death_2",
-      "path": "assets/sprites/raid/twin_paw_death_2.png"
-    },
-    {
-      "id": "twin_paw_death_3",
-      "path": "assets/sprites/raid/twin_paw_death_3.png"
-    },
-    {
-      "id": "twin_paw_death_4",
-      "path": "assets/sprites/raid/twin_paw_death_4.png"
-    },
-    {
-      "id": "twin_paw_death_5",
-      "path": "assets/sprites/raid/twin_paw_death_5.png"
-    },
-    {
-      "id": "twin_paw_death_6",
-      "path": "assets/sprites/raid/twin_paw_death_6.png"
-    },
-    {
-      "id": "twin_paw_death_7",
-      "path": "assets/sprites/raid/twin_paw_death_7.png"
-    },
-    {
-      "id": "twin_paw_death_8",
-      "path": "assets/sprites/raid/twin_paw_death_8.png"
-    },
-    {
-      "id": "twin_paw_death_9",
-      "path": "assets/sprites/raid/twin_paw_death_9.png"
-    },
-    {
-      "id": "twin_paw_hurt_0",
-      "path": "assets/sprites/raid/twin_paw_hurt_0.png"
-    },
-    {
-      "id": "twin_paw_hurt_1",
-      "path": "assets/sprites/raid/twin_paw_hurt_1.png"
-    },
-    {
-      "id": "twin_paw_hurt_10",
-      "path": "assets/sprites/raid/twin_paw_hurt_10.png"
-    },
-    {
-      "id": "twin_paw_hurt_11",
-      "path": "assets/sprites/raid/twin_paw_hurt_11.png"
-    },
-    {
-      "id": "twin_paw_hurt_12",
-      "path": "assets/sprites/raid/twin_paw_hurt_12.png"
-    },
-    {
-      "id": "twin_paw_hurt_13",
-      "path": "assets/sprites/raid/twin_paw_hurt_13.png"
-    },
-    {
-      "id": "twin_paw_hurt_14",
-      "path": "assets/sprites/raid/twin_paw_hurt_14.png"
-    },
-    {
-      "id": "twin_paw_hurt_15",
-      "path": "assets/sprites/raid/twin_paw_hurt_15.png"
-    },
-    {
-      "id": "twin_paw_hurt_16",
-      "path": "assets/sprites/raid/twin_paw_hurt_16.png"
-    },
-    {
-      "id": "twin_paw_hurt_2",
-      "path": "assets/sprites/raid/twin_paw_hurt_2.png"
-    },
-    {
-      "id": "twin_paw_hurt_3",
-      "path": "assets/sprites/raid/twin_paw_hurt_3.png"
-    },
-    {
-      "id": "twin_paw_hurt_4",
-      "path": "assets/sprites/raid/twin_paw_hurt_4.png"
-    },
-    {
-      "id": "twin_paw_hurt_5",
-      "path": "assets/sprites/raid/twin_paw_hurt_5.png"
-    },
-    {
-      "id": "twin_paw_hurt_6",
-      "path": "assets/sprites/raid/twin_paw_hurt_6.png"
-    },
-    {
-      "id": "twin_paw_hurt_7",
-      "path": "assets/sprites/raid/twin_paw_hurt_7.png"
-    },
-    {
-      "id": "twin_paw_hurt_8",
-      "path": "assets/sprites/raid/twin_paw_hurt_8.png"
-    },
-    {
-      "id": "twin_paw_hurt_9",
-      "path": "assets/sprites/raid/twin_paw_hurt_9.png"
-    },
-    {
-      "id": "twin_paw_idle_0",
-      "path": "assets/sprites/raid/twin_paw_idle_0.png"
-    },
-    {
-      "id": "twin_paw_idle_1",
-      "path": "assets/sprites/raid/twin_paw_idle_1.png"
-    },
-    {
-      "id": "twin_paw_idle_2",
-      "path": "assets/sprites/raid/twin_paw_idle_2.png"
-    },
-    {
-      "id": "twin_paw_idle_3",
-      "path": "assets/sprites/raid/twin_paw_idle_3.png"
-    },
-    {
-      "id": "twin_paw_idle_4",
-      "path": "assets/sprites/raid/twin_paw_idle_4.png"
-    },
-    {
-      "id": "twin_paw_walk_0",
-      "path": "assets/sprites/raid/twin_paw_walk_0.png"
-    },
-    {
-      "id": "twin_paw_walk_1",
-      "path": "assets/sprites/raid/twin_paw_walk_1.png"
-    },
-    {
-      "id": "twin_paw_walk_2",
-      "path": "assets/sprites/raid/twin_paw_walk_2.png"
-    },
-    {
-      "id": "twin_paw_walk_3",
-      "path": "assets/sprites/raid/twin_paw_walk_3.png"
-    },
-    {
-      "id": "twin_paw_walk_4",
-      "path": "assets/sprites/raid/twin_paw_walk_4.png"
-    },
-    {
-      "id": "twin_paw_walk_5",
-      "path": "assets/sprites/raid/twin_paw_walk_5.png"
-    },
-    {
-      "id": "twin_paw_walk_6",
-      "path": "assets/sprites/raid/twin_paw_walk_6.png"
-    },
-    {
-      "id": "twin_paw_walk_7",
-      "path": "assets/sprites/raid/twin_paw_walk_7.png"
     },
     {
       "id": "ui_attack_sword",
@@ -17429,254 +16937,6 @@
       "path": "assets/sprites/goblins/variant_51_mutilado_walk_7.png"
     },
     {
-      "id": "wolf_attack_0",
-      "path": "assets/sprites/raid/wolf_attack_0.png"
-    },
-    {
-      "id": "wolf_attack_1",
-      "path": "assets/sprites/raid/wolf_attack_1.png"
-    },
-    {
-      "id": "wolf_attack_10",
-      "path": "assets/sprites/raid/wolf_attack_10.png"
-    },
-    {
-      "id": "wolf_attack_11",
-      "path": "assets/sprites/raid/wolf_attack_11.png"
-    },
-    {
-      "id": "wolf_attack_12",
-      "path": "assets/sprites/raid/wolf_attack_12.png"
-    },
-    {
-      "id": "wolf_attack_13",
-      "path": "assets/sprites/raid/wolf_attack_13.png"
-    },
-    {
-      "id": "wolf_attack_14",
-      "path": "assets/sprites/raid/wolf_attack_14.png"
-    },
-    {
-      "id": "wolf_attack_15",
-      "path": "assets/sprites/raid/wolf_attack_15.png"
-    },
-    {
-      "id": "wolf_attack_16",
-      "path": "assets/sprites/raid/wolf_attack_16.png"
-    },
-    {
-      "id": "wolf_attack_2",
-      "path": "assets/sprites/raid/wolf_attack_2.png"
-    },
-    {
-      "id": "wolf_attack_3",
-      "path": "assets/sprites/raid/wolf_attack_3.png"
-    },
-    {
-      "id": "wolf_attack_4",
-      "path": "assets/sprites/raid/wolf_attack_4.png"
-    },
-    {
-      "id": "wolf_attack_5",
-      "path": "assets/sprites/raid/wolf_attack_5.png"
-    },
-    {
-      "id": "wolf_attack_6",
-      "path": "assets/sprites/raid/wolf_attack_6.png"
-    },
-    {
-      "id": "wolf_attack_7",
-      "path": "assets/sprites/raid/wolf_attack_7.png"
-    },
-    {
-      "id": "wolf_attack_8",
-      "path": "assets/sprites/raid/wolf_attack_8.png"
-    },
-    {
-      "id": "wolf_attack_9",
-      "path": "assets/sprites/raid/wolf_attack_9.png"
-    },
-    {
-      "id": "wolf_death_0",
-      "path": "assets/sprites/raid/wolf_death_0.png"
-    },
-    {
-      "id": "wolf_death_1",
-      "path": "assets/sprites/raid/wolf_death_1.png"
-    },
-    {
-      "id": "wolf_death_10",
-      "path": "assets/sprites/raid/wolf_death_10.png"
-    },
-    {
-      "id": "wolf_death_11",
-      "path": "assets/sprites/raid/wolf_death_11.png"
-    },
-    {
-      "id": "wolf_death_12",
-      "path": "assets/sprites/raid/wolf_death_12.png"
-    },
-    {
-      "id": "wolf_death_13",
-      "path": "assets/sprites/raid/wolf_death_13.png"
-    },
-    {
-      "id": "wolf_death_14",
-      "path": "assets/sprites/raid/wolf_death_14.png"
-    },
-    {
-      "id": "wolf_death_2",
-      "path": "assets/sprites/raid/wolf_death_2.png"
-    },
-    {
-      "id": "wolf_death_3",
-      "path": "assets/sprites/raid/wolf_death_3.png"
-    },
-    {
-      "id": "wolf_death_4",
-      "path": "assets/sprites/raid/wolf_death_4.png"
-    },
-    {
-      "id": "wolf_death_5",
-      "path": "assets/sprites/raid/wolf_death_5.png"
-    },
-    {
-      "id": "wolf_death_6",
-      "path": "assets/sprites/raid/wolf_death_6.png"
-    },
-    {
-      "id": "wolf_death_7",
-      "path": "assets/sprites/raid/wolf_death_7.png"
-    },
-    {
-      "id": "wolf_death_8",
-      "path": "assets/sprites/raid/wolf_death_8.png"
-    },
-    {
-      "id": "wolf_death_9",
-      "path": "assets/sprites/raid/wolf_death_9.png"
-    },
-    {
-      "id": "wolf_hurt_0",
-      "path": "assets/sprites/raid/wolf_hurt_0.png"
-    },
-    {
-      "id": "wolf_hurt_1",
-      "path": "assets/sprites/raid/wolf_hurt_1.png"
-    },
-    {
-      "id": "wolf_hurt_10",
-      "path": "assets/sprites/raid/wolf_hurt_10.png"
-    },
-    {
-      "id": "wolf_hurt_11",
-      "path": "assets/sprites/raid/wolf_hurt_11.png"
-    },
-    {
-      "id": "wolf_hurt_12",
-      "path": "assets/sprites/raid/wolf_hurt_12.png"
-    },
-    {
-      "id": "wolf_hurt_13",
-      "path": "assets/sprites/raid/wolf_hurt_13.png"
-    },
-    {
-      "id": "wolf_hurt_14",
-      "path": "assets/sprites/raid/wolf_hurt_14.png"
-    },
-    {
-      "id": "wolf_hurt_15",
-      "path": "assets/sprites/raid/wolf_hurt_15.png"
-    },
-    {
-      "id": "wolf_hurt_16",
-      "path": "assets/sprites/raid/wolf_hurt_16.png"
-    },
-    {
-      "id": "wolf_hurt_2",
-      "path": "assets/sprites/raid/wolf_hurt_2.png"
-    },
-    {
-      "id": "wolf_hurt_3",
-      "path": "assets/sprites/raid/wolf_hurt_3.png"
-    },
-    {
-      "id": "wolf_hurt_4",
-      "path": "assets/sprites/raid/wolf_hurt_4.png"
-    },
-    {
-      "id": "wolf_hurt_5",
-      "path": "assets/sprites/raid/wolf_hurt_5.png"
-    },
-    {
-      "id": "wolf_hurt_6",
-      "path": "assets/sprites/raid/wolf_hurt_6.png"
-    },
-    {
-      "id": "wolf_hurt_7",
-      "path": "assets/sprites/raid/wolf_hurt_7.png"
-    },
-    {
-      "id": "wolf_hurt_8",
-      "path": "assets/sprites/raid/wolf_hurt_8.png"
-    },
-    {
-      "id": "wolf_hurt_9",
-      "path": "assets/sprites/raid/wolf_hurt_9.png"
-    },
-    {
-      "id": "wolf_idle_0",
-      "path": "assets/sprites/raid/wolf_idle_0.png"
-    },
-    {
-      "id": "wolf_idle_1",
-      "path": "assets/sprites/raid/wolf_idle_1.png"
-    },
-    {
-      "id": "wolf_idle_2",
-      "path": "assets/sprites/raid/wolf_idle_2.png"
-    },
-    {
-      "id": "wolf_idle_3",
-      "path": "assets/sprites/raid/wolf_idle_3.png"
-    },
-    {
-      "id": "wolf_idle_4",
-      "path": "assets/sprites/raid/wolf_idle_4.png"
-    },
-    {
-      "id": "wolf_walk_0",
-      "path": "assets/sprites/raid/wolf_walk_0.png"
-    },
-    {
-      "id": "wolf_walk_1",
-      "path": "assets/sprites/raid/wolf_walk_1.png"
-    },
-    {
-      "id": "wolf_walk_2",
-      "path": "assets/sprites/raid/wolf_walk_2.png"
-    },
-    {
-      "id": "wolf_walk_3",
-      "path": "assets/sprites/raid/wolf_walk_3.png"
-    },
-    {
-      "id": "wolf_walk_4",
-      "path": "assets/sprites/raid/wolf_walk_4.png"
-    },
-    {
-      "id": "wolf_walk_5",
-      "path": "assets/sprites/raid/wolf_walk_5.png"
-    },
-    {
-      "id": "wolf_walk_6",
-      "path": "assets/sprites/raid/wolf_walk_6.png"
-    },
-    {
-      "id": "wolf_walk_7",
-      "path": "assets/sprites/raid/wolf_walk_7.png"
-    },
-    {
       "id": "reward_chest_wood",
       "path": "assets/sprites/raid/reward_chest_wood.png"
     },
@@ -18083,6 +17343,858 @@
     {
       "id": "drop_escudo_madeira",
       "path": "assets/sprites/raid/drop_escudo_madeira.png"
+    },
+    {
+      "id": "wolf_idle_0",
+      "path": "assets/sprites/raid/wolf_idle_0.png"
+    },
+    {
+      "id": "wolf_idle_1",
+      "path": "assets/sprites/raid/wolf_idle_1.png"
+    },
+    {
+      "id": "wolf_idle_2",
+      "path": "assets/sprites/raid/wolf_idle_2.png"
+    },
+    {
+      "id": "wolf_idle_3",
+      "path": "assets/sprites/raid/wolf_idle_3.png"
+    },
+    {
+      "id": "wolf_idle_4",
+      "path": "assets/sprites/raid/wolf_idle_4.png"
+    },
+    {
+      "id": "wolf_idle_5",
+      "path": "assets/sprites/raid/wolf_idle_5.png"
+    },
+    {
+      "id": "wolf_idle_6",
+      "path": "assets/sprites/raid/wolf_idle_6.png"
+    },
+    {
+      "id": "wolf_idle_7",
+      "path": "assets/sprites/raid/wolf_idle_7.png"
+    },
+    {
+      "id": "wolf_idle_8",
+      "path": "assets/sprites/raid/wolf_idle_8.png"
+    },
+    {
+      "id": "wolf_idle_9",
+      "path": "assets/sprites/raid/wolf_idle_9.png"
+    },
+    {
+      "id": "wolf_walk_0",
+      "path": "assets/sprites/raid/wolf_walk_0.png"
+    },
+    {
+      "id": "wolf_walk_1",
+      "path": "assets/sprites/raid/wolf_walk_1.png"
+    },
+    {
+      "id": "wolf_walk_2",
+      "path": "assets/sprites/raid/wolf_walk_2.png"
+    },
+    {
+      "id": "wolf_walk_3",
+      "path": "assets/sprites/raid/wolf_walk_3.png"
+    },
+    {
+      "id": "wolf_walk_4",
+      "path": "assets/sprites/raid/wolf_walk_4.png"
+    },
+    {
+      "id": "wolf_walk_5",
+      "path": "assets/sprites/raid/wolf_walk_5.png"
+    },
+    {
+      "id": "wolf_walk_6",
+      "path": "assets/sprites/raid/wolf_walk_6.png"
+    },
+    {
+      "id": "wolf_walk_7",
+      "path": "assets/sprites/raid/wolf_walk_7.png"
+    },
+    {
+      "id": "wolf_walk_8",
+      "path": "assets/sprites/raid/wolf_walk_8.png"
+    },
+    {
+      "id": "wolf_walk_9",
+      "path": "assets/sprites/raid/wolf_walk_9.png"
+    },
+    {
+      "id": "wolf_walk_10",
+      "path": "assets/sprites/raid/wolf_walk_10.png"
+    },
+    {
+      "id": "wolf_walk_11",
+      "path": "assets/sprites/raid/wolf_walk_11.png"
+    },
+    {
+      "id": "wolf_walk_12",
+      "path": "assets/sprites/raid/wolf_walk_12.png"
+    },
+    {
+      "id": "wolf_walk_13",
+      "path": "assets/sprites/raid/wolf_walk_13.png"
+    },
+    {
+      "id": "wolf_walk_14",
+      "path": "assets/sprites/raid/wolf_walk_14.png"
+    },
+    {
+      "id": "wolf_walk_15",
+      "path": "assets/sprites/raid/wolf_walk_15.png"
+    },
+    {
+      "id": "wolf_attack_0",
+      "path": "assets/sprites/raid/wolf_attack_0.png"
+    },
+    {
+      "id": "wolf_attack_1",
+      "path": "assets/sprites/raid/wolf_attack_1.png"
+    },
+    {
+      "id": "wolf_attack_2",
+      "path": "assets/sprites/raid/wolf_attack_2.png"
+    },
+    {
+      "id": "wolf_attack_3",
+      "path": "assets/sprites/raid/wolf_attack_3.png"
+    },
+    {
+      "id": "wolf_attack_4",
+      "path": "assets/sprites/raid/wolf_attack_4.png"
+    },
+    {
+      "id": "wolf_attack_5",
+      "path": "assets/sprites/raid/wolf_attack_5.png"
+    },
+    {
+      "id": "wolf_attack_6",
+      "path": "assets/sprites/raid/wolf_attack_6.png"
+    },
+    {
+      "id": "wolf_attack_7",
+      "path": "assets/sprites/raid/wolf_attack_7.png"
+    },
+    {
+      "id": "wolf_attack_8",
+      "path": "assets/sprites/raid/wolf_attack_8.png"
+    },
+    {
+      "id": "wolf_attack_9",
+      "path": "assets/sprites/raid/wolf_attack_9.png"
+    },
+    {
+      "id": "wolf_attack_10",
+      "path": "assets/sprites/raid/wolf_attack_10.png"
+    },
+    {
+      "id": "wolf_attack_11",
+      "path": "assets/sprites/raid/wolf_attack_11.png"
+    },
+    {
+      "id": "wolf_attack_12",
+      "path": "assets/sprites/raid/wolf_attack_12.png"
+    },
+    {
+      "id": "wolf_attack_13",
+      "path": "assets/sprites/raid/wolf_attack_13.png"
+    },
+    {
+      "id": "wolf_attack_14",
+      "path": "assets/sprites/raid/wolf_attack_14.png"
+    },
+    {
+      "id": "wolf_attack_15",
+      "path": "assets/sprites/raid/wolf_attack_15.png"
+    },
+    {
+      "id": "wolf_attack_16",
+      "path": "assets/sprites/raid/wolf_attack_16.png"
+    },
+    {
+      "id": "wolf_attack_17",
+      "path": "assets/sprites/raid/wolf_attack_17.png"
+    },
+    {
+      "id": "wolf_attack_18",
+      "path": "assets/sprites/raid/wolf_attack_18.png"
+    },
+    {
+      "id": "wolf_attack_19",
+      "path": "assets/sprites/raid/wolf_attack_19.png"
+    },
+    {
+      "id": "wolf_attack_20",
+      "path": "assets/sprites/raid/wolf_attack_20.png"
+    },
+    {
+      "id": "wolf_hurt_0",
+      "path": "assets/sprites/raid/wolf_hurt_0.png"
+    },
+    {
+      "id": "wolf_hurt_1",
+      "path": "assets/sprites/raid/wolf_hurt_1.png"
+    },
+    {
+      "id": "wolf_hurt_2",
+      "path": "assets/sprites/raid/wolf_hurt_2.png"
+    },
+    {
+      "id": "wolf_hurt_3",
+      "path": "assets/sprites/raid/wolf_hurt_3.png"
+    },
+    {
+      "id": "wolf_hurt_4",
+      "path": "assets/sprites/raid/wolf_hurt_4.png"
+    },
+    {
+      "id": "wolf_hurt_5",
+      "path": "assets/sprites/raid/wolf_hurt_5.png"
+    },
+    {
+      "id": "wolf_hurt_6",
+      "path": "assets/sprites/raid/wolf_hurt_6.png"
+    },
+    {
+      "id": "wolf_hurt_7",
+      "path": "assets/sprites/raid/wolf_hurt_7.png"
+    },
+    {
+      "id": "wolf_hurt_8",
+      "path": "assets/sprites/raid/wolf_hurt_8.png"
+    },
+    {
+      "id": "wolf_hurt_9",
+      "path": "assets/sprites/raid/wolf_hurt_9.png"
+    },
+    {
+      "id": "wolf_hurt_10",
+      "path": "assets/sprites/raid/wolf_hurt_10.png"
+    },
+    {
+      "id": "wolf_hurt_11",
+      "path": "assets/sprites/raid/wolf_hurt_11.png"
+    },
+    {
+      "id": "wolf_hurt_12",
+      "path": "assets/sprites/raid/wolf_hurt_12.png"
+    },
+    {
+      "id": "wolf_hurt_13",
+      "path": "assets/sprites/raid/wolf_hurt_13.png"
+    },
+    {
+      "id": "wolf_hurt_14",
+      "path": "assets/sprites/raid/wolf_hurt_14.png"
+    },
+    {
+      "id": "wolf_hurt_15",
+      "path": "assets/sprites/raid/wolf_hurt_15.png"
+    },
+    {
+      "id": "wolf_hurt_16",
+      "path": "assets/sprites/raid/wolf_hurt_16.png"
+    },
+    {
+      "id": "wolf_hurt_17",
+      "path": "assets/sprites/raid/wolf_hurt_17.png"
+    },
+    {
+      "id": "wolf_hurt_18",
+      "path": "assets/sprites/raid/wolf_hurt_18.png"
+    },
+    {
+      "id": "wolf_hurt_19",
+      "path": "assets/sprites/raid/wolf_hurt_19.png"
+    },
+    {
+      "id": "wolf_hurt_20",
+      "path": "assets/sprites/raid/wolf_hurt_20.png"
+    },
+    {
+      "id": "wolf_hurt_21",
+      "path": "assets/sprites/raid/wolf_hurt_21.png"
+    },
+    {
+      "id": "wolf_hurt_22",
+      "path": "assets/sprites/raid/wolf_hurt_22.png"
+    },
+    {
+      "id": "wolf_hurt_23",
+      "path": "assets/sprites/raid/wolf_hurt_23.png"
+    },
+    {
+      "id": "wolf_hurt_24",
+      "path": "assets/sprites/raid/wolf_hurt_24.png"
+    },
+    {
+      "id": "wolf_hurt_25",
+      "path": "assets/sprites/raid/wolf_hurt_25.png"
+    },
+    {
+      "id": "wolf_hurt_26",
+      "path": "assets/sprites/raid/wolf_hurt_26.png"
+    },
+    {
+      "id": "wolf_hurt_27",
+      "path": "assets/sprites/raid/wolf_hurt_27.png"
+    },
+    {
+      "id": "wolf_hurt_28",
+      "path": "assets/sprites/raid/wolf_hurt_28.png"
+    },
+    {
+      "id": "wolf_hurt_29",
+      "path": "assets/sprites/raid/wolf_hurt_29.png"
+    },
+    {
+      "id": "wolf_hurt_30",
+      "path": "assets/sprites/raid/wolf_hurt_30.png"
+    },
+    {
+      "id": "wolf_hurt_31",
+      "path": "assets/sprites/raid/wolf_hurt_31.png"
+    },
+    {
+      "id": "wolf_hurt_32",
+      "path": "assets/sprites/raid/wolf_hurt_32.png"
+    },
+    {
+      "id": "wolf_death_0",
+      "path": "assets/sprites/raid/wolf_death_0.png"
+    },
+    {
+      "id": "wolf_death_1",
+      "path": "assets/sprites/raid/wolf_death_1.png"
+    },
+    {
+      "id": "wolf_death_2",
+      "path": "assets/sprites/raid/wolf_death_2.png"
+    },
+    {
+      "id": "wolf_death_3",
+      "path": "assets/sprites/raid/wolf_death_3.png"
+    },
+    {
+      "id": "wolf_death_4",
+      "path": "assets/sprites/raid/wolf_death_4.png"
+    },
+    {
+      "id": "wolf_death_5",
+      "path": "assets/sprites/raid/wolf_death_5.png"
+    },
+    {
+      "id": "wolf_death_6",
+      "path": "assets/sprites/raid/wolf_death_6.png"
+    },
+    {
+      "id": "wolf_death_7",
+      "path": "assets/sprites/raid/wolf_death_7.png"
+    },
+    {
+      "id": "wolf_death_8",
+      "path": "assets/sprites/raid/wolf_death_8.png"
+    },
+    {
+      "id": "wolf_death_9",
+      "path": "assets/sprites/raid/wolf_death_9.png"
+    },
+    {
+      "id": "wolf_death_10",
+      "path": "assets/sprites/raid/wolf_death_10.png"
+    },
+    {
+      "id": "wolf_death_11",
+      "path": "assets/sprites/raid/wolf_death_11.png"
+    },
+    {
+      "id": "wolf_death_12",
+      "path": "assets/sprites/raid/wolf_death_12.png"
+    },
+    {
+      "id": "twin_jaw_idle_0",
+      "path": "assets/sprites/raid/twin_jaw_idle_0.png"
+    },
+    {
+      "id": "twin_jaw_idle_1",
+      "path": "assets/sprites/raid/twin_jaw_idle_1.png"
+    },
+    {
+      "id": "twin_jaw_idle_2",
+      "path": "assets/sprites/raid/twin_jaw_idle_2.png"
+    },
+    {
+      "id": "twin_jaw_idle_3",
+      "path": "assets/sprites/raid/twin_jaw_idle_3.png"
+    },
+    {
+      "id": "twin_jaw_idle_4",
+      "path": "assets/sprites/raid/twin_jaw_idle_4.png"
+    },
+    {
+      "id": "twin_jaw_idle_5",
+      "path": "assets/sprites/raid/twin_jaw_idle_5.png"
+    },
+    {
+      "id": "twin_jaw_idle_6",
+      "path": "assets/sprites/raid/twin_jaw_idle_6.png"
+    },
+    {
+      "id": "twin_jaw_idle_7",
+      "path": "assets/sprites/raid/twin_jaw_idle_7.png"
+    },
+    {
+      "id": "twin_jaw_idle_8",
+      "path": "assets/sprites/raid/twin_jaw_idle_8.png"
+    },
+    {
+      "id": "twin_jaw_idle_9",
+      "path": "assets/sprites/raid/twin_jaw_idle_9.png"
+    },
+    {
+      "id": "twin_jaw_walk_0",
+      "path": "assets/sprites/raid/twin_jaw_walk_0.png"
+    },
+    {
+      "id": "twin_jaw_walk_1",
+      "path": "assets/sprites/raid/twin_jaw_walk_1.png"
+    },
+    {
+      "id": "twin_jaw_walk_2",
+      "path": "assets/sprites/raid/twin_jaw_walk_2.png"
+    },
+    {
+      "id": "twin_jaw_walk_3",
+      "path": "assets/sprites/raid/twin_jaw_walk_3.png"
+    },
+    {
+      "id": "twin_jaw_walk_4",
+      "path": "assets/sprites/raid/twin_jaw_walk_4.png"
+    },
+    {
+      "id": "twin_jaw_walk_5",
+      "path": "assets/sprites/raid/twin_jaw_walk_5.png"
+    },
+    {
+      "id": "twin_jaw_walk_6",
+      "path": "assets/sprites/raid/twin_jaw_walk_6.png"
+    },
+    {
+      "id": "twin_jaw_walk_7",
+      "path": "assets/sprites/raid/twin_jaw_walk_7.png"
+    },
+    {
+      "id": "twin_jaw_walk_8",
+      "path": "assets/sprites/raid/twin_jaw_walk_8.png"
+    },
+    {
+      "id": "twin_jaw_walk_9",
+      "path": "assets/sprites/raid/twin_jaw_walk_9.png"
+    },
+    {
+      "id": "twin_jaw_walk_10",
+      "path": "assets/sprites/raid/twin_jaw_walk_10.png"
+    },
+    {
+      "id": "twin_jaw_walk_11",
+      "path": "assets/sprites/raid/twin_jaw_walk_11.png"
+    },
+    {
+      "id": "twin_jaw_walk_12",
+      "path": "assets/sprites/raid/twin_jaw_walk_12.png"
+    },
+    {
+      "id": "twin_jaw_walk_13",
+      "path": "assets/sprites/raid/twin_jaw_walk_13.png"
+    },
+    {
+      "id": "twin_jaw_walk_14",
+      "path": "assets/sprites/raid/twin_jaw_walk_14.png"
+    },
+    {
+      "id": "twin_jaw_walk_15",
+      "path": "assets/sprites/raid/twin_jaw_walk_15.png"
+    },
+    {
+      "id": "twin_jaw_attack_0",
+      "path": "assets/sprites/raid/twin_jaw_attack_0.png"
+    },
+    {
+      "id": "twin_jaw_attack_1",
+      "path": "assets/sprites/raid/twin_jaw_attack_1.png"
+    },
+    {
+      "id": "twin_jaw_attack_2",
+      "path": "assets/sprites/raid/twin_jaw_attack_2.png"
+    },
+    {
+      "id": "twin_jaw_attack_3",
+      "path": "assets/sprites/raid/twin_jaw_attack_3.png"
+    },
+    {
+      "id": "twin_jaw_attack_4",
+      "path": "assets/sprites/raid/twin_jaw_attack_4.png"
+    },
+    {
+      "id": "twin_jaw_attack_5",
+      "path": "assets/sprites/raid/twin_jaw_attack_5.png"
+    },
+    {
+      "id": "twin_jaw_attack_6",
+      "path": "assets/sprites/raid/twin_jaw_attack_6.png"
+    },
+    {
+      "id": "twin_jaw_attack_7",
+      "path": "assets/sprites/raid/twin_jaw_attack_7.png"
+    },
+    {
+      "id": "twin_jaw_attack_8",
+      "path": "assets/sprites/raid/twin_jaw_attack_8.png"
+    },
+    {
+      "id": "twin_jaw_attack_9",
+      "path": "assets/sprites/raid/twin_jaw_attack_9.png"
+    },
+    {
+      "id": "twin_jaw_attack_10",
+      "path": "assets/sprites/raid/twin_jaw_attack_10.png"
+    },
+    {
+      "id": "twin_jaw_attack_11",
+      "path": "assets/sprites/raid/twin_jaw_attack_11.png"
+    },
+    {
+      "id": "twin_jaw_attack_12",
+      "path": "assets/sprites/raid/twin_jaw_attack_12.png"
+    },
+    {
+      "id": "twin_jaw_attack_13",
+      "path": "assets/sprites/raid/twin_jaw_attack_13.png"
+    },
+    {
+      "id": "twin_jaw_attack_14",
+      "path": "assets/sprites/raid/twin_jaw_attack_14.png"
+    },
+    {
+      "id": "twin_jaw_attack_15",
+      "path": "assets/sprites/raid/twin_jaw_attack_15.png"
+    },
+    {
+      "id": "twin_jaw_attack_16",
+      "path": "assets/sprites/raid/twin_jaw_attack_16.png"
+    },
+    {
+      "id": "twin_jaw_hurt_0",
+      "path": "assets/sprites/raid/twin_jaw_hurt_0.png"
+    },
+    {
+      "id": "twin_jaw_hurt_1",
+      "path": "assets/sprites/raid/twin_jaw_hurt_1.png"
+    },
+    {
+      "id": "twin_jaw_hurt_2",
+      "path": "assets/sprites/raid/twin_jaw_hurt_2.png"
+    },
+    {
+      "id": "twin_jaw_hurt_3",
+      "path": "assets/sprites/raid/twin_jaw_hurt_3.png"
+    },
+    {
+      "id": "twin_jaw_hurt_4",
+      "path": "assets/sprites/raid/twin_jaw_hurt_4.png"
+    },
+    {
+      "id": "twin_jaw_death_0",
+      "path": "assets/sprites/raid/twin_jaw_death_0.png"
+    },
+    {
+      "id": "twin_jaw_death_1",
+      "path": "assets/sprites/raid/twin_jaw_death_1.png"
+    },
+    {
+      "id": "twin_jaw_death_2",
+      "path": "assets/sprites/raid/twin_jaw_death_2.png"
+    },
+    {
+      "id": "twin_jaw_death_3",
+      "path": "assets/sprites/raid/twin_jaw_death_3.png"
+    },
+    {
+      "id": "twin_jaw_death_4",
+      "path": "assets/sprites/raid/twin_jaw_death_4.png"
+    },
+    {
+      "id": "twin_jaw_death_5",
+      "path": "assets/sprites/raid/twin_jaw_death_5.png"
+    },
+    {
+      "id": "twin_jaw_death_6",
+      "path": "assets/sprites/raid/twin_jaw_death_6.png"
+    },
+    {
+      "id": "twin_jaw_death_7",
+      "path": "assets/sprites/raid/twin_jaw_death_7.png"
+    },
+    {
+      "id": "twin_jaw_death_8",
+      "path": "assets/sprites/raid/twin_jaw_death_8.png"
+    },
+    {
+      "id": "twin_jaw_death_9",
+      "path": "assets/sprites/raid/twin_jaw_death_9.png"
+    },
+    {
+      "id": "twin_jaw_death_10",
+      "path": "assets/sprites/raid/twin_jaw_death_10.png"
+    },
+    {
+      "id": "twin_jaw_death_11",
+      "path": "assets/sprites/raid/twin_jaw_death_11.png"
+    },
+    {
+      "id": "twin_jaw_death_12",
+      "path": "assets/sprites/raid/twin_jaw_death_12.png"
+    },
+    {
+      "id": "twin_paw_idle_0",
+      "path": "assets/sprites/raid/twin_paw_idle_0.png"
+    },
+    {
+      "id": "twin_paw_idle_1",
+      "path": "assets/sprites/raid/twin_paw_idle_1.png"
+    },
+    {
+      "id": "twin_paw_idle_2",
+      "path": "assets/sprites/raid/twin_paw_idle_2.png"
+    },
+    {
+      "id": "twin_paw_idle_3",
+      "path": "assets/sprites/raid/twin_paw_idle_3.png"
+    },
+    {
+      "id": "twin_paw_idle_4",
+      "path": "assets/sprites/raid/twin_paw_idle_4.png"
+    },
+    {
+      "id": "twin_paw_idle_5",
+      "path": "assets/sprites/raid/twin_paw_idle_5.png"
+    },
+    {
+      "id": "twin_paw_idle_6",
+      "path": "assets/sprites/raid/twin_paw_idle_6.png"
+    },
+    {
+      "id": "twin_paw_idle_7",
+      "path": "assets/sprites/raid/twin_paw_idle_7.png"
+    },
+    {
+      "id": "twin_paw_walk_0",
+      "path": "assets/sprites/raid/twin_paw_walk_0.png"
+    },
+    {
+      "id": "twin_paw_walk_1",
+      "path": "assets/sprites/raid/twin_paw_walk_1.png"
+    },
+    {
+      "id": "twin_paw_walk_2",
+      "path": "assets/sprites/raid/twin_paw_walk_2.png"
+    },
+    {
+      "id": "twin_paw_walk_3",
+      "path": "assets/sprites/raid/twin_paw_walk_3.png"
+    },
+    {
+      "id": "twin_paw_walk_4",
+      "path": "assets/sprites/raid/twin_paw_walk_4.png"
+    },
+    {
+      "id": "twin_paw_walk_5",
+      "path": "assets/sprites/raid/twin_paw_walk_5.png"
+    },
+    {
+      "id": "twin_paw_walk_6",
+      "path": "assets/sprites/raid/twin_paw_walk_6.png"
+    },
+    {
+      "id": "twin_paw_walk_7",
+      "path": "assets/sprites/raid/twin_paw_walk_7.png"
+    },
+    {
+      "id": "twin_paw_walk_8",
+      "path": "assets/sprites/raid/twin_paw_walk_8.png"
+    },
+    {
+      "id": "twin_paw_walk_9",
+      "path": "assets/sprites/raid/twin_paw_walk_9.png"
+    },
+    {
+      "id": "twin_paw_walk_10",
+      "path": "assets/sprites/raid/twin_paw_walk_10.png"
+    },
+    {
+      "id": "twin_paw_walk_11",
+      "path": "assets/sprites/raid/twin_paw_walk_11.png"
+    },
+    {
+      "id": "twin_paw_walk_12",
+      "path": "assets/sprites/raid/twin_paw_walk_12.png"
+    },
+    {
+      "id": "twin_paw_walk_13",
+      "path": "assets/sprites/raid/twin_paw_walk_13.png"
+    },
+    {
+      "id": "twin_paw_walk_14",
+      "path": "assets/sprites/raid/twin_paw_walk_14.png"
+    },
+    {
+      "id": "twin_paw_walk_15",
+      "path": "assets/sprites/raid/twin_paw_walk_15.png"
+    },
+    {
+      "id": "twin_paw_attack_0",
+      "path": "assets/sprites/raid/twin_paw_attack_0.png"
+    },
+    {
+      "id": "twin_paw_attack_1",
+      "path": "assets/sprites/raid/twin_paw_attack_1.png"
+    },
+    {
+      "id": "twin_paw_attack_2",
+      "path": "assets/sprites/raid/twin_paw_attack_2.png"
+    },
+    {
+      "id": "twin_paw_attack_3",
+      "path": "assets/sprites/raid/twin_paw_attack_3.png"
+    },
+    {
+      "id": "twin_paw_attack_4",
+      "path": "assets/sprites/raid/twin_paw_attack_4.png"
+    },
+    {
+      "id": "twin_paw_attack_5",
+      "path": "assets/sprites/raid/twin_paw_attack_5.png"
+    },
+    {
+      "id": "twin_paw_attack_6",
+      "path": "assets/sprites/raid/twin_paw_attack_6.png"
+    },
+    {
+      "id": "twin_paw_attack_7",
+      "path": "assets/sprites/raid/twin_paw_attack_7.png"
+    },
+    {
+      "id": "twin_paw_attack_8",
+      "path": "assets/sprites/raid/twin_paw_attack_8.png"
+    },
+    {
+      "id": "twin_paw_attack_9",
+      "path": "assets/sprites/raid/twin_paw_attack_9.png"
+    },
+    {
+      "id": "twin_paw_attack_10",
+      "path": "assets/sprites/raid/twin_paw_attack_10.png"
+    },
+    {
+      "id": "twin_paw_attack_11",
+      "path": "assets/sprites/raid/twin_paw_attack_11.png"
+    },
+    {
+      "id": "twin_paw_attack_12",
+      "path": "assets/sprites/raid/twin_paw_attack_12.png"
+    },
+    {
+      "id": "twin_paw_attack_13",
+      "path": "assets/sprites/raid/twin_paw_attack_13.png"
+    },
+    {
+      "id": "twin_paw_attack_14",
+      "path": "assets/sprites/raid/twin_paw_attack_14.png"
+    },
+    {
+      "id": "twin_paw_attack_15",
+      "path": "assets/sprites/raid/twin_paw_attack_15.png"
+    },
+    {
+      "id": "twin_paw_attack_16",
+      "path": "assets/sprites/raid/twin_paw_attack_16.png"
+    },
+    {
+      "id": "twin_paw_hurt_0",
+      "path": "assets/sprites/raid/twin_paw_hurt_0.png"
+    },
+    {
+      "id": "twin_paw_hurt_1",
+      "path": "assets/sprites/raid/twin_paw_hurt_1.png"
+    },
+    {
+      "id": "twin_paw_hurt_2",
+      "path": "assets/sprites/raid/twin_paw_hurt_2.png"
+    },
+    {
+      "id": "twin_paw_hurt_3",
+      "path": "assets/sprites/raid/twin_paw_hurt_3.png"
+    },
+    {
+      "id": "twin_paw_hurt_4",
+      "path": "assets/sprites/raid/twin_paw_hurt_4.png"
+    },
+    {
+      "id": "twin_paw_death_0",
+      "path": "assets/sprites/raid/twin_paw_death_0.png"
+    },
+    {
+      "id": "twin_paw_death_1",
+      "path": "assets/sprites/raid/twin_paw_death_1.png"
+    },
+    {
+      "id": "twin_paw_death_2",
+      "path": "assets/sprites/raid/twin_paw_death_2.png"
+    },
+    {
+      "id": "twin_paw_death_3",
+      "path": "assets/sprites/raid/twin_paw_death_3.png"
+    },
+    {
+      "id": "twin_paw_death_4",
+      "path": "assets/sprites/raid/twin_paw_death_4.png"
+    },
+    {
+      "id": "twin_paw_death_5",
+      "path": "assets/sprites/raid/twin_paw_death_5.png"
+    },
+    {
+      "id": "twin_paw_death_6",
+      "path": "assets/sprites/raid/twin_paw_death_6.png"
+    },
+    {
+      "id": "twin_paw_death_7",
+      "path": "assets/sprites/raid/twin_paw_death_7.png"
+    },
+    {
+      "id": "twin_paw_death_8",
+      "path": "assets/sprites/raid/twin_paw_death_8.png"
+    },
+    {
+      "id": "twin_paw_death_9",
+      "path": "assets/sprites/raid/twin_paw_death_9.png"
+    },
+    {
+      "id": "twin_paw_death_10",
+      "path": "assets/sprites/raid/twin_paw_death_10.png"
+    },
+    {
+      "id": "twin_paw_death_11",
+      "path": "assets/sprites/raid/twin_paw_death_11.png"
+    },
+    {
+      "id": "twin_paw_death_12",
+      "path": "assets/sprites/raid/twin_paw_death_12.png"
     }
   ]
 }

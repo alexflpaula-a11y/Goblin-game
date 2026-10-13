@@ -155,7 +155,9 @@ js/
   market.js         mercado: vender e comprar por ouro
   inventory.js      armazém: catálogo de itens, espaços, equipar/desequipar
   abilities.js      catálogo de habilidades (3 espaços por goblin)
-  raid.js           balão, mapa das ilhas, exploração e patrulhas
+  raid.js           balão, mapa das ilhas, exploração, caça e patrulhas
+  creatures.js      quadros das animações de lobo e gêmeos (gerado, não editar)
+  passage.js        passagem em túnel entre a ilha e a sala de batalha
   battle.js         combate por turnos (ataque normal)
   gear.js           sprites do goblin conforme o que ELE vestiu (Avaritia/ferro)
   ui.js             UI imediata no canvas + visual rústico goblin
@@ -194,6 +196,7 @@ python3 tools/gen_sprites.py               # (re)gera a pixel art de prédios e 
 python3 tools/gen_icons.py                 # (re)gera ícones 16×16 de itens/habilidades
 python3 tools/gen_goblin_variations.py     # extrai as 45 variações em lotes de 5
 python3 tools/unbuild.py            # extrai a fonte de volta a partir do build
+/tmp/pv/bin/python tools/expand_wolf_frames.py   # gera os quadros de lobos/gêmeos (requer Pillow)
 bash    tools/test.sh               # roda as 7 suítes de teste
 ```
 
@@ -319,5 +322,32 @@ Padrão obrigatório para novos itens:
 - Botão de saída e retorno ao balão pedem confirmação Sim/Não, pausando a
   expedição. Não fecha o aviso e permite continuar sem reabri-lo automaticamente.
 
+### Animações fluidas, caça e passagem (13/10/2026)
+
+- Lobos e Gêmeos da Guerra têm mais quadros: lobo com 10 em repouso, 16 andando,
+  21 atacando, 33 em dano e 13 na queda; Mandíbula e Patas têm 10/16/17/5/13 e
+  8/16/17/5/13. Os quadros novos são intermediários entre as poses da arte-fonte
+  (união de silhueta, sem ruído de dither), com os pés ancorados na linha do
+  repouso. Isso corrige a "decolagem" da Mandíbula no ataque. A duração total de
+  cada animação foi mantida, então a velocidade geral não muda.
+- A arte-fonte desses quadros é `art-source/wolves-base/` (cópia dos quadros
+  anteriores). `tools/expand_wolf_frames.py` gera `assets/sprites/raid/wolf_*`,
+  `twin_jaw_*` e `twin_paw_*`, atualiza o manifest e recria `js/creatures.js`.
+  Não há mais dependência de `rework_creatures.py` para lobos: rodar esse script
+  sobrescreve os quadros expandidos e não deve ser usado para eles.
+- Ataque do lobo mapeia a animação linearmente sobre a janela de contato, então
+  o movimento não trava perto do alvo. Goblins mantêm o ritmo anterior.
+- Caça: o grupo passa a perseguir só acima de 30 px do animal e golpeia até 30 px,
+  com histerese para não alternar ataque↔andar a cada quadro. A fuga escolhe
+  trechos caminháveis de 64/40 px e, encurralado, tenta 16 direções de 28 px.
+  Ao fugir, o animal anda (não fica parado) e se redireciona após 0,2 s parado.
+  Grupos que tocam uma toca ou covil disparam a batalha como antes; isso não é
+  travamento de caça.
+- Passagem: ao entrar numa toca ou covil, o grupo caminha por um túnel
+  (`bg_den_passage.png`, ~3,4 s, com zoom em direção ao fundo) antes da sala de
+  batalha. Toque pula a passagem após 0,6 s. Combates fora de tocas e covil seguem direto.
+- Os pés de todos os quadros de lobo ficam na mesma linha do repouso, então o
+  lobo não flutua nem "decola" durante o ataque ou a queda.
+
 `python3 tools/rework_creatures.py` reproduz as correções a partir das imagens
-originais preservadas; não altera equipamento ou a armadura Avaritia.
+originais preservadas (equipamento e armadura Avaritia não são afetados); para lobos use `expand_wolf_frames.py`, como descrito acima.
