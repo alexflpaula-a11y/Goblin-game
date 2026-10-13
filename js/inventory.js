@@ -32,6 +32,7 @@ const EQUIP_SLOTS = [
 // Catálogo de itens (à venda no Mercado, guardados no Armazém).
 // `skin` = prefixo dos sprites do goblin vestindo a peça (gear.js).
 const ITEMS = [
+  { id: 'manoplas_lobo', slot: 'arma_primaria', slots: ['arma_primaria', 'arma_secundaria'], ground: 'drop_manoplas_lobo', icon: 'item_manoplas_lobo', price: 200, lootOnly: true },
   // conjunto AVARITIA (peças raras — as únicas com skin completa em combos)
   { id: 'capacete_avaritia', slot: 'capacete', icon: 'av_cap_icon', price: 150 },
   { id: 'peitoral_avaritia', slot: 'peitoral', icon: 'av_pei_icon', price: 120 },
@@ -51,6 +52,10 @@ const ITEMS = [
   { id: 'escudo_madeira', slot: 'arma_secundaria', icon: 'item_escudo_madeira', price: 55 },
 ];
 
+for (const item of ITEMS) {
+  if (!item.id.includes('avaritia')) item.ground = 'drop_' + item.id;
+}
+
 const byId = (id) => ITEMS.find((i) => i.id === id) || null;
 
 /** Preço-base (balance.json `inventory.prices` pode sobrescrever). */
@@ -66,7 +71,7 @@ function slotTypeOf(slotKey) {
 
 /** O item serve nesse espaço do boneco? */
 function accepts(slotKey, item) {
-  return !!item && slotTypeOf(slotKey) === item.slot;
+  return !!item && (item.slots ? item.slots.includes(slotKey) : slotTypeOf(slotKey) === item.slot);
 }
 
 /** Nome traduzido do espaço ('anel1' → "Anel I"). */
@@ -85,6 +90,13 @@ function itemsForSlot(village, slotKey) {
     .filter((i) => i.have > 0);
 }
 
+/** Todos os equipamentos guardados no armazém, na ordem do catálogo. */
+function storedItems(village) {
+  return ITEMS
+    .map((i) => ({ ...i, have: village.items?.[i.id] || 0 }))
+    .filter((i) => i.have > 0);
+}
+
 /**
  * Equipa um item do armazém num espaço do goblin.
  * O que estava no espaço volta para o armazém. Retorna true se deu.
@@ -95,10 +107,11 @@ function equip(village, goblin, slotKey, itemId) {
   if ((village.items?.[itemId] || 0) <= 0) return false;
 
   goblin.equip = goblin.equip || {};
-  const old = goblin.equip[slotKey];
+  const slots = item.slots || [slotKey];
+  // Evict all linked slots atomically; a two-handed item returns only once.
+  for (const key of slots) if (goblin.equip[key]) unequip(village, goblin, key);
   village.takeItem(itemId, 1);
-  if (old) village.addItem(old, 1);   // troca direta: antigo volta pro armazém
-  goblin.equip[slotKey] = itemId;
+  for (const key of slots) goblin.equip[key] = itemId;
   return true;
 }
 
@@ -109,7 +122,8 @@ function equip(village, goblin, slotKey, itemId) {
 function unequip(village, goblin, slotKey) {
   const cur = goblin.equip?.[slotKey];
   if (!cur) return null;
-  delete goblin.equip[slotKey];
+  const slots = byId(cur)?.slots || [slotKey];
+  for (const key of slots) if (goblin.equip[key] === cur) delete goblin.equip[key];
   village.addItem(cur, 1);
   return cur;
 }
@@ -122,5 +136,5 @@ function equippedCount(goblin) {
 module.exports = {
   SLOT_TYPES, EQUIP_SLOTS, ITEMS,
   byId, priceOf, slotTypeOf, accepts, slotName,
-  itemsForSlot, equip, unequip, equippedCount,
+  itemsForSlot, storedItems, equip, unequip, equippedCount,
 };

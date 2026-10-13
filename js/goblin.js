@@ -69,7 +69,7 @@ class Goblin {
       velocidade: 1, precisao: 1, potencialEvolucao: 1,
       hp: null, mp: null,
       equip: {},   // { capacete: 'capacete_ferro', anel1: 'anel_rubi', ... }
-      skills: [],  // [ 'investida', 'golpe_brutal' ] (2 espaços)
+      skills: [],  // [ 'investida', 'golpe_brutal', null ] (3 espaços)
       // tarefa persistente escolhida na Área/prédios dos Goblins:
       // null | wood | stone | food | builder | cook
       assignment: null,

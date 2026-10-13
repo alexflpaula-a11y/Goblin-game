@@ -154,7 +154,9 @@ js/
   cooking.js        receitas, pratos que curam
   market.js         mercado: vender e comprar por ouro
   inventory.js      armazém: catálogo de itens, espaços, equipar/desequipar
-  abilities.js      catálogo de habilidades (2 espaços por goblin)
+  abilities.js      catálogo de habilidades (3 espaços por goblin)
+  raid.js           balão, mapa das ilhas, exploração e patrulhas
+  battle.js         combate por turnos (ataque normal)
   gear.js           sprites do goblin conforme o que ELE vestiu (Avaritia/ferro)
   ui.js             UI imediata no canvas + visual rústico goblin
   assetLoader.js    sprites reais ou placeholder automático
@@ -235,4 +237,87 @@ em `js/save.js`; o sistema (save/load/autosave a cada 10s) continua intacto.
 
 **Etapa 1.7 — Armazém & Inventário:** o **Armazém** (vila nv 2, melhorável: 16/24/32 espaços) abre o inventário da vila com todos os recursos + despensa numa área e os **itens de equipamento em slots** na outra. 13 equipamentos (sem status por enquanto): conjunto Avaritia (peitoral 120, capacete 150, calça 90 ouro), conjunto de ferro (capacete 45, peitoral 60, calça 40), botas de couro, anel de cobre/rubi, colar de presas, espada, clava e escudo. A interface de equipar tem **9 espaços rodando o goblin** (capacete, peitoral, botas, calça, 2 anéis, arma primária, arma secundária e colar) + aba **Alimentos** (alimentar goblins) + aba **Habilidades** (2 espaços por goblin, por especialidade + genéricas). Cada goblin veste o que quiser — as peças Avaritia e o peitoral de ferro mudam o sprite individualmente.
 
-**A seguir:** Fase 2 (Ferraria, Altar, Bazar) → Fase 3 (combate por turnos — quando os equipamentos ganham status). Roadmap completo em [`docs/planejamento-jogo-gnomos.md`](docs/planejamento-jogo-gnomos.md).
+**Combate (início da Fase 3):** no canto da ilha há um **balão de ar quente abandonado**. Consertado, o botão 🎈 abre o mapa do arquipélago (ilhas em linha no mar, arraste para o lado). Em cada ilha inimiga o grupo de até **4 goblins** anda em formação; patrulhas de 4 alertam a 6 blocos (`!`) e se confundem (`?`) ao perder o rastro. Estruturas no centro dão **ouro + gemas goblinéias**; o Chefe corre atrás se você tentar destruí-las. Encostar num grupo ou no Chefe abre uma **batalha por turnos** (por enquanto só ataque normal — 3 espaços de habilidade já existem, mas entram depois).
+
+**A seguir:** habilidades na batalha, status nos equipamentos, Ferraria/Altar/Bazar. Roadmap completo em [`docs/planejamento-jogo-gnomos.md`](docs/planejamento-jogo-gnomos.md).
+
+### Ilha das Presas — tocas e Gêmeos da Guerra
+
+- Expedição: até 8 goblins; escolha até 4 antes de cada encontro. No mapa,
+  somente o primeiro goblin vivo representa o grupo. Os quatro escolhidos
+  permanecem nas três ondas, sem cura automática entre elas.
+- Madeira/pedra: 30/24 ciclos, como na vila. Cada goblin vivo soma sua taxa de
+  trabalho, usando o mesmo bônus de força/velocidade da ilha normal.
+- Presas: sem patrulhas ou vila central. Seis pequenas tocas têm 1/2/2 lobos;
+  a toca central tem 4/4/2 (os dois últimos são os Gêmeos da Guerra).
+- Mandíbula aplica sangramento por três ações de ataque: cada ação concluída
+  tira 10% da vida máxima (arredondado para cima), mesmo se errar. O combo das
+  manoplas conta uma vez. Um turno perdido por atordoamento não causa esse dano.
+  Patas continua atordoando por um turno. Acerto normal agora fica entre 88–99%.
+- As ondas preservam a vida do grupo. Os goblins marcham com o cenário
+  rolando e os ataques se aproximam do alvo antes do impacto.
+- Artes: `bg_den`, `bg_den_twins`, `prop_den_lair`, `twin_jaw_*`, `twin_paw_*`.
+  `tools/rework_creatures.py` redesenha os 62 quadros de cada lobo com a mesma
+  estrutura, paleta e pontos de armadura. Corrida dos animais tem oito quadros.
+- Prévia direta de combate: `?demo=battle`; chefes: `?demo=twins`.
+
+### Baús de toca e padrão de equipamentos
+
+Baús não são mais espalhados pelas ilhas. A última baixa da última onda faz
+surgir um baú: madeira desgastada nas tocas, ossos e tranca de caveira na toca
+central. Tocar no baú revela a fila de recompensas numa faixa azul; tocar fora
+dele pula a apresentação. Após revelar, qualquer toque sai da toca. Os recursos
+são concedidos exatamente uma vez, inclusive ao pular.
+
+As Manoplas do Lobo são exclusivas do baú central e ocupam as duas mãos com
+uma única unidade. Substituir qualquer mão remove o par inteiro. O ataque faz
+dois testes de acerto; apenas dois acertos atordoam o alvo vivo por um turno.
+
+Padrão obrigatório para novos itens:
+- Arte de chão separada, flutuação e brilho azul; ícone de inventário separado.
+- Só peitoral, capacete, calças e as duas mãos alteram a skin. Acessórios não.
+- Peças visíveis usam camadas opacas alinhadas quadro a quadro em todas as
+  animações. Roupas permanecem no cadáver; armas saem da skin e caem no chão.
+- Armas caídas são recolhidas ao armazém ao encerrar/sair do combate, sem duplicar
+  itens de duas mãos. Não são reequipadas automaticamente.
+- `tools/rework_equipment.py` gera os novos ícones, versões de chão e overlays
+  opacos não-Avaritia. Os arquivos de Avaritia são preservados. `?demo=chest` e `?demo=chest_loot` mostram a cena de recompensa.
+
+### Conclusão, repetição e caça
+
+- O mapa marca `✓ OK` somente após derrotar todas as tocas (incluindo a central)
+  **e sair da ilha**. A ilha permanece acessível. Como o salvamento continua
+  desativado durante desenvolvimento, a marca dura a sessão atual.
+- Nas revisitas de uma ilha concluída, batalhas/baús só rendem ouro e runas
+  goblins; não repetem equipamentos especiais, materiais de baú ou XP. Coleta
+  de árvores, pedras e caça permanecem disponíveis.
+- Árvores têm 30 unidades; pedras, 24. A velocidade de trabalho continua a mesma.
+- Animais têm vida (javali 18, cervo 12, lebre 8), fogem ao detectar o líder a
+  110 pixels e correm a 30 px/s contra pelo menos 72 px/s do grupo. Caça dá
+  `meat` (carne), separado de `food` da fazenda. Carne fica no armazém, ainda
+  sem receita própria. Nenhuma caça alerta patrulhas. Colmeias foram removidas.
+- Cavernas: parede só no topo, campo de batalha no chão e personagens maiores,
+  mais próximos e com sombra. Não há mais HUD da vila sobre a cena de batalha.
+
+### Correções de expedição e animação (12/10/2026)
+
+- Lobos usam novamente a arte original preservada em `art-source/wolves-original`
+  (origem: `72e94b2`), sem o redesenho procedural. Ataques foram ordenados,
+  o fundo branco externo da mandíbula foi removido e as mortes usam a queda
+  original com patas dobradas e pose final estável. O combate aguarda a queda
+  antes de trocar de onda ou abrir a recompensa.
+- Animais mantêm a arte original, com patas articuladas individualmente em oito
+  quadros. A fuga busca trechos caminháveis e tem margem para não inverter a
+  direção a cada instante. Não há mais balanço vertical do sprite inteiro.
+- Madeira/pedra/carne aparecem em cartões com ícone. Cada árvore e pedra conta
+  o total já extraído daquela fonte, inclusive ao interromper e retomar a coleta.
+- Tocas e toca central derrotadas ficam guardadas por ilha entre expedições
+  parciais, bloqueando novas lutas e manoplas duplicadas. Ao concluir tudo e
+  confirmar a saída, a ilha recebe OK; revisitas completas continuam limitadas
+  às recompensas de repetição. Como o salvamento está desativado durante o
+  desenvolvimento, esse progresso vale durante a sessão, não após recarregar.
+- Botão de saída e retorno ao balão pedem confirmação Sim/Não, pausando a
+  expedição. Não fecha o aviso e permite continuar sem reabri-lo automaticamente.
+
+`python3 tools/rework_creatures.py` reproduz as correções a partir das imagens
+originais preservadas; não altera equipamento ou a armadura Avaritia.

@@ -67,7 +67,8 @@ ok(cat.filter(i => i.kind === 'gear').length === 0, 'sem Armazém: nada de equip
 v.structures.push({ type: 'armazem', level: 1, x: 520, y: 520 });
 cat = market.catalog(v, 'buy');
 const gears = cat.filter(i => i.kind === 'gear');
-ok(gears.length === inv.ITEMS.length, `com Armazém: ${inv.ITEMS.length} equipamentos à venda`);
+ok(gears.length === inv.ITEMS.filter(i => !i.lootOnly).length, 'mercado vende apenas equipamentos não exclusivos');
+ok(!gears.some(i => i.key === 'manoplas_lobo'), 'manoplas são exclusivas do baú de ossos');
 ok(market.catalog(v, 'sell').some(i => i.kind === 'gear'), 'equipamentos agora podem ser revendidos');
 ok(!gears.some(i => i.price <= 0), 'todos com preço ok');
 ok(inv.EQUIP_SLOTS.length === 9, 'boneco tem 9 espaços de equipamento, sem runa');
@@ -193,7 +194,7 @@ ok(v.items.espada_ferro === 1, 'item de volta ao armazém (o do corpo; o do esto
 ok(!g0.equip.arma_primaria, 'espaço de arma vazio agora');
 
 // ---------- habilidades ----------
-ok(abilities.SKILL_SLOTS === 2, '2 espaços de habilidade por goblin');
+ok(abilities.SKILL_SLOTS === 3, '3 espaços de habilidade por goblin');
 const warrior = new Goblin({ name: 'Thrak', specialty: 'warrior' });
 const mage = new Goblin({ name: 'Zuggut', specialty: 'mage' });
 ok(abilities.canEquip(warrior, abilities.byId('golpe_brutal')), 'guerreiro usa Golpe Brutal');

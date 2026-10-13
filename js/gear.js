@@ -96,6 +96,7 @@ registerPiece('capacete_ferro', 'ferro_cap', LAYER.capacete);
 registerPiece('calca_ferro', 'ferro_cal', LAYER.calca);
 
 // Armas — únicas peças de arma que aparecem no goblin (primária e secundária).
+registerPiece('manoplas_lobo', 'wpn_manoplas', LAYER.arma_primaria);
 registerPiece('espada_ferro', 'wpn_espada', LAYER.arma_primaria);
 registerPiece('clava_goblin', 'wpn_clava', LAYER.arma_primaria);
 registerPiece('escudo_madeira', 'wpn_escudo', LAYER.arma_secundaria);
@@ -115,7 +116,8 @@ registerCombo(['peitoral_avaritia', 'calca_avaritia'], 'av_pei_cal');
  */
 function layersForEquip(equip) {
   if (!equip) return [];
-  const equipped = new Set(Object.values(equip).filter(Boolean));
+  const visibleSlots = new Set(['peitoral', 'capacete', 'calca', 'arma_primaria', 'arma_secundaria']);
+  const equipped = new Set(Object.entries(equip).filter(([slot, id]) => visibleSlots.has(slot) && id).map(([, id]) => id));
   const used = new Set();
   const layers = []; // { overlay, z }
 
@@ -156,7 +158,9 @@ function spriteForGoblin(goblin, anim, frame) {
     ? `variant_${goblin.variation}_${anim}_${frame}`
     : `goblin_${anim}_${frame}`;
 
-  const overlays = goblin?.equip ? layersForEquip(goblin.equip) : [];
+  const visibleEquip = { ...(goblin?.equip || {}) };
+  if (anim === 'death') { delete visibleEquip.arma_primaria; delete visibleEquip.arma_secundaria; }
+  const overlays = layersForEquip(visibleEquip);
   if (!overlays.length) return base;
 
   // Atalho: uma única peça, goblin sem variação e existe sprite completo
