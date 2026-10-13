@@ -298,3 +298,26 @@ Padrão obrigatório para novos itens:
   sem receita própria. Nenhuma caça alerta patrulhas. Colmeias foram removidas.
 - Cavernas: parede só no topo, campo de batalha no chão e personagens maiores,
   mais próximos e com sombra. Não há mais HUD da vila sobre a cena de batalha.
+
+### Correções de expedição e animação (12/10/2026)
+
+- Lobos usam novamente a arte original preservada em `art-source/wolves-original`
+  (origem: `72e94b2`), sem o redesenho procedural. Ataques foram ordenados,
+  o fundo branco externo da mandíbula foi removido e as mortes usam a queda
+  original com patas dobradas e pose final estável. O combate aguarda a queda
+  antes de trocar de onda ou abrir a recompensa.
+- Animais mantêm a arte original, com patas articuladas individualmente em oito
+  quadros. A fuga busca trechos caminháveis e tem margem para não inverter a
+  direção a cada instante. Não há mais balanço vertical do sprite inteiro.
+- Madeira/pedra/carne aparecem em cartões com ícone. Cada árvore e pedra conta
+  o total já extraído daquela fonte, inclusive ao interromper e retomar a coleta.
+- Tocas e toca central derrotadas ficam guardadas por ilha entre expedições
+  parciais, bloqueando novas lutas e manoplas duplicadas. Ao concluir tudo e
+  confirmar a saída, a ilha recebe OK; revisitas completas continuam limitadas
+  às recompensas de repetição. Como o salvamento está desativado durante o
+  desenvolvimento, esse progresso vale durante a sessão, não após recarregar.
+- Botão de saída e retorno ao balão pedem confirmação Sim/Não, pausando a
+  expedição. Não fecha o aviso e permite continuar sem reabri-lo automaticamente.
+
+`python3 tools/rework_creatures.py` reproduz as correções a partir das imagens
+originais preservadas; não altera equipamento ou a armadura Avaritia.

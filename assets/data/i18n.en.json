@@ -486,5 +486,10 @@
   "ui.chest_skip": "Tap outside to skip and collect everything",
   "ui.chest_loot": "Den treasure",
   "ui.chest_exit": "Tap anywhere to leave the den",
-  "res.meat": "meat"
+  "res.meat": "meat",
+  "ui.raid_exit_title": "Return to village",
+  "ui.raid_exit_question": "Do you really want to leave the island?",
+  "ui.raid_exit_progress": "Cleared dens will remain defeated.",
+  "ui.harvest_collecting": "COLLECTING",
+  "ui.harvest_done": "HARVEST COMPLETE"
 }

@@ -486,5 +486,10 @@
   "ui.chest_skip": "Toque fora do baú para pular e receber tudo",
   "ui.chest_loot": "Tesouros da toca",
   "ui.chest_exit": "Toque na tela para sair da toca",
-  "res.meat": "carne"
+  "res.meat": "carne",
+  "ui.raid_exit_title": "Voltar à vila",
+  "ui.raid_exit_question": "Você realmente quer sair da ilha?",
+  "ui.raid_exit_progress": "As tocas vencidas continuarão derrotadas.",
+  "ui.harvest_collecting": "COLETANDO",
+  "ui.harvest_done": "COLETA CONCLUÍDA"
 }

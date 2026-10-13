@@ -1216,10 +1216,10 @@ for(let turn=0;turn<3;turn++) {
   bleedTest.current=bf;bleedTest.phase='ready';bleedTest.chooseTarget(0);bleedTest.commandAttack();
   bleedTest.update(0.4);
   check('sangramento aguarda ataque completo '+turn,bf.hp===100-turn*10);
-  bleedTest.update(1.1);
+  bleedTest.update(1.7);
   check('perde 10% da vida máxima por ataque, incluindo erro '+turn,bf.hp===90-turn*10 && bf.bleed===2-turn);
 }
-bleedTest.current=bf;bleedTest.phase='ready';bleedTest.chooseTarget(0);bleedTest.commandAttack();bleedTest.update(1.5);
+bleedTest.current=bf;bleedTest.phase='ready';bleedTest.chooseTarget(0);bleedTest.commandAttack();bleedTest.update(2.1);
 check('sangramento termina após três ações, combo não duplica dano',bf.hp===70 && !bf.bleed);
 const hpRate=req('battle.js').hitChance({precisao:3},{velocidade:3});
 check('chance de acerto aumentou e mantém limites', hpRate>0.90 && hpRate<1);
@@ -1238,6 +1238,29 @@ const huntEvents=huntMap.takeEvent();
 check('goblin alcança animal mais lento e esgota sua vida',!quarry.alive && quarry.hp===0);
 check('caça rende carne sem alerta',huntEvents.some((e)=>e.kind==='meat') && !huntEvents.some((e)=>e.type==='scream'));
 check('recursos naturais seguem disponíveis na repetição',new raid.RaidIsland(raid.ISLANDS[1],party,7).loot.some((n)=>n.type==='rock' && n.stock===24));
+
+// Cumulative feedback survives interrupted work, without merging different trees.
+const { HarvestFeedback }=req('raidFeedback.js');
+const feedback=new HarvestFeedback();
+feedback.add({kind:'wood',sourceId:'tree1',amount:1,total:1,max:30});
+feedback.add({kind:'wood',sourceId:'tree1',amount:1,total:2,max:30});
+check('uma árvore usa um cartão que sobe de 1 para 2',feedback.cards.length===1 && feedback.cards[0].total===2);
+feedback.update(4);feedback.add({kind:'wood',sourceId:'tree1',amount:1,total:3,max:30});
+check('retomar árvore preserva total após desaparecer o cartão',feedback.cards[0].total===3);
+feedback.add({kind:'wood',sourceId:'tree2',amount:1,total:1,max:30});
+check('outra árvore começa seu próprio contador',feedback.cards.length===2 && feedback.cards[0].total===1);
+feedback.add({kind:'stone',sourceId:'rock1',amount:1,total:24,max:24,done:true});
+check('última pedra conclui a barra',feedback.cards[0].done && feedback.cards[0].total===24);
+feedback.add({kind:'meat',sourceId:'animal1',amount:4,total:4,done:true});
+check('carne usa cartão de coleta finalizada',feedback.cards.length===3 && feedback.cards[0].total===4 && feedback.cards[0].done);
+const dyingBattle=new Battle({allies:[{hp:100,maxHp:100}],foes:raid.makeWolfPack(1,1)});
+const dying=dyingBattle.foes[0];dying.alive=false;dying.hp=0;dying.anim='death';dying.frame=0;
+dyingBattle._checkEnd();
+check('vitória aguarda animação inteira da queda',!dyingBattle.finished && dyingBattle.phase==='settling');
+dyingBattle.update(1.2);
+check('queda termina no chão antes da vitória',dying.frame===14 && dyingBattle.finished && dyingBattle.result==='win');
+const gait={anim:'walk',frame:0,animT:0};huntMap._tickAnimalAnim(gait,0.35);
+check('animação animal preserva tempo entre quadros',gait.frame===3 && Math.abs(gait.animT-0.05)<1e-8);
 
 const gemV = new Village();
 gemV.add('goblin_gems', 4);

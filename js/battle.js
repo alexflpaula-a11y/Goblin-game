@@ -270,6 +270,11 @@ class Battle {
   }
 
   _checkEnd() {
+    if (!this.instant && (!this.living('ally').length || !this.living('foe').length)
+      && [...this.allies, ...this.foes].some((f) => !f.alive && f.anim === 'death' && f.frame < ANIM_FRAMES.death - 1)) {
+      this.phase = 'settling'; // Show the entire fall before a wave/chest replaces it.
+      return true;
+    }
     if (!this.living('ally').length) {
       this.phase = 'lose'; this.finished = true; this.result = 'lose';
       this._syncHp(); this._log('lose'); return true;
@@ -340,6 +345,8 @@ class Battle {
     for (const fx of this.fx) fx.ttl -= dt;
     this.fx = this.fx.filter((fx) => fx.ttl > 0);
 
+    if (this.phase === 'settling') { this._nextTurn(); return; }
+
     if (this.phase === 'advance') {
       this.advanceT = (this.advanceT || 0) + dt;
       const k = Math.min(1, this.advanceT / 1.6);
@@ -390,24 +397,29 @@ class Battle {
       const def = a.def;
       const gap = atk.kind === 'wolf' || def.kind === 'wolf' ? 52 : 30;
       const contactX = def.homeX - Math.sign(def.homeX - atk.homeX) * gap;
+      const strikeAt = this.instant ? 0.42 : 0.54;
+      const secondAt = this.instant ? 0.78 : 1.22;
+      const contactEnd = this.instant ? (a.double ? 1.06 : 0.72) : (a.double ? 1.70 : 1.02);
       let mix = 0;
       if (a.t < 0.34) {
         mix = a.t / 0.34;
         if (atk.anim !== 'walk') { atk.anim = 'walk'; atk.frame = 0; }
-      } else if (a.t < (a.double ? 1.06 : 0.72)) {
+      } else if (a.t < contactEnd) {
         mix = 1;
         if (atk.anim !== 'attack') { atk.anim = 'attack'; atk.frame = 0; atk.animT = 0; }
       } else {
-        mix = Math.max(0, 1 - (a.t - (a.double ? 1.06 : 0.72)) / 0.28);
+        mix = Math.max(0, 1 - (a.t - contactEnd) / 0.28);
         if (atk.alive && atk.anim !== 'walk') { atk.anim = 'walk'; atk.frame = 0; }
       }
+      if (!this.instant && atk.anim === 'attack') atk.frame = Math.min(16, Math.floor(((a.t - 0.34) % 0.68) / 0.04));
       atk.x = atk.homeX + (contactX - atk.homeX) * mix;
       atk.y = atk.homeY + (def.homeY - atk.homeY) * mix;
-      if (a.strikes === 0 && a.t >= 0.42) this._strike();
-      if (a.double && a.strikes === 1 && a.t >= 0.78) {
-        atk.frame = 0; atk.animT = 0; this._strike();
+      if (a.strikes === 0 && a.t >= strikeAt) this._strike();
+      if (a.double && a.strikes === 1 && a.t >= secondAt) {
+        if (this.instant) { atk.frame = 0; atk.animT = 0; }
+        this._strike();
       }
-      if (a.t >= (this.instant ? 0.72 : a.double ? 1.36 : 1.02)) {
+      if (a.t >= (this.instant ? 0.72 : contactEnd + 0.30)) {
         atk.x = atk.homeX; atk.y = atk.homeY;
         if (atk.alive) { atk.anim = 'idle'; atk.frame = 0; }
         this._bleedAfterAttack(atk);
@@ -421,18 +433,17 @@ class Battle {
     const frames = ANIM_FRAMES[f.anim] || 5;
     const step = f.anim === 'idle' ? 0.18 : f.anim === 'walk' ? 0.10 : 0.07;
     f.animT += dt;
+    const advance = Math.floor(f.animT / step);
+    if (!advance) return;
+    f.animT -= advance * step;
     if (f.anim === 'death') {
-      if (f.frame < frames - 1 && f.animT > step) {
-        f.animT = 0; f.frame += 1;
-      }
+      f.frame = Math.min(frames - 1, f.frame + advance);
       return;
     }
-    if (f.animT > step) {
-      f.animT = 0;
-      f.frame = (f.frame + 1) % frames;
-      if (f.anim === 'hurt' && f.frame === 0) f.anim = f.alive ? 'idle' : 'death';
-      if (f.anim === 'attack' && f.frame === 0 && this.phase !== 'anim') f.anim = 'idle';
-    }
+    const complete = f.frame + advance >= frames;
+    f.frame = (f.frame + advance) % frames;
+    if (f.anim === 'hurt' && complete) f.anim = f.alive ? 'idle' : 'death';
+    if (f.anim === 'attack' && complete && this.phase !== 'anim') f.anim = 'idle';
   }
 
   _log(kind, params) {

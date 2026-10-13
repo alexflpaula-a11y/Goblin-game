@@ -516,7 +516,7 @@ function drawOreSpike(ctx, x, y) {
 
 function drawAnimal(ctx, a, time) {
   if (!a || (!a.alive && !(a.corpseT > 0))) return;
-  const bob = a.alive ? Math.sin(((time || 0) * 5) + a.x) * (a.anim === 'walk' ? 1.2 : 0.4) : 0;
+  const bob = 0; // Leg sprites animate the gait; no whole-body bob disguising a frozen animal.
   ctx.save();
   ctx.translate(a.x, a.y + bob);
   ctx.scale(a.face || 1, 1);
@@ -749,7 +749,7 @@ class RaidIsland {
       for (let i = 0; i < 6; i++) {
         const spot = this._grassSpot(200, 780, placed, 110);
         if (!spot) continue;
-        const den = { x: spot.x, y: spot.y, kind: 'den', type: 'den', cleared: false };
+        const den = { id: 'den_' + i, x: spot.x, y: spot.y, kind: 'den', type: 'den', cleared: false };
         this.dens.push(den);
         placed.push(den);
       }
@@ -1015,6 +1015,19 @@ class RaidIsland {
     }
   }
 
+  encounterProgress() {
+    return { seed: this.seed, dens: this.dens.filter((d) => d.cleared).map((d) => d.id),
+      lair: !!this.lair?.cleared };
+  }
+
+  restoreEncounters(progress) {
+    if (!progress || progress.seed !== this.seed) return;
+    const cleared = new Set(progress.dens || []);
+    for (const den of this.dens) den.cleared = cleared.has(den.id);
+    if (this.lair) this.lair.cleared = !!progress.lair;
+    this.cleared = this.allEncountersCleared();
+  }
+
   allEncountersCleared() {
     return this._isFangs() ? !!this.lair?.cleared && this.dens.length > 0 && this.dens.every((d) => d.cleared)
       : !this.boss?.alive && this.patrols.every((p) => !p.alive);
@@ -1075,14 +1088,14 @@ class RaidIsland {
       [g.x - uy * step * 0.75, g.y + ux * step * 0.75],
     ];
     for (const [nx, ny] of tries) {
-      if (this.walkable(nx, ny)) {
+      if (Math.hypot(nx - g.x, ny - g.y) > 0.0001 && this.walkable(nx, ny)) {
         g.x = nx; g.y = ny;
         g.face = dx >= 0 ? 1 : -1;
         g.anim = 'walk';
         return false;
       }
     }
-    g.anim = 'walk';
+    g.anim = 'idle';
     return false;
   }
 
@@ -1118,7 +1131,8 @@ class RaidIsland {
         while (p.job && p.job.t + 1e-9 >= period && !n.taken) {
           p.job.t = Math.max(0, p.job.t - period);
           n.stock = Math.max(0, (n.stock || 1) - 1);
-          this.events.push({ type: 'loot', kind, amount: 1 });
+          this.events.push({ type: 'loot', kind, amount: 1,
+            sourceId: 'node:' + n.x + ':' + n.y, total: n.max - n.stock, max: n.max, done: n.stock === 0 });
           if (n.stock <= 0) {
             n.taken = true;
             n.hive = false;
@@ -1246,49 +1260,56 @@ class RaidIsland {
     const frames = ANIM_FRAMES[a.anim] || 5;
     const step = a.anim === 'walk' ? 0.10 : a.anim === 'idle' ? 0.18 : 0.07;
     a.animT = (a.animT || 0) + dt;
-    if (a.animT <= step) return;
-    a.animT = 0;
-    if (a.anim === 'death') {
-      if ((a.frame || 0) < frames - 1) a.frame = (a.frame || 0) + 1;
-    } else {
-      a.frame = ((a.frame || 0) + 1) % frames;
+    const advance = Math.floor(a.animT / step);
+    if (!advance) return;
+    a.animT -= advance * step;
+    a.frame = a.anim === 'death' ? Math.min(frames - 1, (a.frame || 0) + advance)
+      : ((a.frame || 0) + advance) % frames;
+  }
+
+  _animalRoute(a, away) {
+    const angle = away ? Math.atan2(a.y - this.party.y, a.x - this.party.x) : this.rng() * Math.PI * 2;
+    // Search along a clear segment, not just a walkable end point across water.
+    for (const turn of [0, 0.5, -0.5, 1, -1, 1.6, -1.6, 2.4, -2.4, Math.PI]) {
+      const distance = away ? 64 : 26 + this.rng() * 28;
+      const dx = Math.cos(angle + turn) * distance, dy = Math.sin(angle + turn) * distance;
+      if (![0.25, 0.5, 0.75, 1].every((t) => this.walkable(a.x + dx * t, a.y + dy * t))) continue;
+      a.wx = a.x + dx; a.wy = a.y + dy;
+      return true;
     }
+    a.wx = a.x; a.wy = a.y;
+    return false;
   }
 
   _updateAnimals(dt) {
     for (const a of this.animals) {
       if (!a.alive) {
         if ((a.corpseT || 0) > 0) {
-          a.corpseT -= dt;
-          a.anim = 'death';
-          this._tickAnimalAnim(a, dt);
+          a.corpseT -= dt; a.anim = 'death'; this._tickAnimalAnim(a, dt);
         }
         continue;
       }
       a.hurtT = Math.max(0, (a.hurtT || 0) - dt);
-      const dx = a.x - this.party.x, dy = a.y - this.party.y;
-      const dist = Math.hypot(dx, dy);
-      if (dist < 110) {
-        const len = dist || 1;
-        const tx = a.x + (dx || 1) / len * 70, ty = a.y + dy / len * 70;
-        a.fleeing = true;
-        this._stepToward(a, tx, ty, 30, dt);
-        this._tickAnimalAnim(a, dt); continue;
+      const dist = Math.hypot(a.x - this.party.x, a.y - this.party.y);
+      if (dist < 110 && !a.fleeing) { a.fleeing = true; a.routeT = 0; }
+      if (a.fleeing && dist > 170) {
+        a.fleeing = false; a.wx = a.x; a.wy = a.y; a.wanderT = 0.8;
       }
-      a.fleeing = false;
+      a.routeT = (a.routeT || 0) - dt;
       a.wanderT -= dt;
-      if (a.wanderT <= 0) {
-        a.wanderT = 1.1 + this.rng() * 2.4;
-        const ang = this.rng() * Math.PI * 2;
-        const r = 16 + this.rng() * 26;
-        const nx = a.homeX + Math.cos(ang) * r;
-        const ny = a.homeY + Math.sin(ang) * r;
-        if (this.walkable(nx, ny) && !this.inCity(nx, ny)) {
-          a.wx = nx; a.wy = ny;
-        }
+      const arrived = Math.hypot(a.wx - a.x, a.wy - a.y) < 2;
+      if (a.fleeing && (a.routeT <= 0 || arrived)) {
+        this._animalRoute(a, true); a.routeT = 0.65;
+      } else if (!a.fleeing && a.wanderT <= 0) {
+        this._animalRoute(a, false); a.wanderT = 2.4 + this.rng() * 1.6;
       }
-      const arrived = this._stepToward(a, a.wx, a.wy, 22, dt);
-      if (arrived) a.anim = 'idle';
+      const ox = a.x, oy = a.y;
+      this._stepToward(a, a.wx, a.wy, a.fleeing ? 30 : 18, dt);
+      const moving = Math.hypot(a.x - ox, a.y - oy) > 0.001;
+      const anim = moving ? 'walk' : 'idle';
+      if (a.anim !== anim) { a.frame = 0; a.animT = 0; }
+      a.anim = anim;
+      if (!moving && a.fleeing) a.routeT = 0;
       this._tickAnimalAnim(a, dt);
     }
   }
@@ -1302,7 +1323,7 @@ class RaidIsland {
     this.party.job = null;
     this.party.anim = 'idle';
     const amount = a.kind === 'wolf' ? 5 : a.kind === 'boar' ? 4 : a.kind === 'deer' ? 3 : 2;
-    this.events.push({ type: 'loot', kind: 'meat', amount });
+    this.events.push({ type: 'loot', kind: 'meat', amount, sourceId: 'animal:' + a.homeX + ':' + a.homeY, total: amount, done: true });
 
   }
 

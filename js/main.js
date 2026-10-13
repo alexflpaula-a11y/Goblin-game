@@ -22,6 +22,7 @@ const { Quests } = require('quests.js');
 const cooking = require('cooking.js');
 const market = require('market.js');
 const { Battle, drawBattle } = require('battle.js');
+const { HarvestFeedback, drawHarvestFeedback } = require('raidFeedback.js');
 const { Treasure, drawTreasure } = require('treasure.js');
 const {
   ISLANDS, PARTY_LIMIT, BATTLE_LIMIT, BALLOON_MAX_LEVEL,
@@ -119,6 +120,9 @@ const state = {
   equipScroll: 0,
   homeCam: null,
   clearedIslands: { ...(saved.clearedIslands || {}) },
+  islandProgress: { ...(saved.islandProgress || {}) },
+  raidExitConfirm: false,
+  harvest: new HarvestFeedback(),
 };
 
 // ---------- Mundo / vila / câmera / UI ----------
@@ -300,11 +304,41 @@ function confirmParty() {
   beginLanding(state.pendingIsland, party);
 }
 
+function createExpedition(def, party) {
+  const repeat = !!state.clearedIslands[def.id];
+  const progress = repeat ? null : state.islandProgress[def.id];
+  const raid = new RaidIsland(def, party, progress?.seed);
+  raid.repeat = repeat;
+  if (!repeat) raid.restoreEncounters(progress);
+  state.raidExitConfirm = false;
+  state.harvest = new HarvestFeedback();
+  return raid;
+}
+
+function rememberEncounters() {
+  const raid = state.raid;
+  if (raid && !raid.repeat) state.islandProgress[raid.def.id] = raid.encounterProgress();
+}
+
+function requestRaidExit() {
+  if (!state.raid) return;
+  state.raidExitConfirm = true;
+}
+
+function cancelRaidExit() {
+  state.raidExitConfirm = false;
+  if (state.raid) {
+    state.raid.busy = false;
+    state.raid.leftBalloon = false; // Do not reopen while still beside the balloon.
+    state.raid.party.target = null;
+    state.raid.party.job = null;
+  }
+}
+
 function beginLanding(def, party) {
   if (!def || def.home) return;
   saveHomeCamera();
-  state.raid = new RaidIsland(def, party);
-  state.raid.repeat = !!state.clearedIslands[def.id];
+  state.raid = createExpedition(def, party);
   state.raid.showCityZone = true;
   camera.worldW = state.raid.W;
   camera.worldH = state.raid.H;
@@ -345,8 +379,7 @@ function enterRaid(def) {
     : village.goblins.filter((g) => g.hp > 0).slice(0, PARTY_LIMIT);
   if (!party.length) { toast('toast.need_party'); return; }
   saveHomeCamera();
-  state.raid = new RaidIsland(def, party);
-  state.raid.repeat = !!state.clearedIslands[def.id];
+  state.raid = createExpedition(def, party);
   camera.worldW = state.raid.W;
   camera.worldH = state.raid.H;
   camera.x = state.raid.party.x;
@@ -357,7 +390,12 @@ function enterRaid(def) {
 }
 
 function leaveRaid() {
-  if (state.raid?.allEncountersCleared()) state.clearedIslands[state.raid.def.id] = true;
+  rememberEncounters();
+  if (state.raid?.allEncountersCleared()) {
+    state.clearedIslands[state.raid.def.id] = true;
+    delete state.islandProgress[state.raid.def.id];
+  }
+  state.raidExitConfirm = false;
   state.battle?.recoverWeapons(village);
   state.treasure = null;
   state.battle = null;
@@ -480,6 +518,7 @@ function finishBattle() {
     }
     }
     state.raid?.resolveEncounter(b.source);
+    rememberEncounters();
     if (b.kind === 'boss' || b.kind === 'lair') {
       // Completion is recorded only after ALL dens are cleared and the party leaves.
       toast(b.kind === 'lair' ? 'toast.island_twins' : 'toast.island_cleared');
@@ -512,16 +551,15 @@ function handleRaidEvents(events) {
     else if (ev.type === 'scream') toast('toast.raid_scream');
     else if (ev.type === 'boss_alert') toast('toast.boss_alert');
     else if (ev.type === 'return_home') {
-      toast('toast.raid_home');
-      leaveRaid();
+      requestRaidExit();
       return;
     } else if (ev.type === 'loot') {
       if (ev.kind === 'wood') {
         village.add('wood', ev.amount);
-        toast('toast.raid_wood', { n: ev.amount });
+        state.harvest.add(ev);
       } else if (ev.kind === 'stone') {
         village.add('stone', ev.amount);
-        toast('toast.raid_stone', { n: ev.amount });
+        state.harvest.add(ev);
       } else if (ev.kind === 'chest') {
         village.add('gold', ev.amount);
         if (ev.item) {
@@ -540,7 +578,7 @@ function handleRaidEvents(events) {
         toast('toast.raid_building', { gold: ev.rewards.gold, gems: ev.rewards.goblin_gems });
       } else if (ev.kind === 'meat') {
         village.add('meat', ev.amount);
-        toast('toast.raid_meat', { n: ev.amount });
+        state.harvest.add(ev);
       }
     }
   }
@@ -1343,9 +1381,10 @@ function routeTap(id) {
       restoreHomeCamera();
       state.screen = 'party';
       break;
-    case 'raid_leave':
-      toast('toast.raid_home');
-      leaveRaid();
+    case 'raid_leave': requestRaidExit(); break;
+    case 'raid_exit_no': cancelRaidExit(); break;
+    case 'raid_exit_yes':
+      if (state.raidExitConfirm) { toast('toast.raid_home'); leaveRaid(); }
       break;
     case 'battle_attack':
       if (!state.battle?.commandAttack()) toast('toast.battle_need_target');
@@ -1756,6 +1795,14 @@ function update(dt) {
   }
 
   if (state.screen === 'raid' && state.raid) {
+    if (state.raidExitConfirm) {
+      if (g.tap) {
+        const hit = ui.hit(g.tap);
+        if (hit === 'raid_exit_yes' || hit === 'raid_exit_no') routeTap(hit);
+      }
+      return;
+    }
+    state.harvest.update(dt);
     if (g.pan) camera.panByScreen(g.pan.dx, g.pan.dy);
     if (g.pinch) camera.zoomAt(g.pinch.mx, g.pinch.my, g.pinch.factor);
     if (g.wheel) camera.zoomAt(g.wheel.x, g.wheel.y, g.wheel.factor);
@@ -1767,8 +1814,7 @@ function update(dt) {
         const w = camera.screenToWorld(cmd.x, cmd.y);
         const hit = state.raid.hitTest(w.x, w.y);
         if (hit?.type === 'balloon') {
-          toast('toast.raid_home');
-          leaveRaid();
+          requestRaidExit();
           return;
         } else if (hit) state.raid.interact(hit);
         else state.raid.movePartyTo(w.x, w.y);
@@ -2027,6 +2073,17 @@ function render(time) {
     drawOverlay(time);
     ui.begin();
     drawRaidHud();
+    drawHarvestFeedback(ctx, ui, state.harvest, i18n);
+    if (state.raidExitConfirm) {
+      ui.begin(); // Only modal buttons receive touches.
+      ctx.fillStyle = 'rgba(4,10,18,0.7)'; ctx.fillRect(0, 0, 640, 360);
+      ui.rusticPanel(142, 100, 356, 174);
+      ui.woodSign(158, 112, 324, 24, i18n.t('ui.raid_exit_title'), 12);
+      ui.text(320, 158, i18n.t('ui.raid_exit_question'), { align: 'center', size: 11, color: '#ffe9a8' });
+      ui.text(320, 180, i18n.t('ui.raid_exit_progress'), { align: 'center', size: 9, color: '#b9dacb' });
+      ui.button('raid_exit_yes', 166, 214, 140, 32, i18n.t('ui.yes'), true);
+      ui.button('raid_exit_no', 334, 214, 140, 32, i18n.t('ui.no'), true, true);
+    }
     return;
   }
 
@@ -3885,6 +3942,7 @@ function currentSave() {
     quests: quests.serialize(),
     balloon: { x: balloon.x, y: balloon.y, repaired: balloon.repaired, level: balloon.level || 0 },
     clearedIslands: state.clearedIslands,
+    islandProgress: state.islandProgress,
   };
 }
 
