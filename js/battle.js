@@ -15,12 +15,12 @@ const inv = require('inventory.js');
 const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 15 };
 
 const ALLY_SPOTS = [
-  { x: 168, y: 188 }, { x: 112, y: 222 },
-  { x: 168, y: 258 }, { x: 112, y: 292 },
+  { x: 205, y: 224 }, { x: 122, y: 248 },
+  { x: 205, y: 288 }, { x: 122, y: 312 },
 ];
 const FOE_SPOTS = [
-  { x: 472, y: 188 }, { x: 528, y: 222 },
-  { x: 472, y: 258 }, { x: 528, y: 292 },
+  { x: 435, y: 224 }, { x: 518, y: 248 },
+  { x: 435, y: 288 }, { x: 518, y: 312 },
 ];
 const BOSS_SPOT = { x: 510, y: 236 };
 
@@ -31,7 +31,7 @@ function fighterFrom(src, side, index, isBoss) {
   const boss = !!(isBoss || src.isBoss);
   const spot = side === 'ally'
     ? ALLY_SPOTS[index] || ALLY_SPOTS[0]
-    : (boss && wolf ? { x: 505, y: index === 0 ? 210 : 298 } : boss ? BOSS_SPOT : (FOE_SPOTS[index] || FOE_SPOTS[0]));
+    : (boss && wolf ? { x: 505, y: index === 0 ? 228 : 310 } : boss ? BOSS_SPOT : (FOE_SPOTS[index] || FOE_SPOTS[0]));
   const hp = src.hp == null ? src.maxHp : src.hp;
   return {
     src,
@@ -54,7 +54,7 @@ function fighterFrom(src, side, index, isBoss) {
     homeX: spot.x,
     homeY: spot.y,
     face: side === 'ally' ? 1 : -1,
-    scale: src.scale || (boss ? 2.05 : (wolf ? 1.55 : 1.45)),
+    scale: src.scale || (boss ? 2.05 : (wolf ? 1.9 : 1.9)),
     anim: hp > 0 ? 'idle' : 'death',
     frame: hp > 0 ? 0 : ANIM_FRAMES.death - 1,
     animT: 0,
@@ -64,7 +64,7 @@ function fighterFrom(src, side, index, isBoss) {
 }
 
 function hitChance(atk, def) {
-  return clamp(0.62 + atk.precisao * 0.035 - def.velocidade * 0.02, 0.45, 0.95);
+  return clamp(0.93 + atk.precisao * 0.006 - def.velocidade * 0.004, 0.88, 0.99);
 }
 
 function rollDamage(atk, def, rng) {
@@ -158,6 +158,21 @@ class Battle {
     }
   }
 
+  _bleedAfterAttack(f) {
+    if (!f.alive || f.bleed <= 0) return;
+    // Once per attack action (not per hit of the gauntlet combo), even on a miss.
+    const dmg = Math.ceil(f.maxHp * 0.10);
+    f.bleed -= 1;
+    f.hp = Math.max(0, f.hp - dmg);
+    if (f.src) f.src.hp = f.hp;
+    this.fx.push({ kind: 'dmg', x: f.x, y: f.y - 34, text: String(dmg), ttl: 0.9 });
+    this._log('bleed_tick', { name: f.name, dmg });
+    if (!f.hp) {
+      this._dropWeapons(f); f.alive = false; f.anim = 'death'; f.frame = 0; f.animT = 0;
+      this._log('down', { name: f.name });
+    }
+  }
+
   _strike() {
     const a = this.anim;
     if (!a) return;
@@ -188,7 +203,7 @@ class Battle {
     });
     this._log(crit ? 'crit' : 'hit', { name: atk.name, target: def.name, dmg });
     if (atk.attackKind === 'bite') {
-      def.bleed = Math.max(def.bleed || 0, 2);
+      def.bleed = Math.max(def.bleed || 0, 3);
       this._log('bleed', { name: def.name });
     } else if (atk.attackKind === 'slash') {
       def.stun = Math.max(def.stun || 0, 1);
@@ -295,21 +310,6 @@ class Battle {
       this._rebuildQueue();
       if (!this.current) { this._checkEnd(); return; }
 
-      if (this.current.bleed > 0 && this.current.alive) {
-        const dmg = 2 + Math.floor((this.current.level || 1) * 0.4);
-        this.current.hp = Math.max(0, this.current.hp - dmg);
-        this.current.bleed -= 1;
-        if (this.current.src) this.current.src.hp = this.current.hp;
-        this.fx.push({ kind: 'dmg', x: this.current.x, y: this.current.y - 34, text: String(dmg), ttl: 0.8 });
-        this._log('bleed_tick', { name: this.current.name, dmg });
-        if (this.current.hp <= 0) {
-          this._dropWeapons(this.current);
-          this.current.alive = false;
-          this.current.anim = 'death'; this.current.frame = 0;
-          this._log('down', { name: this.current.name });
-          continue;
-        }
-      }
       if (this.current.stun > 0) {
         this.current.stun -= 1;
         this._log('stunned', { name: this.current.name });
@@ -370,7 +370,7 @@ class Battle {
       this.wait -= dt;
       if (this.wait <= 0) {
         this.current = this._slotList()[7];
-        // Start at GA1, applying bleed/stun just like any other turn.
+        // Start at GA1, applying stun just like any other turn.
         if (!this.current) this.current = { introSentinel: true };
         this._nextTurn();
       }
@@ -410,6 +410,7 @@ class Battle {
       if (a.t >= (this.instant ? 0.72 : a.double ? 1.36 : 1.02)) {
         atk.x = atk.homeX; atk.y = atk.homeY;
         if (atk.alive) { atk.anim = 'idle'; atk.frame = 0; }
+        this._bleedAfterAttack(atk);
         this.anim = null;
         this._nextTurn();
       }
@@ -442,6 +443,8 @@ class Battle {
 
 function drawFighter(ctx, f, time, highlight) {
   const wolf = f.kind === 'wolf' || f.src?.kind === 'wolf';
+  ctx.fillStyle = 'rgba(0,0,0,0.28)';
+  ctx.beginPath(); ctx.ellipse(f.x, f.y + 2, (wolf ? 19 : 10) * f.scale, 4, 0, 0, Math.PI * 2); ctx.fill();
   ctx.save();
   ctx.translate(f.x, f.y);
   ctx.scale(f.face * f.scale, f.scale);
@@ -561,7 +564,9 @@ function drawBattle(ctx, ui, battle, i18n, time, view) {
         : `rgba(255, 120, 90, ${pulse})`;
       ctx.lineWidth = selected ? 3 : 2;
       ctx.beginPath(); ctx.arc(f.x, f.y - 16, selected ? 24 : 22, 0, Math.PI * 2); ctx.stroke();
-      ui.region('battle_tgt_' + i, f.x - 26, f.y - 48, 52, 58);
+      const halfWidth = (f.kind === 'wolf' ? 26 : 16) * f.scale;
+      const height = 34 * f.scale;
+      ui.region('battle_tgt_' + i, f.x - halfWidth, f.y - height, halfWidth * 2, height + 8);
     });
   }
 

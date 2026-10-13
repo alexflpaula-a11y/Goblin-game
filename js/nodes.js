@@ -73,7 +73,7 @@ class Nodes {
   generate() {
     // A ilha começa completa. A vaga de um nó colhido libera a próxima
     // criação divina, sem um limite vitalício de reposições.
-    const cfg = BAL.nodes || { treeCount: 200, rockCount: 200, treeStock: 15, rockStock: 12 };
+    const cfg = BAL.nodes || { treeCount: 200, rockCount: 200, treeStock: 30, rockStock: 24 };
     const rnd = mulberry32(42);
     const out = [];
     const clearing = this.world.clearing;
@@ -181,7 +181,7 @@ class Nodes {
     }
 
     const cfg = BAL.nodes || {};
-    const stock = type === 'tree' ? (cfg.treeStock ?? 15) : (cfg.rockStock ?? 12);
+    const stock = type === 'tree' ? (cfg.treeStock ?? 30) : (cfg.rockStock ?? 24);
     const node = {
       type, x: site.x, y: site.y,
       stock, max: stock, depleted: false, worker: null,

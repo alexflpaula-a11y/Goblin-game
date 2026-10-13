@@ -880,12 +880,11 @@ check('há árvores e pedras, mas não baús no mapa',
 const treeNode = island.loot.find((n) => n.type === 'tree');
 const rockNode = island.loot.find((n) => n.type === 'rock');
 check('árvore e pedra têm o estoque da ilha da vila',
-  treeNode.stock === 15 && rockNode.stock === 12);
+  treeNode.stock === 30 && rockNode.stock === 24);
 check('chão da Presa não é o do Fumo nem o do Ferro',
   raid.themeOf(raid.ISLANDS[1]).ground !== raid.themeOf(raid.ISLANDS[2]).ground
   && raid.themeOf(raid.ISLANDS[1]).ground !== raid.themeOf(raid.ISLANDS[3]).ground);
-check('colmeia fica grudada numa árvore',
-  island.loot.filter((n) => n.type === 'tree' && n.hive).length >= 1);
+check('colmeias removidas', island.loot.every((n) => !n.hive) && island.props.every((p) => p.type !== 'hive'));
 check('ilha das Presas tem animais de caça', island.animals.filter((a) => a.alive).length >= 4);
 check('ilha das Presas não tem lobo solto no mapa',
   island.animals.every((a) => a.kind !== 'wolf'));
@@ -910,9 +909,9 @@ const farHunt = smokeIsle.patrols[1];
 nearHunt.x = prey.x + 40; nearHunt.y = prey.y;
 farHunt.x = prey.x + 400; farHunt.y = prey.y + 400;
 smokeIsle._killAnimal(prey);
-check('matar animal dá comida', smokeIsle.takeEvent().some((e) => e.type === 'loot' && e.kind === 'food'));
-check('o grito só chama patrulha a 8 blocos, nunca o Chefe',
-  nearHunt.heard === true && nearHunt.state === 'chase'
+check('matar animal dá carne', smokeIsle.takeEvent().some((e) => e.type === 'loot' && e.kind === 'meat'));
+check('caçar não alerta patrulha nem chefe',
+  nearHunt.heard !== true && nearHunt.state !== 'chase'
   && farHunt.heard !== true
   && smokeIsle.boss.alive && smokeIsle.bossEnraged === false);
 smokeIsle.patrols.forEach((p) => { p.heard = false; p.state = 'patrol'; });
@@ -958,7 +957,9 @@ check('toca enorme tem 2 ondas de 4 e os gêmeos',
   && lairFight.waves[0].length === 4 && lairFight.waves[1].length === 2
   && lairFight.waves[1][0].attackKind === 'bite' && lairFight.waves[1][1].attackKind === 'slash');
 island.resolveEncounter(lairFight.source);
-check('vencer a toca enorme limpa a ilha', island.lair.cleared === true && island.cleared === true);
+check('só vencer a toca enorme não completa a ilha', island.lair.cleared === true && !island.allEncountersCleared());
+island.dens.forEach((d) => island.resolveEncounter({kind:'den', ref:d}));
+check('todas as tocas e o chefe completam a ilha', island.allEncountersCleared());
 island.busy = false;
 
 const oneGob = new raid.RaidIsland(raid.ISLANDS[1], [party[0]], 21);
@@ -966,10 +967,10 @@ const chopTree = oneGob.loot.find((n) => n.type === 'tree');
 oneGob.party.x = chopTree.x; oneGob.party.y = chopTree.y + 10;
 oneGob.party.job = { type: 'chop', obj: chopTree, t: 0 };
 oneGob._updateParty(raid.raidWorkPeriod(oneGob.party));
-check('1 goblin quebra no ritmo da vila', chopTree.stock === 14);
+check('1 goblin quebra no ritmo da vila', chopTree.stock === 29);
 oneGob.party.goblins = party;
 oneGob._updateParty(raid.raidWorkPeriod(oneGob.party) * 4);
-check('mais goblins aceleram a coleta', chopTree.stock === 10);
+check('mais goblins aceleram a coleta', chopTree.stock === 25);
 
 smokeIsle.busy = false;
 const gA = smokeIsle.patrols[0], gB = smokeIsle.patrols[1], gC = smokeIsle.patrols[2];
@@ -1137,8 +1138,8 @@ statusBattle.allies[0].bleed = 2;
 statusBattle.allies[0].stun = 1;
 const hpBeforeStatus = statusBattle.allies[0].hp;
 statusBattle.update(0.6);
-check('sangramento também afeta goblin atordoado no primeiro turno',
-  statusBattle.allies[0].hp < hpBeforeStatus && statusBattle.allies[0].bleed === 1);
+check('sangramento não causa dano sem atacar',
+  statusBattle.allies[0].hp === hpBeforeStatus && statusBattle.allies[0].bleed === 2);
 check('atordoamento consome exatamente um turno', statusBattle.allies[0].stun === 0 && statusBattle.current === statusBattle.foes[0]);
 const soloPeriod = raid.raidWorkPeriod({ goblins: [squad8[0]] });
 check('coleta usa a fórmula de atributos da ilha normal',
@@ -1206,6 +1207,37 @@ check('manoplas têm overlay em vida, armas saem da skin na morte',
   && !gauntGear.spriteForGoblin({equip:{arma_primaria:'manoplas_lobo'}},'death',14).includes('wpn_manoplas'));
 check('acessórios nunca geram camada de arma',
   gauntGear.layersForEquip({botas:'manoplas_lobo',colar:'espada_ferro'}).length === 0);
+
+// Revision: bleeding triggers on attack actions, never on merely receiving a turn.
+const bleeder = {name:'Bleeder',hp:100,maxHp:100, equip:{arma_primaria:'manoplas_lobo'}, poderDestrutivo:1};
+const bleedTest = new Battle({allies:[bleeder],foes:[{name:'Target',hp:1000,maxHp:1000}],rng:()=>0.999});
+const bf=bleedTest.allies[0]; bf.bleed=3;
+for(let turn=0;turn<3;turn++) {
+  bleedTest.current=bf;bleedTest.phase='ready';bleedTest.chooseTarget(0);bleedTest.commandAttack();
+  bleedTest.update(0.4);
+  check('sangramento aguarda ataque completo '+turn,bf.hp===100-turn*10);
+  bleedTest.update(1.1);
+  check('perde 10% da vida máxima por ataque, incluindo erro '+turn,bf.hp===90-turn*10 && bf.bleed===2-turn);
+}
+bleedTest.current=bf;bleedTest.phase='ready';bleedTest.chooseTarget(0);bleedTest.commandAttack();bleedTest.update(1.5);
+check('sangramento termina após três ações, combo não duplica dano',bf.hp===70 && !bf.bleed);
+const hpRate=req('battle.js').hitChance({precisao:3},{velocidade:3});
+check('chance de acerto aumentou e mantém limites', hpRate>0.90 && hpRate<1);
+const repeatChest=new Treasure({kind:'lair',repeat:true,rewards:{gold:30,goblin_gems:4}});
+check('repetição dá só moedas e runas, sem manoplas nem recursos de baú',
+  repeatChest.loot.length===2 && repeatChest.loot.every((r)=>['gold','goblin_gems'].includes(r.id)));
+const huntMap=new raid.RaidIsland(raid.ISLANDS[1],[{hp:100}],51);
+huntMap.walkable=()=>true;
+const quarry=huntMap.animals[0];huntMap.animals=[quarry];
+huntMap.party.x=quarry.x-50;huntMap.party.y=quarry.y;
+const oldX=quarry.x;huntMap._updateAnimals(0.1);
+check('animal vivo vê o goblin e foge com sprite andando',quarry.hp>0 && quarry.x>oldX && quarry.fleeing && quarry.anim==='walk');
+huntMap.interact({type:'animal',obj:quarry});
+for(let t=0;t<300 && quarry.alive;t++){huntMap._updateParty(0.05);huntMap._updateAnimals(0.05);}
+const huntEvents=huntMap.takeEvent();
+check('goblin alcança animal mais lento e esgota sua vida',!quarry.alive && quarry.hp===0);
+check('caça rende carne sem alerta',huntEvents.some((e)=>e.kind==='meat') && !huntEvents.some((e)=>e.type==='scream'));
+check('recursos naturais seguem disponíveis na repetição',new raid.RaidIsland(raid.ISLANDS[1],party,7).loot.some((n)=>n.type==='rock' && n.stock===24));
 
 const gemV = new Village();
 gemV.add('goblin_gems', 4);

@@ -7,13 +7,13 @@ class Treasure {
     this.time = 0;
     this.opened = false;
     this.claimed = false;
-    const amounts = this.boss
+    const amounts = battle.repeat ? {} : this.boss
       ? { wood: 30, stone: 25, ore: 12, food: 15 }
       : { wood: 8, stone: 6, food: 4 };
     this.loot = Object.entries({ ...amounts, ...battle.rewards })
       .filter(([, amount]) => amount > 0)
       .map(([id, amount]) => ({ id, amount, icon: 'res_' + id, item: false }));
-    if (this.boss) this.loot.push({ id: 'manoplas_lobo', amount: 1, icon: 'item_manoplas_lobo', item: true });
+    if (this.boss && !battle.repeat) this.loot.push({ id: 'manoplas_lobo', amount: 1, icon: 'item_manoplas_lobo', item: true });
   }
   claim(village) {
     if (this.claimed) return false;

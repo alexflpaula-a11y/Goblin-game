@@ -17943,6 +17943,146 @@
     {
       "id": "res_goblin_gems",
       "path": "assets/sprites/raid/res_goblin_gems.png"
+    },
+    {
+      "id": "animal_boar_walk_0",
+      "path": "assets/sprites/raid/animal_boar_walk_0.png"
+    },
+    {
+      "id": "animal_boar_walk_1",
+      "path": "assets/sprites/raid/animal_boar_walk_1.png"
+    },
+    {
+      "id": "animal_boar_walk_2",
+      "path": "assets/sprites/raid/animal_boar_walk_2.png"
+    },
+    {
+      "id": "animal_boar_walk_3",
+      "path": "assets/sprites/raid/animal_boar_walk_3.png"
+    },
+    {
+      "id": "animal_boar_walk_4",
+      "path": "assets/sprites/raid/animal_boar_walk_4.png"
+    },
+    {
+      "id": "animal_boar_walk_5",
+      "path": "assets/sprites/raid/animal_boar_walk_5.png"
+    },
+    {
+      "id": "animal_boar_walk_6",
+      "path": "assets/sprites/raid/animal_boar_walk_6.png"
+    },
+    {
+      "id": "animal_boar_walk_7",
+      "path": "assets/sprites/raid/animal_boar_walk_7.png"
+    },
+    {
+      "id": "animal_deer_walk_0",
+      "path": "assets/sprites/raid/animal_deer_walk_0.png"
+    },
+    {
+      "id": "animal_deer_walk_1",
+      "path": "assets/sprites/raid/animal_deer_walk_1.png"
+    },
+    {
+      "id": "animal_deer_walk_2",
+      "path": "assets/sprites/raid/animal_deer_walk_2.png"
+    },
+    {
+      "id": "animal_deer_walk_3",
+      "path": "assets/sprites/raid/animal_deer_walk_3.png"
+    },
+    {
+      "id": "animal_deer_walk_4",
+      "path": "assets/sprites/raid/animal_deer_walk_4.png"
+    },
+    {
+      "id": "animal_deer_walk_5",
+      "path": "assets/sprites/raid/animal_deer_walk_5.png"
+    },
+    {
+      "id": "animal_deer_walk_6",
+      "path": "assets/sprites/raid/animal_deer_walk_6.png"
+    },
+    {
+      "id": "animal_deer_walk_7",
+      "path": "assets/sprites/raid/animal_deer_walk_7.png"
+    },
+    {
+      "id": "animal_hare_walk_0",
+      "path": "assets/sprites/raid/animal_hare_walk_0.png"
+    },
+    {
+      "id": "animal_hare_walk_1",
+      "path": "assets/sprites/raid/animal_hare_walk_1.png"
+    },
+    {
+      "id": "animal_hare_walk_2",
+      "path": "assets/sprites/raid/animal_hare_walk_2.png"
+    },
+    {
+      "id": "animal_hare_walk_3",
+      "path": "assets/sprites/raid/animal_hare_walk_3.png"
+    },
+    {
+      "id": "animal_hare_walk_4",
+      "path": "assets/sprites/raid/animal_hare_walk_4.png"
+    },
+    {
+      "id": "animal_hare_walk_5",
+      "path": "assets/sprites/raid/animal_hare_walk_5.png"
+    },
+    {
+      "id": "animal_hare_walk_6",
+      "path": "assets/sprites/raid/animal_hare_walk_6.png"
+    },
+    {
+      "id": "animal_hare_walk_7",
+      "path": "assets/sprites/raid/animal_hare_walk_7.png"
+    },
+    {
+      "id": "res_meat",
+      "path": "assets/sprites/raid/res_meat.png"
+    },
+    {
+      "id": "drop_capacete_ferro",
+      "path": "assets/sprites/raid/drop_capacete_ferro.png"
+    },
+    {
+      "id": "drop_peitoral_ferro",
+      "path": "assets/sprites/raid/drop_peitoral_ferro.png"
+    },
+    {
+      "id": "drop_calca_ferro",
+      "path": "assets/sprites/raid/drop_calca_ferro.png"
+    },
+    {
+      "id": "drop_botas_couro",
+      "path": "assets/sprites/raid/drop_botas_couro.png"
+    },
+    {
+      "id": "drop_anel_cobre",
+      "path": "assets/sprites/raid/drop_anel_cobre.png"
+    },
+    {
+      "id": "drop_anel_rubi",
+      "path": "assets/sprites/raid/drop_anel_rubi.png"
+    },
+    {
+      "id": "drop_colar_presas",
+      "path": "assets/sprites/raid/drop_colar_presas.png"
+    },
+    {
+      "id": "drop_espada_ferro",
+      "path": "assets/sprites/raid/drop_espada_ferro.png"
+    },
+    {
+      "id": "drop_clava_goblin",
+      "path": "assets/sprites/raid/drop_clava_goblin.png"
+    },
+    {
+      "id": "drop_escudo_madeira",
+      "path": "assets/sprites/raid/drop_escudo_madeira.png"
     }
   ]
 }

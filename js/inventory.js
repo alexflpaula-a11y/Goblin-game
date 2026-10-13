@@ -52,6 +52,10 @@ const ITEMS = [
   { id: 'escudo_madeira', slot: 'arma_secundaria', icon: 'item_escudo_madeira', price: 55 },
 ];
 
+for (const item of ITEMS) {
+  if (!item.id.includes('avaritia')) item.ground = 'drop_' + item.id;
+}
+
 const byId = (id) => ITEMS.find((i) => i.id === id) || null;
 
 /** Preço-base (balance.json `inventory.prices` pode sobrescrever). */

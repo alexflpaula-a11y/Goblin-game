@@ -63,8 +63,8 @@
   "nodes": {
     "treeCount": 200,
     "rockCount": 200,
-    "treeStock": 15,
-    "rockStock": 12,
+    "treeStock": 30,
+    "rockStock": 24,
     "workPeriod": 1.2
   },
   "village": {
@@ -122,8 +122,16 @@
       "gold": 15
     },
     "balloonUpgrade": [
-      { "wood": 55, "stone": 40, "gold": 45 },
-      { "wood": 90, "stone": 70, "gold": 80 }
+      {
+        "wood": 55,
+        "stone": 40,
+        "gold": 45
+      },
+      {
+        "wood": 90,
+        "stone": 70,
+        "gold": 80
+      }
     ]
   }
 }

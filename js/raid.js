@@ -352,9 +352,6 @@ function drawTree(ctx, x, y, hive, node) {
   ctx.save();
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(getSprite('node_tree_0'), x - 24, y - 46, 48, 48);
-  if (hive) {
-    ctx.drawImage(getSprite('prop_hive'), x + 4, y - 46, 22, 28);
-  }
   if (node && !node.taken && node.max && node.stock < node.max) {
     drawHpBar(ctx, x, y - 50, 20, node.stock, node.max);
   }
@@ -532,10 +529,12 @@ function drawAnimal(ctx, a, time) {
     const spr = getSprite('wolf_' + anim + '_' + ((a.frame || 0) % n));
     ctx.drawImage(spr, -24, -30, 48, 32);
   } else {
-    const id = a.kind === 'boar' ? 'animal_boar' : a.kind === 'deer' ? 'animal_deer' : 'animal_hare';
+    const id = 'animal_' + a.kind + (a.anim === 'walk' ? '_walk_' + ((a.frame || 0) % 8) : '');
     const w = a.kind === 'boar' ? 42 : a.kind === 'deer' ? 36 : 28;
     const h = a.kind === 'boar' ? 28 : a.kind === 'deer' ? 40 : 24;
+    if (!a.alive) { ctx.translate(0, -3); ctx.rotate(Math.PI / 2); }
     ctx.drawImage(getSprite(id), -w / 2, -h + 2, w, h);
+    if (a.alive) drawHpBar(ctx, 0, -h - 4, 22, a.hp, a.maxHp);
   }
   ctx.restore();
 }
@@ -787,8 +786,8 @@ class RaidIsland {
         const spot = this._grassSpot(80, 860, placed, 32);
         if (!spot) continue;
         const node = { type, x: spot.x, y: spot.y, taken: false };
-        if (type === 'tree') { node.stock = cfg.treeStock ?? 15; node.max = node.stock; }
-        if (type === 'rock') { node.stock = cfg.rockStock ?? 12; node.max = node.stock; }
+        if (type === 'tree') { node.stock = cfg.treeStock ?? 30; node.max = node.stock; }
+        if (type === 'rock') { node.stock = cfg.rockStock ?? 24; node.max = node.stock; }
         this.loot.push(node);
         placed.push(node);
       }
@@ -818,6 +817,8 @@ class RaidIsland {
           kind, x: spot.x, y: spot.y,
           homeX: spot.x, homeY: spot.y,
           wx: spot.x, wy: spot.y,
+          hp: kind === 'boar' ? 18 : kind === 'deer' ? 12 : 8,
+          maxHp: kind === 'boar' ? 18 : kind === 'deer' ? 12 : 8,
           alive: true, face: 1, anim: 'idle', animT: 0, frame: 0,
           wanderT: 0.4 + this.rng() * 2,
         };
@@ -826,13 +827,6 @@ class RaidIsland {
       }
     };
     if (theme === 'fangs') {
-      const trees = this.loot.filter((n) => n.type === 'tree');
-      let hives = 0;
-      for (const t of trees) {
-        if (hives >= 3) break;
-        t.hive = true;
-        hives += 1;
-      }
       addAnimal('boar', 2);
       addAnimal('deer', 2);
       addAnimal('hare', 2);
@@ -1021,6 +1015,11 @@ class RaidIsland {
     }
   }
 
+  allEncountersCleared() {
+    return this._isFangs() ? !!this.lair?.cleared && this.dens.length > 0 && this.dens.every((d) => d.cleared)
+      : !this.boss?.alive && this.patrols.every((p) => !p.alive);
+  }
+
   resolveEncounter(source) {
     if (!source) return;
     const refs = source.refs || (source.ref ? [source.ref] : []);
@@ -1036,7 +1035,7 @@ class RaidIsland {
     }
     if ((source.kind === 'den' || source.kind === 'lair') && source.ref) {
       source.ref.cleared = true;
-      if (source.kind === 'lair') this.cleared = true;
+      this.cleared = this.allEncountersCleared();
     }
   }
 
@@ -1089,7 +1088,11 @@ class RaidIsland {
 
   _updateParty(dt) {
     const p = this.party;
-    const speed = combatCfg().playerSpeed || PLAYER_SPEED;
+    const speed = Math.max(PLAYER_SPEED, combatCfg().playerSpeed || 0);
+    if (p.job?.type === 'hunt' && p.job.obj?.alive) {
+      const a = p.job.obj;
+      p.target = Math.hypot(p.x - a.x, p.y - a.y) > 18 ? { x: a.x, y: a.y + 4 } : null;
+    }
     if (p.target) {
       const dx = p.target.x - p.x, dy = p.target.y - p.y;
       const dist = Math.hypot(dx, dy);
@@ -1151,9 +1154,12 @@ class RaidIsland {
         p.target = { x: a.x, y: a.y + 8 };
       } else {
         p.anim = 'attack';
-        a.anim = 'hurt';
         p.job.t = (p.job.t || 0) + dt;
-        if (p.job.t >= 0.45) this._killAnimal(a);
+        if (p.job.t >= 0.5) {
+          p.job.t = 0;
+          a.hp = Math.max(0, a.hp - 4); a.hurtT = 0.18;
+          if (!a.hp) this._killAnimal(a);
+        }
       }
     } else if (!p.target) {
       p.anim = 'idle';
@@ -1259,10 +1265,17 @@ class RaidIsland {
         }
         continue;
       }
-      if (a.anim === 'hurt') {
-        this._tickAnimalAnim(a, dt);
-        continue;
+      a.hurtT = Math.max(0, (a.hurtT || 0) - dt);
+      const dx = a.x - this.party.x, dy = a.y - this.party.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 110) {
+        const len = dist || 1;
+        const tx = a.x + (dx || 1) / len * 70, ty = a.y + dy / len * 70;
+        a.fleeing = true;
+        this._stepToward(a, tx, ty, 30, dt);
+        this._tickAnimalAnim(a, dt); continue;
       }
+      a.fleeing = false;
       a.wanderT -= dt;
       if (a.wanderT <= 0) {
         a.wanderT = 1.1 + this.rng() * 2.4;
@@ -1282,15 +1295,15 @@ class RaidIsland {
 
   _killAnimal(a) {
     if (!a || !a.alive) return;
-    a.alive = false;
+    a.alive = false; a.hp = 0;
     a.anim = 'death';
     a.frame = 0;
     a.corpseT = 1.4;
     this.party.job = null;
     this.party.anim = 'idle';
     const amount = a.kind === 'wolf' ? 5 : a.kind === 'boar' ? 4 : a.kind === 'deer' ? 3 : 2;
-    this.events.push({ type: 'loot', kind: 'food', amount });
-    this._scream(a);
+    this.events.push({ type: 'loot', kind: 'meat', amount });
+
   }
 
   _scream(origin) {
@@ -1661,7 +1674,7 @@ function drawMiniIsland(ctx, def, x, y, selected, i18n, locked) {
   ctx.textAlign = 'left';
 }
 
-function drawIslandChart(ctx, ui, { scroll, selected, i18n, balloonLevel = 1 }) {
+function drawIslandChart(ctx, ui, { scroll, selected, i18n, balloonLevel = 1, clearedIslands = {} }) {
   ctx.imageSmoothingEnabled = true;
   ctx.drawImage(getSprite('islands_sea'), 0, 0, 640, 360);
   ctx.fillStyle = 'rgba(6, 12, 22, 0.18)';
@@ -1677,6 +1690,7 @@ function drawIslandChart(ctx, ui, { scroll, selected, i18n, balloonLevel = 1 }) 
     if (x < -120 || x > 760) return;
     const locked = !islandUnlocked(def, balloonLevel);
     drawMiniIsland(ctx, def, x, 150, selected === i, i18n, locked);
+    if (clearedIslands[def.id]) ui.text(x, 262, '✓ OK', { align: 'center', size: 13, color: '#8dffb3' });
     ui.region('island_' + i, x - 80, 88, 160, 150);
   });
 

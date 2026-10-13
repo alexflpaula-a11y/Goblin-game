@@ -118,7 +118,7 @@ const state = {
   equipDrag: null,
   equipScroll: 0,
   homeCam: null,
-  clearedIslands: {},
+  clearedIslands: { ...(saved.clearedIslands || {}) },
 };
 
 // ---------- Mundo / vila / câmera / UI ----------
@@ -304,6 +304,7 @@ function beginLanding(def, party) {
   if (!def || def.home) return;
   saveHomeCamera();
   state.raid = new RaidIsland(def, party);
+  state.raid.repeat = !!state.clearedIslands[def.id];
   state.raid.showCityZone = true;
   camera.worldW = state.raid.W;
   camera.worldH = state.raid.H;
@@ -345,6 +346,7 @@ function enterRaid(def) {
   if (!party.length) { toast('toast.need_party'); return; }
   saveHomeCamera();
   state.raid = new RaidIsland(def, party);
+  state.raid.repeat = !!state.clearedIslands[def.id];
   camera.worldW = state.raid.W;
   camera.worldH = state.raid.H;
   camera.x = state.raid.party.x;
@@ -355,6 +357,7 @@ function enterRaid(def) {
 }
 
 function leaveRaid() {
+  if (state.raid?.allEncountersCleared()) state.clearedIslands[state.raid.def.id] = true;
   state.battle?.recoverWeapons(village);
   state.treasure = null;
   state.battle = null;
@@ -470,13 +473,15 @@ function finishBattle() {
       village.add('gold', b.rewards.gold);
       village.add('goblin_gems', b.rewards.goblin_gems);
     }
+    if (!state.raid?.repeat) {
     celebrateLevelUps(village.gainXp(20 + (b.difficulty || 1) * 8));
     for (const f of b.allies) {
       if (f.src && f.alive) f.src.gainXp(12 + (b.difficulty || 1) * 4);
     }
+    }
     state.raid?.resolveEncounter(b.source);
     if (b.kind === 'boss' || b.kind === 'lair') {
-      state.clearedIslands[state.raid?.def?.id] = true;
+      // Completion is recorded only after ALL dens are cleared and the party leaves.
       toast(b.kind === 'lair' ? 'toast.island_twins' : 'toast.island_cleared');
     } else {
       toast('toast.raid_victory', { gold: b.rewards.gold, gems: b.rewards.goblin_gems });
@@ -489,6 +494,7 @@ function finishBattle() {
     return;
   }
   if (cave && b.result === 'win') {
+    b.repeat = !!state.raid?.repeat;
     state.treasure = new Treasure(b);
     state.treasure.claim(village);
     state.battleMenu = null; state.toast = null;
@@ -532,8 +538,8 @@ function handleRaidEvents(events) {
         village.add('gold', ev.rewards.gold);
         village.add('goblin_gems', ev.rewards.goblin_gems);
         toast('toast.raid_building', { gold: ev.rewards.gold, gems: ev.rewards.goblin_gems });
-      } else if (ev.kind === 'food') {
-        village.add('food', ev.amount);
+      } else if (ev.kind === 'meat') {
+        village.add('meat', ev.amount);
         toast('toast.raid_meat', { n: ev.amount });
       }
     }
@@ -1972,7 +1978,7 @@ function render(time) {
     ui.begin();
     drawIslandChart(ctx, ui, {
       scroll: state.islandScroll, selected: state.islandSel, i18n,
-      balloonLevel: balloon.level || 0,
+      balloonLevel: balloon.level || 0, clearedIslands: state.clearedIslands,
     });
     drawOverlay(time);
     return;
@@ -2012,7 +2018,6 @@ function render(time) {
       volume: state.volume,
       brightness: state.brightness,
     });
-    drawOverlay(time);
     return;
   }
   if (state.screen === 'raid' && state.raid) {
@@ -2076,6 +2081,7 @@ function drawOverlay(time) {
 
   // recursos no topo (5 tipos + gemas goblinéias quando existirem)
   const res = [['wood', village.res.wood], ['stone', village.res.stone], ['ore', village.res.ore], ['food', village.res.food], ['gold', village.res.gold]];
+  if ((village.res.meat || 0) > 0) res.push(['meat', village.res.meat]);
   if ((village.res.goblin_gems || 0) > 0) res.push(['goblin_gems', village.res.goblin_gems]);
   ctx.font = 'bold 11px monospace';
   let rx = 632;
@@ -3448,7 +3454,7 @@ function drawArmazemScreen() {
 
   // ----- área 1: recursos da vila -----
   ui.text(20, 84, i18n.t('ui.res_section'), { size: 10, bold: true, color: '#ffe9b8' });
-  const RES_LIST = ['wood', 'stone', 'ore', 'food', 'gold'];
+  const RES_LIST = ['wood', 'stone', 'ore', 'food', 'meat', 'gold'];
   RES_LIST.forEach((k, i) => {
     const y = 96 + i * 21;
     ctx.drawImage(getSprite('res_' + k), 22, y - 7, 14, 14);

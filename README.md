@@ -246,19 +246,19 @@ em `js/save.js`; o sistema (save/load/autosave a cada 10s) continua intacto.
 - Expedição: até 8 goblins; escolha até 4 antes de cada encontro. No mapa,
   somente o primeiro goblin vivo representa o grupo. Os quatro escolhidos
   permanecem nas três ondas, sem cura automática entre elas.
-- Madeira/pedra: 15/12 ciclos, como na vila. Cada goblin vivo soma sua taxa de
+- Madeira/pedra: 30/24 ciclos, como na vila. Cada goblin vivo soma sua taxa de
   trabalho, usando o mesmo bônus de força/velocidade da ilha normal.
 - Presas: sem patrulhas ou vila central. Seis pequenas tocas têm 1/2/2 lobos;
   a toca central tem 4/4/2 (os dois últimos são os Gêmeos da Guerra).
-- Mandíbula morde e causa sangramento por dois turnos do alvo (2 + nível/2,5,
-  arredondado para baixo, de dano por turno). Patas corta e atordoa por um
-  turno. Sangramento também corre durante o turno perdido por atordoamento.
+- Mandíbula aplica sangramento por três ações de ataque: cada ação concluída
+  tira 10% da vida máxima (arredondado para cima), mesmo se errar. O combo das
+  manoplas conta uma vez. Um turno perdido por atordoamento não causa esse dano.
+  Patas continua atordoando por um turno. Acerto normal agora fica entre 88–99%.
 - As ondas preservam a vida do grupo. Os goblins marcham com o cenário
   rolando e os ataques se aproximam do alvo antes do impacto.
 - Artes: `bg_den`, `bg_den_twins`, `prop_den_lair`, `twin_jaw_*`, `twin_paw_*`.
-  Dano e queda dos chefes são animações procedurais simples derivadas de sua
-  pose-base com armadura (`tools/finish_twin_sprites.py`), não novas poses
-  desenhadas individualmente. Precisam de refinamento artístico posterior.
+  `tools/rework_creatures.py` redesenha os 62 quadros de cada lobo com a mesma
+  estrutura, paleta e pontos de armadura. Corrida dos animais tem oito quadros.
 - Prévia direta de combate: `?demo=battle`; chefes: `?demo=twins`.
 
 ### Baús de toca e padrão de equipamentos
@@ -280,5 +280,21 @@ Padrão obrigatório para novos itens:
   animações. Roupas permanecem no cadáver; armas saem da skin e caem no chão.
 - Armas caídas são recolhidas ao armazém ao encerrar/sair do combate, sem duplicar
   itens de duas mãos. Não são reequipadas automaticamente.
-- `tools/gen_wolf_gauntlets.py` gera 62 overlays opacos e a versão de chão das
-  manoplas. `?demo=chest` e `?demo=chest_loot` mostram a cena de recompensa.
+- `tools/rework_equipment.py` gera os novos ícones, versões de chão e overlays
+  opacos não-Avaritia. Os arquivos de Avaritia são preservados. `?demo=chest` e `?demo=chest_loot` mostram a cena de recompensa.
+
+### Conclusão, repetição e caça
+
+- O mapa marca `✓ OK` somente após derrotar todas as tocas (incluindo a central)
+  **e sair da ilha**. A ilha permanece acessível. Como o salvamento continua
+  desativado durante desenvolvimento, a marca dura a sessão atual.
+- Nas revisitas de uma ilha concluída, batalhas/baús só rendem ouro e runas
+  goblins; não repetem equipamentos especiais, materiais de baú ou XP. Coleta
+  de árvores, pedras e caça permanecem disponíveis.
+- Árvores têm 30 unidades; pedras, 24. A velocidade de trabalho continua a mesma.
+- Animais têm vida (javali 18, cervo 12, lebre 8), fogem ao detectar o líder a
+  110 pixels e correm a 30 px/s contra pelo menos 72 px/s do grupo. Caça dá
+  `meat` (carne), separado de `food` da fazenda. Carne fica no armazém, ainda
+  sem receita própria. Nenhuma caça alerta patrulhas. Colmeias foram removidas.
+- Cavernas: parede só no topo, campo de batalha no chão e personagens maiores,
+  mais próximos e com sombra. Não há mais HUD da vila sobre a cena de batalha.

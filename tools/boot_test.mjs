@@ -787,5 +787,23 @@ const behind = appK.village.structures.find((s) => s.x === freeSpot.x && s.y ===
 ok(appK.village.hitTest(front.x, front.y - 50) === front && front !== behind,
   'o toque numa área sobreposta abre a construção que aparece na frente');
 
+// Island completion is deferred until departure and requires every den.
+const appL = await boot('?demo=raid');
+appL.raid.lair.cleared = true;
+appL.raid.dens.slice(1).forEach((d) => {d.cleared=true;});
+tapRegion('raid_leave');
+ok(!appL.state.clearedIslands.fangs,'sair com uma toca pendente não marca OK');
+const appM = await boot('?demo=raid');
+appM.raid.lair.cleared = true;
+appM.raid.dens.forEach((d) => {d.cleared=true;});
+ok(!appM.state.clearedIslands.fangs,'marca não aparece antes de sair da ilha');
+tapRegion('raid_leave');
+ok(appM.state.clearedIslands.fangs===true,'sair após vencer TODAS as tocas marca a ilha');
+appM.state.screen='islands';appM.state.islandSel=1;step(2);
+ok(drawnTexts().includes('OK'),'mapa desenha OK na ilha concluída');
+tapRegion('island_go');tapRegion('party_go');
+ok(appM.raid?.repeat===true,'revisitar ilha marcada ativa recompensas de repetição');
+ok(appM.raid?.loot.some((n)=>n.type==='tree' && n.stock===30),'repetição mantém árvores e pedras para coletar');
+
 console.log(`\n  ${passes} passaram · ${fails} falharam`);
 process.exit(fails ? 1 : 0);
