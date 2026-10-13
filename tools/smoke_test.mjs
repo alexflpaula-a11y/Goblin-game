@@ -558,7 +558,7 @@ section('Inventory — armazém, itens e espaços');
 // ============================================================
 const inv = req('inventory.js');
 
-check('catálogo tem os equipamentos sem runa', inv.ITEMS.length === 13, `${inv.ITEMS.length} itens`);
+check('catálogo tem os equipamentos sem runa', inv.ITEMS.length === 14, `${inv.ITEMS.length} itens`);
 check('todo item tem ícone e preço', inv.ITEMS.every((i) => i.icon && i.price > 0));
 check('9 espaços no boneco', inv.EQUIP_SLOTS.length === 9);
 check('espaços esperados sem runa',
@@ -845,8 +845,13 @@ check('escolhe goblin pro grupo', raid.togglePartyMember(pick, 0) && pick.length
 raid.togglePartyMember(pick, 1);
 raid.togglePartyMember(pick, 2);
 raid.togglePartyMember(pick, 3);
-check('grupo para em 4', raid.togglePartyMember(pick, 4) === false && pick.length === 4);
-check('desmarcar libera vaga', raid.togglePartyMember(pick, 0) && pick.length === 3);
+raid.togglePartyMember(pick, 4);
+raid.togglePartyMember(pick, 5);
+raid.togglePartyMember(pick, 6);
+raid.togglePartyMember(pick, 7);
+check('grupo leva até 8', raid.togglePartyMember(pick, 8) === false && pick.length === 8);
+check('batalha usa no máximo 4', raid.BATTLE_LIMIT === 4);
+check('desmarcar libera vaga', raid.togglePartyMember(pick, 0) && pick.length === 7);
 check('melhoria do balão tem custo', !!raid.balloonUpgradeCost(1) && !raid.balloonUpgradeCost(3));
 check('alcance de alerta é 6 blocos', raid.ALERT_TILES === 6 && raid.ALERT_RANGE === 6 * 16);
 check('grupo do jogador é mais rápido que a patrulha', raid.PLAYER_SPEED > raid.ENEMY_SPEED);
@@ -863,77 +868,62 @@ const party = [0, 1, 2, 3].map((i) => new Goblin({
 }));
 const island = new raid.RaidIsland(raid.ISLANDS[1], party, 7);
 check('ilha gera o terreno', island.tiles.length === raid.RAID.COLS * raid.RAID.ROWS);
-check('5 grupos de patrulha', island.patrols.length === 5);
-check('ilha fácil tem 1 ou 2 inimigos por grupo',
-  island.patrols.every((p) => p.members.length >= 1 && p.members.length <= 2));
+check('ilha das Presas não tem patrulhas', island.patrols.length === 0);
+check('ilha das Presas tem tocas pequenas', island.dens.length >= 4);
+check('centro é a toca enorme, sem vila', !!island.lair && island.buildings.length === 0 && !island.boss);
 check('grito do animal alcança 8 blocos', raid.SCREAM_TILES === 8 && raid.SCREAM_RANGE === 8 * 16);
-check('grupo do jogador tem até 4 goblins', island.party.goblins.length === 4);
-check('há árvores, pedras e baús', 
+check('grupo do jogador leva os goblins escolhidos', island.party.goblins.length === 4);
+check('há árvores e pedras, mas não baús no mapa', 
   island.loot.some((n) => n.type === 'tree')
   && island.loot.some((n) => n.type === 'rock')
-  && island.loot.some((n) => n.type === 'chest'));
-check('centro tem estruturas inimigas', island.buildings.length >= 3);
-check('estruturas inimigas usam sprites da vila e têm vida',
-  island.buildings.every((b) => b.sprite && b.maxHp >= 8));
-check('patrulhas têm rota com mais de um ponto',
-  island.patrols.every((p) => p.waypoints.length >= 2));
-check('chefe está no centro', !!island.boss?.alive);
+  && !island.loot.some((n) => n.type === 'chest'));
+const treeNode = island.loot.find((n) => n.type === 'tree');
+const rockNode = island.loot.find((n) => n.type === 'rock');
+check('árvore e pedra têm o estoque da ilha da vila',
+  treeNode.stock === 15 && rockNode.stock === 12);
 check('chão da Presa não é o do Fumo nem o do Ferro',
   raid.themeOf(raid.ISLANDS[1]).ground !== raid.themeOf(raid.ISLANDS[2]).ground
   && raid.themeOf(raid.ISLANDS[1]).ground !== raid.themeOf(raid.ISLANDS[3]).ground);
-check('ilha das Presas tem tocas e colmeias',
-  island.props.some((p) => p.type === 'den')
-  && island.loot.some((n) => n.type === 'tree' && n.hive));
 check('colmeia fica grudada numa árvore',
   island.loot.filter((n) => n.type === 'tree' && n.hive).length >= 1);
-check('ilha das Presas tem lobos animados',
-  island.animals.some((a) => a.kind === 'wolf' && a.alive));
 check('ilha das Presas tem animais de caça', island.animals.filter((a) => a.alive).length >= 4);
+check('ilha das Presas não tem lobo solto no mapa',
+  island.animals.every((a) => a.kind !== 'wolf'));
 const smokeIsle = new raid.RaidIsland(raid.ISLANDS[2], party, 11);
 check('ilha do Fumo tem fumarolas e tocos',
   smokeIsle.props.some((p) => p.type === 'vent') && smokeIsle.props.some((p) => p.type === 'stump'));
+check('5 grupos de patrulha nas outras ilhas', smokeIsle.patrols.length === 5);
 check('ilha média tem 2 ou 3 inimigos por grupo',
   smokeIsle.patrols.every((p) => p.members.length >= 2 && p.members.length <= 3));
+check('patrulhas têm rota com mais de um ponto',
+  smokeIsle.patrols.every((p) => p.waypoints.length >= 2));
+check('chefe está no centro das outras ilhas', !!smokeIsle.boss?.alive);
+check('centro das outras ilhas tem estruturas', smokeIsle.buildings.length >= 3);
 const ironIsle = new raid.RaidIsland(raid.ISLANDS[3], party, 13);
 check('ilha do Ferro tem sucata e minério',
   ironIsle.props.some((p) => p.type === 'scrap') && ironIsle.props.some((p) => p.type === 'ore'));
 check('ilha difícil tem 3 ou 4 inimigos por grupo',
   ironIsle.patrols.every((p) => p.members.length >= 3 && p.members.length <= 4));
-const prey = island.animals.find((a) => a.alive);
-const nearHunt = island.patrols[0];
-const farHunt = island.patrols[1];
+const prey = smokeIsle.animals.find((a) => a.alive);
+const nearHunt = smokeIsle.patrols[0];
+const farHunt = smokeIsle.patrols[1];
 nearHunt.x = prey.x + 40; nearHunt.y = prey.y;
 farHunt.x = prey.x + 400; farHunt.y = prey.y + 400;
-island._killAnimal(prey);
-check('matar animal dá comida', island.takeEvent().some((e) => e.type === 'loot' && e.kind === 'food'));
+smokeIsle._killAnimal(prey);
+check('matar animal dá comida', smokeIsle.takeEvent().some((e) => e.type === 'loot' && e.kind === 'food'));
 check('o grito só chama patrulha a 8 blocos, nunca o Chefe',
   nearHunt.heard === true && nearHunt.state === 'chase'
   && farHunt.heard !== true
-  && island.boss.alive && island.bossEnraged === false);
-island.patrols.forEach((p) => { p.heard = false; p.state = 'patrol'; });
-check('não pousa no centro da cidade', island.canLand(island.center.x, island.center.y) === false);
-check('pousa fora da cidade na praia', island.canLand(island.landing.x, island.landing.y) === true);
+  && smokeIsle.boss.alive && smokeIsle.bossEnraged === false);
+smokeIsle.patrols.forEach((p) => { p.heard = false; p.state = 'patrol'; });
+check('não pousa no centro da toca', island.canLand(island.center.x, island.center.y) === false);
+check('pousa fora da toca na praia', island.canLand(island.landing.x, island.landing.y) === true);
 const moved = island.setLanding(island.center.x, island.center.y);
-check('setLanding recusa a cidade', moved === false);
+check('setLanding recusa a toca', moved === false);
 check('setLanding aceita a praia', island.setLanding(island.landing.x, island.landing.y) === true);
 island.movePartyTo(island.party.x + 40, island.party.y);
 island.update(0.5);
-check('toque move o grupo em formação', island.party.anim === 'walk' || island.party.target == null);
-
-const chest = island.loot.find((n) => n.type === 'chest');
-island.party.x = chest.x; island.party.y = chest.y + 10;
-island.party.target = null;
-island.party.job = { type: 'loot', obj: chest };
-island._arrive();
-check('abrir baú deixa o item no chão brilhando',
-  chest.taken === true && island.drops.some((d) => !d.taken));
-const drop = island.drops.find((d) => !d.taken);
-const remaining = island.drops.filter((d) => !d.taken).length;
-island.party.x = drop.x; island.party.y = drop.y;
-island._updateDrops(0.05);
-check('encostar no loot do chão recolhe',
-  island.drops.filter((d) => !d.taken).length < remaining);
-island.takeEvent();
+check('toque move o goblin principal', island.party.anim === 'walk' || island.party.target == null);
 
 island.beginFlyIn(1);
 check('pouso esconde o grupo no balão voando', island.flyingIn() === true);
@@ -951,43 +941,74 @@ check('voltar ao balão pede a ilha da vila', island.takeEvent().some((e) => e.t
 island.busy = false;
 
 island.busy = false;
-const gA = island.patrols[0], gB = island.patrols[1], gC = island.patrols[2];
-gA.x = island.party.x; gA.y = island.party.y; gA.state = 'chase';
-gB.x = island.party.x; gB.y = island.party.y; gB.state = 'chase';
-gC.x = island.party.x + 80; gC.y = island.party.y; gC.state = 'chase';
+const den = island.dens[0];
+den.x = island.party.x; den.y = island.party.y;
 island._checkContact();
-const dual = island.takeEvent().find((e) => e.type === 'battle');
+const denFight = island.takeEvent().find((e) => e.type === 'battle');
+check('entrar na toca começa 3 ondas de poucos lobos',
+  denFight?.kind === 'den' && denFight.foes.length === 1 && denFight.waves.length === 2
+  && denFight.waves[0].length === 2 && denFight.waves[1].length === 2);
+island.busy = false;
+den.x = island.party.x + 400; den.y = island.party.y + 400;
+island.lair.x = island.party.x; island.lair.y = island.party.y;
+island._checkContact();
+const lairFight = island.takeEvent().find((e) => e.type === 'battle');
+check('toca enorme tem 2 ondas de 4 e os gêmeos',
+  lairFight?.kind === 'lair' && lairFight.foes.length === 4 && lairFight.waves.length === 2
+  && lairFight.waves[0].length === 4 && lairFight.waves[1].length === 2
+  && lairFight.waves[1][0].attackKind === 'bite' && lairFight.waves[1][1].attackKind === 'slash');
+island.resolveEncounter(lairFight.source);
+check('vencer a toca enorme limpa a ilha', island.lair.cleared === true && island.cleared === true);
+island.busy = false;
+
+const oneGob = new raid.RaidIsland(raid.ISLANDS[1], [party[0]], 21);
+const chopTree = oneGob.loot.find((n) => n.type === 'tree');
+oneGob.party.x = chopTree.x; oneGob.party.y = chopTree.y + 10;
+oneGob.party.job = { type: 'chop', obj: chopTree, t: 0 };
+oneGob._updateParty(raid.raidWorkPeriod(oneGob.party));
+check('1 goblin quebra no ritmo da vila', chopTree.stock === 14);
+oneGob.party.goblins = party;
+oneGob._updateParty(raid.raidWorkPeriod(oneGob.party) * 4);
+check('mais goblins aceleram a coleta', chopTree.stock === 10);
+
+smokeIsle.busy = false;
+const gA = smokeIsle.patrols[0], gB = smokeIsle.patrols[1], gC = smokeIsle.patrols[2];
+gA.x = smokeIsle.party.x; gA.y = smokeIsle.party.y; gA.state = 'chase';
+gB.x = smokeIsle.party.x; gB.y = smokeIsle.party.y; gB.state = 'chase';
+gC.x = smokeIsle.party.x + 80; gC.y = smokeIsle.party.y; gC.state = 'chase';
+smokeIsle._checkContact();
+const dual = smokeIsle.takeEvent().find((e) => e.type === 'battle');
 check('dois grupos encostando entram na mesma luta em duas rodas',
   !!dual?.wave && dual.wave.length >= 1 && dual.source.refs.length === 2 && dual.foes.length >= 1);
-island.busy = false;
-gA.x = island.party.x; gA.y = island.party.y; gA.alive = true; gA.state = 'chase';
-gB.x = island.party.x + 90; gB.y = island.party.y; gB.alive = true; gB.state = 'chase';
-island._checkContact();
-const single = island.takeEvent().find((e) => e.type === 'battle');
+smokeIsle.busy = false;
+gA.x = smokeIsle.party.x; gA.y = smokeIsle.party.y; gA.alive = true; gA.state = 'chase';
+gB.x = smokeIsle.party.x + 90; gB.y = smokeIsle.party.y; gB.alive = true; gB.state = 'chase';
+smokeIsle._checkContact();
+const single = smokeIsle.takeEvent().find((e) => e.type === 'battle');
 check('um grupo encosta e o outro continua perseguindo',
   !!single && !single.wave && gB.state === 'chase' && gB.alive);
-island.resolveEncounter(single.source);
+smokeIsle.resolveEncounter(single.source);
 check('depois da primeira luta o segundo grupo segue no mapa',
-  gB.alive && island.patrols.includes(gB));
-island.busy = false;
+  gB.alive && smokeIsle.patrols.includes(gB));
+smokeIsle.busy = false;
 
-const near = island.patrols.find((p) => p.alive && p !== gB) || island.patrols[0];
-near.x = island.party.x + 40; near.y = island.party.y;
-island.update(0.2);
+const near = smokeIsle.patrols.find((p) => p.alive && p !== gB) || smokeIsle.patrols[0];
+near.x = smokeIsle.party.x + 40; near.y = smokeIsle.party.y;
+smokeIsle.update(0.2);
 check('inimigo a 6 blocos fica em alerta/persegue', near.state === 'chase');
-near.x = island.party.x + 400; near.y = island.party.y + 400;
-island.update(0.05);
+near.x = smokeIsle.party.x + 400; near.y = smokeIsle.party.y + 400;
+smokeIsle.update(0.05);
 check('sair do alcance deixa o grupo confuso', near.state === 'confused');
-island.update(1.5);
+smokeIsle.update(1.5);
 check('depois da confusão a patrulha retoma', near.state === 'return' || near.state === 'patrol');
 
-const smash = island.buildings[0];
-island.interact({ type: 'building', obj: smash });
-island.party.x = smash.x - 16; island.party.y = smash.y + 6;
-island.party.target = null;
-island.party.job = { type: 'smash', obj: smash };
-island.update(0.6);
-check('quebrar estrutura enfurece o chefe', island.bossEnraged === true);
+const smash = smokeIsle.buildings[0];
+smokeIsle.interact({ type: 'building', obj: smash });
+smokeIsle.party.x = smash.x - 16; smokeIsle.party.y = smash.y + 6;
+smokeIsle.party.target = null;
+smokeIsle.party.job = { type: 'smash', obj: smash };
+smokeIsle.update(0.6);
+check('quebrar estrutura enfurece o chefe', smokeIsle.bossEnraged === true);
 
 const foes = raid.makePatrolMembers(1, () => 0.4, 4);
 const btl = new Battle({
@@ -1048,6 +1069,143 @@ while (!btlW.finished && waveTurns--) {
 }
 check('as duas rodas terminam em vitória', btlW.finished === true && btlW.result === 'win',
   `fase=${btlW.phase} left=${waveTurns}`);
+
+const pack1 = raid.makeWolfPack(1, 1);
+const denB = new Battle({
+  allies: party, foes: pack1, waves: [raid.makeWolfPack(2, 1), raid.makeWolfPack(2, 1)],
+  kind: 'den', difficulty: 1, rewards: rw, instant: true, rng: () => 0,
+});
+check('toca guarda duas ondas extras', denB.pendingWaves.length === 2);
+denB.foes.forEach((f) => { f.alive = false; f.hp = 0; });
+denB._checkEnd();
+check('primeira onda da toca avança', denB.finished === false && denB.pendingWaves.length === 1);
+denB.foes.forEach((f) => { f.alive = false; f.hp = 0; });
+denB._checkEnd();
+check('segunda onda da toca avança', denB.finished === false && denB.pendingWaves.length === 0 && denB.foes.length === 2);
+
+const twins = raid.makeWarTwins(1);
+check('gêmeos: mandíbula morde e patas cortam',
+  twins[0].attackKind === 'bite' && twins[1].attackKind === 'slash'
+  && twins[0].spritePrefix === 'twin_jaw' && twins[1].spritePrefix === 'twin_paw');
+const btlT = new Battle({
+  allies: party, foes: twins, kind: 'lair', difficulty: 1,
+  rewards: rw, instant: true, rng: () => 0,
+});
+btlT._resolveAttack(btlT.foes[0], btlT.allies[0]);
+check('mandíbula causa sangramento', btlT.allies[0].bleed > 0);
+btlT._resolveAttack(btlT.foes[1], btlT.allies[1]);
+check('patada atordoa por um turno', btlT.allies[1].stun > 0);
+btlT.current = btlT.foes[0];
+btlT.phase = 'ready';
+const stunnedName = btlT.allies[1].name;
+btlT._nextTurn();
+check('atordoado perde o turno', btlT.log.some((l) => l.kind === 'stunned' && l.params.name === stunnedName));
+
+const btlM = new Battle({
+  allies: party, foes: raid.makeWolfPack(1, 1), kind: 'den', difficulty: 1,
+  rewards: rw, instant: false, rng: () => 0,
+});
+btlM.phase = 'ready';
+btlM.current = btlM.allies[0];
+btlM.chooseTarget(0);
+btlM.commandAttack();
+btlM.update(0.2);
+check('atacante anda até o inimigo',
+  Math.abs(btlM.allies[0].x - btlM.allies[0].homeX) > 20);
+
+// Regression: eight travelers, four fighters, persistent HP, all three waves.
+const squad8 = Array.from({ length: 8 }, (_, i) => new Goblin({ name: 'Reserve' + i,
+  vitalidade: 10, poderDestrutivo: 10, velocidade: 8, precisao: 10, level: 10 }));
+const expedition = new raid.RaidIsland(raid.ISLANDS[1], squad8, 33);
+check('8 viajantes preservados na expedição', expedition.party.goblins.length === 8);
+const reserveHP = squad8.slice(4).map((g) => g.hp);
+const cave = raid.denWaves('lair', 1);
+const campaign = new Battle({ allies: squad8, ...cave, kind: 'lair', rng: () => 0 });
+check('8 viajantes não viram 8 combatentes', campaign.allies.length === 4);
+let campaignTicks = 0, sawAdvance = false, sawTwins = false;
+while (!campaign.finished && campaignTicks++ < 4000) {
+  if (campaign.phase === 'ready') { campaign.chooseTarget(0); campaign.commandAttack(); }
+  campaign.update(0.1);
+  sawAdvance ||= campaign.phase === 'advance';
+  sawTwins ||= campaign.foes.some((f) => f.attackKind === 'bite');
+}
+check('três ondas terminam sem travar, com avanço e gêmeos', campaign.result === 'win' && sawAdvance && sawTwins);
+check('câmara final usa o fundo perigoso', campaign.bgKey === 'bg_den_twins');
+check('reservas não sofrem dano fora da batalha', squad8.slice(4).every((g, i) => g.hp === reserveHP[i]));
+const statusBattle = new Battle({ allies: squad8, foes: raid.makeWolfPack(2, 1), rng: () => 0.99 });
+statusBattle.allies[0].bleed = 2;
+statusBattle.allies[0].stun = 1;
+const hpBeforeStatus = statusBattle.allies[0].hp;
+statusBattle.update(0.6);
+check('sangramento também afeta goblin atordoado no primeiro turno',
+  statusBattle.allies[0].hp < hpBeforeStatus && statusBattle.allies[0].bleed === 1);
+check('atordoamento consome exatamente um turno', statusBattle.allies[0].stun === 0 && statusBattle.current === statusBattle.foes[0]);
+const soloPeriod = raid.raidWorkPeriod({ goblins: [squad8[0]] });
+check('coleta usa a fórmula de atributos da ilha normal',
+  Math.abs(soloPeriod - 1.2 * Math.max(0.4, 1 - (squad8[0].velocidade + squad8[0].poderDestrutivo) / 80)) < 1e-9);
+check('8 trabalhadores somam sua velocidade de coleta',
+  Math.abs(raid.raidWorkPeriod({ goblins: squad8 }) - soloPeriod / 8) < 1e-9);
+
+const { Treasure } = req('treasure.js');
+const rewardVillage = new Village();
+const treasure = new Treasure({ kind: 'lair', rewards: { gold: 30, goblin_gems: 6 }, lastDefeated: { x: 480, y: 280 } });
+check('baú surge no último inimigo derrotado', treasure.position().x === 480 && treasure.position().y === 280);
+check('baú do boss contém recursos e manoplas', treasure.loot.some((r) => r.id === 'manoplas_lobo') && treasure.loot.filter((r) => !r.item).length >= 5);
+const chestGoldBefore = rewardVillage.res.gold;
+check('recompensa concedida uma única vez', treasure.claim(rewardVillage) && !treasure.claim(rewardVillage) && rewardVillage.res.gold === chestGoldBefore + 30 && rewardVillage.items.manoplas_lobo === 1);
+treasure.update(1);
+check('toque no baú abre sem sair', treasure.tap(320, 180) === 'open' && treasure.opened);
+check('próximo toque sai da faixa', treasure.tap(320, 180) === 'skip');
+const smallTreasure = new Treasure({kind: 'den', rewards: {gold: 14}});
+check('baú normal não dá a arma exclusiva', smallTreasure.loot.every((r) => r.id !== 'manoplas_lobo'));
+check('pular baú fechado também permite receber tudo', smallTreasure.tap(0, 0) === 'skip' && smallTreasure.claim(rewardVillage));
+check('nenhuma ilha gera baús espalhados', [island, smokeIsle, ironIsle].every((r) => !r.loot.some((n) => n.type === 'chest')));
+function gauntletBattle(random) {
+  const ally = {name: 'Puncher', hp: 500, maxHp: 500, poderDestrutivo: 3, equip: {arma_primaria: 'manoplas_lobo'}};
+  const foe = {name: 'Dummy', hp: 500, maxHp: 500};
+  const b = new Battle({allies: [ally], foes: [foe], instant: true, rng: random});
+  b.phase = 'ready'; b.chooseTarget(0); b.commandAttack(); return b;
+}
+const both = gauntletBattle(() => 0.1);
+check('manoplas dão dois golpes no mesmo turno', both.anim.strikes === 2 && both.anim.hits === 2 && both.log.filter((l) => ['hit','crit'].includes(l.kind)).length === 2);
+check('dois acertos aplicam atordoamento de 1 turno', both.foes[0].stun === 1);
+let roll = 0;
+const once = gauntletBattle(() => (++roll <= 3 ? 0.1 : 0.999));
+check('um acerto e um erro não atordoam', once.anim.hits === 1 && once.foes[0].stun === 0);
+const neither = gauntletBattle(() => 0.999);
+check('dois erros não atordoam nem causam dano', neither.anim.hits === 0 && neither.foes[0].hp === 500 && neither.foes[0].stun === 0);
+check('manoplas equipam na arma primária', inv.accepts('arma_primaria', inv.byId('manoplas_lobo')) && inv.accepts('arma_secundaria', inv.byId('manoplas_lobo')));
+
+const handsV = new Village();
+const handsG = new Goblin({name: 'Mãos'});
+handsV.addItem('manoplas_lobo', 1);
+handsV.addItem('espada_ferro', 1); handsV.addItem('escudo_madeira', 1);
+inv.equip(handsV, handsG, 'arma_primaria', 'espada_ferro');
+inv.equip(handsV, handsG, 'arma_secundaria', 'escudo_madeira');
+check('manoplas ocupam ambas as mãos e devolvem espada/escudo',
+  inv.equip(handsV, handsG, 'arma_secundaria', 'manoplas_lobo')
+  && handsG.equip.arma_primaria === 'manoplas_lobo' && handsG.equip.arma_secundaria === 'manoplas_lobo'
+  && handsV.items.espada_ferro === 1 && handsV.items.escudo_madeira === 1 && !handsV.items.manoplas_lobo);
+inv.unequip(handsV, handsG, 'arma_secundaria');
+check('retirar manoplas libera duas mãos e devolve só um item',
+  !handsG.equip.arma_primaria && !handsG.equip.arma_secundaria && handsV.items.manoplas_lobo === 1);
+inv.equip(handsV, handsG, 'arma_primaria', 'manoplas_lobo');
+inv.equip(handsV, handsG, 'arma_secundaria', 'escudo_madeira');
+check('escudo substitui as manoplas inteiras', handsG.equip.arma_secundaria === 'escudo_madeira' && !handsG.equip.arma_primaria && handsV.items.manoplas_lobo === 1);
+inv.equip(handsV, handsG, 'arma_primaria', 'manoplas_lobo');
+const dropBattle = new Battle({allies:[handsG],foes:raid.makeWolfPack(1,1),rng:()=>0});
+dropBattle.allies[0].hp = 1;
+dropBattle._resolveAttack(dropBattle.foes[0],dropBattle.allies[0]);
+check('morte derruba um par de manoplas e remove ambas as mãos', dropBattle.weaponDrops.length === 1 && !handsG.equip.arma_primaria && !handsG.equip.arma_secundaria);
+check('item caído usa arte própria', dropBattle.weaponDrops[0].icon === 'drop_manoplas_lobo');
+dropBattle.recoverWeapons(handsV); dropBattle.recoverWeapons(handsV);
+check('recolher armas não duplica o par', handsV.items.manoplas_lobo === 1);
+const gauntGear = req('gear.js');
+check('manoplas têm overlay em vida, armas saem da skin na morte',
+  gauntGear.spriteForGoblin({equip:{arma_primaria:'manoplas_lobo'}},'idle',0).includes('overlay_wpn_manoplas')
+  && !gauntGear.spriteForGoblin({equip:{arma_primaria:'manoplas_lobo'}},'death',14).includes('wpn_manoplas'));
+check('acessórios nunca geram camada de arma',
+  gauntGear.layersForEquip({botas:'manoplas_lobo',colar:'espada_ferro'}).length === 0);
 
 const gemV = new Village();
 gemV.add('goblin_gems', 4);

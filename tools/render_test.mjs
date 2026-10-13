@@ -163,7 +163,7 @@ const ui = null; // acessamos pelo estado interno via main? não exportado.
 const input = req('input.js');
 
 // O jeito mais direto e realista: usar as telas pelo hook ?demo=
-const SCREENS = ['world', 'build', 'construction', 'jobs', 'recruit', 'roster', 'quests', 'kitchen', 'market', 'armazem', 'equip', 'deity_tree', 'deity_golem', 'islands', 'raid', 'battle', 'party', 'landing'];
+const SCREENS = ['world', 'build', 'construction', 'jobs', 'recruit', 'roster', 'quests', 'kitchen', 'market', 'armazem', 'equip', 'deity_tree', 'deity_golem', 'islands', 'raid', 'battle', 'twins', 'chest', 'chest_loot', 'party', 'landing'];
 for (const scr of SCREENS) {
   // recria o jogo com a tela pedida
   for (const k of Object.keys(cache)) delete cache[k];

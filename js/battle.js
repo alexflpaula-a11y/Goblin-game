@@ -10,6 +10,7 @@
 // ============================================================
 const { getSprite } = require('assetLoader.js');
 const gear = require('gear.js');
+const inv = require('inventory.js');
 
 const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 15 };
 
@@ -26,15 +27,20 @@ const BOSS_SPOT = { x: 510, y: 236 };
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
 function fighterFrom(src, side, index, isBoss) {
+  const wolf = src.kind === 'wolf';
+  const boss = !!(isBoss || src.isBoss);
   const spot = side === 'ally'
     ? ALLY_SPOTS[index] || ALLY_SPOTS[0]
-    : (isBoss ? BOSS_SPOT : (FOE_SPOTS[index] || FOE_SPOTS[0]));
+    : (boss && wolf ? { x: 505, y: index === 0 ? 210 : 298 } : boss ? BOSS_SPOT : (FOE_SPOTS[index] || FOE_SPOTS[0]));
   const hp = src.hp == null ? src.maxHp : src.hp;
   return {
     src,
     side,
     name: src.name,
-    isBoss: !!isBoss,
+    kind: src.kind || 'goblin',
+    spritePrefix: src.spritePrefix || (wolf ? 'wolf' : null),
+    attackKind: src.attackKind || 'melee',
+    isBoss: boss,
     poderDestrutivo: src.poderDestrutivo || 3,
     vitalidade: src.vitalidade || 3,
     velocidade: src.velocidade || 3,
@@ -48,10 +54,12 @@ function fighterFrom(src, side, index, isBoss) {
     homeX: spot.x,
     homeY: spot.y,
     face: side === 'ally' ? 1 : -1,
-    scale: isBoss ? 2.05 : 1.45,
+    scale: src.scale || (boss ? 2.05 : (wolf ? 1.55 : 1.45)),
     anim: hp > 0 ? 'idle' : 'death',
     frame: hp > 0 ? 0 : ANIM_FRAMES.death - 1,
     animT: 0,
+    stun: 0,
+    bleed: 0,
   };
 }
 
@@ -68,18 +76,27 @@ function rollDamage(atk, def, rng) {
 }
 
 class Battle {
-  constructor({ allies, foes, kind, difficulty, rewards, source, rng, instant, wave }) {
+  constructor({ allies, foes, kind, difficulty, rewards, source, rng, instant, wave, waves, bgKey, twinsBg }) {
     this.kind = kind || 'patrol';
     this.difficulty = difficulty || 1;
     this.rewards = rewards || { gold: 14, goblin_gems: 2 };
     this.source = source || null;
     this.rng = rng || Math.random;
     this.instant = !!instant;
-    this.pendingWave = (wave && wave.length) ? wave.slice(0, 4) : [];
+    this.bgKey = bgKey || null;
+    this.twinsBg = twinsBg || null;
+    this.pendingWaves = [];
+    if (waves && waves.length) this.pendingWaves = waves.map((w) => (w || []).slice(0, 4));
+    else if (wave && wave.length) this.pendingWaves = [wave.slice(0, 4)];
+    this.pendingWave = this.pendingWaves[0] || [];
+    this.waveNumber = 1;
+    this.totalWaves = 1 + this.pendingWaves.length;
+    this.caveDepth = 0;
     this.allies = (allies || []).slice(0, 4).map((g, i) => fighterFrom(g, 'ally', i, false));
     this.foes = (foes || []).slice(0, 4).map((g, i) => fighterFrom(g, 'foe', i, !!g.isBoss || kind === 'boss'));
     this.log = [];
     this.fx = [];
+    this.weaponDrops = [];
     this.queue = [];
     this.qIndex = 0;
     this.phase = 'intro'; // intro | ready | anim | enemy | win | lose
@@ -132,19 +149,34 @@ class Battle {
 
   _beginAttack(atk, def) {
     this.phase = 'anim';
-    this.anim = { kind: 'attack', atk, def, t: 0, resolved: false };
-    atk.anim = 'attack'; atk.frame = 0; atk.animT = 0;
-    if (this.instant) this._resolveAttack(atk, def);
+    this.anim = { kind: 'attack', atk, def, t: 0, resolved: false, hits: 0, strikes: 0,
+      double: atk.src?.equip?.arma_primaria === 'manoplas_lobo' };
+    atk.anim = this.instant ? 'attack' : 'walk'; atk.frame = 0; atk.animT = 0;
+    if (this.instant) {
+      this._strike();
+      if (this.anim.double) this._strike();
+    }
+  }
+
+  _strike() {
+    const a = this.anim;
+    if (!a) return;
+    a.strikes += 1;
+    if (this._resolveAttack(a.atk, a.def)) a.hits += 1;
+    if (a.double && a.strikes === 2 && a.hits === 2 && a.def.alive) {
+      a.def.stun = Math.max(1, a.def.stun);
+      this._log('stun', { name: a.def.name });
+    }
   }
 
   _resolveAttack(atk, def) {
     if (this.anim) this.anim.resolved = true;
-    if (!atk?.alive || !def?.alive) return;
+    if (!atk?.alive || !def?.alive) return false;
     const hit = this.rng() <= hitChance(atk, def);
     if (!hit) {
       this._log('miss', { name: atk.name, target: def.name });
       this.fx.push({ kind: 'miss', x: def.x, y: def.y - 36, ttl: 0.8 });
-      return;
+      return false;
     }
     const { dmg, crit } = rollDamage(atk, def, this.rng);
     def.hp = Math.max(0, def.hp - dmg);
@@ -155,13 +187,39 @@ class Battle {
       crit, ttl: 0.9,
     });
     this._log(crit ? 'crit' : 'hit', { name: atk.name, target: def.name, dmg });
+    if (atk.attackKind === 'bite') {
+      def.bleed = Math.max(def.bleed || 0, 2);
+      this._log('bleed', { name: def.name });
+    } else if (atk.attackKind === 'slash') {
+      def.stun = Math.max(def.stun || 0, 1);
+      this._log('stun', { name: def.name });
+    }
     if (def.hp <= 0) {
+      this._dropWeapons(def);
       def.alive = false;
       def.hp = 0;
       if (def.src) def.src.hp = 0;
       def.anim = 'death'; def.frame = 0; def.animT = 0;
       this._log('down', { name: def.name });
+      if (def.side === 'foe') this.lastDefeated = { x: def.homeX, y: def.homeY };
     }
+    return true;
+  }
+
+  _dropWeapons(f) {
+    if (f.weaponsDropped || f.side !== 'ally') return;
+    f.weaponsDropped = true;
+    const equip = f.src.equip || {};
+    const ids = new Set(['arma_primaria', 'arma_secundaria'].map((k) => equip[k]).filter(Boolean));
+    for (const id of ids) {
+      const item = inv.byId(id);
+      this.weaponDrops.push({ id, icon: item?.ground || item?.icon, x: f.homeX + 18, y: f.homeY + 8, claimed: false });
+    }
+    delete equip.arma_primaria; delete equip.arma_secundaria;
+  }
+
+  recoverWeapons(village) {
+    for (const d of this.weaponDrops) if (!d.claimed) { village.addItem(d.id, 1); d.claimed = true; }
   }
 
   _syncHp() {
@@ -171,21 +229,36 @@ class Battle {
   }
 
   _spawnPendingWave() {
-    if (!this.pendingWave?.length) return false;
-    const members = this.pendingWave;
-    this.pendingWave = [];
-    this.foes = members.slice(0, 4).map((g, i) => fighterFrom(g, 'foe', i, false));
+    if (!this.pendingWaves?.length) return false;
+    const members = this.pendingWaves.shift();
+    this.pendingWave = this.pendingWaves[0] || [];
+    this.waveNumber += 1;
+    if (this.twinsBg && members.some((m) => m.attackKind === 'bite' || m.attackKind === 'slash' || (m.spritePrefix || '').startsWith('twin'))) {
+      this.bgKey = this.twinsBg;
+    }
+    this.foes = members.slice(0, 4).map((g, i) => fighterFrom(g, 'foe', i, !!g.isBoss));
     this.target = null;
     this.anim = null;
+    this.current = null;
     this._rebuildQueue();
     this.current = this.queue[0] || null;
-    this.phase = 'intro';
-    this.wait = this.instant ? 0 : 0.7;
-    this._log('wave');
+    if (this.instant) {
+      this.phase = 'intro';
+      this.wait = 0;
+      this._log('wave');
+    } else {
+      this.phase = 'advance';
+      this.advanceT = 0;
+      for (const f of this.foes) { f.x = f.homeX + 80; f.anim = 'walk'; }
+    }
     return true;
   }
 
   _checkEnd() {
+    if (!this.living('ally').length) {
+      this.phase = 'lose'; this.finished = true; this.result = 'lose';
+      this._syncHp(); this._log('lose'); return true;
+    }
     if (!this.living('foe').length) {
       if (this._spawnPendingWave()) return true;
       this.phase = 'win';
@@ -207,25 +280,49 @@ class Battle {
   }
 
   _nextTurn() {
-    if (this._checkEnd()) return;
-    const slots = this._slotList();
-    let i = slots.indexOf(this.current);
-    if (i < 0) i = 0;
-    let next = null;
-    for (let k = 1; k <= slots.length; k++) {
-      const f = slots[(i + k) % slots.length];
-      if (f?.alive) { next = f; break; }
-    }
-    this.current = next;
-    if (this.target && !this.target.alive) this.target = null;
-    this._rebuildQueue();
-    if (!this.current) { this._checkEnd(); return; }
-    if (this.current.side === 'ally') {
-      this.phase = 'ready';
-    } else {
-      this.phase = 'enemy';
-      this.wait = this.instant ? 0 : 0.45;
-      if (this.instant) this._enemyAttack();
+    for (let guard = 0; guard < 12; guard++) {
+      if (this._checkEnd()) return;
+      const slots = this._slotList();
+      let i = slots.indexOf(this.current);
+      if (i < 0) i = this.current?.introSentinel ? 7 : 0;
+      let next = null;
+      for (let k = 1; k <= slots.length; k++) {
+        const f = slots[(i + k) % slots.length];
+        if (f?.alive) { next = f; break; }
+      }
+      this.current = next;
+      if (this.target && !this.target.alive) this.target = null;
+      this._rebuildQueue();
+      if (!this.current) { this._checkEnd(); return; }
+
+      if (this.current.bleed > 0 && this.current.alive) {
+        const dmg = 2 + Math.floor((this.current.level || 1) * 0.4);
+        this.current.hp = Math.max(0, this.current.hp - dmg);
+        this.current.bleed -= 1;
+        if (this.current.src) this.current.src.hp = this.current.hp;
+        this.fx.push({ kind: 'dmg', x: this.current.x, y: this.current.y - 34, text: String(dmg), ttl: 0.8 });
+        this._log('bleed_tick', { name: this.current.name, dmg });
+        if (this.current.hp <= 0) {
+          this._dropWeapons(this.current);
+          this.current.alive = false;
+          this.current.anim = 'death'; this.current.frame = 0;
+          this._log('down', { name: this.current.name });
+          continue;
+        }
+      }
+      if (this.current.stun > 0) {
+        this.current.stun -= 1;
+        this._log('stunned', { name: this.current.name });
+        continue;
+      }
+      if (this.current.side === 'ally') {
+        this.phase = 'ready';
+      } else {
+        this.phase = 'enemy';
+        this.wait = this.instant ? 0 : 0.45;
+        if (this.instant) this._enemyAttack();
+      }
+      return;
     }
   }
 
@@ -243,12 +340,39 @@ class Battle {
     for (const fx of this.fx) fx.ttl -= dt;
     this.fx = this.fx.filter((fx) => fx.ttl > 0);
 
+    if (this.phase === 'advance') {
+      this.advanceT = (this.advanceT || 0) + dt;
+      const k = Math.min(1, this.advanceT / 1.6);
+      this.caveDepth = (this.waveNumber - 2 + k) * 80;
+      for (const f of this.allies) {
+        if (!f.alive) continue;
+        f.anim = 'walk';
+        f.x = f.homeX; // Camera tracks the marching party; cave scrolls left.
+      }
+      for (const f of this.foes) {
+        f.x = f.homeX + 80 * (1 - k);
+        f.anim = k < 1 ? 'walk' : 'idle';
+      }
+      if (k >= 1) {
+        for (const f of this.allies) {
+          f.x = f.homeX;
+          if (f.alive) { f.anim = 'idle'; f.frame = 0; }
+        }
+        for (const f of this.foes) { f.x = f.homeX; f.anim = 'idle'; f.frame = 0; }
+        this.phase = 'intro';
+        this.wait = this.instant ? 0 : 0.3;
+        this._log('wave');
+      }
+      return;
+    }
+
     if (this.phase === 'intro') {
       this.wait -= dt;
       if (this.wait <= 0) {
-        this.current = this.queue[0] || null;
-        if (this.current?.side === 'ally') this.phase = 'ready';
-        else { this.phase = 'enemy'; this.wait = this.instant ? 0 : 0.4; }
+        this.current = this._slotList()[7];
+        // Start at GA1, applying bleed/stun just like any other turn.
+        if (!this.current) this.current = { introSentinel: true };
+        this._nextTurn();
       }
       return;
     }
@@ -264,13 +388,26 @@ class Battle {
       a.t += dt;
       const atk = a.atk;
       const def = a.def;
-      const toward = Math.min(1, a.t / 0.22);
-      const back = a.t > 0.48 ? Math.min(1, (a.t - 0.48) / 0.22) : 0;
-      const mix = toward - back;
-      atk.x = atk.homeX + (def.homeX - atk.homeX) * 0.28 * mix;
-      atk.y = atk.homeY + (def.homeY - atk.homeY) * 0.28 * mix;
-      if (!a.resolved && a.t >= 0.28) this._resolveAttack(atk, def);
-      if (a.t >= 0.72) {
+      const gap = atk.kind === 'wolf' || def.kind === 'wolf' ? 52 : 30;
+      const contactX = def.homeX - Math.sign(def.homeX - atk.homeX) * gap;
+      let mix = 0;
+      if (a.t < 0.34) {
+        mix = a.t / 0.34;
+        if (atk.anim !== 'walk') { atk.anim = 'walk'; atk.frame = 0; }
+      } else if (a.t < (a.double ? 1.06 : 0.72)) {
+        mix = 1;
+        if (atk.anim !== 'attack') { atk.anim = 'attack'; atk.frame = 0; atk.animT = 0; }
+      } else {
+        mix = Math.max(0, 1 - (a.t - (a.double ? 1.06 : 0.72)) / 0.28);
+        if (atk.alive && atk.anim !== 'walk') { atk.anim = 'walk'; atk.frame = 0; }
+      }
+      atk.x = atk.homeX + (contactX - atk.homeX) * mix;
+      atk.y = atk.homeY + (def.homeY - atk.homeY) * mix;
+      if (a.strikes === 0 && a.t >= 0.42) this._strike();
+      if (a.double && a.strikes === 1 && a.t >= 0.78) {
+        atk.frame = 0; atk.animT = 0; this._strike();
+      }
+      if (a.t >= (this.instant ? 0.72 : a.double ? 1.36 : 1.02)) {
         atk.x = atk.homeX; atk.y = atk.homeY;
         if (atk.alive) { atk.anim = 'idle'; atk.frame = 0; }
         this.anim = null;
@@ -304,15 +441,26 @@ class Battle {
 }
 
 function drawFighter(ctx, f, time, highlight) {
-  const spr = getSprite(gear.spriteForGoblin(f.src, f.anim, f.frame % (ANIM_FRAMES[f.anim] || 1)));
+  const wolf = f.kind === 'wolf' || f.src?.kind === 'wolf';
   ctx.save();
   ctx.translate(f.x, f.y);
   ctx.scale(f.face * f.scale, f.scale);
-  if (f.side === 'foe') {
-    ctx.filter = f.isBoss ? 'hue-rotate(-10deg) saturate(1.25)' : 'hue-rotate(-20deg) saturate(1.15)';
+  ctx.imageSmoothingEnabled = false;
+  if (wolf) {
+    const prefix = f.spritePrefix || f.src?.spritePrefix || 'wolf';
+    const n = ANIM_FRAMES[f.anim] || 5;
+    const spr = getSprite(prefix + '_' + f.anim + '_' + (f.frame % n));
+    const twin = prefix.startsWith('twin');
+    const w = twin ? 56 : 48, h = twin ? 36 : 32;
+    ctx.drawImage(spr, -w / 2, -h + 2, w, h);
+  } else {
+    const spr = getSprite(gear.spriteForGoblin(f.src, f.anim, f.frame % (ANIM_FRAMES[f.anim] || 1)));
+    if (f.side === 'foe') {
+      ctx.filter = f.isBoss ? 'hue-rotate(-10deg) saturate(1.25)' : 'hue-rotate(-20deg) saturate(1.15)';
+    }
+    ctx.drawImage(spr, -16, -30, 32, 32);
+    ctx.filter = 'none';
   }
-  ctx.drawImage(spr, -16, -30, 32, 32);
-  ctx.filter = 'none';
   ctx.restore();
 
   const bw = f.isBoss ? 42 : 28;
@@ -324,10 +472,29 @@ function drawFighter(ctx, f, time, highlight) {
   ctx.font = `bold ${f.isBoss ? 9 : 8}px monospace`;
   ctx.textAlign = 'center';
   ctx.fillText(f.name, f.x, f.y - 42 * f.scale);
+  if (f.bleed > 0) {
+    ctx.fillStyle = '#d4452f';
+    ctx.fillText('+', f.x + 16, f.y - 48 * f.scale);
+  }
+  if (f.stun > 0) {
+    ctx.fillStyle = '#ffe14a';
+    ctx.fillText('*', f.x - 18, f.y - 48 * f.scale);
+  }
   ctx.textAlign = 'left';
 }
 
 function drawBattleBackdrop(ctx, bg) {
+  if (bg?.image) {
+    ctx.imageSmoothingEnabled = false;
+    try {
+      const shift = (bg.depth || 0) % 640;
+      const image = getSprite(bg.image);
+      ctx.drawImage(image, -shift, 0, 640, 360);
+      if (shift) ctx.drawImage(image, 640 - shift, 0, 640, 360);
+    }
+    catch (e) { ctx.fillStyle = '#1a1410'; ctx.fillRect(0, 0, 640, 360); }
+    return;
+  }
   if (bg?.terrain) {
     const zoom = 2.6;
     const vw = 640 / zoom, vh = 360 / zoom;
@@ -369,8 +536,16 @@ function drawSlider(ui, ctx, id, x, y, w, value, label) {
 
 function drawBattle(ctx, ui, battle, i18n, time, view) {
   view = view || {};
-  drawBattleBackdrop(ctx, view.bg);
+  drawBattleBackdrop(ctx, { ...(view.bg || {}), image: battle.bgKey || view.bg?.image, depth: battle.caveDepth });
 
+  if (battle.bgKey) ui.text(320, 44, `${battle.foes.some((f) => f.isBoss && f.kind === 'wolf') ? i18n.t('ui.war_twins') : i18n.t('ui.den_title')} · ${battle.waveNumber}/${battle.totalWaves}`, { align: 'center', size: 11, color: '#ffe9a8' });
+  for (const d of battle.weaponDrops) {
+    if (d.claimed) continue;
+    const y = d.y - 8 + Math.sin(time * 3) * 3;
+    ctx.fillStyle = 'rgba(60,170,255,0.3)'; ctx.beginPath(); ctx.ellipse(d.x, y, 19, 12, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#9ceaff'; ctx.fillRect(d.x + 13, y - 13, 2, 2);
+    ctx.drawImage(getSprite(d.icon), d.x - 12, y - 12, 24, 24);
+  }
   const current = battle.current;
   const fighters = [...battle.foes, ...battle.allies].sort((a, b) => a.y - b.y);
   for (const f of fighters) {
@@ -410,6 +585,10 @@ function drawBattle(ctx, ui, battle, i18n, time, view) {
     } else if (last.kind === 'miss') line = i18n.t('ui.battle_miss_log', { name: last.params.name });
     else if (last.kind === 'down') line = i18n.t('ui.battle_down', { name: last.params.name });
     else if (last.kind === 'wave') line = i18n.t('ui.battle_wave');
+    else if (last.kind === 'bleed') line = i18n.t('ui.battle_bleed', { name: last.params.name });
+    else if (last.kind === 'stun') line = i18n.t('ui.battle_stun', { name: last.params.name });
+    else if (last.kind === 'stunned') line = i18n.t('ui.battle_stunned', { name: last.params.name });
+    else if (last.kind === 'bleed_tick') line = i18n.t('ui.battle_bleed_tick', { name: last.params.name, dmg: last.params.dmg });
     if (line) ui.text(228, 18, line, { size: 9, color: '#ffe9a8' });
   }
 
@@ -430,6 +609,7 @@ function drawBattle(ctx, ui, battle, i18n, time, view) {
     ctx.fillRect(0, 0, 640, 360);
   }
 
+  if (view.reward) return;
   if (battle.phase === 'win' || battle.phase === 'lose') {
     const win = battle.phase === 'win';
     ui.rusticPanel(170, 88, 300, 168);

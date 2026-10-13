@@ -240,3 +240,45 @@ em `js/save.js`; o sistema (save/load/autosave a cada 10s) continua intacto.
 **Combate (início da Fase 3):** no canto da ilha há um **balão de ar quente abandonado**. Consertado, o botão 🎈 abre o mapa do arquipélago (ilhas em linha no mar, arraste para o lado). Em cada ilha inimiga o grupo de até **4 goblins** anda em formação; patrulhas de 4 alertam a 6 blocos (`!`) e se confundem (`?`) ao perder o rastro. Estruturas no centro dão **ouro + gemas goblinéias**; o Chefe corre atrás se você tentar destruí-las. Encostar num grupo ou no Chefe abre uma **batalha por turnos** (por enquanto só ataque normal — 3 espaços de habilidade já existem, mas entram depois).
 
 **A seguir:** habilidades na batalha, status nos equipamentos, Ferraria/Altar/Bazar. Roadmap completo em [`docs/planejamento-jogo-gnomos.md`](docs/planejamento-jogo-gnomos.md).
+
+### Ilha das Presas — tocas e Gêmeos da Guerra
+
+- Expedição: até 8 goblins; escolha até 4 antes de cada encontro. No mapa,
+  somente o primeiro goblin vivo representa o grupo. Os quatro escolhidos
+  permanecem nas três ondas, sem cura automática entre elas.
+- Madeira/pedra: 15/12 ciclos, como na vila. Cada goblin vivo soma sua taxa de
+  trabalho, usando o mesmo bônus de força/velocidade da ilha normal.
+- Presas: sem patrulhas ou vila central. Seis pequenas tocas têm 1/2/2 lobos;
+  a toca central tem 4/4/2 (os dois últimos são os Gêmeos da Guerra).
+- Mandíbula morde e causa sangramento por dois turnos do alvo (2 + nível/2,5,
+  arredondado para baixo, de dano por turno). Patas corta e atordoa por um
+  turno. Sangramento também corre durante o turno perdido por atordoamento.
+- As ondas preservam a vida do grupo. Os goblins marcham com o cenário
+  rolando e os ataques se aproximam do alvo antes do impacto.
+- Artes: `bg_den`, `bg_den_twins`, `prop_den_lair`, `twin_jaw_*`, `twin_paw_*`.
+  Dano e queda dos chefes são animações procedurais simples derivadas de sua
+  pose-base com armadura (`tools/finish_twin_sprites.py`), não novas poses
+  desenhadas individualmente. Precisam de refinamento artístico posterior.
+- Prévia direta de combate: `?demo=battle`; chefes: `?demo=twins`.
+
+### Baús de toca e padrão de equipamentos
+
+Baús não são mais espalhados pelas ilhas. A última baixa da última onda faz
+surgir um baú: madeira desgastada nas tocas, ossos e tranca de caveira na toca
+central. Tocar no baú revela a fila de recompensas numa faixa azul; tocar fora
+dele pula a apresentação. Após revelar, qualquer toque sai da toca. Os recursos
+são concedidos exatamente uma vez, inclusive ao pular.
+
+As Manoplas do Lobo são exclusivas do baú central e ocupam as duas mãos com
+uma única unidade. Substituir qualquer mão remove o par inteiro. O ataque faz
+dois testes de acerto; apenas dois acertos atordoam o alvo vivo por um turno.
+
+Padrão obrigatório para novos itens:
+- Arte de chão separada, flutuação e brilho azul; ícone de inventário separado.
+- Só peitoral, capacete, calças e as duas mãos alteram a skin. Acessórios não.
+- Peças visíveis usam camadas opacas alinhadas quadro a quadro em todas as
+  animações. Roupas permanecem no cadáver; armas saem da skin e caem no chão.
+- Armas caídas são recolhidas ao armazém ao encerrar/sair do combate, sem duplicar
+  itens de duas mãos. Não são reequipadas automaticamente.
+- `tools/gen_wolf_gauntlets.py` gera 62 overlays opacos e a versão de chão das
+  manoplas. `?demo=chest` e `?demo=chest_loot` mostram a cena de recompensa.

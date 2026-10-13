@@ -1773,6 +1773,14 @@
       "path": "assets/sprites/raid/balloon_wrecked.png"
     },
     {
+      "id": "bg_den",
+      "path": "assets/sprites/raid/bg_den.png"
+    },
+    {
+      "id": "bg_den_twins",
+      "path": "assets/sprites/raid/bg_den_twins.png"
+    },
+    {
       "id": "building_altar_1",
       "path": "assets/sprites/buildings/building_altar_1.png"
     },
@@ -5669,6 +5677,10 @@
       "path": "assets/sprites/raid/prop_den.png"
     },
     {
+      "id": "prop_den_lair",
+      "path": "assets/sprites/raid/prop_den_lair.png"
+    },
+    {
       "id": "prop_hive",
       "path": "assets/sprites/raid/prop_hive.png"
     },
@@ -5731,6 +5743,502 @@
     {
       "id": "skill_toque_curativo",
       "path": "assets/sprites/items/skill_toque_curativo.png"
+    },
+    {
+      "id": "twin_jaw_attack_0",
+      "path": "assets/sprites/raid/twin_jaw_attack_0.png"
+    },
+    {
+      "id": "twin_jaw_attack_1",
+      "path": "assets/sprites/raid/twin_jaw_attack_1.png"
+    },
+    {
+      "id": "twin_jaw_attack_10",
+      "path": "assets/sprites/raid/twin_jaw_attack_10.png"
+    },
+    {
+      "id": "twin_jaw_attack_11",
+      "path": "assets/sprites/raid/twin_jaw_attack_11.png"
+    },
+    {
+      "id": "twin_jaw_attack_12",
+      "path": "assets/sprites/raid/twin_jaw_attack_12.png"
+    },
+    {
+      "id": "twin_jaw_attack_13",
+      "path": "assets/sprites/raid/twin_jaw_attack_13.png"
+    },
+    {
+      "id": "twin_jaw_attack_14",
+      "path": "assets/sprites/raid/twin_jaw_attack_14.png"
+    },
+    {
+      "id": "twin_jaw_attack_15",
+      "path": "assets/sprites/raid/twin_jaw_attack_15.png"
+    },
+    {
+      "id": "twin_jaw_attack_16",
+      "path": "assets/sprites/raid/twin_jaw_attack_16.png"
+    },
+    {
+      "id": "twin_jaw_attack_2",
+      "path": "assets/sprites/raid/twin_jaw_attack_2.png"
+    },
+    {
+      "id": "twin_jaw_attack_3",
+      "path": "assets/sprites/raid/twin_jaw_attack_3.png"
+    },
+    {
+      "id": "twin_jaw_attack_4",
+      "path": "assets/sprites/raid/twin_jaw_attack_4.png"
+    },
+    {
+      "id": "twin_jaw_attack_5",
+      "path": "assets/sprites/raid/twin_jaw_attack_5.png"
+    },
+    {
+      "id": "twin_jaw_attack_6",
+      "path": "assets/sprites/raid/twin_jaw_attack_6.png"
+    },
+    {
+      "id": "twin_jaw_attack_7",
+      "path": "assets/sprites/raid/twin_jaw_attack_7.png"
+    },
+    {
+      "id": "twin_jaw_attack_8",
+      "path": "assets/sprites/raid/twin_jaw_attack_8.png"
+    },
+    {
+      "id": "twin_jaw_attack_9",
+      "path": "assets/sprites/raid/twin_jaw_attack_9.png"
+    },
+    {
+      "id": "twin_jaw_death_0",
+      "path": "assets/sprites/raid/twin_jaw_death_0.png"
+    },
+    {
+      "id": "twin_jaw_death_1",
+      "path": "assets/sprites/raid/twin_jaw_death_1.png"
+    },
+    {
+      "id": "twin_jaw_death_10",
+      "path": "assets/sprites/raid/twin_jaw_death_10.png"
+    },
+    {
+      "id": "twin_jaw_death_11",
+      "path": "assets/sprites/raid/twin_jaw_death_11.png"
+    },
+    {
+      "id": "twin_jaw_death_12",
+      "path": "assets/sprites/raid/twin_jaw_death_12.png"
+    },
+    {
+      "id": "twin_jaw_death_13",
+      "path": "assets/sprites/raid/twin_jaw_death_13.png"
+    },
+    {
+      "id": "twin_jaw_death_14",
+      "path": "assets/sprites/raid/twin_jaw_death_14.png"
+    },
+    {
+      "id": "twin_jaw_death_2",
+      "path": "assets/sprites/raid/twin_jaw_death_2.png"
+    },
+    {
+      "id": "twin_jaw_death_3",
+      "path": "assets/sprites/raid/twin_jaw_death_3.png"
+    },
+    {
+      "id": "twin_jaw_death_4",
+      "path": "assets/sprites/raid/twin_jaw_death_4.png"
+    },
+    {
+      "id": "twin_jaw_death_5",
+      "path": "assets/sprites/raid/twin_jaw_death_5.png"
+    },
+    {
+      "id": "twin_jaw_death_6",
+      "path": "assets/sprites/raid/twin_jaw_death_6.png"
+    },
+    {
+      "id": "twin_jaw_death_7",
+      "path": "assets/sprites/raid/twin_jaw_death_7.png"
+    },
+    {
+      "id": "twin_jaw_death_8",
+      "path": "assets/sprites/raid/twin_jaw_death_8.png"
+    },
+    {
+      "id": "twin_jaw_death_9",
+      "path": "assets/sprites/raid/twin_jaw_death_9.png"
+    },
+    {
+      "id": "twin_jaw_hurt_0",
+      "path": "assets/sprites/raid/twin_jaw_hurt_0.png"
+    },
+    {
+      "id": "twin_jaw_hurt_1",
+      "path": "assets/sprites/raid/twin_jaw_hurt_1.png"
+    },
+    {
+      "id": "twin_jaw_hurt_10",
+      "path": "assets/sprites/raid/twin_jaw_hurt_10.png"
+    },
+    {
+      "id": "twin_jaw_hurt_11",
+      "path": "assets/sprites/raid/twin_jaw_hurt_11.png"
+    },
+    {
+      "id": "twin_jaw_hurt_12",
+      "path": "assets/sprites/raid/twin_jaw_hurt_12.png"
+    },
+    {
+      "id": "twin_jaw_hurt_13",
+      "path": "assets/sprites/raid/twin_jaw_hurt_13.png"
+    },
+    {
+      "id": "twin_jaw_hurt_14",
+      "path": "assets/sprites/raid/twin_jaw_hurt_14.png"
+    },
+    {
+      "id": "twin_jaw_hurt_15",
+      "path": "assets/sprites/raid/twin_jaw_hurt_15.png"
+    },
+    {
+      "id": "twin_jaw_hurt_16",
+      "path": "assets/sprites/raid/twin_jaw_hurt_16.png"
+    },
+    {
+      "id": "twin_jaw_hurt_2",
+      "path": "assets/sprites/raid/twin_jaw_hurt_2.png"
+    },
+    {
+      "id": "twin_jaw_hurt_3",
+      "path": "assets/sprites/raid/twin_jaw_hurt_3.png"
+    },
+    {
+      "id": "twin_jaw_hurt_4",
+      "path": "assets/sprites/raid/twin_jaw_hurt_4.png"
+    },
+    {
+      "id": "twin_jaw_hurt_5",
+      "path": "assets/sprites/raid/twin_jaw_hurt_5.png"
+    },
+    {
+      "id": "twin_jaw_hurt_6",
+      "path": "assets/sprites/raid/twin_jaw_hurt_6.png"
+    },
+    {
+      "id": "twin_jaw_hurt_7",
+      "path": "assets/sprites/raid/twin_jaw_hurt_7.png"
+    },
+    {
+      "id": "twin_jaw_hurt_8",
+      "path": "assets/sprites/raid/twin_jaw_hurt_8.png"
+    },
+    {
+      "id": "twin_jaw_hurt_9",
+      "path": "assets/sprites/raid/twin_jaw_hurt_9.png"
+    },
+    {
+      "id": "twin_jaw_idle_0",
+      "path": "assets/sprites/raid/twin_jaw_idle_0.png"
+    },
+    {
+      "id": "twin_jaw_idle_1",
+      "path": "assets/sprites/raid/twin_jaw_idle_1.png"
+    },
+    {
+      "id": "twin_jaw_idle_2",
+      "path": "assets/sprites/raid/twin_jaw_idle_2.png"
+    },
+    {
+      "id": "twin_jaw_idle_3",
+      "path": "assets/sprites/raid/twin_jaw_idle_3.png"
+    },
+    {
+      "id": "twin_jaw_idle_4",
+      "path": "assets/sprites/raid/twin_jaw_idle_4.png"
+    },
+    {
+      "id": "twin_jaw_walk_0",
+      "path": "assets/sprites/raid/twin_jaw_walk_0.png"
+    },
+    {
+      "id": "twin_jaw_walk_1",
+      "path": "assets/sprites/raid/twin_jaw_walk_1.png"
+    },
+    {
+      "id": "twin_jaw_walk_2",
+      "path": "assets/sprites/raid/twin_jaw_walk_2.png"
+    },
+    {
+      "id": "twin_jaw_walk_3",
+      "path": "assets/sprites/raid/twin_jaw_walk_3.png"
+    },
+    {
+      "id": "twin_jaw_walk_4",
+      "path": "assets/sprites/raid/twin_jaw_walk_4.png"
+    },
+    {
+      "id": "twin_jaw_walk_5",
+      "path": "assets/sprites/raid/twin_jaw_walk_5.png"
+    },
+    {
+      "id": "twin_jaw_walk_6",
+      "path": "assets/sprites/raid/twin_jaw_walk_6.png"
+    },
+    {
+      "id": "twin_jaw_walk_7",
+      "path": "assets/sprites/raid/twin_jaw_walk_7.png"
+    },
+    {
+      "id": "twin_paw_attack_0",
+      "path": "assets/sprites/raid/twin_paw_attack_0.png"
+    },
+    {
+      "id": "twin_paw_attack_1",
+      "path": "assets/sprites/raid/twin_paw_attack_1.png"
+    },
+    {
+      "id": "twin_paw_attack_10",
+      "path": "assets/sprites/raid/twin_paw_attack_10.png"
+    },
+    {
+      "id": "twin_paw_attack_11",
+      "path": "assets/sprites/raid/twin_paw_attack_11.png"
+    },
+    {
+      "id": "twin_paw_attack_12",
+      "path": "assets/sprites/raid/twin_paw_attack_12.png"
+    },
+    {
+      "id": "twin_paw_attack_13",
+      "path": "assets/sprites/raid/twin_paw_attack_13.png"
+    },
+    {
+      "id": "twin_paw_attack_14",
+      "path": "assets/sprites/raid/twin_paw_attack_14.png"
+    },
+    {
+      "id": "twin_paw_attack_15",
+      "path": "assets/sprites/raid/twin_paw_attack_15.png"
+    },
+    {
+      "id": "twin_paw_attack_16",
+      "path": "assets/sprites/raid/twin_paw_attack_16.png"
+    },
+    {
+      "id": "twin_paw_attack_2",
+      "path": "assets/sprites/raid/twin_paw_attack_2.png"
+    },
+    {
+      "id": "twin_paw_attack_3",
+      "path": "assets/sprites/raid/twin_paw_attack_3.png"
+    },
+    {
+      "id": "twin_paw_attack_4",
+      "path": "assets/sprites/raid/twin_paw_attack_4.png"
+    },
+    {
+      "id": "twin_paw_attack_5",
+      "path": "assets/sprites/raid/twin_paw_attack_5.png"
+    },
+    {
+      "id": "twin_paw_attack_6",
+      "path": "assets/sprites/raid/twin_paw_attack_6.png"
+    },
+    {
+      "id": "twin_paw_attack_7",
+      "path": "assets/sprites/raid/twin_paw_attack_7.png"
+    },
+    {
+      "id": "twin_paw_attack_8",
+      "path": "assets/sprites/raid/twin_paw_attack_8.png"
+    },
+    {
+      "id": "twin_paw_attack_9",
+      "path": "assets/sprites/raid/twin_paw_attack_9.png"
+    },
+    {
+      "id": "twin_paw_death_0",
+      "path": "assets/sprites/raid/twin_paw_death_0.png"
+    },
+    {
+      "id": "twin_paw_death_1",
+      "path": "assets/sprites/raid/twin_paw_death_1.png"
+    },
+    {
+      "id": "twin_paw_death_10",
+      "path": "assets/sprites/raid/twin_paw_death_10.png"
+    },
+    {
+      "id": "twin_paw_death_11",
+      "path": "assets/sprites/raid/twin_paw_death_11.png"
+    },
+    {
+      "id": "twin_paw_death_12",
+      "path": "assets/sprites/raid/twin_paw_death_12.png"
+    },
+    {
+      "id": "twin_paw_death_13",
+      "path": "assets/sprites/raid/twin_paw_death_13.png"
+    },
+    {
+      "id": "twin_paw_death_14",
+      "path": "assets/sprites/raid/twin_paw_death_14.png"
+    },
+    {
+      "id": "twin_paw_death_2",
+      "path": "assets/sprites/raid/twin_paw_death_2.png"
+    },
+    {
+      "id": "twin_paw_death_3",
+      "path": "assets/sprites/raid/twin_paw_death_3.png"
+    },
+    {
+      "id": "twin_paw_death_4",
+      "path": "assets/sprites/raid/twin_paw_death_4.png"
+    },
+    {
+      "id": "twin_paw_death_5",
+      "path": "assets/sprites/raid/twin_paw_death_5.png"
+    },
+    {
+      "id": "twin_paw_death_6",
+      "path": "assets/sprites/raid/twin_paw_death_6.png"
+    },
+    {
+      "id": "twin_paw_death_7",
+      "path": "assets/sprites/raid/twin_paw_death_7.png"
+    },
+    {
+      "id": "twin_paw_death_8",
+      "path": "assets/sprites/raid/twin_paw_death_8.png"
+    },
+    {
+      "id": "twin_paw_death_9",
+      "path": "assets/sprites/raid/twin_paw_death_9.png"
+    },
+    {
+      "id": "twin_paw_hurt_0",
+      "path": "assets/sprites/raid/twin_paw_hurt_0.png"
+    },
+    {
+      "id": "twin_paw_hurt_1",
+      "path": "assets/sprites/raid/twin_paw_hurt_1.png"
+    },
+    {
+      "id": "twin_paw_hurt_10",
+      "path": "assets/sprites/raid/twin_paw_hurt_10.png"
+    },
+    {
+      "id": "twin_paw_hurt_11",
+      "path": "assets/sprites/raid/twin_paw_hurt_11.png"
+    },
+    {
+      "id": "twin_paw_hurt_12",
+      "path": "assets/sprites/raid/twin_paw_hurt_12.png"
+    },
+    {
+      "id": "twin_paw_hurt_13",
+      "path": "assets/sprites/raid/twin_paw_hurt_13.png"
+    },
+    {
+      "id": "twin_paw_hurt_14",
+      "path": "assets/sprites/raid/twin_paw_hurt_14.png"
+    },
+    {
+      "id": "twin_paw_hurt_15",
+      "path": "assets/sprites/raid/twin_paw_hurt_15.png"
+    },
+    {
+      "id": "twin_paw_hurt_16",
+      "path": "assets/sprites/raid/twin_paw_hurt_16.png"
+    },
+    {
+      "id": "twin_paw_hurt_2",
+      "path": "assets/sprites/raid/twin_paw_hurt_2.png"
+    },
+    {
+      "id": "twin_paw_hurt_3",
+      "path": "assets/sprites/raid/twin_paw_hurt_3.png"
+    },
+    {
+      "id": "twin_paw_hurt_4",
+      "path": "assets/sprites/raid/twin_paw_hurt_4.png"
+    },
+    {
+      "id": "twin_paw_hurt_5",
+      "path": "assets/sprites/raid/twin_paw_hurt_5.png"
+    },
+    {
+      "id": "twin_paw_hurt_6",
+      "path": "assets/sprites/raid/twin_paw_hurt_6.png"
+    },
+    {
+      "id": "twin_paw_hurt_7",
+      "path": "assets/sprites/raid/twin_paw_hurt_7.png"
+    },
+    {
+      "id": "twin_paw_hurt_8",
+      "path": "assets/sprites/raid/twin_paw_hurt_8.png"
+    },
+    {
+      "id": "twin_paw_hurt_9",
+      "path": "assets/sprites/raid/twin_paw_hurt_9.png"
+    },
+    {
+      "id": "twin_paw_idle_0",
+      "path": "assets/sprites/raid/twin_paw_idle_0.png"
+    },
+    {
+      "id": "twin_paw_idle_1",
+      "path": "assets/sprites/raid/twin_paw_idle_1.png"
+    },
+    {
+      "id": "twin_paw_idle_2",
+      "path": "assets/sprites/raid/twin_paw_idle_2.png"
+    },
+    {
+      "id": "twin_paw_idle_3",
+      "path": "assets/sprites/raid/twin_paw_idle_3.png"
+    },
+    {
+      "id": "twin_paw_idle_4",
+      "path": "assets/sprites/raid/twin_paw_idle_4.png"
+    },
+    {
+      "id": "twin_paw_walk_0",
+      "path": "assets/sprites/raid/twin_paw_walk_0.png"
+    },
+    {
+      "id": "twin_paw_walk_1",
+      "path": "assets/sprites/raid/twin_paw_walk_1.png"
+    },
+    {
+      "id": "twin_paw_walk_2",
+      "path": "assets/sprites/raid/twin_paw_walk_2.png"
+    },
+    {
+      "id": "twin_paw_walk_3",
+      "path": "assets/sprites/raid/twin_paw_walk_3.png"
+    },
+    {
+      "id": "twin_paw_walk_4",
+      "path": "assets/sprites/raid/twin_paw_walk_4.png"
+    },
+    {
+      "id": "twin_paw_walk_5",
+      "path": "assets/sprites/raid/twin_paw_walk_5.png"
+    },
+    {
+      "id": "twin_paw_walk_6",
+      "path": "assets/sprites/raid/twin_paw_walk_6.png"
+    },
+    {
+      "id": "twin_paw_walk_7",
+      "path": "assets/sprites/raid/twin_paw_walk_7.png"
     },
     {
       "id": "ui_attack_sword",
@@ -17167,6 +17675,274 @@
     {
       "id": "wolf_walk_7",
       "path": "assets/sprites/raid/wolf_walk_7.png"
+    },
+    {
+      "id": "reward_chest_wood",
+      "path": "assets/sprites/raid/reward_chest_wood.png"
+    },
+    {
+      "id": "reward_chest_bone",
+      "path": "assets/sprites/raid/reward_chest_bone.png"
+    },
+    {
+      "id": "item_manoplas_lobo",
+      "path": "assets/sprites/raid/item_manoplas_lobo.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_idle_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_idle_0.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_idle_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_idle_1.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_idle_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_idle_2.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_idle_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_idle_3.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_idle_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_idle_4.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_walk_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_walk_0.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_walk_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_walk_1.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_walk_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_walk_2.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_walk_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_walk_3.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_walk_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_walk_4.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_walk_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_walk_5.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_walk_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_walk_6.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_walk_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_walk_7.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_0.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_1.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_2.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_3.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_4.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_5.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_6.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_7.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_8.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_9.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_10.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_11.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_12.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_13.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_14.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_15",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_15.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_attack_16",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_attack_16.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_0.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_1.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_2.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_3.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_4.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_5.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_6.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_7.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_8.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_9.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_10.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_11.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_12.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_13.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_14.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_15",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_15.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_hurt_16",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_hurt_16.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_0",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_0.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_1",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_1.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_2",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_2.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_3",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_3.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_4",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_4.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_5",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_5.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_6",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_6.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_7",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_7.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_8",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_8.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_9",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_9.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_10",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_10.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_11",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_11.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_12",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_12.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_13",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_13.png"
+    },
+    {
+      "id": "overlay_wpn_manoplas_death_14",
+      "path": "assets/sprites/goblin-gear-overlays/overlay_wpn_manoplas_death_14.png"
+    },
+    {
+      "id": "drop_manoplas_lobo",
+      "path": "assets/sprites/raid/drop_manoplas_lobo.png"
+    },
+    {
+      "id": "res_goblin_gems",
+      "path": "assets/sprites/raid/res_goblin_gems.png"
     }
   ]
 }

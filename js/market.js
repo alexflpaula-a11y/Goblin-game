@@ -77,7 +77,7 @@ function catalog(village, side) {
     ...RECIPES.map((r) => ({ kind: 'meal', key: r.id, sprite: r.sprite })),
     // equipamentos do Armazém (compra e revenda) — precisa do Armazém
     ...(village.has('armazem')
-      ? inv.ITEMS.map((i) => ({ kind: 'gear', key: i.id, sprite: i.icon }))
+      ? inv.ITEMS.filter((i) => !i.lootOnly).map((i) => ({ kind: 'gear', key: i.id, sprite: i.icon }))
       : []),
   ];
   return items

@@ -4,7 +4,7 @@
 // O balão nasce abandonado num canto da ilha da vila. Depois de
 // consertado, o botão 🎈 abre o mapa: as ilhas ficam em linha no
 // mar e o jogador arrasta para o lado. Ao descer, o grupo de até
-// 4 goblins anda em formação (toque = destino). Inimigos patrulham,
+// 8 goblins é representado pelo líder (toque = destino). Inimigos patrulham,
 // ficam alertas a 6 blocos e, fora do alcance, se confundem e
 // voltam. Encostar num grupo ou no Chefe abre a batalha por turnos.
 // ============================================================
@@ -42,8 +42,10 @@ const FORMATION = [
 
 const BALLOON_REPAIR_COST = { wood: 30, stone: 20, gold: 15 };
 const BALLOON_MAX_LEVEL = 3;
-const PARTY_LIMIT = 4;
+const PARTY_LIMIT = 8;
+const BATTLE_LIMIT = 4;
 const CITY_RADIUS = 170;
+const LAIR_RADIUS = 110;
 
 const ISLANDS = [
   { id: 'home', nameKey: 'ui.island_home', difficulty: 0, home: true, reqBalloon: 0, hue: 128, theme: 'home' },
@@ -167,7 +169,7 @@ function raidRewards(difficulty, kind) {
   const cfg = combatCfg();
   const gold = cfg.gold ?? (12 + d * 4);
   const gems = cfg.gems ?? 2;
-  if (kind === 'boss') return { gold: gold * 2 + 10, goblin_gems: gems * 3 };
+  if (kind === 'boss' || kind === 'lair') return { gold: gold * 2 + 10, goblin_gems: gems * 3 };
   return { gold, goblin_gems: gems };
 }
 
@@ -212,6 +214,75 @@ function makeBossMember(difficulty, rng) {
   const v = VARIATIONS.includes('49_guerreiro_dourado') ? '49_guerreiro_dourado' : VARIATIONS[0];
   const g = makeEnemyGoblin('Chefe', difficulty, v, true, rng);
   return g;
+}
+
+const WOLF_NAMES = ['Presa', 'Uivo', 'Garra', 'Focinho'];
+
+function makeWolfEnemy(name, difficulty, extra) {
+  const d = Math.max(1, difficulty | 0);
+  const hp = extra?.maxHp ?? (14 + d * 5);
+  return {
+    name,
+    kind: 'wolf',
+    spritePrefix: extra?.spritePrefix || 'wolf',
+    attackKind: extra?.attackKind || 'melee',
+    isBoss: !!extra?.isBoss,
+    scale: extra?.scale,
+    level: d,
+    poderDestrutivo: extra?.poderDestrutivo ?? (2 + d),
+    vitalidade: extra?.vitalidade ?? (2 + d),
+    velocidade: extra?.velocidade ?? (3 + d),
+    precisao: extra?.precisao ?? (3 + d),
+    maxHp: hp,
+    hp,
+  };
+}
+
+function makeWolfPack(count, difficulty) {
+  const n = Math.max(1, Math.min(4, count | 0));
+  const out = [];
+  for (let i = 0; i < n; i++) out.push(makeWolfEnemy(WOLF_NAMES[i % WOLF_NAMES.length], difficulty));
+  return out;
+}
+
+function makeWarTwins(difficulty) {
+  const d = Math.max(1, difficulty | 0);
+  const hp = 48 + d * 10;
+  return [
+    makeWolfEnemy('Mandíbula', d, {
+      isBoss: true, attackKind: 'bite', spritePrefix: 'twin_jaw', scale: 2.25,
+      poderDestrutivo: 7 + d, vitalidade: 8, velocidade: 5, precisao: 6, maxHp: hp,
+    }),
+    makeWolfEnemy('Patas', d, {
+      isBoss: true, attackKind: 'slash', spritePrefix: 'twin_paw', scale: 2.25,
+      poderDestrutivo: 7 + d, vitalidade: 8, velocidade: 5, precisao: 6, maxHp: hp,
+    }),
+  ];
+}
+
+function denWaves(kind, difficulty) {
+  if (kind === 'lair') {
+    return {
+      foes: makeWolfPack(4, difficulty),
+      waves: [makeWolfPack(4, difficulty), makeWarTwins(difficulty)],
+      bgKey: 'bg_den',
+      twinsBg: 'bg_den_twins',
+    };
+  }
+  return {
+    foes: makeWolfPack(1, difficulty),
+    waves: [makeWolfPack(2, difficulty), makeWolfPack(2, difficulty)],
+    bgKey: 'bg_den',
+  };
+}
+
+function raidWorkPeriod(party) {
+  const base = BAL.nodes?.workPeriod ?? 1.2;
+  const alive = (party?.goblins || []).filter((g) => g && g.hp > 0);
+  // Sum each worker's home-island rate, including strength/speed bonuses.
+  const rate = alive.reduce((sum, g) => sum + 1 / Math.max(0.4,
+    1 - ((g.velocidade || 0) + (g.poderDestrutivo || 0)) / 80), 0);
+  return rate > 0 ? base / rate : Infinity;
 }
 
 function findBalloonSpot(world) {
@@ -277,20 +348,26 @@ function drawBalloon(ctx, balloon, time, opts) {
   ctx.restore();
 }
 
-function drawTree(ctx, x, y, hive) {
+function drawTree(ctx, x, y, hive, node) {
   ctx.save();
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(getSprite('node_tree_0'), x - 24, y - 46, 48, 48);
   if (hive) {
     ctx.drawImage(getSprite('prop_hive'), x + 4, y - 46, 22, 28);
   }
+  if (node && !node.taken && node.max && node.stock < node.max) {
+    drawHpBar(ctx, x, y - 50, 20, node.stock, node.max);
+  }
   ctx.restore();
 }
 
-function drawRock(ctx, x, y) {
+function drawRock(ctx, x, y, node) {
   ctx.save();
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(getSprite('node_rock_0'), x - 24, y - 46, 48, 48);
+  if (node && !node.taken && node.max && node.stock < node.max) {
+    drawHpBar(ctx, x, y - 50, 20, node.stock, node.max);
+  }
   ctx.restore();
 }
 
@@ -334,7 +411,7 @@ function drawGroundDrop(ctx, d, time) {
   const glow = 0.38 + 0.28 * Math.sin(((time || 0) + (d.t || 0)) * 5);
   ctx.save();
   ctx.globalAlpha = 0.45 + glow;
-  ctx.fillStyle = '#ffe9a8';
+  ctx.fillStyle = d.kind === 'item' ? '#4cbfff' : '#ffe9a8';
   ctx.beginPath();
   ctx.ellipse(d.x, d.y - 8 + bob, 11, 7, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -488,7 +565,7 @@ class RaidIsland {
     this.busy = false;
     this.generate();
     this.prerender();
-    const partyGoblins = (goblins || []).slice(0, 4);
+    const partyGoblins = (goblins || []).slice(0, PARTY_LIMIT);
     this.party = {
       x: this.landing.x,
       y: this.landing.y,
@@ -521,12 +598,18 @@ class RaidIsland {
     return !!(this.flyIn && this.flyIn.t < this.flyIn.dur);
   }
 
+  _isFangs() {
+    return (this.def?.theme || this.def?.id) === 'fangs';
+  }
+
   inCity(x, y) {
-    return Math.hypot(x - this.center.x, y - this.center.y) < CITY_RADIUS;
+    const r = this._isFangs() ? LAIR_RADIUS : CITY_RADIUS;
+    return Math.hypot(x - this.center.x, y - this.center.y) < r;
   }
 
   canLand(x, y) {
-    return this.walkable(x, y) && !this.inCity(x, y);
+    return this.walkable(x, y) && !this.inCity(x, y)
+      && !this.dens.some((d) => Math.hypot(x - d.x, y - d.y) < 70);
   }
 
   setLanding(x, y) {
@@ -567,6 +650,8 @@ class RaidIsland {
     this.loot = [];
     this.buildings = [];
     this.patrols = [];
+    this.dens = [];
+    this.lair = null;
     this.props = [];
     this.animals = [];
     this._placeCenter();
@@ -606,7 +691,7 @@ class RaidIsland {
       if (Math.hypot(x - this.landing.x, y - this.landing.y) < 96) continue;
       let ok = true;
       for (const a of avoid) {
-        if (Math.hypot(a.x - x, a.y - y) < minAvoid) { ok = false; break; }
+        if (Math.hypot(a.x - x, a.y - y) < Math.max(minAvoid, a.kind === 'lair' ? 120 : a.kind === 'den' ? 58 : 0)) { ok = false; break; }
       }
       if (ok) return { x, y };
     }
@@ -614,6 +699,15 @@ class RaidIsland {
   }
 
   _placeCenter() {
+    if (this._isFangs()) {
+      this.buildings = [];
+      this.boss = null;
+      this.lair = {
+        x: this.center.x, y: this.center.y,
+        kind: 'lair', type: 'lair', cleared: false,
+      };
+      return;
+    }
     ENEMY_HUTS.forEach((def, i) => {
       this.buildings.push({
         x: this.center.x + def.dx,
@@ -651,6 +745,17 @@ class RaidIsland {
   }
 
   _placePatrols() {
+    if (this._isFangs()) {
+      const placed = [this.lair, this.landing].filter(Boolean);
+      for (let i = 0; i < 6; i++) {
+        const spot = this._grassSpot(200, 780, placed, 110);
+        if (!spot) continue;
+        const den = { x: spot.x, y: spot.y, kind: 'den', type: 'den', cleared: false };
+        this.dens.push(den);
+        placed.push(den);
+      }
+      return;
+    }
     const placed = [this.boss, ...this.buildings];
     for (let i = 0; i < 5; i++) {
       const spot = this._grassSpot(200, 780, placed, 100);
@@ -675,24 +780,27 @@ class RaidIsland {
   }
 
   _placeLoot() {
-    const placed = [this.boss, ...this.buildings, ...this.patrols, this.landing];
+    const placed = [this.boss, this.lair, ...this.buildings, ...this.patrols, ...this.dens, this.landing].filter(Boolean);
+    const cfg = BAL.nodes || {};
     const add = (type, n) => {
       for (let i = 0; i < n; i++) {
         const spot = this._grassSpot(80, 860, placed, 32);
         if (!spot) continue;
         const node = { type, x: spot.x, y: spot.y, taken: false };
+        if (type === 'tree') { node.stock = cfg.treeStock ?? 15; node.max = node.stock; }
+        if (type === 'rock') { node.stock = cfg.rockStock ?? 12; node.max = node.stock; }
         this.loot.push(node);
         placed.push(node);
       }
     };
     add('tree', 28);
     add('rock', 22);
-    add('chest', 6);
+    // Cave victories are now the only source of treasure chests.
   }
 
   _placeTheme() {
     const theme = this.def?.theme || this.def?.id;
-    const placed = [this.boss, ...this.buildings, ...this.patrols, ...this.loot, this.landing];
+    const placed = [this.boss, this.lair, ...this.buildings, ...this.patrols, ...this.dens, ...this.loot, this.landing].filter(Boolean);
     const addProp = (type, n) => {
       for (let i = 0; i < n; i++) {
         const spot = this._grassSpot(140, 820, placed, 40);
@@ -718,7 +826,6 @@ class RaidIsland {
       }
     };
     if (theme === 'fangs') {
-      addProp('den', 4);
       const trees = this.loot.filter((n) => n.type === 'tree');
       let hives = 0;
       for (const t of trees) {
@@ -729,7 +836,6 @@ class RaidIsland {
       addAnimal('boar', 2);
       addAnimal('deer', 2);
       addAnimal('hare', 2);
-      addAnimal('wolf', 3);
     } else if (theme === 'smoke') {
       addProp('vent', 5);
       addProp('stump', 5);
@@ -858,6 +964,9 @@ class RaidIsland {
     } else if (hit.type === 'animal' && hit.obj.alive) {
       this.party.target = { x: hit.obj.x, y: hit.obj.y + 8 };
       this.party.job = { type: 'hunt', obj: hit.obj };
+    } else if ((hit.type === 'den' || hit.type === 'lair') && hit.obj && !hit.obj.cleared) {
+      this.party.target = { x: hit.obj.x, y: hit.obj.y + 12 };
+      this.party.job = { type: 'enter', obj: hit.obj };
     }
   }
 
@@ -867,6 +976,15 @@ class RaidIsland {
       return { type: 'balloon' };
     }
     let best = null, bestD = 28;
+    if (this.lair && !this.lair.cleared) {
+      const d = Math.hypot(wx - this.lair.x, wy - (this.lair.y - 20));
+      if (d < 42) { bestD = d; best = { type: 'lair', obj: this.lair }; }
+    }
+    for (const den of this.dens) {
+      if (den.cleared) continue;
+      const d = Math.hypot(wx - den.x, wy - (den.y - 10));
+      if (d < Math.min(bestD, 24)) { bestD = d; best = { type: 'den', obj: den }; }
+    }
     for (const a of this.animals) {
       if (!a.alive) continue;
       const dist = Math.hypot(wx - a.x, wy - (a.y - 6));
@@ -916,6 +1034,10 @@ class RaidIsland {
       this.boss.alive = false;
       this.cleared = true;
     }
+    if ((source.kind === 'den' || source.kind === 'lair') && source.ref) {
+      source.ref.cleared = true;
+      if (source.kind === 'lair') this.cleared = true;
+    }
   }
 
   takeEvent() {
@@ -944,7 +1066,7 @@ class RaidIsland {
     const dx = tx - g.x, dy = ty - g.y;
     const dist = Math.hypot(dx, dy);
     if (dist < 2) return true;
-    const step = speed * dt;
+    const step = Math.min(dist, speed * dt);
     const ux = dx / dist, uy = dy / dist;
     const tries = [
       [g.x + ux * step, g.y + uy * step],
@@ -979,6 +1101,28 @@ class RaidIsland {
         this._arrive();
       } else {
         this._stepToward(p, p.target.x, p.target.y, speed, dt);
+      }
+    } else if (p.job?.type === 'chop') {
+      const n = p.job.obj;
+      if (!n || n.taken) {
+        p.job = null;
+        p.anim = 'idle';
+      } else {
+        p.anim = 'attack';
+        const period = raidWorkPeriod(p);
+        p.job.t = (p.job.t || 0) + dt;
+        const kind = n.type === 'rock' ? 'stone' : 'wood';
+        while (p.job && p.job.t + 1e-9 >= period && !n.taken) {
+          p.job.t = Math.max(0, p.job.t - period);
+          n.stock = Math.max(0, (n.stock || 1) - 1);
+          this.events.push({ type: 'loot', kind, amount: 1 });
+          if (n.stock <= 0) {
+            n.taken = true;
+            n.hive = false;
+            p.job = null;
+            p.anim = 'idle';
+          }
+        }
       }
     } else if (p.job?.type === 'smash') {
       p.anim = 'attack';
@@ -1033,17 +1177,22 @@ class RaidIsland {
       }
       return;
     }
+    if (job.type === 'enter') {
+      this._enterDen(job.obj);
+      this.party.job = null;
+      this.party.anim = 'idle';
+      return;
+    }
     if (job.type === 'loot') {
       const n = job.obj;
+      if (n && (n.type === 'tree' || n.type === 'rock') && !n.taken) {
+        this.party.job = { type: 'chop', obj: n, t: 0 };
+        this.party.anim = 'attack';
+        return;
+      }
       if (!n.taken) {
         n.taken = true;
-        if (n.type === 'tree') {
-          this.events.push({ type: 'loot', kind: 'wood', amount: 3 + Math.floor(this.rng() * 4) });
-        } else if (n.type === 'rock') {
-          this.events.push({ type: 'loot', kind: 'stone', amount: 3 + Math.floor(this.rng() * 4) });
-        } else if (n.type === 'chest') {
-          this.spawnChestDrops(n);
-        }
+        if (n.type === 'chest') this.spawnChestDrops(n);
       }
       this.party.job = null;
       this.party.anim = 'idle';
@@ -1145,6 +1294,7 @@ class RaidIsland {
   }
 
   _scream(origin) {
+    if (this._isFangs()) return;
     this.events.push({ type: 'scream' });
     const ox = origin?.x ?? this.party.x;
     const oy = origin?.y ?? this.party.y;
@@ -1228,9 +1378,40 @@ class RaidIsland {
     this._tickGroupAnim(b, dt);
   }
 
+  _enterDen(den) {
+    if (!den || den.cleared || this.busy) return;
+    this.busy = true;
+    this.party.target = null;
+    this.party.job = null;
+    const pack = denWaves(den.kind === 'lair' ? 'lair' : 'den', this.difficulty);
+    this.events.push({
+      type: 'battle',
+      kind: den.kind === 'lair' ? 'lair' : 'den',
+      foes: pack.foes,
+      waves: pack.waves,
+      bgKey: pack.bgKey,
+      twinsBg: pack.twinsBg,
+      source: { kind: den.kind === 'lair' ? 'lair' : 'den', ref: den },
+      difficulty: this.difficulty,
+    });
+  }
+
   _checkContact() {
     if (this.busy) return;
     const px = this.party.x, py = this.party.y;
+    if (this._isFangs()) {
+      for (const den of this.dens) {
+        if (den.cleared) continue;
+        if (Math.hypot(den.x - px, den.y - py) < CONTACT_RANGE + 4) {
+          this._enterDen(den);
+          return;
+        }
+      }
+      if (this.lair && !this.lair.cleared && Math.hypot(this.lair.x - px, this.lair.y - py) < CONTACT_RANGE + 16) {
+        this._enterDen(this.lair);
+      }
+      return;
+    }
     const touching = this.patrols.filter((g) => g.alive && Math.hypot(g.x - px, g.y - py) < CONTACT_RANGE);
     if (touching.length) {
       this.busy = true;
@@ -1303,14 +1484,38 @@ class RaidIsland {
       drawables.push({
         y: n.y,
         draw: (c) => {
-          if (n.type === 'tree' && !n.taken) drawTree(c, n.x, n.y, n.hive);
-          else if (n.type === 'rock' && !n.taken) drawRock(c, n.x, n.y);
+          if (n.type === 'tree' && !n.taken) drawTree(c, n.x, n.y, n.hive, n);
+          else if (n.type === 'rock' && !n.taken) drawRock(c, n.x, n.y, n);
           else if (n.type === 'chest') drawChest(c, n.x, n.y, n.taken);
         },
       });
     }
     for (const p of this.props) {
       drawables.push({ y: p.y, draw: (c) => drawProp(c, p, time) });
+    }
+    for (const den of this.dens) {
+      drawables.push({
+        y: den.y,
+        draw: (c) => {
+          c.save();
+          c.imageSmoothingEnabled = false;
+          if (den.cleared) c.globalAlpha = 0.45;
+          c.drawImage(getSprite('prop_den'), den.x - 26, den.y - 34, 52, 34);
+          c.restore();
+        },
+      });
+    }
+    if (this.lair) {
+      drawables.push({
+        y: this.lair.y,
+        draw: (c) => {
+          c.save();
+          c.imageSmoothingEnabled = false;
+          if (this.lair.cleared) c.globalAlpha = 0.5;
+          c.drawImage(getSprite('prop_den_lair'), this.lair.x - 80, this.lair.y - 78, 160, 87);
+          c.restore();
+        },
+      });
     }
     for (const a of this.animals) {
       if (!a.alive && !(a.corpseT > 0)) continue;
@@ -1385,10 +1590,8 @@ class RaidIsland {
       drawables.push({
         y: p.y,
         draw: (c) => {
-          p.goblins.forEach((g, i) => {
-            const f = FORMATION[i] || FORMATION[0];
-            drawGoblinAt(c, g, p.x + f.dx, p.y + f.dy, p.face, p.anim, p.frame);
-          });
+          const lead = p.goblins.find((g) => g && g.hp > 0) || p.goblins[0];
+          if (lead) drawGoblinAt(c, lead, p.x, p.y, p.face, p.anim, p.frame);
           if (p.target) {
             c.strokeStyle = 'rgba(255,233,168,0.7)';
             c.lineWidth = 1.5;
@@ -1494,9 +1697,9 @@ module.exports = {
   RAID, ISLANDS, THEMES, ALERT_RANGE, ALERT_TILES, CONTACT_RANGE,
   SCREAM_TILES, SCREAM_RANGE,
   PLAYER_SPEED, ENEMY_SPEED, BOSS_RUSH_SPEED,
-  BALLOON_REPAIR_COST, BALLOON_MAX_LEVEL, PARTY_LIMIT, CITY_RADIUS, FORMATION,
+  BALLOON_REPAIR_COST, BALLOON_MAX_LEVEL, PARTY_LIMIT, BATTLE_LIMIT, CITY_RADIUS, LAIR_RADIUS, FORMATION,
   balloonCost, balloonUpgradeCost, islandUnlocked, togglePartyMember, themeOf,
-  patrolCount, raidRewards, findBalloonSpot, createBalloon, balloonHit,
+  patrolCount, raidRewards, raidWorkPeriod, findBalloonSpot, createBalloon, balloonHit,
   drawBalloon, drawGoblinAt, drawIslandChart, islandChartWidth,
-  makePatrolMembers, makeBossMember, RaidIsland,
+  makePatrolMembers, makeBossMember, makeWolfPack, makeWarTwins, denWaves, RaidIsland,
 };

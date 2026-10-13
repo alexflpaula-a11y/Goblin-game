@@ -22,8 +22,9 @@ const { Quests } = require('quests.js');
 const cooking = require('cooking.js');
 const market = require('market.js');
 const { Battle, drawBattle } = require('battle.js');
+const { Treasure, drawTreasure } = require('treasure.js');
 const {
-  ISLANDS, PARTY_LIMIT, BALLOON_MAX_LEVEL,
+  ISLANDS, PARTY_LIMIT, BATTLE_LIMIT, BALLOON_MAX_LEVEL,
   balloonCost, balloonUpgradeCost, islandUnlocked, togglePartyMember,
   raidRewards, createBalloon, balloonHit, drawBalloon,
   drawIslandChart, islandChartWidth, RaidIsland,
@@ -354,6 +355,8 @@ function enterRaid(def) {
 }
 
 function leaveRaid() {
+  state.battle?.recoverWeapons(village);
+  state.treasure = null;
   state.battle = null;
   state.battleBg = null;
   state.battleMenu = null;
@@ -393,12 +396,13 @@ function cancelFightPick() {
     const p = state.raid.party;
     const ref = ev?.source?.ref;
     if (ref && p) {
-      const dx = p.x - ref.x, dy = p.y - ref.y;
+      const dx = p.x - ref.x, dy = (p.y - ref.y) || 1;
       const d = Math.hypot(dx, dy) || 1;
-      p.x += (dx / d) * 40;
-      p.y += (dy / d) * 40;
+      p.x += (dx / d) * 64;
+      p.y += (dy / d) * 64;
     }
     p.target = null;
+    p.job = null;
   }
   state.screen = 'raid';
 }
@@ -406,18 +410,22 @@ function cancelFightPick() {
 function startBattle(ev) {
   const foes = ev.foes || [];
   let rewards = raidRewards(ev.difficulty || 1, ev.kind);
-  if (ev.wave?.length) {
+  if (ev.wave?.length || ev.waves?.length) {
     rewards = { gold: rewards.gold * 2, goblin_gems: rewards.goblin_gems * 2 };
   }
   const allies = (ev.allies && ev.allies.length)
-    ? ev.allies
-    : (state.raid?.party.goblins || village.goblins.slice(0, 4));
+    ? ev.allies.slice(0, BATTLE_LIMIT)
+    : (state.raid?.party.goblins || village.goblins).filter((g) => g && g.hp > 0).slice(0, BATTLE_LIMIT);
   state.battleMenu = null;
-  state.battleBg = state.raid ? {
-    terrain: state.raid.terrain,
-    x: state.raid.party.x,
-    y: state.raid.party.y,
-  } : null;
+  if (ev.bgKey) {
+    state.battleBg = { image: ev.bgKey };
+  } else {
+    state.battleBg = state.raid ? {
+      terrain: state.raid.terrain,
+      x: state.raid.party.x,
+      y: state.raid.party.y,
+    } : null;
+  }
   state.battle = new Battle({
     allies,
     foes,
@@ -426,24 +434,50 @@ function startBattle(ev) {
     rewards,
     source: ev.source,
     wave: ev.wave,
+    waves: ev.waves,
+    bgKey: ev.bgKey,
+    twinsBg: ev.twinsBg,
   });
   state.screen = 'battle';
+}
+
+function leaveTreasure() {
+  if (!state.treasure) return;
+  state.treasure.claim(village);
+  const ref = state.battle?.source?.ref;
+  const raid = state.raid;
+  if (raid) {
+    if (ref) {
+      const spot = raid.clampWalkable(ref.x, ref.y + (ref.kind === 'lair' ? 110 : 64));
+      raid.party.x = spot.x; raid.party.y = spot.y;
+    }
+    raid.party.job = null; raid.party.target = null; raid.party.anim = 'idle';
+    raid.busy = false;
+  }
+  state.treasure = null; state.battle = null; state.battleMenu = null;
+  state.screen = raid ? 'raid' : 'world';
 }
 
 function finishBattle() {
   const b = state.battle;
   if (!b) { state.screen = 'raid'; return; }
+  if (b.settled) return;
+  b.settled = true;
+  b.recoverWeapons(village);
+  const cave = b.kind === 'den' || b.kind === 'lair';
   if (b.result === 'win') {
-    village.add('gold', b.rewards.gold);
-    village.add('goblin_gems', b.rewards.goblin_gems);
+    if (!cave) {
+      village.add('gold', b.rewards.gold);
+      village.add('goblin_gems', b.rewards.goblin_gems);
+    }
     celebrateLevelUps(village.gainXp(20 + (b.difficulty || 1) * 8));
     for (const f of b.allies) {
       if (f.src && f.alive) f.src.gainXp(12 + (b.difficulty || 1) * 4);
     }
     state.raid?.resolveEncounter(b.source);
-    if (b.kind === 'boss') {
+    if (b.kind === 'boss' || b.kind === 'lair') {
       state.clearedIslands[state.raid?.def?.id] = true;
-      toast('toast.island_cleared');
+      toast(b.kind === 'lair' ? 'toast.island_twins' : 'toast.island_cleared');
     } else {
       toast('toast.raid_victory', { gold: b.rewards.gold, gems: b.rewards.goblin_gems });
     }
@@ -452,6 +486,13 @@ function finishBattle() {
     state.battle = null;
     if (state.raid) state.raid.busy = false;
     leaveRaid();
+    return;
+  }
+  if (cave && b.result === 'win') {
+    state.treasure = new Treasure(b);
+    state.treasure.claim(village);
+    state.battleMenu = null; state.toast = null;
+    state.screen = 'treasure';
     return;
   }
   if (state.raid) state.raid.busy = false;
@@ -1569,7 +1610,7 @@ function routeTap(id) {
       }
       if (id?.startsWith('fight_pick_')) {
         const idx = Number(id.slice('fight_pick_'.length));
-        if (!togglePartyMember(state.fightPick, idx, PARTY_LIMIT)) toast('toast.party_full');
+        if (!togglePartyMember(state.fightPick, idx, BATTLE_LIMIT)) toast('toast.fight_full');
         break;
       }
       if (id?.startsWith('battle_tgt_')) {
@@ -1682,6 +1723,12 @@ function update(dt) {
     return;
   }
 
+  if (state.screen === 'treasure') {
+    state.treasure?.update(dt);
+    if (g.tap && state.treasure?.tap(g.tap.x, g.tap.y) === 'skip') leaveTreasure();
+    return;
+  }
+
   if (state.screen === 'battle') {
     const ptr = input.primaryPointer();
     if (state.battleMenu === 'settings' && ptr) {
@@ -1698,6 +1745,7 @@ function update(dt) {
       if (hit) routeTap(hit);
     }
     if (!state.battleMenu) state.battle?.update(dt);
+    if (state.battle?.result === 'win' && ['den', 'lair'].includes(state.battle.kind)) finishBattle();
     return;
   }
 
@@ -1708,13 +1756,14 @@ function update(dt) {
     const cmd = g.tap || (g.release && (g.release.dist ?? (g.release.moved ? 99 : 0)) < 26 ? g.release : null);
     if (cmd) {
       const uiHit = ui.hit(cmd);
-      if (uiHit === 'raid_leave') routeTap(uiHit);
+      if (uiHit === 'raid_leave') { routeTap(uiHit); return; }
       else {
         const w = camera.screenToWorld(cmd.x, cmd.y);
         const hit = state.raid.hitTest(w.x, w.y);
         if (hit?.type === 'balloon') {
           toast('toast.raid_home');
           leaveRaid();
+          return;
         } else if (hit) state.raid.interact(hit);
         else state.raid.movePartyTo(w.x, w.y);
       }
@@ -1947,6 +1996,12 @@ function render(time) {
     drawOverlay(time);
     ui.begin();
     drawLandingHud();
+    return;
+  }
+  if (state.screen === 'treasure' && state.treasure && state.battle) {
+    ui.begin();
+    drawBattle(ctx, ui, state.battle, i18n, time, { bg: state.battleBg, reward: true });
+    drawTreasure(ctx, ui, state.treasure, i18n, time);
     return;
   }
   if (state.screen === 'battle' && state.battle) {
@@ -2229,7 +2284,8 @@ function drawRaidHud() {
 
 function drawLandingHud() {
   const valid = !!state.landingPreview?.valid;
-  ui.woodSign(8, 302, 300, 24, i18n.t('ui.landing_hint'), 9);
+  const fangs = state.raid?.def?.id === 'fangs';
+  ui.woodSign(8, 302, 300, 24, i18n.t(fangs ? 'ui.landing_hint_fangs' : 'ui.landing_hint'), 9);
   ui.button('landing_confirm', 316, 300, 168, 28, i18n.t('ui.landing_confirm'), valid, valid);
   ui.button('landing_cancel', 492, 300, 140, 28, i18n.t('ui.cancel'), true);
 }
@@ -2288,7 +2344,7 @@ function drawFightPickScreen() {
   ui.closeX('fight_cancel', P.x + P.w - 36, P.y + 6);
   const n = state.fightPick.length;
   ui.text(P.x + 16, P.y + 42, i18n.t('ui.fight_hint'), { size: 9, color: '#ffe9b8' });
-  ui.text(P.x + P.w - 16, P.y + 42, i18n.t('ui.party_count', { n, max: PARTY_LIMIT }),
+  ui.text(P.x + P.w - 16, P.y + 42, i18n.t('ui.party_count', { n, max: BATTLE_LIMIT }),
     { align: 'right', size: 10, bold: true, color: n ? '#ffe9a8' : '#ff9a90' });
 
   const listY = P.y + 54, listH = 210;
@@ -3975,7 +4031,7 @@ async function init() {
     openPartySelect(ISLANDS[1]);
     if (demo === 'landing') confirmParty();
   }
-  else if (demo === 'islands' || demo === 'raid' || demo === 'battle') {
+  else if (demo === 'islands' || demo === 'raid' || demo === 'battle' || demo === 'twins' || demo === 'chest' || demo === 'chest_loot') {
     balloon.repaired = true;
     balloon.level = Math.max(balloon.level || 0, 1);
     while (village.goblins.length < 4) {
@@ -3988,13 +4044,23 @@ async function init() {
       state.islandSel = 1;
     } else {
       enterRaid(ISLANDS[1]);
-      if (demo === 'battle' && state.raid?.patrols[0]) {
-        startBattle({
-          kind: 'patrol',
-          foes: state.raid.patrols[0].members,
-          source: { kind: 'patrol', ref: state.raid.patrols[0] },
-          difficulty: 1,
-        });
+      if (demo === 'battle' || demo === 'twins' || demo === 'chest' || demo === 'chest_loot') {
+        const ref = demo !== 'battle' ? state.raid.lair : state.raid.dens[0];
+        state.raid._enterDen(ref);
+        const ev = state.raid.takeEvent().find((e) => e.type === 'battle');
+        if (ev) {
+          if (demo === 'twins') {
+            ev.foes = ev.waves[1]; ev.waves = []; ev.bgKey = ev.twinsBg;
+          }
+          startBattle(ev);
+          if (demo === 'chest' || demo === 'chest_loot') {
+            state.battle.result = 'win'; state.battle.finished = true; state.battle.phase = 'win';
+            state.battle.lastDefeated = {x: 505, y: 298};
+            finishBattle();
+            state.treasure.time = 1;
+            state.treasure.opened = demo === 'chest_loot';
+          }
+        }
       }
     }
   }

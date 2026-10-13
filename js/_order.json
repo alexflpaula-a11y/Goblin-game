@@ -20,5 +20,6 @@
   "market.js",
   "battle.js",
   "raid.js",
+  "treasure.js",
   "main.js"
 ]
