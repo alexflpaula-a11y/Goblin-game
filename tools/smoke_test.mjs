@@ -1271,6 +1271,27 @@ cavePass.update(0.4);
 check('toque pula a passagem depois de 0,6 s', cavePass.canSkip() && !cavePass.finished());
 cavePass.update(5);
 check('passagem termina ao fim da duração e não passa de 100%', cavePass.finished() && cavePass.progress() === 1);
+const passGeo = req('passage.js');
+{
+  // Os pés dos goblins precisam ficar sempre sobre o chão (faixa de terra), nunca na parede,
+  // inclusive com o zoom da câmera no fim da passagem.
+  let geoOk = true, screenOk = true, worst = null;
+  for (let s = 0; s <= 100; s++) {
+    const k = s / 100;
+    const z = passGeo.zoomAt(k);
+    for (let i = 0; i < 4; i++) {
+      const foot = passGeo.footAt(k, i);
+      if (foot.y < passGeo.FLOOR_BAND.top || foot.y > passGeo.FLOOR_BAND.bottom) geoOk = false;
+      const scr = passGeo.toScreen(foot, z, 0);
+      if (scr.y < 260 || scr.y > 356) screenOk = false;
+      worst = worst ?? scr;
+    }
+  }
+  check('pés dos goblins ficam dentro da faixa de chão da arte em todo o trajeto', geoOk);
+  check('pés dos goblins continuam dentro da tela durante o zoom', screenOk);
+  const lo = passGeo.footAt(0, 0), hi = passGeo.footAt(1, 3);
+  check('grupo caminha da entrada para o fundo sem voltar', hi.x > lo.x);
+}
 const gemV = new Village();
 gemV.add('goblin_gems', 4);
 check('gemas goblinéias entram no estoque sem função extra', gemV.res.goblin_gems === 4);

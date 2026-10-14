@@ -345,7 +345,9 @@ Padrão obrigatório para novos itens:
   travamento de caça.
 - Passagem: ao entrar numa toca ou covil, o grupo caminha por um túnel
   (`bg_den_passage.png`, ~3,4 s, com zoom em direção ao fundo) antes da sala de
-  batalha. Toque pula a passagem após 0,6 s. Combates fora de tocas e covil seguem direto.
+  batalha. Os pés dos goblins são calculados no espaço da arte e passam pelo
+  mesmo zoom do fundo, então ficam sobre o chão e nunca na parede (coberto por
+  testes). Toque pula a passagem após 0,6 s. Combates fora de tocas e covil seguem direto.
 - Os pés de todos os quadros de lobo ficam na mesma linha do repouso, então o
   lobo não flutua nem "decola" durante o ataque ou a queda.
 

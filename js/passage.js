@@ -5,6 +5,11 @@
 // túnel antes de chegar à sala. A câmera avança (zoom em direção ao fundo
 // do túnel) enquanto os goblins andam pelo chão. Um toque pula a passagem.
 //
+// Geometria: os pés dos goblins são definidos no espaço da arte (640×360)
+// e depois passam pela MESMA transformação de zoom do fundo. Assim eles
+// ficam sempre sobre o chão, nunca na parede. Não colocar os goblins em
+// coordenadas fixas da tela: com o zoom, o chão se afasta do ponto de fuga.
+//
 // Lógica pura + desenho em drawCavePassage(); não toca no estado do jogo.
 // A batalha começa só quando passage.finished() ou o toque pula.
 // ============================================================
@@ -15,8 +20,35 @@ const PASSAGE_TIME = 3.4;
 const SKIP_AFTER = 0.6;
 // Ponto de fuga do túnel dentro da arte (640×360).
 const VANISH = { x: 322, y: 172 };
-// Pés do grupo, em faixas do chão (duas linhas, para o grupo não virar um bloco).
-const LANE_Y = [300, 318, 308, 328];
+const ZOOM_AMOUNT = 0.42;
+// Faixa de chão de terra na arte, abaixo da base das paredes (~y 262) e
+// acima das pedras da borda inferior (~y 320). Pés dos goblins ficam aqui.
+const FLOOR_BAND = { top: 282, bottom: 300 };
+// Pés de cada goblin do grupo (um por faixa, para não virarem um bloco).
+const FOOT_LANES = [282, 292, 288, 298];
+// Trajeto dos pés no espaço da arte (x de entrada → x final).
+const PATH = { x0: 20, x1: 300, stagger: 18 };
+
+function smooth(k) { return k * k * (3 - 2 * k); }
+
+/** Zoom da câmera no instante de progresso k (0..1). */
+function zoomAt(k) { return 1 + ZOOM_AMOUNT * smooth(k); }
+
+/** Posição dos pés do goblin i no espaço da arte, para o progresso k. */
+function footAt(k, i) {
+  return {
+    x: PATH.x0 - i * PATH.stagger + k * (PATH.x1 - PATH.x0),
+    y: FOOT_LANES[i % FOOT_LANES.length],
+  };
+}
+
+/** Converte um ponto da arte para a tela, pela mesma transformação do fundo. */
+function toScreen(p, z, sway) {
+  return {
+    x: VANISH.x + (p.x - VANISH.x) * z + (sway || 0),
+    y: VANISH.y + (p.y - VANISH.y) * z,
+  };
+}
 
 class CavePassage {
   constructor({ allies, duration } = {}) {
@@ -43,16 +75,14 @@ class CavePassage {
   canSkip() { return this.t >= SKIP_AFTER; }
 }
 
-function smooth(k) { return k * k * (3 - 2 * k); }
-
 function drawCavePassage(ctx, ui, pass, i18n, time) {
   const k = pass.progress();
+  const z = zoomAt(k);
   const e = smooth(k);
   const img = getSprite('bg_den_passage');
+  const sway = Math.sin(time * 1.3) * 3 * (1 - e * 0.5);
 
   // Avanço: o túnel cresce em torno do ponto de fuga.
-  const z = 1 + 0.42 * e;
-  const sway = Math.sin(time * 1.3) * 3 * (1 - e * 0.5);
   ctx.save();
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(img, VANISH.x - VANISH.x * z + sway, VANISH.y - VANISH.y * z, 640 * z, 360 * z);
@@ -69,16 +99,14 @@ function drawCavePassage(ctx, ui, pass, i18n, time) {
   }
   ctx.restore();
 
-  // Grupo andando da entrada (esquerda) em direção ao fundo do túnel.
-  const walk = pass.allies;
-  walk.forEach((g, i) => {
-    const x = -30 - i * 26 + e * 300;
-    const y = LANE_Y[i % LANE_Y.length];
+  // Grupo andando sobre o chão: pés calculados na arte e transformados pelo zoom.
+  pass.allies.forEach((g, i) => {
+    const feet = toScreen(footAt(k, i), z, sway);
     ctx.save();
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.beginPath(); ctx.ellipse(x, y + 2, 12, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(feet.x, feet.y + 2, 12, 3.5, 0, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
-    drawGoblinAt(ctx, g, x, y, 1, 'walk', pass.frame + i * 2, 1.6);
+    drawGoblinAt(ctx, g, feet.x, feet.y, 1, 'walk', pass.frame + i * 2, 1.6);
   });
 
   // Vinheta: escurece as bordas e deixa o fundo mais profundo.
@@ -91,7 +119,7 @@ function drawCavePassage(ctx, ui, pass, i18n, time) {
   ctx.restore();
 
   ui.woodSign(8, 8, 236, 22, i18n.t('ui.cave_passage'), 11);
-  ui.text(320, 346, i18n.t('ui.cave_passage_skip'), { align: 'center', size: 8, color: '#cdbb94' });
+  ui.text(632, 14, i18n.t('ui.cave_passage_skip'), { align: 'right', size: 8, color: '#cdbb94' });
 
   // Escurecimento final: a passagem termina em preto e a sala aparece.
   const fade = Math.max(0, (k - 0.9) / 0.1);
@@ -103,4 +131,8 @@ function drawCavePassage(ctx, ui, pass, i18n, time) {
   }
 }
 
-module.exports = { CavePassage, drawCavePassage, PASSAGE_TIME, SKIP_AFTER };
+module.exports = {
+  CavePassage, drawCavePassage,
+  PASSAGE_TIME, SKIP_AFTER, VANISH, FLOOR_BAND, FOOT_LANES, PATH,
+  zoomAt, footAt, toScreen,
+};
