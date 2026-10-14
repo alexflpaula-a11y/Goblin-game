@@ -404,6 +404,7 @@ function leaveRaid() {
   state.battle = null;
   state.passage = null;
   state.passageEv = null;
+  state.passageWave = false;
   state.battleBg = null;
   state.battleMenu = null;
   state.pendingBattle = null;
@@ -464,11 +465,31 @@ function beginPassage(ev) {
   state.screen = 'passage';
 }
 
+/** Passagem entre ondas: a batalha já existe; ao terminar, a próxima onda entra. */
+function beginWavePassage() {
+  const allies = (state.battle?.allies || []).filter((f) => f.alive && f.src).map((f) => f.src);
+  state.passageEv = null;
+  state.passageWave = true;
+  state.passage = new CavePassage({ allies });
+  state.screen = 'passage';
+}
+
 function finishPassage() {
   const ev = state.passageEv;
   state.passage = null;
   state.passageEv = null;
   if (ev) startBattle(ev);
+}
+
+function endPassage() {
+  if (state.passageWave) {
+    state.passageWave = false;
+    state.passage = null;
+    state.screen = 'battle';
+    state.battle?.completeTransition();
+    return;
+  }
+  finishPassage();
 }
 
 function startBattle(ev) {
@@ -1805,7 +1826,7 @@ function update(dt) {
   if (state.screen === 'passage') {
     state.passage?.update(dt);
     if (!state.passage || state.passage.finished() || (g.tap && state.passage.canSkip())) {
-      finishPassage();
+      endPassage();
     }
     return;
   }
@@ -1826,6 +1847,7 @@ function update(dt) {
       if (hit) routeTap(hit);
     }
     if (!state.battleMenu) state.battle?.update(dt);
+    if (state.battle?.phase === 'transition') { beginWavePassage(); return; }
     if (state.battle?.result === 'win' && ['den', 'lair'].includes(state.battle.kind)) finishBattle();
     return;
   }

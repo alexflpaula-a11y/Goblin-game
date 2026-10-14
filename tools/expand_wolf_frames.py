@@ -45,6 +45,32 @@ def load(path):
     return Image.open(path).convert('RGBA')
 
 
+def drop_sparkles(im):
+    """Remove pontos claros soltos (brilho/poeira gravados na arte-fonte).
+
+    Um pixel claro e pouco saturado com no máximo 2 vizinhos opacos é efeito,
+    não parte do animal. O repouso não tem nenhum desses pontos, então não muda.
+    """
+    w, h = im.size
+    src = im.load()
+    out = im.copy()
+    dst = out.load()
+    def opaque(x, y):
+        return 0 <= x < w and 0 <= y < h and src[x, y][3] >= 128
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = src[x, y]
+            if a == 0:
+                continue
+            light = (r + g + b) / 3 >= 150 and max(r, g, b) - min(r, g, b) <= 45
+            if not light:
+                continue
+            nb = sum(opaque(x + dx, y + dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1) if dx or dy)
+            if nb <= 2:
+                dst[x, y] = (0, 0, 0, 0)
+    return out
+
+
 def dedupe(frames):
     out = []
     for f in frames:
@@ -116,7 +142,7 @@ def main():
             old.unlink()
         counts[prefix] = {}
         for anim, n in anims.items():
-            raw = [load(BASE / f'{prefix}_{anim}_{i}.png') for i in range(n)]
+            raw = [drop_sparkles(load(BASE / f'{prefix}_{anim}_{i}.png')) for i in range(n)]
             uniq = dedupe(raw)
             seq = expand(uniq, anim in CYCLIC)
             seq = ground(seq, baseline)

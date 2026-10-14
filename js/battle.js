@@ -23,7 +23,12 @@ function framesOf(f, anim) {
 }
 
 function stepOf(f, anim) {
-  if (f.kind === 'wolf') return creatureStep(f.spritePrefix || 'wolf', anim);
+  if (f.kind === 'wolf') {
+    const step = creatureStep(f.spritePrefix || 'wolf', anim);
+    // Dano é um sobressalto curto. Gêmeos têm só 5 quadros de dano e, sem limite,
+    // cada um ficaria ~0,24 s na tela (câmera lenta). Os lobos já passam de 0,04 s.
+    return anim === 'hurt' ? Math.min(step, 0.1) : step;
+  }
   return anim === 'idle' ? 0.18 : anim === 'walk' ? 0.10 : 0.07;
 }
 
@@ -256,6 +261,22 @@ class Battle {
     }
   }
 
+  _beginTransition() {
+    this.phase = 'transition';
+    this.anim = null;
+    this.current = null;
+    this.target = null;
+    for (const f of this.allies) {
+      if (f.alive) { f.anim = 'idle'; f.frame = 0; f.animT = 0; }
+    }
+  }
+
+  /** Chamado pela tela quando a passagem entre ondas termina. */
+  completeTransition() {
+    if (this.phase !== 'transition') return false;
+    return this._spawnPendingWave();
+  }
+
   _spawnPendingWave() {
     if (!this.pendingWaves?.length) return false;
     const members = this.pendingWaves.shift();
@@ -293,6 +314,8 @@ class Battle {
       this._syncHp(); this._log('lose'); return true;
     }
     if (!this.living('foe').length) {
+      // Entre ondas, a passagem em túnel aparece antes da próxima (fica a cargo da tela).
+      if (!this.instant && this.pendingWaves?.length) { this._beginTransition(); return true; }
       if (this._spawnPendingWave()) return true;
       this.phase = 'win';
       this.finished = true;
@@ -357,6 +380,8 @@ class Battle {
     for (const f of [...this.allies, ...this.foes]) this._tickAnim(f, dt);
     for (const fx of this.fx) fx.ttl -= dt;
     this.fx = this.fx.filter((fx) => fx.ttl > 0);
+
+    if (this.phase === 'transition') return; // A tela mostra a passagem e chama completeTransition().
 
     if (this.phase === 'settling') { this._nextTurn(); return; }
 

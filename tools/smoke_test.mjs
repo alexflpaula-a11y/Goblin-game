@@ -1123,14 +1123,16 @@ const reserveHP = squad8.slice(4).map((g) => g.hp);
 const cave = raid.denWaves('lair', 1);
 const campaign = new Battle({ allies: squad8, ...cave, kind: 'lair', rng: () => 0 });
 check('8 viajantes não viram 8 combatentes', campaign.allies.length === 4);
-let campaignTicks = 0, sawAdvance = false, sawTwins = false;
+let campaignTicks = 0, sawAdvance = false, sawTwins = false, transitions = 0;
 while (!campaign.finished && campaignTicks++ < 4000) {
   if (campaign.phase === 'ready') { campaign.chooseTarget(0); campaign.commandAttack(); }
+  if (campaign.phase === 'transition') { transitions += 1; campaign.completeTransition(); } // a tela da passagem
   campaign.update(0.1);
   sawAdvance ||= campaign.phase === 'advance';
   sawTwins ||= campaign.foes.some((f) => f.attackKind === 'bite');
 }
 check('três ondas terminam sem travar, com avanço e gêmeos', campaign.result === 'win' && sawAdvance && sawTwins);
+check('cada onda derrotada abre uma passagem (duas entre três ondas)', transitions === 2);
 check('câmara final usa o fundo perigoso', campaign.bgKey === 'bg_den_twins');
 check('reservas não sofrem dano fora da batalha', squad8.slice(4).every((g, i) => g.hp === reserveHP[i]));
 const statusBattle = new Battle({ allies: squad8, foes: raid.makeWolfPack(2, 1), rng: () => 0.99 });
@@ -1271,6 +1273,25 @@ cavePass.update(0.4);
 check('toque pula a passagem depois de 0,6 s', cavePass.canSkip() && !cavePass.finished());
 cavePass.update(5);
 check('passagem termina ao fim da duração e não passa de 100%', cavePass.finished() && cavePass.progress() === 1);
+{
+  // Batalha normal (não instantânea): derrotar uma onda abre a passagem antes da próxima.
+  const wt = new Battle({
+    allies: party, foes: raid.makeWolfPack(1, 1), waves: [raid.makeWolfPack(1, 1)],
+    kind: 'den', difficulty: 1, rewards: rw, rng: () => 0,
+  });
+  wt.foes.forEach((f) => { f.alive = false; f.hp = 0; f.anim = 'idle'; });
+  wt._checkEnd();
+  check('onda derrotada abre a transição antes da próxima', wt.phase === 'transition' && wt.pendingWaves.length === 1);
+  wt.update(0.5);
+  check('a batalha espera a passagem terminar', wt.phase === 'transition' && wt.pendingWaves.length === 1);
+  wt.completeTransition();
+  check('ao terminar a passagem a próxima onda entra', wt.phase === 'advance' && wt.pendingWaves.length === 0 && wt.foes.some((f) => f.alive));
+  // Dano dos gêmeos: 5 quadros não podem durar 1,19 s (câmera lenta). Cada quadro até 0,1 s.
+  const twinHurt = btlT.foes[0];
+  twinHurt.alive = true; twinHurt.anim = 'hurt'; twinHurt.frame = 0; twinHurt.animT = 0;
+  btlT._tickAnim(twinHurt, 0.1);
+  check('dano dos gêmeos avança um quadro a cada 0,1 s', twinHurt.frame === 1);
+}
 const passGeo = req('passage.js');
 {
   // Os pés dos goblins precisam ficar sempre sobre o chão (faixa de terra), nunca na parede,

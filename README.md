@@ -351,5 +351,15 @@ Padrão obrigatório para novos itens:
 - Os pés de todos os quadros de lobo ficam na mesma linha do repouso, então o
   lobo não flutua nem "decola" durante o ataque ou a queda.
 
+- Ajustes da prévia: o dano dos gêmeos (5 quadros) não dura mais que 0,5 s, o que
+  eliminava a sensação de câmera lenta. Pontos claros soltos da arte de ataque
+  foram removidos na geração. Entre ondas, a passagem em túnel aparece antes da
+  próxima onda (a batalha espera a passagem terminar). Modo instantâneo (testes)
+  continua sem passagem.
+- Limitações conhecidas: o brilho cinza em volta da cabeça da Mandíbula (quadro de
+  ataque 9) é parte da arte-fonte e continua visível. O ataque da Mandíbula é
+  desenhado menor na arte-fonte (pose agachada); corrigir exige redesenho ou escala
+  uniforme, ainda não feito.
+
 `python3 tools/rework_creatures.py` reproduz as correções a partir das imagens
 originais preservadas (equipamento e armadura Avaritia não são afetados); para lobos use `expand_wolf_frames.py`, como descrito acima.
