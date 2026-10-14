@@ -17237,6 +17237,38 @@
       "path": "assets/sprites/raid/animal_boar_walk_7.png"
     },
     {
+      "id": "animal_boar_walk_8",
+      "path": "assets/sprites/raid/animal_boar_walk_8.png"
+    },
+    {
+      "id": "animal_boar_walk_9",
+      "path": "assets/sprites/raid/animal_boar_walk_9.png"
+    },
+    {
+      "id": "animal_boar_walk_10",
+      "path": "assets/sprites/raid/animal_boar_walk_10.png"
+    },
+    {
+      "id": "animal_boar_walk_11",
+      "path": "assets/sprites/raid/animal_boar_walk_11.png"
+    },
+    {
+      "id": "animal_boar_walk_12",
+      "path": "assets/sprites/raid/animal_boar_walk_12.png"
+    },
+    {
+      "id": "animal_boar_walk_13",
+      "path": "assets/sprites/raid/animal_boar_walk_13.png"
+    },
+    {
+      "id": "animal_boar_walk_14",
+      "path": "assets/sprites/raid/animal_boar_walk_14.png"
+    },
+    {
+      "id": "animal_boar_walk_15",
+      "path": "assets/sprites/raid/animal_boar_walk_15.png"
+    },
+    {
       "id": "animal_deer_walk_0",
       "path": "assets/sprites/raid/animal_deer_walk_0.png"
     },

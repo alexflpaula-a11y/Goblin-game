@@ -378,6 +378,12 @@ Padrão obrigatório para novos itens:
   repouso com o mesmo estilo, fundo magenta removido, mesma caixa e linha dos pés.
   Está em `assets/sprites/raid/animal_<tipo>_{hurt,death}.png`. A suíte de render
   confere que todo animal tem repouso, caminhada, dano e morte no manifest.
+- Mandíbula de metal (lobo gêmeo, ataque): brilho picotado removido e corpo levado à
+  escala do repouso (×1,3, pés ancorados); fragmentos soltos são descartados. Gerada
+  por `tools/expand_wolf_frames.py`.
+- Javali com 16 quadros de caminhada (`ANIMAL_WALK_FRAMES` em `js/raid.js`): os 8
+  originais em posições pares e 8 intermediários gerados em posições ímpares, mesmo
+  ciclo de 0,8 s. Veado e lebre continuam com 8 quadros (intermediários pendentes).
 - Mandíbula de aço continua com o brilho cinza e o ataque menor da arte-fonte;
   ainda não foi redesenhada.
 

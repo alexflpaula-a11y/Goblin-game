@@ -35,6 +35,10 @@ const ENEMY_SPEED = 38;
 const BOSS_RUSH_SPEED = 120;
 const CONFUSED_TIME = 1.2;
 const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 15 };
+// Quadros de caminhada dos animais de caça. O javali tem 16 (quadros intercalados);
+// veado e lebre ainda usam 8. O ciclo dura sempre 0,8 s.
+const ANIMAL_WALK_FRAMES = { boar: 16, deer: 8, hare: 8 };
+const ANIMAL_WALK_CYCLE = 0.8;
 // Caça com histerese: o grupo para de correr ao chegar a HUNT_REACH e só volta
 // a correr quando o animal passa de HUNT_CHASE. Entre as duas distâncias o estado
 // anterior (correr ou golpear) é mantido, então não há ataque/andar piscando.
@@ -552,7 +556,7 @@ function drawAnimal(ctx, a, time) {
   let id;
   if (!a.alive) id = 'animal_' + a.kind + '_death';
   else if (a.hurtT > 0) id = 'animal_' + a.kind + '_hurt';
-  else id = 'animal_' + a.kind + (a.anim === 'walk' ? '_walk_' + ((a.frame || 0) % 8) : '');
+  else id = 'animal_' + a.kind + (a.anim === 'walk' ? '_walk_' + ((a.frame || 0) % (ANIMAL_WALK_FRAMES[a.kind] || 8)) : '');
   if (a.alive && a.hurtT > 0) {
     // Golpe: arte de dano, treme de leve e clareia enquanto dura o hurtT.
     const k = a.hurtT / 0.18;
@@ -1300,9 +1304,11 @@ class RaidIsland {
 
   _tickAnimalAnim(a, dt) {
     const wolf = a.kind === 'wolf';
-    const frames = wolf ? creatureFrames('wolf', a.anim) : (ANIM_FRAMES[a.anim] || 5);
+    const walkN = ANIMAL_WALK_FRAMES[a.kind] || 8;
+    const frames = wolf ? creatureFrames('wolf', a.anim)
+      : a.anim === 'walk' ? walkN : (ANIM_FRAMES[a.anim] || 5);
     const step = wolf ? creatureStep('wolf', a.anim)
-      : a.anim === 'walk' ? 0.10 : a.anim === 'idle' ? 0.18 : 0.07;
+      : a.anim === 'walk' ? ANIMAL_WALK_CYCLE / walkN : a.anim === 'idle' ? 0.18 : 0.07;
     a.animT = (a.animT || 0) + dt;
     const advance = Math.floor(a.animT / step);
     if (!advance) return;
