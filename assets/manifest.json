@@ -17301,6 +17301,30 @@
       "path": "assets/sprites/raid/animal_hare_walk_7.png"
     },
     {
+      "id": "animal_boar_hurt",
+      "path": "assets/sprites/raid/animal_boar_hurt.png"
+    },
+    {
+      "id": "animal_boar_death",
+      "path": "assets/sprites/raid/animal_boar_death.png"
+    },
+    {
+      "id": "animal_deer_hurt",
+      "path": "assets/sprites/raid/animal_deer_hurt.png"
+    },
+    {
+      "id": "animal_deer_death",
+      "path": "assets/sprites/raid/animal_deer_death.png"
+    },
+    {
+      "id": "animal_hare_hurt",
+      "path": "assets/sprites/raid/animal_hare_hurt.png"
+    },
+    {
+      "id": "animal_hare_death",
+      "path": "assets/sprites/raid/animal_hare_death.png"
+    },
+    {
       "id": "res_meat",
       "path": "assets/sprites/raid/res_meat.png"
     },

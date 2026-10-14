@@ -545,33 +545,29 @@ function drawAnimal(ctx, a, time) {
 
   const fade = a.alive ? 1 : Math.max(0, Math.min(1, (a.corpseT || 0) / FADE_TIME));
   ctx.globalAlpha = fade;
+  // A caixa de desenho é sempre a do sprite de repouso, para as variações ficarem no mesmo lugar.
+  const idle = getSprite('animal_' + a.kind);
+  const h = ANIMAL_BASE_H[a.kind] || 24;
+  const w = h * ((idle.width || 1) / (idle.height || 1));
+  let id;
+  if (!a.alive) id = 'animal_' + a.kind + '_death';
+  else if (a.hurtT > 0) id = 'animal_' + a.kind + '_hurt';
+  else id = 'animal_' + a.kind + (a.anim === 'walk' ? '_walk_' + ((a.frame || 0) % 8) : '');
   if (a.alive && a.hurtT > 0) {
-    // Reação ao golpe: treme de leve e clareia enquanto dura o hurtT.
+    // Golpe: arte de dano, treme de leve e clareia enquanto dura o hurtT.
     const k = a.hurtT / 0.18;
     ctx.translate(Math.sin(k * 24) * 1.2 * k, 0);
-    ctx.filter = 'brightness(2)';
+    ctx.filter = 'brightness(1.35)';
   }
-  const id = 'animal_' + a.kind + (a.anim === 'walk' ? '_walk_' + ((a.frame || 0) % 8) : '');
-  const spr = getSprite(id);
-  const h = ANIMAL_BASE_H[a.kind] || 24;
-  const w = h * ((spr.width || 1) / (spr.height || 1)); // mantém a proporção da arte
-  const fallK = a.alive ? 0 : Math.min(1, (a.deathT || 0) / FALL_TIME);
-  const tip = Math.floor(fallK * 3.999) / 3 * (Math.PI / 2); // 0°, 30°, 60°, 90°
-
+  if (!a.alive) {
+    // Queda: a carcaça desce do ar até o chão em FALL_TIME.
+    const k = Math.min(1, (a.deathT || 0) / FALL_TIME);
+    ctx.translate(0, -6 * (1 - k) * (1 - k));
+  }
   ctx.fillStyle = 'rgba(0,0,0,0.28)';
   ctx.beginPath(); ctx.ellipse(0, 2, w * 0.36, 3, 0, 0, Math.PI * 2); ctx.fill();
-  if (tip > 0) {
-    // Gira em torno dos pés e sobe o corpo até o ponto mais baixo tocar o chão (y = 2).
-    const c = Math.cos(tip), sn = Math.sin(tip);
-    let maxY = -Infinity;
-    for (const [x, y] of [[-w / 2, -h + 2], [w / 2, -h + 2], [w / 2, 2], [-w / 2, 2]]) {
-      maxY = Math.max(maxY, x * sn + y * c);
-    }
-    ctx.translate(0, 2 - maxY);
-    ctx.rotate(tip);
-  }
   ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(spr, -w / 2, -h + 2, w, h);
+  ctx.drawImage(getSprite(id), -w / 2, -h + 2, w, h);
   ctx.filter = 'none';
   ctx.globalAlpha = 1;
   if (a.alive) {
