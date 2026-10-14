@@ -36,6 +36,8 @@ KINDS = {
     'twin_paw': {'idle': 5, 'walk': 8, 'attack': 17, 'hurt': 17, 'death': 15},
 }
 CYCLIC = {'idle', 'walk'}
+# Ataque da Mandíbula: escala do corpo para a do repouso (medido: 19–26 px vs 34 px).
+JAW_ATTACK_SCALE = 1.3
 # Duração total de cada animação (segundos) — preservada do jogo anterior
 # (quadros-base × passo antigo). Com mais quadros, cada um dura menos.
 DURATION = {'idle': 0.9, 'walk': 0.8, 'attack': 1.19, 'hurt': 1.19, 'death': 1.05}
@@ -112,6 +114,63 @@ def expand(frames, cyclic):
     return seq
 
 
+def fix_jaw_attack(im):
+    """Mandíbula (ataque): tira o brilho metálico picotado, aumenta o corpo para a
+    escala do repouso e descarta fragmentos soltos da escala.
+
+    Só para twin_jaw/attack. O brilho cinza-claro (≥185, pouco saturado) não existe
+    no repouso, então o limite não altera a pose parada.
+    """
+    im = im.convert('RGBA')
+    px = im.load()
+    for y in range(im.height):
+        for x in range(im.width):
+            r, g, b, a = px[x, y]
+            if a and (r + g + b) / 3 >= 185 and max(r, g, b) - min(r, g, b) <= 35:
+                px[x, y] = (0, 0, 0, 0)
+    bb = im.split()[3].getbbox()
+    if bb is None:
+        return im
+    crop = im.crop(bb)
+    f = JAW_ATTACK_SCALE
+    nw, nh = round(crop.width * f), round(crop.height * f)
+    s = crop.resize((nw, nh), Image.LANCZOS)
+    s.putalpha(s.split()[3].point(lambda v: 255 if v >= 110 else 0))
+    out = Image.new('RGBA', im.size, (0, 0, 0, 0))
+    out.paste(s, (round((bb[0] + bb[2]) / 2 - nw / 2), bb[3] - nh), s)
+    return drop_small_parts(out)
+
+
+def drop_small_parts(im, min_area=12):
+    """Remove componentes conectados pequenos (fragmentos de brilho soltos)."""
+    from collections import deque
+    w, h = im.size
+    a = im.split()[3].load()
+    seen = [[False] * w for _ in range(h)]
+    out = im.copy()
+    po = out.load()
+    for y in range(h):
+        for x in range(w):
+            if a[x, y] < 128 or seen[y][x]:
+                continue
+            q = deque([(x, y)])
+            seen[y][x] = True
+            cells = []
+            while q:
+                cx, cy = q.popleft()
+                cells.append((cx, cy))
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        nx, ny = cx + dx, cy + dy
+                        if 0 <= nx < w and 0 <= ny < h and not seen[ny][nx] and a[nx, ny] >= 128:
+                            seen[ny][nx] = True
+                            q.append((nx, ny))
+            if len(cells) < min_area:
+                for cx, cy in cells:
+                    po[cx, cy] = (0, 0, 0, 0)
+    return out
+
+
 def feet_row(im):
     box = im.split()[3].getbbox()
     return box[3] if box else im.height
@@ -143,6 +202,8 @@ def main():
         counts[prefix] = {}
         for anim, n in anims.items():
             raw = [drop_sparkles(load(BASE / f'{prefix}_{anim}_{i}.png')) for i in range(n)]
+            if prefix == 'twin_jaw' and anim == 'attack':
+                raw = [fix_jaw_attack(f) for f in raw]
             uniq = dedupe(raw)
             seq = expand(uniq, anim in CYCLIC)
             seq = ground(seq, baseline)
