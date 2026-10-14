@@ -361,5 +361,21 @@ Padrão obrigatório para novos itens:
   desenhado menor na arte-fonte (pose agachada); corrigir exige redesenho ou escala
   uniforme, ainda não feito.
 
+### Animais e inimigos na exploração (14/10/2026)
+
+- Lobos na exploração usavam os contadores de quadros dos animais: andavam só com
+  os 8 primeiros de 16 quadros e ficavam parados com 5 de 10. Agora usam
+  `creatures.js` (16 andando, 10 repouso, 13 morte), com a mesma duração de ciclo.
+- Animal abatido cai de lado em 4 passos (0°, 30°, 60°, 90°) em 0,45 s, apoiado no
+  chão, e some em fade nos últimos 0,35 s. Antes ficava girado no lugar, afundando
+  no chão, e sumia de repente.
+- Animal atingido treme e clareia por 0,18 s (o `hurtT` já era definido, mas não
+  era desenhado).
+- Sprites de javali, veado e lebre mantêm a proporção da arte original (antes
+  esticavam ~10%) e são suavizados ao reduzir (menos chiado nas patas).
+- Chefe da ilha já animava (repouso e investida); conferido, sem alteração.
+- Limite conhecido: animais não têm quadros próprios de dano nem de morte (só
+  caminhar e repouso na arte); a reação é feita em código.
+
 `python3 tools/rework_creatures.py` reproduz as correções a partir das imagens
 originais preservadas (equipamento e armadura Avaritia não são afetados); para lobos use `expand_wolf_frames.py`, como descrito acima.

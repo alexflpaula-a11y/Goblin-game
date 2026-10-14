@@ -1292,6 +1292,23 @@ check('passagem termina ao fim da duração e não passa de 100%', cavePass.fini
   btlT._tickAnim(twinHurt, 0.1);
   check('dano dos gêmeos avança um quadro a cada 0,1 s', twinHurt.frame === 1);
 }
+{
+  // Animais e chefe da ilha: lobos usam a contagem certa de quadros, o chefe respira e a queda do animal anima.
+  const RI = raid.RaidIsland.prototype;
+  const wolfWalk = { kind: 'wolf', anim: 'walk', frame: 0, animT: 0 };
+  RI._tickAnimalAnim.call({}, wolfWalk, 0.05 * 15 + 0.01);
+  check('lobo andando chega ao 16º quadro (não para no 8º)', wolfWalk.frame === 15);
+  RI._tickAnimalAnim.call({}, wolfWalk, 0.06);
+  check('lobo andando volta ao quadro 0 depois do 16º', wolfWalk.frame === 0);
+  const fakeBoss = { boss: { alive: true, anim: 'idle', frame: 0, animT: 0 }, _tickGroupAnim: RI._tickGroupAnim };
+  RI._updateBoss.call(fakeBoss, 0.2);
+  check('chefe anima em repouso (quadro muda com o tempo)', fakeBoss.boss.frame === 1);
+  const deerA = { kind: 'deer', alive: true, hp: 1, maxHp: 12, anim: 'walk', frame: 0, animT: 0, x: 0, y: 0 };
+  RI._killAnimal.call({ party: { job: { type: 'hunt' }, anim: 'attack' }, events: [] }, deerA);
+  check('abater animal inicia a queda com contador zerado', deerA.alive === false && deerA.deathT === 0 && deerA.corpseT === 1.4);
+  RI._updateAnimals.call({ animals: [deerA], _tickAnimalAnim: RI._tickAnimalAnim }, 0.2);
+  check('a queda avança com o tempo', Math.abs(deerA.deathT - 0.2) < 1e-9 && deerA.anim === 'death');
+}
 const passGeo = req('passage.js');
 {
   // Os pés dos goblins precisam ficar sempre sobre o chão (faixa de terra), nunca na parede,

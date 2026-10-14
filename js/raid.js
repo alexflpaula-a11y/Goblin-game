@@ -13,7 +13,7 @@ const gear = require('gear.js');
 const { WORLD } = require('world.js');
 const { Goblin, VARIATIONS } = require('goblin.js');
 const { BAL } = require('balance.js');
-const { creatureFrames } = require('creatures.js');
+const { creatureFrames, creatureStep } = require('creatures.js');
 
 const TILE = 16;
 const RAID = {
@@ -520,27 +520,65 @@ function drawOreSpike(ctx, x, y) {
   ctx.restore();
 }
 
+/** Animal abatido cai de lado em 4 passos (pixel art), apoiado no chão, e some em fade. */
+const ANIMAL_BASE_H = { boar: 28, deer: 40, hare: 24 };
+const FALL_TIME = 0.45;
+const FADE_TIME = 0.35;
+
 function drawAnimal(ctx, a, time) {
   if (!a || (!a.alive && !(a.corpseT > 0))) return;
-  const bob = 0; // Leg sprites animate the gait; no whole-body bob disguising a frozen animal.
   ctx.save();
-  ctx.translate(a.x, a.y + bob);
+  ctx.translate(a.x, a.y);
   ctx.scale(a.face || 1, 1);
-  ctx.fillStyle = 'rgba(0,0,0,0.28)';
-  ctx.beginPath(); ctx.ellipse(0, 2, 9, 3, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true; // arte original é maior que o desenho; suavizar evita chiado.
   if (a.kind === 'wolf') {
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.beginPath(); ctx.ellipse(0, 2, 9, 3, 0, 0, Math.PI * 2); ctx.fill();
     const anim = a.anim || 'idle';
     const n = creatureFrames('wolf', anim);
     const spr = getSprite('wolf_' + anim + '_' + ((a.frame || 0) % n));
+    ctx.imageSmoothingEnabled = false;
     ctx.drawImage(spr, -24, -30, 48, 32);
-  } else {
-    const id = 'animal_' + a.kind + (a.anim === 'walk' ? '_walk_' + ((a.frame || 0) % 8) : '');
-    const w = a.kind === 'boar' ? 42 : a.kind === 'deer' ? 36 : 28;
-    const h = a.kind === 'boar' ? 28 : a.kind === 'deer' ? 40 : 24;
-    if (!a.alive) { ctx.translate(0, -3); ctx.rotate(Math.PI / 2); }
-    ctx.drawImage(getSprite(id), -w / 2, -h + 2, w, h);
-    if (a.alive) drawHpBar(ctx, 0, -h - 4, 22, a.hp, a.maxHp);
+    ctx.restore();
+    return;
+  }
+
+  const fade = a.alive ? 1 : Math.max(0, Math.min(1, (a.corpseT || 0) / FADE_TIME));
+  ctx.globalAlpha = fade;
+  if (a.alive && a.hurtT > 0) {
+    // Reação ao golpe: treme de leve e clareia enquanto dura o hurtT.
+    const k = a.hurtT / 0.18;
+    ctx.translate(Math.sin(k * 24) * 1.2 * k, 0);
+    ctx.filter = 'brightness(2)';
+  }
+  const id = 'animal_' + a.kind + (a.anim === 'walk' ? '_walk_' + ((a.frame || 0) % 8) : '');
+  const spr = getSprite(id);
+  const h = ANIMAL_BASE_H[a.kind] || 24;
+  const w = h * ((spr.width || 1) / (spr.height || 1)); // mantém a proporção da arte
+  const fallK = a.alive ? 0 : Math.min(1, (a.deathT || 0) / FALL_TIME);
+  const tip = Math.floor(fallK * 3.999) / 3 * (Math.PI / 2); // 0°, 30°, 60°, 90°
+
+  ctx.fillStyle = 'rgba(0,0,0,0.28)';
+  ctx.beginPath(); ctx.ellipse(0, 2, w * 0.36, 3, 0, 0, Math.PI * 2); ctx.fill();
+  if (tip > 0) {
+    // Gira em torno dos pés e sobe o corpo até o ponto mais baixo tocar o chão (y = 2).
+    const c = Math.cos(tip), sn = Math.sin(tip);
+    let maxY = -Infinity;
+    for (const [x, y] of [[-w / 2, -h + 2], [w / 2, -h + 2], [w / 2, 2], [-w / 2, 2]]) {
+      maxY = Math.max(maxY, x * sn + y * c);
+    }
+    ctx.translate(0, 2 - maxY);
+    ctx.rotate(tip);
+  }
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(spr, -w / 2, -h + 2, w, h);
+  ctx.filter = 'none';
+  ctx.globalAlpha = 1;
+  if (a.alive) {
+    ctx.restore();
+    ctx.save();
+    ctx.translate(a.x, a.y);
+    drawHpBar(ctx, 0, -h - 4, 22, a.hp, a.maxHp);
   }
   ctx.restore();
 }
@@ -1265,8 +1303,10 @@ class RaidIsland {
   }
 
   _tickAnimalAnim(a, dt) {
-    const frames = ANIM_FRAMES[a.anim] || 5;
-    const step = a.anim === 'walk' ? 0.10 : a.anim === 'idle' ? 0.18 : 0.07;
+    const wolf = a.kind === 'wolf';
+    const frames = wolf ? creatureFrames('wolf', a.anim) : (ANIM_FRAMES[a.anim] || 5);
+    const step = wolf ? creatureStep('wolf', a.anim)
+      : a.anim === 'walk' ? 0.10 : a.anim === 'idle' ? 0.18 : 0.07;
     a.animT = (a.animT || 0) + dt;
     const advance = Math.floor(a.animT / step);
     if (!advance) return;
@@ -1304,7 +1344,7 @@ class RaidIsland {
     for (const a of this.animals) {
       if (!a.alive) {
         if ((a.corpseT || 0) > 0) {
-          a.corpseT -= dt; a.anim = 'death'; this._tickAnimalAnim(a, dt);
+          a.corpseT -= dt; a.deathT = (a.deathT || 0) + dt; a.anim = 'death'; this._tickAnimalAnim(a, dt);
         }
         continue;
       }
@@ -1346,6 +1386,7 @@ class RaidIsland {
     a.anim = 'death';
     a.frame = 0;
     a.corpseT = 1.4;
+    a.deathT = 0;
     this.party.job = null;
     this.party.anim = 'idle';
     const amount = a.kind === 'wolf' ? 5 : a.kind === 'boar' ? 4 : a.kind === 'deer' ? 3 : 2;
