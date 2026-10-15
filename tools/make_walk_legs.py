@@ -16,8 +16,8 @@ AMP = 2  # deslocamento máximo, em px, nas patas
 
 # faixas de colunas medidas no repouso (quadril = Y0, patas = FEET)
 CONFIG = {
-    'veado': dict(sprite='animal_deer', Y0=64, FEET=88, back=(8, 33), front=(40, 58)),
-    'lebre': dict(sprite='animal_hare', Y0=55, FEET=62, back=(18, 40), front=(43, 59)),
+    'veado': dict(sprite='animal_deer', Y0=64, FEET=88, back=(8, 33), front=(40, 58), frames=16),
+    'lebre': dict(sprite='animal_hare', Y0=55, FEET=62, back=(18, 40), front=(43, 59), frames=16),
     'javali': dict(sprite='animal_boar', Y0=57, FEET=73, back=(14, 48), front=(52, 80), frames=16),
 }
 

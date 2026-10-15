@@ -17301,6 +17301,38 @@
       "path": "assets/sprites/raid/animal_deer_walk_7.png"
     },
     {
+      "id": "animal_deer_walk_8",
+      "path": "assets/sprites/raid/animal_deer_walk_8.png"
+    },
+    {
+      "id": "animal_deer_walk_9",
+      "path": "assets/sprites/raid/animal_deer_walk_9.png"
+    },
+    {
+      "id": "animal_deer_walk_10",
+      "path": "assets/sprites/raid/animal_deer_walk_10.png"
+    },
+    {
+      "id": "animal_deer_walk_11",
+      "path": "assets/sprites/raid/animal_deer_walk_11.png"
+    },
+    {
+      "id": "animal_deer_walk_12",
+      "path": "assets/sprites/raid/animal_deer_walk_12.png"
+    },
+    {
+      "id": "animal_deer_walk_13",
+      "path": "assets/sprites/raid/animal_deer_walk_13.png"
+    },
+    {
+      "id": "animal_deer_walk_14",
+      "path": "assets/sprites/raid/animal_deer_walk_14.png"
+    },
+    {
+      "id": "animal_deer_walk_15",
+      "path": "assets/sprites/raid/animal_deer_walk_15.png"
+    },
+    {
       "id": "animal_hare_walk_0",
       "path": "assets/sprites/raid/animal_hare_walk_0.png"
     },
@@ -17331,6 +17363,38 @@
     {
       "id": "animal_hare_walk_7",
       "path": "assets/sprites/raid/animal_hare_walk_7.png"
+    },
+    {
+      "id": "animal_hare_walk_8",
+      "path": "assets/sprites/raid/animal_hare_walk_8.png"
+    },
+    {
+      "id": "animal_hare_walk_9",
+      "path": "assets/sprites/raid/animal_hare_walk_9.png"
+    },
+    {
+      "id": "animal_hare_walk_10",
+      "path": "assets/sprites/raid/animal_hare_walk_10.png"
+    },
+    {
+      "id": "animal_hare_walk_11",
+      "path": "assets/sprites/raid/animal_hare_walk_11.png"
+    },
+    {
+      "id": "animal_hare_walk_12",
+      "path": "assets/sprites/raid/animal_hare_walk_12.png"
+    },
+    {
+      "id": "animal_hare_walk_13",
+      "path": "assets/sprites/raid/animal_hare_walk_13.png"
+    },
+    {
+      "id": "animal_hare_walk_14",
+      "path": "assets/sprites/raid/animal_hare_walk_14.png"
+    },
+    {
+      "id": "animal_hare_walk_15",
+      "path": "assets/sprites/raid/animal_hare_walk_15.png"
     },
     {
       "id": "animal_boar_hurt",

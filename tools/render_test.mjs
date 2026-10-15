@@ -270,7 +270,7 @@ check('toda habilidade tem ícone no manifest', missingA.length === 0, missingA.
 // animais da exploração: repouso, caminhada, dano e morte (todos no manifest e no disco)
 const animalIds = [];
 // quantidade de quadros de caminhada por animal (espelha ANIMAL_WALK_FRAMES em js/raid.js)
-const walkFrames = { boar: 16, deer: 8, hare: 8 };
+const walkFrames = { boar: 16, deer: 16, hare: 16 };
 for (const k of ['boar', 'deer', 'hare']) {
   animalIds.push(`animal_${k}`, `animal_${k}_hurt`, `animal_${k}_death`);
   for (let i = 0; i < walkFrames[k]; i++) animalIds.push(`animal_${k}_walk_${i}`);

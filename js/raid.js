@@ -35,9 +35,9 @@ const ENEMY_SPEED = 38;
 const BOSS_RUSH_SPEED = 120;
 const CONFUSED_TIME = 1.2;
 const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 15 };
-// Quadros de caminhada dos animais de caça. O javali tem 16 (quadros intercalados);
-// veado e lebre ainda usam 8. O ciclo dura sempre 0,8 s.
-const ANIMAL_WALK_FRAMES = { boar: 16, deer: 8, hare: 8 };
+// Quadros de caminhada dos animais de caça: 16 por animal, gerados sem IA por
+// tools/make_walk_legs.py. O ciclo dura sempre 0,8 s.
+const ANIMAL_WALK_FRAMES = { boar: 16, deer: 16, hare: 16 };
 const ANIMAL_WALK_CYCLE = 0.8;
 // Caça com histerese: o grupo para de correr ao chegar a HUNT_REACH e só volta
 // a correr quando o animal passa de HUNT_CHASE. Entre as duas distâncias o estado
