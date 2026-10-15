@@ -381,12 +381,11 @@ Padrão obrigatório para novos itens:
 - Mandíbula de metal (lobo gêmeo, ataque): brilho picotado removido e corpo levado à
   escala do repouso (×1,3, pés ancorados); fragmentos soltos são descartados. Gerada
   por `tools/expand_wolf_frames.py`.
-- Javali com 16 quadros de caminhada (`ANIMAL_WALK_FRAMES` em `js/raid.js`): os 8
-  originais em posições pares e 8 intermediários gerados em posições ímpares, mesmo
-  ciclo de 0,8 s. Veado e lebre continuam com 8 quadros.
-- Caminhada do veado refeita sem IA por `tools/make_deer_walk.py`: só as pernas se
-  movem (2 px no casco, fases opostas) a partir do repouso. Os quadros antigos tinham
-  linhas em V sob a barriga e pixels soltos nas patas.
+- Caminhada de veado, lebre e javali refeita sem IA por `tools/make_walk_legs.py`:
+  só as patas se movem (2 px no casco, fases opostas) a partir do repouso, com corpo,
+  cabeça e hastes idênticos. Javali tem 16 quadros (`ANIMAL_WALK_FRAMES` em
+  `js/raid.js`); veado e lebre, 8. Ciclo de 0,8 s. Os quadros antigos tinham linhas
+  em V sob a barriga, pixels soltos nas patas e, no javali, quadros deformados.
 - Mandíbula de aço continua com o brilho cinza e o ataque menor da arte-fonte;
   ainda não foi redesenhada.
 
