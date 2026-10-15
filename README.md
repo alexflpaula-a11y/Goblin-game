@@ -381,6 +381,11 @@ Padrão obrigatório para novos itens:
 - Mandíbula de metal (lobo gêmeo, ataque): brilho picotado removido e corpo levado à
   escala do repouso (×1,3, pés ancorados); fragmentos soltos são descartados. Gerada
   por `tools/expand_wolf_frames.py`.
+- Lobos e gêmeos sem fantasmas: os quadros intermediários por união de dois quadros
+  (que sobrepunham dois lobos) foram removidos. Ataque, dano e morte usam só quadros
+  reais; o ataque da Mandíbula é um avanço procedural da arte blindada
+  (`art-source/war-twins/jaw.png`). A caminhada dos lobos e gêmeos (16 quadros) é
+  gerada por `tools/make_walk_legs.py`, com 3 px de amplitude nas patas.
 - Caminhada de veado, lebre e javali refeita sem IA por `tools/make_walk_legs.py`,
   com 16 quadros cada (`ANIMAL_WALK_FRAMES` em `js/raid.js`). Só as patas se movem
   (2 px no casco, fases opostas) a partir do repouso, com corpo, cabeça e hastes

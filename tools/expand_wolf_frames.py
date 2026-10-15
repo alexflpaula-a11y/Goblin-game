@@ -40,7 +40,10 @@ CYCLIC = {'idle', 'walk'}
 JAW_ATTACK_SCALE = 1.3
 # Duração total de cada animação (segundos) — preservada do jogo anterior
 # (quadros-base × passo antigo). Com mais quadros, cada um dura menos.
-DURATION = {'idle': 0.9, 'walk': 0.8, 'attack': 1.19, 'hurt': 1.19, 'death': 1.05}
+# Duração total de cada animação com os quadros reais (sem intermediários).
+DURATION = {'idle': 0.9, 'walk': 0.8, 'attack': 0.8, 'hurt': 0.5, 'death': 0.7}
+# A caminhada (16 quadros) é gerada por tools/make_walk_legs.py, não aqui.
+WALK_FRAMES = 16
 
 
 def load(path):
@@ -101,6 +104,11 @@ def union_mid(a, b):
 
 
 def expand(frames, cyclic):
+    """Sem quadros intermediários: a união de dois quadros fazia fantasmas."""
+    return list(frames)
+
+
+def _old_expand_unused(frames, cyclic):
     seq = []
     pairs = list(zip(frames, frames[1:]))
     if cyclic and len(frames) > 1:
@@ -196,6 +204,28 @@ def drop_small_parts(im, min_area=12):
     return out
 
 
+# Ataque da Mandíbula: avanço procedural sobre a arte blindada (war-twins/jaw.png).
+# Cada coluna desloca em x; a cabeça avança mais que o corpo (peso 0 atrás, 1 na ponta).
+JAW_PROFILE = [0, -1, -2, 1, 3, 4, 3, 1, 0]  # recuo, bote, retorno (px na ponta)
+
+
+def jaw_lunge_frames():
+    base = Image.open(ROOT / 'art-source' / 'war-twins' / 'jaw.png').convert('RGBA')
+    w, h = base.size
+    out_frames = []
+    for d in JAW_PROFILE:
+        out = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+        # Mapeamento inverso: cada coluna de saída X copia a coluna de origem X - deslocamento(X).
+        # Assim não sobram vãos transparentes entre colunas.
+        for X in range(w):
+            weight = min(1.0, max(0.0, (X - 22) / 16))
+            x = X - round(d * weight)
+            if 0 <= x < w:
+                out.paste(base.crop((x, 0, x + 1, h)), (X, 0))
+        out_frames.append(out)
+    return out_frames
+
+
 def feet_row(im):
     box = im.split()[3].getbbox()
     return box[3] if box else im.height
@@ -223,12 +253,17 @@ def main():
         baseline = base_idle.height
         # Remove todos os quadros antigos deste prefixo antes de regravar.
         for old in OUT.glob(f'{prefix}_*_*.png'):
-            old.unlink()
+            if '_walk_' not in old.name:  # caminhada é gerada por make_walk_legs.py
+                old.unlink()
         counts[prefix] = {}
         for anim, n in anims.items():
+            if anim == 'walk':
+                counts[prefix]['walk'] = WALK_FRAMES
+                new_ids += [f'{prefix}_walk_{i}' for i in range(WALK_FRAMES)]
+                continue
             raw = [drop_sparkles(load(BASE / f'{prefix}_{anim}_{i}.png')) for i in range(n)]
             if prefix == 'twin_jaw' and anim == 'attack':
-                raw = [fix_jaw_attack(f) for f in raw]
+                raw = jaw_lunge_frames()
             uniq = dedupe(raw)
             seq = expand(uniq, anim in CYCLIC)
             seq = ground(seq, baseline)
