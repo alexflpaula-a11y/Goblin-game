@@ -267,6 +267,16 @@ const missingI = inventory.ITEMS.map((i) => i.icon).filter((s) => !haveSprites.h
 check('todo item de equipamento tem ícone no manifest', missingI.length === 0, missingI.join(', '));
 const missingA = abilities.ABILITIES.map((a) => a.icon).filter((s) => !haveSprites.has(s));
 check('toda habilidade tem ícone no manifest', missingA.length === 0, missingA.join(', '));
+// animais da exploração: repouso, caminhada, dano e morte (todos no manifest e no disco)
+const animalIds = [];
+// quantidade de quadros de caminhada por animal (espelha ANIMAL_WALK_FRAMES em js/raid.js)
+const walkFrames = { boar: 16, deer: 16, hare: 16 };
+for (const k of ['boar', 'deer', 'hare']) {
+  animalIds.push(`animal_${k}`, `animal_${k}_hurt`, `animal_${k}_death`);
+  for (let i = 0; i < walkFrames[k]; i++) animalIds.push(`animal_${k}_walk_${i}`);
+}
+const missingAnimal = animalIds.filter((id) => !haveSprites.has(id));
+check('todo animal tem repouso, caminhada, dano e morte no manifest', missingAnimal.length === 0, missingAnimal.join(', '));
 // skins do goblin equipado (ferro_pei / avaritia) cobrem as animações usadas
 const gear = req('gear.js');
 const anims = [['idle', 5], ['walk', 8], ['attack', 17], ['hurt', 17], ['death', 15]];

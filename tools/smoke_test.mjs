@@ -1123,14 +1123,16 @@ const reserveHP = squad8.slice(4).map((g) => g.hp);
 const cave = raid.denWaves('lair', 1);
 const campaign = new Battle({ allies: squad8, ...cave, kind: 'lair', rng: () => 0 });
 check('8 viajantes não viram 8 combatentes', campaign.allies.length === 4);
-let campaignTicks = 0, sawAdvance = false, sawTwins = false;
+let campaignTicks = 0, sawAdvance = false, sawTwins = false, transitions = 0;
 while (!campaign.finished && campaignTicks++ < 4000) {
   if (campaign.phase === 'ready') { campaign.chooseTarget(0); campaign.commandAttack(); }
+  if (campaign.phase === 'transition') { transitions += 1; campaign.completeTransition(); } // a tela da passagem
   campaign.update(0.1);
   sawAdvance ||= campaign.phase === 'advance';
   sawTwins ||= campaign.foes.some((f) => f.attackKind === 'bite');
 }
 check('três ondas terminam sem travar, com avanço e gêmeos', campaign.result === 'win' && sawAdvance && sawTwins);
+check('cada onda derrotada abre uma passagem (duas entre três ondas)', transitions === 2);
 check('câmara final usa o fundo perigoso', campaign.bgKey === 'bg_den_twins');
 check('reservas não sofrem dano fora da batalha', squad8.slice(4).every((g, i) => g.hp === reserveHP[i]));
 const statusBattle = new Battle({ allies: squad8, foes: raid.makeWolfPack(2, 1), rng: () => 0.99 });
@@ -1258,10 +1260,76 @@ const dying=dyingBattle.foes[0];dying.alive=false;dying.hp=0;dying.anim='death';
 dyingBattle._checkEnd();
 check('vitória aguarda animação inteira da queda',!dyingBattle.finished && dyingBattle.phase==='settling');
 dyingBattle.update(1.2);
-check('queda termina no chão antes da vitória',dying.frame===14 && dyingBattle.finished && dyingBattle.result==='win');
+const lastDeathFrame = req('creatures.js').creatureFrames('wolf', 'death') - 1;
+check('queda termina no chão antes da vitória',dying.frame===lastDeathFrame && dyingBattle.finished && dyingBattle.result==='win');
 const gait={anim:'walk',frame:0,animT:0};huntMap._tickAnimalAnim(gait,0.35);
 check('animação animal preserva tempo entre quadros',gait.frame===3 && Math.abs(gait.animT-0.05)<1e-8);
 
+const { CavePassage } = req('passage.js');
+const cavePass = new CavePassage({allies:[]});
+cavePass.update(0.3);
+check('passagem da caverna ainda não pode ser pulada no início', !cavePass.canSkip() && !cavePass.finished());
+cavePass.update(0.4);
+check('toque pula a passagem depois de 0,6 s', cavePass.canSkip() && !cavePass.finished());
+cavePass.update(5);
+check('passagem termina ao fim da duração e não passa de 100%', cavePass.finished() && cavePass.progress() === 1);
+{
+  // Batalha normal (não instantânea): derrotar uma onda abre a passagem antes da próxima.
+  const wt = new Battle({
+    allies: party, foes: raid.makeWolfPack(1, 1), waves: [raid.makeWolfPack(1, 1)],
+    kind: 'den', difficulty: 1, rewards: rw, rng: () => 0,
+  });
+  wt.foes.forEach((f) => { f.alive = false; f.hp = 0; f.anim = 'idle'; });
+  wt._checkEnd();
+  check('onda derrotada abre a transição antes da próxima', wt.phase === 'transition' && wt.pendingWaves.length === 1);
+  wt.update(0.5);
+  check('a batalha espera a passagem terminar', wt.phase === 'transition' && wt.pendingWaves.length === 1);
+  wt.completeTransition();
+  check('ao terminar a passagem a próxima onda entra', wt.phase === 'advance' && wt.pendingWaves.length === 0 && wt.foes.some((f) => f.alive));
+  // Dano dos gêmeos: 5 quadros não podem durar 1,19 s (câmera lenta). Cada quadro até 0,04 s.
+  const twinHurt = btlT.foes[0];
+  twinHurt.alive = true; twinHurt.anim = 'hurt'; twinHurt.frame = 0; twinHurt.animT = 0;
+  btlT._tickAnim(twinHurt, 0.05);
+  check('dano dos gêmeos avança um quadro a cada 0,04 s', twinHurt.frame === 1);
+}
+{
+  // Animais e chefe da ilha: lobos usam a contagem certa de quadros, o chefe respira e a queda do animal anima.
+  const RI = raid.RaidIsland.prototype;
+  const wolfWalk = { kind: 'wolf', anim: 'walk', frame: 0, animT: 0 };
+  RI._tickAnimalAnim.call({}, wolfWalk, 0.05 * 15 + 0.01);
+  check('lobo andando chega ao 16º quadro (não para no 8º)', wolfWalk.frame === 15);
+  RI._tickAnimalAnim.call({}, wolfWalk, 0.06);
+  check('lobo andando volta ao quadro 0 depois do 16º', wolfWalk.frame === 0);
+  const fakeBoss = { boss: { alive: true, anim: 'idle', frame: 0, animT: 0 }, _tickGroupAnim: RI._tickGroupAnim };
+  RI._updateBoss.call(fakeBoss, 0.2);
+  check('chefe anima em repouso (quadro muda com o tempo)', fakeBoss.boss.frame === 1);
+  const deerA = { kind: 'deer', alive: true, hp: 1, maxHp: 12, anim: 'walk', frame: 0, animT: 0, x: 0, y: 0 };
+  RI._killAnimal.call({ party: { job: { type: 'hunt' }, anim: 'attack' }, events: [] }, deerA);
+  check('abater animal inicia a queda com contador zerado', deerA.alive === false && deerA.deathT === 0 && deerA.corpseT === 1.4);
+  RI._updateAnimals.call({ animals: [deerA], _tickAnimalAnim: RI._tickAnimalAnim }, 0.2);
+  check('a queda avança com o tempo', Math.abs(deerA.deathT - 0.2) < 1e-9 && deerA.anim === 'death');
+}
+const passGeo = req('passage.js');
+{
+  // Os pés dos goblins precisam ficar sempre sobre o chão (faixa de terra), nunca na parede,
+  // inclusive com o zoom da câmera no fim da passagem.
+  let geoOk = true, screenOk = true, worst = null;
+  for (let s = 0; s <= 100; s++) {
+    const k = s / 100;
+    const z = passGeo.zoomAt(k);
+    for (let i = 0; i < 4; i++) {
+      const foot = passGeo.footAt(k, i);
+      if (foot.y < passGeo.FLOOR_BAND.top || foot.y > passGeo.FLOOR_BAND.bottom) geoOk = false;
+      const scr = passGeo.toScreen(foot, z, 0);
+      if (scr.y < 260 || scr.y > 356) screenOk = false;
+      worst = worst ?? scr;
+    }
+  }
+  check('pés dos goblins ficam dentro da faixa de chão da arte em todo o trajeto', geoOk);
+  check('pés dos goblins continuam dentro da tela durante o zoom', screenOk);
+  const lo = passGeo.footAt(0, 0), hi = passGeo.footAt(1, 3);
+  check('grupo caminha da entrada para o fundo sem voltar', hi.x > lo.x);
+}
 const gemV = new Village();
 gemV.add('goblin_gems', 4);
 check('gemas goblinéias entram no estoque sem função extra', gemV.res.goblin_gems === 4);

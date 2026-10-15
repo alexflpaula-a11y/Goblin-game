@@ -13,6 +13,7 @@ const gear = require('gear.js');
 const { WORLD } = require('world.js');
 const { Goblin, VARIATIONS } = require('goblin.js');
 const { BAL } = require('balance.js');
+const { creatureFrames, creatureStep } = require('creatures.js');
 
 const TILE = 16;
 const RAID = {
@@ -34,6 +35,15 @@ const ENEMY_SPEED = 38;
 const BOSS_RUSH_SPEED = 120;
 const CONFUSED_TIME = 1.2;
 const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 15 };
+// Quadros de caminhada dos animais de caça: 16 por animal, gerados sem IA por
+// tools/make_walk_legs.py. O ciclo dura sempre 0,8 s.
+const ANIMAL_WALK_FRAMES = { boar: 16, deer: 16, hare: 16 };
+const ANIMAL_WALK_CYCLE = 0.8;
+// Caça com histerese: o grupo para de correr ao chegar a HUNT_REACH e só volta
+// a correr quando o animal passa de HUNT_CHASE. Entre as duas distâncias o estado
+// anterior (correr ou golpear) é mantido, então não há ataque/andar piscando.
+const HUNT_REACH = 22;
+const HUNT_CHASE = 30;
 
 const FORMATION = [
   { dx: -11, dy: -7 }, { dx: 11, dy: -7 },
@@ -514,27 +524,61 @@ function drawOreSpike(ctx, x, y) {
   ctx.restore();
 }
 
+/** Animal abatido cai de lado em 4 passos (pixel art), apoiado no chão, e some em fade. */
+const ANIMAL_BASE_H = { boar: 28, deer: 40, hare: 24 };
+const FALL_TIME = 0.45;
+const FADE_TIME = 0.35;
+
 function drawAnimal(ctx, a, time) {
   if (!a || (!a.alive && !(a.corpseT > 0))) return;
-  const bob = 0; // Leg sprites animate the gait; no whole-body bob disguising a frozen animal.
   ctx.save();
-  ctx.translate(a.x, a.y + bob);
+  ctx.translate(a.x, a.y);
   ctx.scale(a.face || 1, 1);
-  ctx.fillStyle = 'rgba(0,0,0,0.28)';
-  ctx.beginPath(); ctx.ellipse(0, 2, 9, 3, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true; // arte original é maior que o desenho; suavizar evita chiado.
   if (a.kind === 'wolf') {
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.beginPath(); ctx.ellipse(0, 2, 9, 3, 0, 0, Math.PI * 2); ctx.fill();
     const anim = a.anim || 'idle';
-    const n = ANIM_FRAMES[anim] || 5;
+    const n = creatureFrames('wolf', anim);
     const spr = getSprite('wolf_' + anim + '_' + ((a.frame || 0) % n));
+    ctx.imageSmoothingEnabled = false;
     ctx.drawImage(spr, -24, -30, 48, 32);
-  } else {
-    const id = 'animal_' + a.kind + (a.anim === 'walk' ? '_walk_' + ((a.frame || 0) % 8) : '');
-    const w = a.kind === 'boar' ? 42 : a.kind === 'deer' ? 36 : 28;
-    const h = a.kind === 'boar' ? 28 : a.kind === 'deer' ? 40 : 24;
-    if (!a.alive) { ctx.translate(0, -3); ctx.rotate(Math.PI / 2); }
-    ctx.drawImage(getSprite(id), -w / 2, -h + 2, w, h);
-    if (a.alive) drawHpBar(ctx, 0, -h - 4, 22, a.hp, a.maxHp);
+    ctx.restore();
+    return;
+  }
+
+  const fade = a.alive ? 1 : Math.max(0, Math.min(1, (a.corpseT || 0) / FADE_TIME));
+  ctx.globalAlpha = fade;
+  // A caixa de desenho é sempre a do sprite de repouso, para as variações ficarem no mesmo lugar.
+  const idle = getSprite('animal_' + a.kind);
+  const h = ANIMAL_BASE_H[a.kind] || 24;
+  const w = h * ((idle.width || 1) / (idle.height || 1));
+  let id;
+  if (!a.alive) id = 'animal_' + a.kind + '_death';
+  else if (a.hurtT > 0) id = 'animal_' + a.kind + '_hurt';
+  else id = 'animal_' + a.kind + (a.anim === 'walk' ? '_walk_' + ((a.frame || 0) % (ANIMAL_WALK_FRAMES[a.kind] || 8)) : '');
+  if (a.alive && a.hurtT > 0) {
+    // Golpe: arte de dano, treme de leve e clareia enquanto dura o hurtT.
+    const k = a.hurtT / 0.18;
+    ctx.translate(Math.sin(k * 24) * 1.2 * k, 0);
+    ctx.filter = 'brightness(1.35)';
+  }
+  if (!a.alive) {
+    // Queda: a carcaça desce do ar até o chão em FALL_TIME.
+    const k = Math.min(1, (a.deathT || 0) / FALL_TIME);
+    ctx.translate(0, -6 * (1 - k) * (1 - k));
+  }
+  ctx.fillStyle = 'rgba(0,0,0,0.28)';
+  ctx.beginPath(); ctx.ellipse(0, 2, w * 0.36, 3, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(getSprite(id), -w / 2, -h + 2, w, h);
+  ctx.filter = 'none';
+  ctx.globalAlpha = 1;
+  if (a.alive) {
+    ctx.restore();
+    ctx.save();
+    ctx.translate(a.x, a.y);
+    drawHpBar(ctx, 0, -h - 4, 22, a.hp, a.maxHp);
   }
   ctx.restore();
 }
@@ -1104,7 +1148,9 @@ class RaidIsland {
     const speed = Math.max(PLAYER_SPEED, combatCfg().playerSpeed || 0);
     if (p.job?.type === 'hunt' && p.job.obj?.alive) {
       const a = p.job.obj;
-      p.target = Math.hypot(p.x - a.x, p.y - a.y) > 18 ? { x: a.x, y: a.y + 4 } : null;
+      const d = Math.hypot(p.x - a.x, p.y - a.y);
+      if (d > HUNT_CHASE) p.target = { x: a.x, y: a.y + 4 };
+      else if (d <= HUNT_REACH) p.target = null;
     }
     if (p.target) {
       const dx = p.target.x - p.x, dy = p.target.y - p.y;
@@ -1164,7 +1210,7 @@ class RaidIsland {
       if (!a?.alive) {
         p.job = null;
         p.anim = 'idle';
-      } else if (Math.hypot(p.x - a.x, p.y - a.y) > 18) {
+      } else if (Math.hypot(p.x - a.x, p.y - a.y) > HUNT_CHASE) {
         p.target = { x: a.x, y: a.y + 8 };
       } else {
         p.anim = 'attack';
@@ -1192,7 +1238,7 @@ class RaidIsland {
     if (job.type === 'hunt') {
       const a = job.obj;
       if (!a?.alive) { this.party.job = null; return; }
-      if (Math.hypot(this.party.x - a.x, this.party.y - a.y) > 18) {
+      if (Math.hypot(this.party.x - a.x, this.party.y - a.y) > HUNT_CHASE) {
         this.party.target = { x: a.x, y: a.y + 8 };
       }
       return;
@@ -1257,8 +1303,12 @@ class RaidIsland {
   }
 
   _tickAnimalAnim(a, dt) {
-    const frames = ANIM_FRAMES[a.anim] || 5;
-    const step = a.anim === 'walk' ? 0.10 : a.anim === 'idle' ? 0.18 : 0.07;
+    const wolf = a.kind === 'wolf';
+    const walkN = ANIMAL_WALK_FRAMES[a.kind] || 8;
+    const frames = wolf ? creatureFrames('wolf', a.anim)
+      : a.anim === 'walk' ? walkN : (ANIM_FRAMES[a.anim] || 5);
+    const step = wolf ? creatureStep('wolf', a.anim)
+      : a.anim === 'walk' ? ANIMAL_WALK_CYCLE / walkN : a.anim === 'idle' ? 0.18 : 0.07;
     a.animT = (a.animT || 0) + dt;
     const advance = Math.floor(a.animT / step);
     if (!advance) return;
@@ -1269,11 +1319,22 @@ class RaidIsland {
 
   _animalRoute(a, away) {
     const angle = away ? Math.atan2(a.y - this.party.y, a.x - this.party.x) : this.rng() * Math.PI * 2;
+    const clear = (dx, dy) => [0.25, 0.5, 0.75, 1].every((t) => this.walkable(a.x + dx * t, a.y + dy * t));
     // Search along a clear segment, not just a walkable end point across water.
-    for (const turn of [0, 0.5, -0.5, 1, -1, 1.6, -1.6, 2.4, -2.4, Math.PI]) {
-      const distance = away ? 64 : 26 + this.rng() * 28;
-      const dx = Math.cos(angle + turn) * distance, dy = Math.sin(angle + turn) * distance;
-      if (![0.25, 0.5, 0.75, 1].every((t) => this.walkable(a.x + dx * t, a.y + dy * t))) continue;
+    const distances = away ? [64, 40] : [26 + this.rng() * 28];
+    for (const distance of distances) {
+      for (const turn of [0, 0.5, -0.5, 1, -1, 1.6, -1.6, 2.4, -2.4, Math.PI]) {
+        const dx = Math.cos(angle + turn) * distance, dy = Math.sin(angle + turn) * distance;
+        if (!clear(dx, dy)) continue;
+        a.wx = a.x + dx; a.wy = a.y + dy;
+        return true;
+      }
+    }
+    // Cornered: any clear short dash keeps it running instead of freezing on the spot.
+    for (let k = 0; k < 16; k++) {
+      const ang = (k / 16) * Math.PI * 2;
+      const dx = Math.cos(ang) * 28, dy = Math.sin(ang) * 28;
+      if (!clear(dx, dy)) continue;
       a.wx = a.x + dx; a.wy = a.y + dy;
       return true;
     }
@@ -1285,7 +1346,7 @@ class RaidIsland {
     for (const a of this.animals) {
       if (!a.alive) {
         if ((a.corpseT || 0) > 0) {
-          a.corpseT -= dt; a.anim = 'death'; this._tickAnimalAnim(a, dt);
+          a.corpseT -= dt; a.deathT = (a.deathT || 0) + dt; a.anim = 'death'; this._tickAnimalAnim(a, dt);
         }
         continue;
       }
@@ -1306,10 +1367,17 @@ class RaidIsland {
       const ox = a.x, oy = a.y;
       this._stepToward(a, a.wx, a.wy, a.fleeing ? 30 : 18, dt);
       const moving = Math.hypot(a.x - ox, a.y - oy) > 0.001;
-      const anim = moving ? 'walk' : 'idle';
+      if (a.fleeing && !moving) {
+        // Blocked by water/edge: after a beat, pick a new escape instead of standing still.
+        a.stuckT = (a.stuckT || 0) + dt;
+        if (a.stuckT > 0.2) { a.stuckT = 0; this._animalRoute(a, true); a.routeT = 0.4; }
+      } else {
+        a.stuckT = 0;
+      }
+      // A fleeing animal keeps its legs moving even when it is pinned, never a frozen pose.
+      const anim = (moving || a.fleeing) ? 'walk' : 'idle';
       if (a.anim !== anim) { a.frame = 0; a.animT = 0; }
       a.anim = anim;
-      if (!moving && a.fleeing) a.routeT = 0;
       this._tickAnimalAnim(a, dt);
     }
   }
@@ -1320,6 +1388,7 @@ class RaidIsland {
     a.anim = 'death';
     a.frame = 0;
     a.corpseT = 1.4;
+    a.deathT = 0;
     this.party.job = null;
     this.party.anim = 'idle';
     const amount = a.kind === 'wolf' ? 5 : a.kind === 'boar' ? 4 : a.kind === 'deer' ? 3 : 2;
