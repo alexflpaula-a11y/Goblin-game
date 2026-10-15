@@ -1286,11 +1286,11 @@ check('passagem termina ao fim da duração e não passa de 100%', cavePass.fini
   check('a batalha espera a passagem terminar', wt.phase === 'transition' && wt.pendingWaves.length === 1);
   wt.completeTransition();
   check('ao terminar a passagem a próxima onda entra', wt.phase === 'advance' && wt.pendingWaves.length === 0 && wt.foes.some((f) => f.alive));
-  // Dano dos gêmeos: 5 quadros não podem durar 1,19 s (câmera lenta). Cada quadro até 0,1 s.
+  // Dano dos gêmeos: 5 quadros não podem durar 1,19 s (câmera lenta). Cada quadro até 0,04 s.
   const twinHurt = btlT.foes[0];
   twinHurt.alive = true; twinHurt.anim = 'hurt'; twinHurt.frame = 0; twinHurt.animT = 0;
-  btlT._tickAnim(twinHurt, 0.1);
-  check('dano dos gêmeos avança um quadro a cada 0,1 s', twinHurt.frame === 1);
+  btlT._tickAnim(twinHurt, 0.05);
+  check('dano dos gêmeos avança um quadro a cada 0,04 s', twinHurt.frame === 1);
 }
 {
   // Animais e chefe da ilha: lobos usam a contagem certa de quadros, o chefe respira e a queda do animal anima.

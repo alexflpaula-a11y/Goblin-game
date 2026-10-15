@@ -138,7 +138,32 @@ def fix_jaw_attack(im):
     s.putalpha(s.split()[3].point(lambda v: 255 if v >= 110 else 0))
     out = Image.new('RGBA', im.size, (0, 0, 0, 0))
     out.paste(s, (round((bb[0] + bb[2]) / 2 - nw / 2), bb[3] - nh), s)
-    return drop_small_parts(out)
+    return drop_edge_speckle(drop_small_parts(out))
+
+
+def drop_edge_speckle(im, passes=2):
+    """Remove pontos cinza-claros e neutros na borda do sprite (o 'xadrez' do ataque).
+
+    Só age em pixels opacos, quase sem cor (saturação ≤14), claros (lum ≥115) e
+    encostados em área transparente. O metal do interior não é tocado.
+    """
+    w, h = im.size
+    for _ in range(passes):
+        src = im.copy()
+        sp = src.load()
+        dp = im.load()
+        for y in range(h):
+            for x in range(w):
+                r, g, b, a = sp[x, y]
+                if a < 128 or max(r, g, b) - min(r, g, b) > 14 or (r + g + b) / 3 < 115:
+                    continue
+                edge = any(
+                    not (0 <= x + dx < w and 0 <= y + dy < h) or sp[x + dx, y + dy][3] < 128
+                    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))
+                )
+                if edge:
+                    dp[x, y] = (0, 0, 0, 0)
+    return im
 
 
 def drop_small_parts(im, min_area=12):

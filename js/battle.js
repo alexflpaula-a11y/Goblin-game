@@ -27,7 +27,8 @@ function stepOf(f, anim) {
     const step = creatureStep(f.spritePrefix || 'wolf', anim);
     // Dano é um sobressalto curto. Gêmeos têm só 5 quadros de dano e, sem limite,
     // cada um ficaria ~0,24 s na tela (câmera lenta). Os lobos já passam de 0,04 s.
-    return anim === 'hurt' ? Math.min(step, 0.1) : step;
+    // Gêmeos têm 5 quadros de dano: 0,04 s por quadro (0,2 s), sem câmera lenta.
+    return anim === 'hurt' ? Math.min(step, 0.04) : step;
   }
   return anim === 'idle' ? 0.18 : anim === 'walk' ? 0.10 : 0.07;
 }
@@ -388,7 +389,7 @@ class Battle {
     if (this.phase === 'advance') {
       this.advanceT = (this.advanceT || 0) + dt;
       const k = Math.min(1, this.advanceT / 1.6);
-      this.caveDepth = (this.waveNumber - 2 + k) * 80;
+      // Fundo fixo: o movimento entre ondas fica com a passagem em túnel, não com a caverna.
       for (const f of this.allies) {
         if (!f.alive) continue;
         f.anim = 'walk';
