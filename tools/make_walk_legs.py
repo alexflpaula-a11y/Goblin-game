@@ -16,9 +16,9 @@ AMP = 2  # deslocamento máximo, em px, nas patas
 
 # faixas de colunas medidas no repouso (quadril = Y0, patas = FEET)
 CONFIG = {
-    'veado': dict(sprite='animal_deer', Y0=64, FEET=88, back=(8, 33), front=(40, 58), frames=16),
-    'lebre': dict(sprite='animal_hare', Y0=55, FEET=62, back=(18, 40), front=(43, 59), frames=16),
-    'javali': dict(sprite='animal_boar', Y0=57, FEET=73, back=(14, 48), front=(52, 80), frames=16),
+    'veado': dict(sprite='animal_deer', Y0=64, FEET=88, back=(8, 33), front=(40, 58), frames=16, amp=5),
+    'lebre': dict(sprite='animal_hare', Y0=55, FEET=62, back=(18, 40), front=(43, 59), frames=16, amp=5),
+    'javali': dict(sprite='animal_boar', Y0=57, FEET=73, back=(14, 48), front=(52, 80), frames=16, amp=5),
     # Lobos e gêmeos: a base é o repouso já gerado (wolf_idle_0 etc.); a saída usa o mesmo prefixo.
     'lobo': dict(sprite='wolf_idle_0', out='wolf', Y0=25, FEET=31, back=(10, 22), front=(23, 35), frames=16, amp=3),
     'gemeo_mandibula': dict(sprite='twin_jaw_idle_0', out='twin_jaw', Y0=27, FEET=35, back=(11, 24), front=(26, 38), frames=16, amp=3),

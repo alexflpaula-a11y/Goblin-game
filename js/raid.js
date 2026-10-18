@@ -570,6 +570,11 @@ function drawAnimal(ctx, a, time) {
   }
   ctx.fillStyle = 'rgba(0,0,0,0.28)';
   ctx.beginPath(); ctx.ellipse(0, 2, w * 0.36, 3, 0, 0, Math.PI * 2); ctx.fill();
+  // Caminhada: o corpo sobe 1 px a cada passada (a arte pequena não mostra só as pernas).
+  if (a.alive && a.anim === 'walk' && !(a.hurtT > 0)) {
+    const half = (ANIMAL_WALK_FRAMES[a.kind] || 8) / 2;
+    ctx.translate(0, -Math.abs(Math.sin(Math.PI * (a.frame || 0) / half)));
+  }
   ctx.imageSmoothingEnabled = true;
   ctx.drawImage(getSprite(id), -w / 2, -h + 2, w, h);
   ctx.filter = 'none';
