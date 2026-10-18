@@ -15,24 +15,28 @@ Corpo: lobo normal em laranja-acastanhado, com os mesmos tons do lobo. Mandíbul
 | Ataque | `attack: 9` | `patas_atk_0..8` | Aceito; `atk_5` com pata mais esticada, conferir no jogo |
 | Morte | `death: 7` | `patas_death_0..6` | Aceito; `death_3` e `death_4` refeitos |
 
-## Mandíbula (mandíbula de aço com dentes, pernas sem aço)
+## Mandíbula v2 (mandíbula de aço grande e visível, também com a boca fechada; pernas sem aço)
+A v1 tinha mandíbula pequena e não aparecia com a boca fechada. A v2 foi refeita a partir dela. Os quadros da v1 foram removidos.
+
 | Conjunto | Código | Arquivos aqui | Estado |
 |---|---|---|---|
-| Base | — | `mandibula_base_laranja.png` | Aceita |
-| Repouso | `idle: 5` | `mandibula_idle_1` (1 de 4) | Incompleta: faltam `idle_2..4` |
+| Base | — | `mandibula_base_v2.png` (= `mandibula_v2_idle_0`) | Aceita |
+| Repouso | `idle: 5` | `mandibula_v2_idle_0..4` (5) | `idle_2` reprovado (pescoço esticado, cabeça alta demais): refazer. `idle_1`, `idle_3`, `idle_4` aceitos |
 | Caminhada | `walk: 16` | nenhum | Pausada |
-| Dano | `hurt: 3` | nenhum | Não gerada |
-| Ataque | `attack: 9` | nenhum | Não gerada |
+| Dano | `hurt: 3` | `mandibula_v2_hurt_0..2` | `hurt_2` reprovado (cabeça alta demais): refazer. `hurt_0`, `hurt_1` aceitos |
+| Ataque | `attack: 9` | `mandibula_v2_atk_0..1` (2 de 9) | Em andamento: faltam `atk_2..8` |
 | Morte | `death: 7` | nenhum | Não gerada |
 
 ## Descartados (não estão aqui)
 - Versões cinzas das Patas (`patas_base_cinza`, `patas_key_*`): o usuário pediu o corpo laranja.
-- Caminhada de 8 quadros-chave (`patas_k*`): pata distante fora do chão.
-- Versão v3 e os primeiros quadros de morte e ataque: perdidos no reinício do ambiente.
+- Caminhada de 8 quadros-chave das Patas (`patas_k*`): pata distante fora do chão.
+- Mandíbula v1 (base e repouso pequenos): substituída pela v2.
+- Versão v3 das Patas e os primeiros quadros de morte e ataque: perdidos no reinício do ambiente.
 
 ## Pendências para integrar
-1. Mandíbula: repouso (3), dano (3), ataque (9), morte (7).
-2. Caminhada das duas (16 cada), pausada.
-3. Corte com `cutlib` para 56×36, pés na linha 36, e medições.
-4. Atualizar `js/creatures.js` apenas quando as contagens baterem.
-5. Build, testes e conferência no navegador.
+1. Mandíbula: refazer `idle_2` e `hurt_2`; gerar `atk_2..8` (7) e morte (7).
+2. Patas: escolher 4 quadros de repouso.
+3. Caminhada das duas (16 cada), pausada.
+4. Corte com `cutlib` para 56×36, pés na linha 36, e medições.
+5. Atualizar `js/creatures.js` apenas quando as contagens baterem.
+6. Build, testes e conferência no navegador.
