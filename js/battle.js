@@ -16,6 +16,9 @@ const { creatureFrames, creatureStep } = require('creatures.js');
 
 const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 15 };
 
+/** Avanço extra (unidades locais do sprite) da mordida da Mandíbula, pico no meio do ataque. */
+const TWIN_JAW_BITE_PX = 6;
+
 /** Lobos e chefes usam a contagem de creatures.js (mais quadros, mesma duração). */
 function framesOf(f, anim) {
   if (f.kind === 'wolf') return creatureFrames(f.spritePrefix || 'wolf', anim);
@@ -515,6 +518,11 @@ function drawFighter(ctx, f, time, highlight) {
     const spr = getSprite(prefix + '_' + f.anim + '_' + (f.frame % n));
     const twin = prefix.startsWith('twin');
     const w = twin ? 56 : 48, h = twin ? 36 : 32;
+    if (prefix === 'twin_jaw' && f.anim === 'attack') {
+      // Mordida: o corpo avança e volta sobre os quadros de ataque (sem sprite novo).
+      const k = Math.sin(Math.PI * ((f.frame % n) / Math.max(1, n - 1)));
+      ctx.translate(TWIN_JAW_BITE_PX * k, 0);
+    }
     ctx.drawImage(spr, -w / 2, -h + 2, w, h);
   } else {
     const spr = getSprite(gear.spriteForGoblin(f.src, f.anim, f.frame % (ANIM_FRAMES[f.anim] || 1)));
