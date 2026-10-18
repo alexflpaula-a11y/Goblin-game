@@ -260,11 +260,11 @@ function makeWarTwins(difficulty) {
   const hp = 48 + d * 10;
   return [
     makeWolfEnemy('Mandíbula', d, {
-      isBoss: true, attackKind: 'bite', spritePrefix: 'twin_jaw', scale: 2.25,
+      isBoss: true, attackKind: 'bite', spritePrefix: 'twin_jaw', scale: 2,
       poderDestrutivo: 7 + d, vitalidade: 8, velocidade: 5, precisao: 6, maxHp: hp,
     }),
     makeWolfEnemy('Patas', d, {
-      isBoss: true, attackKind: 'slash', spritePrefix: 'twin_paw', scale: 2.25,
+      isBoss: true, attackKind: 'slash', spritePrefix: 'twin_paw', scale: 2,
       poderDestrutivo: 7 + d, vitalidade: 8, velocidade: 5, precisao: 6, maxHp: hp,
     }),
   ];
@@ -526,6 +526,10 @@ function drawOreSpike(ctx, x, y) {
 
 /** Animal abatido cai de lado em 4 passos (pixel art), apoiado no chão, e some em fade. */
 const ANIMAL_BASE_H = { boar: 28, deer: 40, hare: 24 };
+/** Segundos que o animal fica parado no sprite de dano depois de um golpe. */
+const HURT_HOLD_S = 2.5;
+/** Duração do tremor e do clarão no início do dano. */
+const HURT_FLASH_S = 0.18;
 const FALL_TIME = 0.45;
 const FADE_TIME = 0.35;
 
@@ -558,10 +562,10 @@ function drawAnimal(ctx, a, time) {
   else if (a.hurtT > 0) id = 'animal_' + a.kind + '_hurt';
   else id = 'animal_' + a.kind + (a.anim === 'walk' ? '_walk_' + ((a.frame || 0) % (ANIMAL_WALK_FRAMES[a.kind] || 8)) : '');
   if (a.alive && a.hurtT > 0) {
-    // Golpe: arte de dano, treme de leve e clareia enquanto dura o hurtT.
-    const k = a.hurtT / 0.18;
+    // Golpe: treme e clareia só nos primeiros HURT_FLASH_S; a arte de dano segue até hurtT zerar.
+    const k = Math.max(0, 1 - (HURT_HOLD_S - a.hurtT) / HURT_FLASH_S);
     ctx.translate(Math.sin(k * 24) * 1.2 * k, 0);
-    ctx.filter = 'brightness(1.35)';
+    if (k > 0) ctx.filter = 'brightness(1.35)';
   }
   if (!a.alive) {
     // Queda: a carcaça desce do ar até o chão em FALL_TIME.
@@ -1222,7 +1226,7 @@ class RaidIsland {
         p.job.t = (p.job.t || 0) + dt;
         if (p.job.t >= 0.5) {
           p.job.t = 0;
-          a.hp = Math.max(0, a.hp - 4); a.hurtT = 0.18;
+          a.hp = Math.max(0, a.hp - 4); a.hurtT = HURT_HOLD_S;
           if (!a.hp) this._killAnimal(a);
         }
       }
@@ -1361,6 +1365,8 @@ class RaidIsland {
       if (a.fleeing && dist > 170) {
         a.fleeing = false; a.wx = a.x; a.wy = a.y; a.wanderT = 0.8;
       }
+      // Levou dano: fica parado no sprite de dano por HURT_HOLD_S antes de voltar a andar/fugir.
+      if (a.hurtT > 0) { a.anim = 'idle'; a.frame = 0; a.animT = 0; continue; }
       a.routeT = (a.routeT || 0) - dt;
       a.wanderT -= dt;
       const arrived = Math.hypot(a.wx - a.x, a.wy - a.y) < 2;

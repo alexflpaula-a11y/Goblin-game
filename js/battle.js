@@ -76,7 +76,7 @@ function fighterFrom(src, side, index, isBoss) {
     homeX: spot.x,
     homeY: spot.y,
     face: side === 'ally' ? 1 : -1,
-    scale: src.scale || (boss ? 2.05 : (wolf ? 1.9 : 1.9)),
+    scale: src.scale || (boss ? 2.05 : 2), // lobos: escala inteira (pixels iguais, sem borrado)
     anim: hp > 0 ? 'idle' : 'death',
     frame: hp > 0 ? 0 : (wolf ? creatureFrames(src.spritePrefix || 'wolf', 'death') : ANIM_FRAMES.death) - 1,
     animT: 0,
