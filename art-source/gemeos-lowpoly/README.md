@@ -24,20 +24,21 @@ A v1 tinha mandíbula pequena e não aparecia com a boca fechada. A v2 foi refei
 | Repouso | `idle: 5` | `mandibula_v2_idle_0..4` (5 de 5) | Aceito |
 | Caminhada | `walk: 16` | nenhum | Pausada |
 | Dano | `hurt: 3` | `mandibula_v2_hurt_0..2` (3 de 3) | Aceito |
-| Ataque | `attack: 9` | `mandibula_v2_atk_0..3, _5..8` (8 de 9) | `atk_4` pendente: a versão anterior tinha duas cabeças, e a nova tem uma crista de pelo no pescoço que pode ser lida como segunda cabeça |
-| Morte | `death: 7` | `mandibula_v2_death_0,1,2,4` (4 de 7) | `death_3`, `death_5` e `death_6` pendentes: pernas e corpo saem da pose lateral |
+| Ataque | `attack: 9` | `mandibula_v2_atk_0..8` (9 de 9) | Aceito. `atk_3`, `atk_4` e `atk_5` foram refeitos (sem pedra, uma cabeça só, mandíbula visível) |
+| Morte | `death: 7` | `mandibula_v2_death_0..6` (7 de 7) | Aceito |
+
+Os quadros foram conferidos em miniatura e ampliação. Não foram testados no jogo.
 
 ## Descartados (não estão aqui)
 - Versões cinzas das Patas (`patas_base_cinza`, `patas_key_*`): o usuário pediu o corpo laranja.
 - Caminhada de 8 quadros-chave das Patas (`patas_k*`): pata distante fora do chão.
 - Mandíbula v1 (base e repouso pequenos): substituída pela v2.
 - Versão v3 das Patas e os primeiros quadros de morte e ataque: perdidos no reinício do ambiente.
-- Quadros reprovados da v2: `idle_2` antigo (cabeça alta), `atk_3` antigo (bloco de pedra na boca), `atk_4` antigo (duas cabeças), `atk_5` antigo (corpo longo e fino).
+- Quadros reprovados da v2: `idle_2` antigo (cabeça alta), `atk_3` antigo (bloco de pedra na boca), `atk_4` antigo (duas cabeças), `atk_5` antigo (corpo longo e fino), e as versões intermediárias de morte e ataque que não passaram.
 
 ## Pendências para integrar
-1. Mandíbula: gerar `atk_4` de novo e refazer `death_3`, `death_5` e `death_6`.
-2. Patas: escolher 4 quadros de repouso (os 5 atuais estão aqui).
-3. Caminhada das duas (16 cada), pausada.
-4. Corte com `cutlib` para 56×36, pés na linha 36, e medições.
-5. Atualizar `js/creatures.js` apenas quando as contagens baterem.
-6. Build, testes e conferência no navegador.
+1. Patas: escolher 4 quadros de repouso (os 5 atuais estão aqui).
+2. Caminhada das duas (16 cada), pausada.
+3. Corte com `cutlib` para 56×36, pés na linha 36, e medições.
+4. Atualizar `js/creatures.js` apenas quando as contagens baterem.
+5. Build, testes e conferência no navegador.
