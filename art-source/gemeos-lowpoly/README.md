@@ -35,7 +35,7 @@ A v1 tinha mandíbula pequena e não aparecia com a boca fechada. A v2 foi refei
 - Quadros reprovados da v2: `idle_2` antigo (cabeça alta), `atk_3` antigo (bloco de pedra na boca), `atk_4` antigo (duas cabeças), `atk_5` antigo (corpo longo e fino).
 
 ## Pendências para integrar
-1. Mandíbula: gerar `atk_4` de novo e refazer `death_3`, `death_5` e `death_6`; gerar `death_1..6`. Os `death_*` são 3 pendentes mais os não gerados.
+1. Mandíbula: gerar `atk_4` de novo e refazer `death_3`, `death_5` e `death_6`.
 2. Patas: escolher 4 quadros de repouso (os 5 atuais estão aqui).
 3. Caminhada das duas (16 cada), pausada.
 4. Corte com `cutlib` para 56×36, pés na linha 36, e medições.
