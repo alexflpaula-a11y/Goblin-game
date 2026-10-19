@@ -2,7 +2,7 @@
 
 Originais gerados por IA, em 1200×880, comprimidos sem perda. **Não são os sprites do jogo.**
 Os sprites usados pelo jogo continuam em `assets/sprites/raid/` (pixel art 56×36) até a etapa de corte e integração.
-Esta pasta tem 58 PNGs (~64 MB): 33 da Mandíbula e 25 das Patas. Guardar os originais no Git foi decidido com o usuário, mas essa decisão ainda não está confirmada para o total.
+Esta pasta tem 82 PNGs (~80 MB): 41 da Mandíbula e 41 das Patas. Guardar os originais no Git foi decidido com o usuário, mas essa decisão ainda não está confirmada para o total.
 
 Corpo: lobo normal em laranja-acastanhado. Mandíbula e Patas são o lobo com a peça de aço.
 
@@ -52,7 +52,7 @@ A v1 tinha mandíbula pequena e não aparecia com a boca fechada. A v2 foi refei
 2. Mandíbula: caminhada completa (16/16). Conferir intermediários em ampliação antes de cortar.
 8. Patas caminhada: refazer `walk_key_0` e `mid_0` (sombra); gerar 7 intermediários; conferir sombra de todos.
 3. Patas: pernas de aço em ampliação quadro a quadro; caminhada (8 keys e 8 intermediários), depois de aprovar uma base de caminhada.
-4. Corte com `cutlib` para 56×36, pés na linha 36, e medições.
+4. Corte para 56×36 com `tools/cut_gemeos_lowpoly.py` (pés na última linha, máscara por cor de fundo). Teste em lote: 82 quadros cortados, todos com pés na linha 35. **Reprovado para integração:** sombras entram no corte em `death_2` e `death_5`, `atk_4` sai rosado e o aço fino das pernas fica quase preto nos quadros de caminhada. Precisa de ajuste de máscara e conferência de cor antes das folhas de aprovação.
 5. Atualizar `js/creatures.js` apenas quando as contagens baterem.
 6. Build, testes e conferência no navegador.
 7. Decidir com o usuário se os ~64 MB de PNG ficam no Git.
