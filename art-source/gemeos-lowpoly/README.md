@@ -22,7 +22,7 @@ Os quadros v7 foram gerados a partir da base v2 para uniformizar o desenho. Os q
 |---|---|---|---|
 | Base | — | `patas_base_laranja.png` | Aceita. Duas garras confirmadas em ampliação |
 | Repouso | `idle: 4` | `patas_idle_0..4` (5) | Escolhidos 4: `idle_0`, `idle_2`, `idle_3`, `idle_4`. `idle_1` fica de fora (brilho isolado na pata). Conferir no jogo |
-| Caminhada | `walk: 16` | nenhum | Pausada: pata distante fora do modelo nas tentativas anteriores |
+| Caminhada | `walk: 16` | `patas_walk_key_0..7` (8 de 8 quadros-chave) + `patas_walk_mid_0` (1 de 8 intermediários) | **Em andamento.** Quadros-chave gerados com a pose da caminhada da Mandíbula como referência, cabeça sem placa. `key_3` refeito para a mesma cor. **Reprovados por sombra de chão sob as patas: `walk_key_0` e `mid_0`** (refazer). Faltam 7 intermediários, depois a conferência de sombra nos demais |
 | Dano | `hurt: 3` | `patas_hurt_0..2` | Aceito |
 | Ataque | `attack: 9` | `patas_atk_0..8` | Aceito; `atk_5` com pata longa, sem corte |
 | Morte | `death: 7` | `patas_death_0..6` | Aceito; `death_3` e `death_4` refeitos |
@@ -50,6 +50,7 @@ A v1 tinha mandíbula pequena e não aparecia com a boca fechada. A v2 foi refei
 ## Pendências para integrar
 1. Patas: escolha de repouso feita (acima); confirmar no jogo.
 2. Mandíbula: caminhada completa (16/16). Conferir intermediários em ampliação antes de cortar.
+8. Patas caminhada: refazer `walk_key_0` e `mid_0` (sombra); gerar 7 intermediários; conferir sombra de todos.
 3. Patas: pernas de aço em ampliação quadro a quadro; caminhada (8 keys e 8 intermediários), depois de aprovar uma base de caminhada.
 4. Corte com `cutlib` para 56×36, pés na linha 36, e medições.
 5. Atualizar `js/creatures.js` apenas quando as contagens baterem.
