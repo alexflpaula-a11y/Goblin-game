@@ -12,7 +12,30 @@ const { getSprite } = require('assetLoader.js');
 const gear = require('gear.js');
 const inv = require('inventory.js');
 
+const { creatureFrames, creatureStep } = require('creatures.js');
+
 const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 15 };
+
+/** Avanço extra (unidades locais do sprite) da mordida da Mandíbula, pico no meio do ataque. */
+// 0: o avanço da mordida agora está nos quadros de ataque (sprites novos), sem deslocamento extra.
+const TWIN_JAW_BITE_PX = 0;
+
+/** Lobos e chefes usam a contagem de creatures.js (mais quadros, mesma duração). */
+function framesOf(f, anim) {
+  if (f.kind === 'wolf') return creatureFrames(f.spritePrefix || 'wolf', anim);
+  return ANIM_FRAMES[anim] || 5;
+}
+
+function stepOf(f, anim) {
+  if (f.kind === 'wolf') {
+    const step = creatureStep(f.spritePrefix || 'wolf', anim);
+    // Dano é um sobressalto curto. Gêmeos têm só 5 quadros de dano e, sem limite,
+    // cada um ficaria ~0,24 s na tela (câmera lenta). Os lobos já passam de 0,04 s.
+    // Gêmeos têm 5 quadros de dano: 0,04 s por quadro (0,2 s), sem câmera lenta.
+    return anim === 'hurt' ? Math.min(step, 0.04) : step;
+  }
+  return anim === 'idle' ? 0.18 : anim === 'walk' ? 0.10 : 0.07;
+}
 
 const ALLY_SPOTS = [
   { x: 205, y: 224 }, { x: 122, y: 248 },
@@ -54,9 +77,9 @@ function fighterFrom(src, side, index, isBoss) {
     homeX: spot.x,
     homeY: spot.y,
     face: side === 'ally' ? 1 : -1,
-    scale: src.scale || (boss ? 2.05 : (wolf ? 1.9 : 1.9)),
+    scale: src.scale || (boss ? 2.05 : 2), // lobos: escala inteira (pixels iguais, sem borrado)
     anim: hp > 0 ? 'idle' : 'death',
-    frame: hp > 0 ? 0 : ANIM_FRAMES.death - 1,
+    frame: hp > 0 ? 0 : (wolf ? creatureFrames(src.spritePrefix || 'wolf', 'death') : ANIM_FRAMES.death) - 1,
     animT: 0,
     stun: 0,
     bleed: 0,
@@ -243,6 +266,22 @@ class Battle {
     }
   }
 
+  _beginTransition() {
+    this.phase = 'transition';
+    this.anim = null;
+    this.current = null;
+    this.target = null;
+    for (const f of this.allies) {
+      if (f.alive) { f.anim = 'idle'; f.frame = 0; f.animT = 0; }
+    }
+  }
+
+  /** Chamado pela tela quando a passagem entre ondas termina. */
+  completeTransition() {
+    if (this.phase !== 'transition') return false;
+    return this._spawnPendingWave();
+  }
+
   _spawnPendingWave() {
     if (!this.pendingWaves?.length) return false;
     const members = this.pendingWaves.shift();
@@ -271,7 +310,7 @@ class Battle {
 
   _checkEnd() {
     if (!this.instant && (!this.living('ally').length || !this.living('foe').length)
-      && [...this.allies, ...this.foes].some((f) => !f.alive && f.anim === 'death' && f.frame < ANIM_FRAMES.death - 1)) {
+      && [...this.allies, ...this.foes].some((f) => !f.alive && f.anim === 'death' && f.frame < framesOf(f, 'death') - 1)) {
       this.phase = 'settling'; // Show the entire fall before a wave/chest replaces it.
       return true;
     }
@@ -280,6 +319,8 @@ class Battle {
       this._syncHp(); this._log('lose'); return true;
     }
     if (!this.living('foe').length) {
+      // Entre ondas, a passagem em túnel aparece antes da próxima (fica a cargo da tela).
+      if (!this.instant && this.pendingWaves?.length) { this._beginTransition(); return true; }
       if (this._spawnPendingWave()) return true;
       this.phase = 'win';
       this.finished = true;
@@ -345,12 +386,14 @@ class Battle {
     for (const fx of this.fx) fx.ttl -= dt;
     this.fx = this.fx.filter((fx) => fx.ttl > 0);
 
+    if (this.phase === 'transition') return; // A tela mostra a passagem e chama completeTransition().
+
     if (this.phase === 'settling') { this._nextTurn(); return; }
 
     if (this.phase === 'advance') {
       this.advanceT = (this.advanceT || 0) + dt;
       const k = Math.min(1, this.advanceT / 1.6);
-      this.caveDepth = (this.waveNumber - 2 + k) * 80;
+      // Fundo fixo: o movimento entre ondas fica com a passagem em túnel, não com a caverna.
       for (const f of this.allies) {
         if (!f.alive) continue;
         f.anim = 'walk';
@@ -411,7 +454,17 @@ class Battle {
         mix = Math.max(0, 1 - (a.t - contactEnd) / 0.28);
         if (atk.alive && atk.anim !== 'walk') { atk.anim = 'walk'; atk.frame = 0; }
       }
-      if (!this.instant && atk.anim === 'attack') atk.frame = Math.min(16, Math.floor(((a.t - 0.34) % 0.68) / 0.04));
+      if (!this.instant && atk.anim === 'attack') {
+        if (atk.kind === 'wolf') {
+          // Lobos: a janela de investida percorre os quadros de forma linear,
+          // sem voltar ao início no meio do golpe (era o "travamento").
+          const n = framesOf(atk, 'attack');
+          const span = Math.max(0.01, contactEnd - 0.34);
+          atk.frame = Math.min(n - 1, Math.max(0, Math.floor(((a.t - 0.34) / span) * n)));
+        } else {
+          atk.frame = Math.min(16, Math.floor(((a.t - 0.34) % 0.68) / 0.04));
+        }
+      }
       atk.x = atk.homeX + (contactX - atk.homeX) * mix;
       atk.y = atk.homeY + (def.homeY - atk.homeY) * mix;
       if (a.strikes === 0 && a.t >= strikeAt) this._strike();
@@ -430,8 +483,8 @@ class Battle {
   }
 
   _tickAnim(f, dt) {
-    const frames = ANIM_FRAMES[f.anim] || 5;
-    const step = f.anim === 'idle' ? 0.18 : f.anim === 'walk' ? 0.10 : 0.07;
+    const frames = framesOf(f, f.anim);
+    const step = stepOf(f, f.anim);
     f.animT += dt;
     const advance = Math.floor(f.animT / step);
     if (!advance) return;
@@ -462,10 +515,15 @@ function drawFighter(ctx, f, time, highlight) {
   ctx.imageSmoothingEnabled = false;
   if (wolf) {
     const prefix = f.spritePrefix || f.src?.spritePrefix || 'wolf';
-    const n = ANIM_FRAMES[f.anim] || 5;
+    const n = framesOf(f, f.anim);
     const spr = getSprite(prefix + '_' + f.anim + '_' + (f.frame % n));
     const twin = prefix.startsWith('twin');
     const w = twin ? 56 : 48, h = twin ? 36 : 32;
+    if (prefix === 'twin_jaw' && f.anim === 'attack') {
+      // Mordida: o corpo avança e volta sobre os quadros de ataque (sem sprite novo).
+      const k = Math.sin(Math.PI * ((f.frame % n) / Math.max(1, n - 1)));
+      ctx.translate(TWIN_JAW_BITE_PX * k, 0);
+    }
     ctx.drawImage(spr, -w / 2, -h + 2, w, h);
   } else {
     const spr = getSprite(gear.spriteForGoblin(f.src, f.anim, f.frame % (ANIM_FRAMES[f.anim] || 1)));

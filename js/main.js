@@ -22,6 +22,7 @@ const { Quests } = require('quests.js');
 const cooking = require('cooking.js');
 const market = require('market.js');
 const { Battle, drawBattle } = require('battle.js');
+const { CavePassage, drawCavePassage } = require('passage.js');
 const { HarvestFeedback, drawHarvestFeedback } = require('raidFeedback.js');
 const { Treasure, drawTreasure } = require('treasure.js');
 const {
@@ -112,6 +113,8 @@ const state = {
   landingPreview: null,
   raid: null,
   battle: null,
+  passage: null,
+  passageEv: null,
   battleBg: null,
   battleMenu: null,
   volume: 0.7,
@@ -399,6 +402,9 @@ function leaveRaid() {
   state.battle?.recoverWeapons(village);
   state.treasure = null;
   state.battle = null;
+  state.passage = null;
+  state.passageEv = null;
+  state.passageWave = false;
   state.battleBg = null;
   state.battleMenu = null;
   state.pendingBattle = null;
@@ -448,7 +454,50 @@ function cancelFightPick() {
   state.screen = 'raid';
 }
 
+/** Tocas passam pelo túnel antes da sala; o combate começa ao fim da passagem. */
+function beginPassage(ev) {
+  const allies = (ev.allies && ev.allies.length)
+    ? ev.allies.slice(0, BATTLE_LIMIT)
+    : (state.raid?.party.goblins || []).filter((g) => g && g.hp > 0).slice(0, BATTLE_LIMIT);
+  state.passageEv = { ...ev, allies, skipPassage: true };
+  state.passage = new CavePassage({ allies });
+  state.battleMenu = null;
+  state.screen = 'passage';
+}
+
+/** Passagem entre ondas: a batalha já existe; ao terminar, a próxima onda entra. */
+function beginWavePassage() {
+  const allies = (state.battle?.allies || []).filter((f) => f.alive && f.src).map((f) => f.src);
+  state.passageEv = null;
+  state.passageWave = true;
+  state.passage = new CavePassage({ allies });
+  state.screen = 'passage';
+}
+
+function finishPassage() {
+  const ev = state.passageEv;
+  state.passage = null;
+  state.passageEv = null;
+  if (ev) startBattle(ev);
+}
+
+function endPassage() {
+  if (state.passageWave) {
+    state.passageWave = false;
+    state.passage = null;
+    state.screen = 'battle';
+    state.battle?.completeTransition();
+    return;
+  }
+  finishPassage();
+}
+
 function startBattle(ev) {
+  const cave = ev.kind === 'den' || ev.kind === 'lair';
+  if (cave && !ev.skipPassage) {
+    beginPassage(ev);
+    return;
+  }
   const foes = ev.foes || [];
   let rewards = raidRewards(ev.difficulty || 1, ev.kind);
   if (ev.wave?.length || ev.waves?.length) {
@@ -1774,6 +1823,14 @@ function update(dt) {
     return;
   }
 
+  if (state.screen === 'passage') {
+    state.passage?.update(dt);
+    if (!state.passage || state.passage.finished() || (g.tap && state.passage.canSkip())) {
+      endPassage();
+    }
+    return;
+  }
+
   if (state.screen === 'battle') {
     const ptr = input.primaryPointer();
     if (state.battleMenu === 'settings' && ptr) {
@@ -1790,6 +1847,7 @@ function update(dt) {
       if (hit) routeTap(hit);
     }
     if (!state.battleMenu) state.battle?.update(dt);
+    if (state.battle?.phase === 'transition') { beginWavePassage(); return; }
     if (state.battle?.result === 'win' && ['den', 'lair'].includes(state.battle.kind)) finishBattle();
     return;
   }
@@ -2054,6 +2112,11 @@ function render(time) {
     ui.begin();
     drawBattle(ctx, ui, state.battle, i18n, time, { bg: state.battleBg, reward: true });
     drawTreasure(ctx, ui, state.treasure, i18n, time);
+    return;
+  }
+  if (state.screen === 'passage' && state.passage) {
+    ui.begin();
+    drawCavePassage(ctx, ui, state.passage, i18n, time);
     return;
   }
   if (state.screen === 'battle' && state.battle) {
@@ -4116,7 +4179,7 @@ async function init() {
           if (demo === 'twins') {
             ev.foes = ev.waves[1]; ev.waves = []; ev.bgKey = ev.twinsBg;
           }
-          startBattle(ev);
+          startBattle({ ...ev, skipPassage: true });
           if (demo === 'chest' || demo === 'chest_loot') {
             state.battle.result = 'win'; state.battle.finished = true; state.battle.phase = 'win';
             state.battle.lastDefeated = {x: 505, y: 298};

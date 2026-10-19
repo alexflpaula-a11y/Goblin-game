@@ -18,8 +18,10 @@
   "inventory.js",
   "abilities.js",
   "market.js",
+  "creatures.js",
   "battle.js",
   "raid.js",
+  "passage.js",
   "treasure.js",
   "raidFeedback.js",
   "main.js"

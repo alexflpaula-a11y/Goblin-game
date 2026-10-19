@@ -155,7 +155,9 @@ js/
   market.js         mercado: vender e comprar por ouro
   inventory.js      armazém: catálogo de itens, espaços, equipar/desequipar
   abilities.js      catálogo de habilidades (3 espaços por goblin)
-  raid.js           balão, mapa das ilhas, exploração e patrulhas
+  raid.js           balão, mapa das ilhas, exploração, caça e patrulhas
+  creatures.js      quadros das animações de lobo e gêmeos (gerado, não editar)
+  passage.js        passagem em túnel entre a ilha e a sala de batalha
   battle.js         combate por turnos (ataque normal)
   gear.js           sprites do goblin conforme o que ELE vestiu (Avaritia/ferro)
   ui.js             UI imediata no canvas + visual rústico goblin
@@ -194,6 +196,7 @@ python3 tools/gen_sprites.py               # (re)gera a pixel art de prédios e 
 python3 tools/gen_icons.py                 # (re)gera ícones 16×16 de itens/habilidades
 python3 tools/gen_goblin_variations.py     # extrai as 45 variações em lotes de 5
 python3 tools/unbuild.py            # extrai a fonte de volta a partir do build
+/tmp/pv/bin/python tools/expand_wolf_frames.py   # gera os quadros de lobos/gêmeos (requer Pillow)
 bash    tools/test.sh               # roda as 7 suítes de teste
 ```
 
@@ -319,5 +322,77 @@ Padrão obrigatório para novos itens:
 - Botão de saída e retorno ao balão pedem confirmação Sim/Não, pausando a
   expedição. Não fecha o aviso e permite continuar sem reabri-lo automaticamente.
 
+### Animações fluidas, caça e passagem (13/10/2026)
+
+- Lobos e Gêmeos da Guerra têm mais quadros: lobo com 10 em repouso, 16 andando,
+  21 atacando, 33 em dano e 13 na queda; Mandíbula e Patas têm 10/16/17/5/13 e
+  8/16/17/5/13. Os quadros novos são intermediários entre as poses da arte-fonte
+  (união de silhueta, sem ruído de dither), com os pés ancorados na linha do
+  repouso. Isso corrige a "decolagem" da Mandíbula no ataque. A duração total de
+  cada animação foi mantida, então a velocidade geral não muda.
+- A arte-fonte desses quadros é `art-source/wolves-base/` (cópia dos quadros
+  anteriores). `tools/expand_wolf_frames.py` gera `assets/sprites/raid/wolf_*`,
+  `twin_jaw_*` e `twin_paw_*`, atualiza o manifest e recria `js/creatures.js`.
+  Não há mais dependência de `rework_creatures.py` para lobos: rodar esse script
+  sobrescreve os quadros expandidos e não deve ser usado para eles.
+- Ataque do lobo mapeia a animação linearmente sobre a janela de contato, então
+  o movimento não trava perto do alvo. Goblins mantêm o ritmo anterior.
+- Caça: o grupo passa a perseguir só acima de 30 px do animal e golpeia até 30 px,
+  com histerese para não alternar ataque↔andar a cada quadro. A fuga escolhe
+  trechos caminháveis de 64/40 px e, encurralado, tenta 16 direções de 28 px.
+  Ao fugir, o animal anda (não fica parado) e se redireciona após 0,2 s parado.
+  Grupos que tocam uma toca ou covil disparam a batalha como antes; isso não é
+  travamento de caça.
+- Passagem: ao entrar numa toca ou covil, o grupo caminha por um túnel
+  (`bg_den_passage.png`, ~3,4 s, com zoom em direção ao fundo) antes da sala de
+  batalha. Os pés dos goblins são calculados no espaço da arte e passam pelo
+  mesmo zoom do fundo, então ficam sobre o chão e nunca na parede (coberto por
+  testes). Toque pula a passagem após 0,6 s. Combates fora de tocas e covil seguem direto.
+- Os pés de todos os quadros de lobo ficam na mesma linha do repouso, então o
+  lobo não flutua nem "decola" durante o ataque ou a queda.
+
+- Ajustes da prévia: o dano dos gêmeos (5 quadros) não dura mais que 0,5 s, o que
+  eliminava a sensação de câmera lenta. Pontos claros soltos da arte de ataque
+  foram removidos na geração. Entre ondas, a passagem em túnel aparece antes da
+  próxima onda (a batalha espera a passagem terminar). Modo instantâneo (testes)
+  continua sem passagem.
+- Limitações conhecidas: o brilho cinza em volta da cabeça da Mandíbula (quadro de
+  ataque 9) é parte da arte-fonte e continua visível. O ataque da Mandíbula é
+  desenhado menor na arte-fonte (pose agachada); corrigir exige redesenho ou escala
+  uniforme, ainda não feito.
+
+### Animais e inimigos na exploração (14/10/2026)
+
+- Lobos na exploração usavam os contadores de quadros dos animais: andavam só com
+  os 8 primeiros de 16 quadros e ficavam parados com 5 de 10. Agora usam
+  `creatures.js` (16 andando, 10 repouso, 13 morte), com a mesma duração de ciclo.
+- Animal abatido usa a arte de morte (`animal_<tipo>_death`, deitado de lado),
+  desce do ar em 0,45 s e some em fade nos últimos 0,35 s. Antes era o sprite de
+  repouso girado no lugar, afundando no chão.
+- Animal atingido usa a arte de dano (`animal_<tipo>_hurt`) por 0,18 s, com um leve
+  tremor e clareamento.
+- Sprites de javali, veado e lebre mantêm a proporção da arte original (antes
+  esticavam ~10%) e são suavizados ao reduzir (menos chiado nas patas).
+- Chefe da ilha já animava (repouso e investida); conferido, sem alteração.
+- Arte nova dos animais (javali, veado e lebre), gerada a partir do sprite de
+  repouso com o mesmo estilo, fundo magenta removido, mesma caixa e linha dos pés.
+  Está em `assets/sprites/raid/animal_<tipo>_{hurt,death}.png`. A suíte de render
+  confere que todo animal tem repouso, caminhada, dano e morte no manifest.
+- Mandíbula de metal (lobo gêmeo, ataque): brilho picotado removido e corpo levado à
+  escala do repouso (×1,3, pés ancorados); fragmentos soltos são descartados. Gerada
+  por `tools/expand_wolf_frames.py`.
+- Lobos e gêmeos sem fantasmas: os quadros intermediários por união de dois quadros
+  (que sobrepunham dois lobos) foram removidos. Ataque, dano e morte usam só quadros
+  reais; o ataque da Mandíbula é um avanço procedural da arte blindada
+  (`art-source/war-twins/jaw.png`). A caminhada dos lobos e gêmeos (16 quadros) é
+  gerada por `tools/make_walk_legs.py`, com 3 px de amplitude nas patas.
+- Caminhada de veado, lebre e javali refeita sem IA por `tools/make_walk_legs.py`,
+  com 16 quadros cada (`ANIMAL_WALK_FRAMES` em `js/raid.js`). Só as patas se movem
+  (2 px no casco, fases opostas) a partir do repouso, com corpo, cabeça e hastes
+  idênticos. Ciclo de 0,8 s. Os quadros antigos tinham linhas em V sob a barriga,
+  pixels soltos nas patas e, no javali, quadros deformados por IA.
+- Mandíbula de aço continua com o brilho cinza e o ataque menor da arte-fonte;
+  ainda não foi redesenhada.
+
 `python3 tools/rework_creatures.py` reproduz as correções a partir das imagens
-originais preservadas; não altera equipamento ou a armadura Avaritia.
+originais preservadas (equipamento e armadura Avaritia não são afetados); para lobos use `expand_wolf_frames.py`, como descrito acima.
