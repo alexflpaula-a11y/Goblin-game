@@ -21,7 +21,7 @@ Os quadros v7 foram gerados a partir da base v2 para uniformizar o desenho. Os q
 | Conjunto | Código (`js/creatures.js`) | Arquivos aqui | Estado |
 |---|---|---|---|
 | Base | — | `patas_base_laranja.png` | Aceita. Duas garras confirmadas em ampliação |
-| Repouso | `idle: 4` | `patas_idle_0..4` (5) | Pendente: escolher 4. Sugestão: base, `idle_1`, `idle_2`, `idle_3`. `idle_4` fica de fora |
+| Repouso | `idle: 4` | `patas_idle_0..4` (5) | Escolhidos 4: `idle_0`, `idle_2`, `idle_3`, `idle_4`. `idle_1` fica de fora (brilho isolado na pata). Conferir no jogo |
 | Caminhada | `walk: 16` | nenhum | Pausada: pata distante fora do modelo nas tentativas anteriores |
 | Dano | `hurt: 3` | `patas_hurt_0..2` | Aceito |
 | Ataque | `attack: 9` | `patas_atk_0..8` | Aceito; `atk_5` com pata longa, sem corte |
@@ -34,7 +34,7 @@ A v1 tinha mandíbula pequena e não aparecia com a boca fechada. A v2 foi refei
 |---|---|---|---|
 | Base | — | `mandibula_base_v2.png` (= `mandibula_v2_idle_0`) | Aceita |
 | Repouso | `idle: 5` | `mandibula_v2_idle_0..4` (5 de 5) | Aceito |
-| Caminhada | `walk: 16` | `mandibula_v2_walk_key_0..7` (8 de 16) | **Provisória.** `key_0,4,5,6` são v7; `key_1,2,3,7` são v2. Pernas de `key_3` a conferir. Faltam 8 intermediários |
+| Caminhada | `walk: 16` | `mandibula_v2_walk_key_0..7` + `mandibula_v2_walk_mid_0..7` (16 de 16) | Quadros-chave: `key_0,4,5,6` são v7; `key_1,2,3,7` são v2. Intermediários `mid_N` entre `key_N` e `key_N+1` (o último fecha em `key_0`). Conferidos em folha, não em ampliação quadro a quadro |
 | Dano | `hurt: 3` | `mandibula_v2_hurt_0..2` (3 de 3) | Aceito |
 | Ataque | `attack: 9` | `mandibula_v2_atk_0..8` (9 de 9) | Aceito. `atk_3` v4, `atk_4` v7, `atk_5` v3, demais v2 |
 | Morte | `death: 7` | `mandibula_v2_death_0..6` (7 de 7) | Aceito. `death_0,1,2,3,6` são v7 (`death_3` sem sombra). `death_4` v2, `death_5` v5 |
@@ -48,8 +48,8 @@ A v1 tinha mandíbula pequena e não aparecia com a boca fechada. A v2 foi refei
 - Mandíbula v4/v5 usadas antes: `atk_4` v5 e `death_3` v5 (sombra de chão), `death_3` v6 (substituído pela v7), `death_6` v4 e `atk_3` v4 (aceitos, ainda usados).
 
 ## Pendências para integrar
-1. Patas: confirmar os 4 quadros de repouso.
-2. Mandíbula: conferir as pernas de `walk_key_3`; gerar 8 intermediários da caminhada.
+1. Patas: escolha de repouso feita (acima); confirmar no jogo.
+2. Mandíbula: caminhada completa (16/16). Conferir intermediários em ampliação antes de cortar.
 3. Patas: pernas de aço em ampliação quadro a quadro; caminhada (8 keys e 8 intermediários), depois de aprovar uma base de caminhada.
 4. Corte com `cutlib` para 56×36, pés na linha 36, e medições.
 5. Atualizar `js/creatures.js` apenas quando as contagens baterem.
