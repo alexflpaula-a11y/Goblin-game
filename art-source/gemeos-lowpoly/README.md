@@ -1,64 +1,47 @@
-# Gêmeos em estilo low-poly (fonte, ainda não integrada)
+# Gêmeos em estilo low-poly (fonte e integração)
 
-Originais gerados por IA, em 1200×880, comprimidos sem perda. **Não são os sprites do jogo.**
-Os sprites usados pelo jogo continuam em `assets/sprites/raid/` (pixel art 56×36) até a etapa de corte e integração.
-Esta pasta tem 82 PNGs (~80 MB): 41 da Mandíbula e 41 das Patas. Guardar os originais no Git foi decidido com o usuário, mas essa decisão ainda não está confirmada para o total.
+Originais gerados por IA em 1200×880. Os sprites usados pelo jogo estão em `assets/sprites/raid/` (56×36), gerados a partir destes PNGs.
 
-Corpo: lobo normal em laranja-acastanhado. Mandíbula e Patas são o lobo com a peça de aço.
+## Pipeline
+1. **Cor:** cada quadro recebe ganho por canal para igualar o corpo à base (Mandíbula G≈95, Patas G≈103). Vermelho e amarelo dos efeitos ficam intactos.
+2. **Escala única por criatura:** `tools/cut_gemeos_set.py` mede a extensão real do lobo em todos os quadros de uma criatura (ignora ruído isolado) e usa uma só escala. Os pés ficam na última linha (y=35) e o corpo é centralizado. Resultado: Mandíbula 0,056; Patas 0,057. Quadros do mesmo lobo não mudam de tamanho na animação.
+3. **Corte:** máscara por distância à cor de fundo (55,27,8), maior bloco conectado, 56×36.
 
-## Padrão da Mandíbula (placa de aço única)
-Uma placa de aço escura do queixo à bochecha, com dentes, visível com a boca fechada. Sem pelo sobre a placa e sem dentes soltos. Ataques com boca aberta podem mudar a pose, mas não o desenho da placa.
-Os quadros v7 foram gerados a partir da base v2 para uniformizar o desenho. Os quadros da v2 com desenho fora do padrão foram substituídos.
+## Padrões
+- **Mandíbula:** placa de aço única do queixo à bochecha, com dentes, visível com a boca fechada. Sem pelo sobre a placa. Pernas laranja normais (sem aço).
+- **Patas:** duas pernas de aço com garras. Sem placa de mandíbula. Corpo laranja igual ao lobo normal.
 
-## Inspeção (última rodada)
-- Nenhum quadro tem sombra de chão. Medido: o conteúdo mais baixo fica acima de y≈760 em todos os quadros de morte e caminhada.
-- Quase todos têm 1 pixel isolado nas bordas direita/inferior. É ruído do gerador: o corte com maior componente conectado descarta esse pixel.
-- `patas_atk_5`: a pata estendida termina em x≈1050 de 1200, sem corte. É a pose mais longa do conjunto; conferir no jogo.
-- Conformidade da Mandíbula verificada por comparação visual em folha de contato (todos os 33 quadros). A medição por cor de aço não serve, porque a iluminação varia.
-- Pernas de aço das Patas: ainda não conferidas em ampliação quadro a quadro.
+## Estado dos conjuntos (integrados)
+| Conjunto | Mandíbula | Patas |
+|---|---|---|
+| Repouso | `mandibula_v2_idle_0..4` (5) | `patas_idle_0,2,3,4` (4) |
+| Caminhada | `mandibula_v2_walk_key_N` e `mid_N` (16) | `patas_walk_key_N` e `mid_N` (16) |
+| Dano | `mandibula_v2_hurt_0..2` (3) | `patas_hurt_0..2` (3) |
+| Ataque | `mandibula_fx_atk_0..8` (9), corte vermelho nos quadros 3 a 5 | `patas_fx_slap_0..8` (9), impacto nos quadros 3 e 4 |
+| Morte | `mandibula_v2_death_0..6` (7) | `patas_death_0..6` (7) |
 
-## Patas (duas patas dianteiras de aço com duas garras cada)
-| Conjunto | Código (`js/creatures.js`) | Arquivos aqui | Estado |
-|---|---|---|---|
-| Base | — | `patas_base_laranja.png` | Aceita. Duas garras confirmadas em ampliação |
-| Repouso | `idle: 4` | `patas_idle_0..4` (5) | Escolhidos 4: `idle_0`, `idle_2`, `idle_3`, `idle_4`. `idle_1` fica de fora (brilho isolado na pata). Conferir no jogo |
-| Caminhada | `walk: 16` | `patas_walk_key_0..7` (8 de 8) + `patas_walk_mid_0..7` (8 de 8) | **Completa, 16 de 16, mas ainda não conferida em ampliação quadro a quadro.** `key_0` e `mid_0..3` são v9 e `mid_4..7` são v10, sem sombra, sem linha de chão e sem tom roxo na medição |
-| Dano | `hurt: 3` | `patas_hurt_0..2` | Aceito |
-| Ataque | `attack: 9` | `patas_atk_0..8` | Aceito com ressalva. `atk_2`, `atk_4` e `atk_5` refeitos. `atk_4` v12 tem exatamente duas patas de aço (uma terceira pata foi removida), mas a pose ficou menos de ataque: sem boca aberta. Conferir no jogo |
-| Morte | `death: 7` | `patas_death_0..6` | Pendente de aprovação final. `death_3` v13a, `death_4` v12, `death_5` v12 e `death_6` v13 (sem sombra; só uma perna de aço visível de perfil, conferir). `death_0..2` antigos, sem reconferência em ampliação |
+Ordem na caminhada do jogo: `walk_2N = key_N`, `walk_2N+1 = mid_N` (mid_N fica entre key_N e key_N+1).
 
-## Mandíbula v2/v7 (mandíbula de aço grande e visível, também com a boca fechada; pernas sem aço)
-A v1 tinha mandíbula pequena e não aparecia com a boca fechada. A v2 foi refeita a partir dela; os quadros da v1 foram removidos.
+Contagens batem com `js/creatures.js`: twin_jaw idle 5, walk 16, attack 9, hurt 3, death 7; twin_paw idle 4, walk 16, attack 9, hurt 3, death 7.
 
-| Conjunto | Código | Arquivos aqui | Estado |
-|---|---|---|---|
-| Base | — | `mandibula_base_v2.png` (= `mandibula_v2_idle_0`) | Aceita |
-| Repouso | `idle: 5` | `mandibula_v2_idle_0..4` (5 de 5) | Aceito |
-| Caminhada | `walk: 16` | `mandibula_v2_walk_key_0..7` + `mandibula_v2_walk_mid_0..7` (16 de 16) | Quadros-chave: `key_0,4,5,6` são v7; `key_1,2,3,7` são v2. Intermediários `mid_N` entre `key_N` e `key_N+1` (o último fecha em `key_0`). Conferidos em folha, não em ampliação quadro a quadro |
-| Dano | `hurt: 3` | `mandibula_v2_hurt_0..2` (3 de 3) | Aceito |
-| Ataque | `attack: 9` | `mandibula_v2_atk_0..8` (9 de 9) | Aceito. `atk_3` v4, `atk_4` v7, `atk_5` v3, demais v2 |
-| Morte | `death: 7` | `patas_death_0..6` | Pendente de aprovação final. `death_3` v13a, `death_4` v12, `death_5` v12 e `death_6` v13 (sem sombra; só uma perna de aço visível de perfil, conferir). `death_0..2` antigos, sem reconferência em ampliação |
+## Correções desta rodada
+- `patas_death_2`: refeito. A pata esticada saiu. Pose deitada com as duas patas de aço.
+- `mandibula_v2_death_2`: refeito. Sombra de chão removida.
+- `mandibula_v2_walk_mid_3`: linha de chão laranja atravessando a imagem removida (edição do próprio quadro).
+- Cor: morte das Patas e Mandíbula e caminhada igualadas à base, com ganho limitado a 0,9–1,15.
+- Escala: antes cada quadro era ajustado ao próprio contorno, o que fazia o lobo mudar de tamanho na animação (ex.: `twin_jaw_walk_7`). Agora a escala é única.
+- `TWIN_JAW_BITE_PX` zerado em `js/battle.js` (o avanço da mordida está nos quadros).
 
-## Descartados (não estão aqui)
-- Versões cinzas das Patas (`patas_base_cinza`, `patas_key_*`): o usuário pediu o corpo laranja.
-- Caminhada de 8 quadros-chave das Patas (`patas_k*`): pata distante fora do chão.
-- Mandíbula v1 (base e repouso pequenos): substituída pela v2.
-- Versão v3 das Patas e os primeiros quadros de morte e ataque: perdidos no reinício do ambiente.
-- Quadros reprovados da v2: `idle_2` antigo (cabeça alta), `atk_3` antigo (bloco de pedra na boca), `atk_4` antigo (duas cabeças), `atk_5` antigo (corpo longo e fino).
-- Mandíbula v4/v5 usadas antes: `atk_4` v5 e `death_3` v5 (sombra de chão), `death_3` v6 (substituído pela v7), `death_6` v4 e `atk_3` v4 (aceitos, ainda usados).
+## Verificação
+- Inspeção visual de todos os 79 quadros de jogo em folha ampliada: sem sombra de chão, sem linha de chão, sem pata esticada, placa de aço da Mandíbula em todos, duas pernas de aço nas Patas.
+- Sem pedra na boca em nenhum quadro atual. A pedra reportada antes (`atk_3` antigo) foi reprovada e não está nos quadros integrados. Se você tiver outro local onde a viu, me diga para conferir.
+- Aço escuro das pernas das Patas é fino e escuro. A medição por cor não o detecta, então a conferência foi visual.
+- Testes do jogo: todas as suítes passam. Arquivo único reconstruído.
 
-## Pendências para integrar
-1. Patas: escolha de repouso feita (acima); confirmar no jogo.
-2. Mandíbula: caminhada completa (16/16). Conferir intermediários em ampliação antes de cortar.
-8. Patas caminhada: refazer `walk_key_0` e `mid_0` (sombra); gerar 7 intermediários; conferir sombra de todos.
-3. Patas: pernas de aço em ampliação quadro a quadro; caminhada (8 keys e 8 intermediários), depois de aprovar uma base de caminhada.
-4. Corte para 56×36 com `tools/cut_gemeos_lowpoly.py` (pés na última linha, máscara por cor de fundo). Teste em lote: 82 quadros cortados, todos com pés na linha 35. **Reprovado para integração:** sombras entram no corte em `death_2` e `death_5`, `atk_4` sai rosado e o aço fino das pernas fica quase preto nos quadros de caminhada. Precisa de ajuste de máscara e conferência de cor antes das folhas de aprovação.
-5. Atualizar `js/creatures.js` apenas quando as contagens baterem.
-6. Build, testes e conferência no navegador.
-7. Decidir com o usuário se os ~64 MB de PNG ficam no Git.
+## Limitações conhecidas
+- Em 56×36 o estilo low-poly contrasta com a pixel art do restante do jogo.
+- Pernas de aço das Patas ficam finas e escuras em alguns quadros de caminhada.
 
-## Efeitos de ataque (nova rodada, aprovada e integrada)
-- **Mandíbula, ataque com corte vermelho:** `mandibula_fx_atk_0..8` (9 quadros). Placa de aço só no focinho, pernas laranja normais. Corte vermelho nos quadros 3 a 5. Quadros 0, 1, 2, 3, 5, 7 e 8 vêm da rodada v2; 4 e 6 da v3. Medido: largura do lobo entre 798 e 942 px (base 798), linha dos pés na mesma altura (747 a 759), cor do corpo entre 142 e 148 no verde médio (base 148) no quadro 3, que tem o efeito mais forte.
-- **Patas, tapa com efeito de batida:** `patas_fx_slap_0..8` (9 quadros). Duas pernas de aço, sem placa de mandíbula. Impacto (explosão amarela) nos quadros 3 e 4. Quadro 4 ajustado para não alongar o corpo. Quadro 6 refeito com aço visível (medição por cor azulada não pega aço escuro, conferido em imagem).
-- **Integrado (aprovado pelo usuário):** os 9 quadros de ataque da Mandíbula (`twin_jaw_attack_0..8`) e das Patas (`twin_paw_attack_0..8`) foram cortados para 56×36 com `tools/cut_gemeos_lowpoly.py` e substituíram os antigos em `assets/sprites/raid/`. Contagem em `js/creatures.js` continua 9. `TWIN_JAW_BITE_PX` em `js/battle.js` foi zerado, porque o avanço agora está nos quadros. Arquivo único `vila-de-goblins-jogavel.html` reconstruído.
-- Limitação conhecida: em 56×36 o estilo low-poly contrasta com a pixel art do restante do jogo, e as pernas de aço das Patas ficam finas e escuras. Se preferir, dá para ajustar o corte ou reduzir o contraste.
+## Histórico
+- Originais no Git: 82 PNGs de 1200×880 (~80 MB), decisão de guardar os originais aceita pelo usuário.
+- Descartados: versões cinzas das Patas, caminhada de 8 quadros-chave das Patas, Mandíbula v1, quadros reprovados (`atk_3` antigo com pedra, `atk_4` antigo com duas cabeças, `mand_atk_v3_5`, `patas_slap_4`, `patas_slap_6`, `patas_death_2` v14/v15).
