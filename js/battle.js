@@ -17,7 +17,8 @@ const { creatureFrames, creatureStep } = require('creatures.js');
 const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 15 };
 
 /** Avanço extra (unidades locais do sprite) da mordida da Mandíbula, pico no meio do ataque. */
-const TWIN_JAW_BITE_PX = 6;
+// 0: o avanço da mordida agora está nos quadros de ataque (sprites novos), sem deslocamento extra.
+const TWIN_JAW_BITE_PX = 0;
 
 /** Lobos e chefes usam a contagem de creatures.js (mais quadros, mesma duração). */
 function framesOf(f, anim) {
