@@ -24,8 +24,8 @@ Os quadros v7 foram gerados a partir da base v2 para uniformizar o desenho. Os q
 | Repouso | `idle: 4` | `patas_idle_0..4` (5) | Escolhidos 4: `idle_0`, `idle_2`, `idle_3`, `idle_4`. `idle_1` fica de fora (brilho isolado na pata). Conferir no jogo |
 | Caminhada | `walk: 16` | `patas_walk_key_0..7` (8 de 8) + `patas_walk_mid_0..7` (8 de 8) | **Completa, 16 de 16, mas ainda não conferida em ampliação quadro a quadro.** `key_0` e `mid_0..3` são v9 e `mid_4..7` são v10, sem sombra, sem linha de chão e sem tom roxo na medição |
 | Dano | `hurt: 3` | `patas_hurt_0..2` | Aceito |
-| Ataque | `attack: 9` | `patas_atk_0..8` | Aceito. `atk_2`, `atk_4` e `atk_5` refeitos (v10) com a pata dianteira mais curta, sem esticar à frente. Conferir no jogo |
-| Morte | `death: 7` | `patas_death_0..6` | **Pendente.** `death_3` e `death_4` ainda com a pata dianteira esticada para frente; `death_4` mais claro que os outros. Versões novas reprovadas por sombra ou pose errada. `death_6` tem uma alternativa v9 (sem sombra, cor um pouco mais clara), ainda não aceita |
+| Ataque | `attack: 9` | `patas_atk_0..8` | Aceito com ressalva. `atk_2`, `atk_4` e `atk_5` refeitos. `atk_4` v12 tem exatamente duas patas de aço (uma terceira pata foi removida), mas a pose ficou menos de ataque: sem boca aberta. Conferir no jogo |
+| Morte | `death: 7` | `patas_death_0..6` | Pendente de aprovação final. `death_3` v13a, `death_4` v12, `death_5` v12 e `death_6` v13 (sem sombra; só uma perna de aço visível de perfil, conferir). `death_0..2` antigos, sem reconferência em ampliação |
 
 ## Mandíbula v2/v7 (mandíbula de aço grande e visível, também com a boca fechada; pernas sem aço)
 A v1 tinha mandíbula pequena e não aparecia com a boca fechada. A v2 foi refeita a partir dela; os quadros da v1 foram removidos.
@@ -37,7 +37,7 @@ A v1 tinha mandíbula pequena e não aparecia com a boca fechada. A v2 foi refei
 | Caminhada | `walk: 16` | `mandibula_v2_walk_key_0..7` + `mandibula_v2_walk_mid_0..7` (16 de 16) | Quadros-chave: `key_0,4,5,6` são v7; `key_1,2,3,7` são v2. Intermediários `mid_N` entre `key_N` e `key_N+1` (o último fecha em `key_0`). Conferidos em folha, não em ampliação quadro a quadro |
 | Dano | `hurt: 3` | `mandibula_v2_hurt_0..2` (3 de 3) | Aceito |
 | Ataque | `attack: 9` | `mandibula_v2_atk_0..8` (9 de 9) | Aceito. `atk_3` v4, `atk_4` v7, `atk_5` v3, demais v2 |
-| Morte | `death: 7` | `patas_death_0..6` | **Pendente.** `death_3` e `death_4` ainda com a pata dianteira esticada para frente; `death_4` mais claro que os outros. Versões novas reprovadas por sombra ou pose errada. `death_6` tem uma alternativa v9 (sem sombra, cor um pouco mais clara), ainda não aceita |
+| Morte | `death: 7` | `patas_death_0..6` | Pendente de aprovação final. `death_3` v13a, `death_4` v12, `death_5` v12 e `death_6` v13 (sem sombra; só uma perna de aço visível de perfil, conferir). `death_0..2` antigos, sem reconferência em ampliação |
 
 ## Descartados (não estão aqui)
 - Versões cinzas das Patas (`patas_base_cinza`, `patas_key_*`): o usuário pediu o corpo laranja.
