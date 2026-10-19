@@ -56,3 +56,8 @@ A v1 tinha mandíbula pequena e não aparecia com a boca fechada. A v2 foi refei
 5. Atualizar `js/creatures.js` apenas quando as contagens baterem.
 6. Build, testes e conferência no navegador.
 7. Decidir com o usuário se os ~64 MB de PNG ficam no Git.
+
+## Efeitos de ataque (nova rodada, aguardando aprovação)
+- **Mandíbula, ataque com corte vermelho:** `mandibula_fx_atk_0..8` (9 quadros). Placa de aço só no focinho, pernas laranja normais. Corte vermelho nos quadros 3 a 5. Quadros 0, 1, 2, 3, 5, 7 e 8 vêm da rodada v2; 4 e 6 da v3. Medido: largura do lobo entre 798 e 942 px (base 798), linha dos pés na mesma altura (747 a 759), cor do corpo entre 142 e 148 no verde médio (base 148) no quadro 3, que tem o efeito mais forte.
+- **Patas, tapa com efeito de batida:** `patas_fx_slap_0..8` (9 quadros). Duas pernas de aço, sem placa de mandíbula. Impacto (explosão amarela) nos quadros 3 e 4. Quadro 4 ajustado para não alongar o corpo. Quadro 6 refeito com aço visível (medição por cor azulada não pega aço escuro, conferido em imagem).
+- Ainda não integrados em `assets/`. Aprovação pendente.
