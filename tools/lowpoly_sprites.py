@@ -41,6 +41,7 @@ GRASS = (90, 164, 99, 255)  # COLORS.ground do world.js, para a conferência
 #               deixava essa folga, então a base cai na mesma linha do chão)
 #   nós      -> 48x48  (nodes.js desenha 48x48, ancorado pela base)
 #   restos   -> 24x24  (tocos e entulho são desenhados em 24x24)
+#   raid     -> toca 52x34, colmeia 32x40, baú 24x24 (raid.js)
 #   divindade-> 72x72  (deities.js desenha 72x72)
 ASSETS = {
     'house':      {'src': 'house.png',      'dst': 'assets/sprites/buildings/building_house_1.png',      'box': (64, 64), 'gap': 1},
@@ -56,6 +57,33 @@ ASSETS = {
     'porto':      {'src': 'porto.png',      'dst': 'assets/sprites/buildings/building_porto_1.png',      'box': (64, 64), 'gap': 1},
     'quartel':    {'src': 'quartel.png',    'dst': 'assets/sprites/buildings/building_quartel_1.png',    'box': (64, 64), 'gap': 1},
     'questboard': {'src': 'questboard.png', 'dst': 'assets/sprites/buildings/building_questboard_1.png', 'box': (64, 64), 'gap': 1},
+
+
+
+
+
+
+
+
+
+
+    # --- lote 03: divindades, raid e restos ---
+    'grande_arvore':     {'src': 'grande_arvore.png',     'dst': 'assets/sprites/deities/building_grande_arvore_1.png', 'box': (64, 64)},
+    'golem_pedra':       {'src': 'golem_pedra.png',       'dst': 'assets/sprites/deities/building_golem_pedra_1.png',   'box': (64, 64)},
+    'tree_sing_0':       {'src': 'tree_sing_0.png',       'dst': 'assets/sprites/deities/deity_tree_sing_0.png',        'box': (64, 64)},
+    'tree_sing_1':       {'src': 'tree_sing_1.png',       'dst': 'assets/sprites/deities/deity_tree_sing_1.png',        'box': (64, 64)},
+    'tree_sing_2':       {'src': 'tree_sing_2.png',       'dst': 'assets/sprites/deities/deity_tree_sing_2.png',        'box': (64, 64)},
+    'fx_notas':          {'src': 'fx_notas.png',          'dst': 'assets/sprites/deities/fx_notas.png',                 'box': (24, 24)},
+    'chest_open_1':      {'src': 'chest_open_1.png',      'dst': 'assets/sprites/raid/chest_open_1.png',                'box': (24, 24)},
+    'chest_open_2':      {'src': 'chest_open_2.png',      'dst': 'assets/sprites/raid/chest_open_2.png',                'box': (24, 24)},
+    'node_tree_stump':   {'src': 'node_tree_stump.png',   'dst': 'assets/sprites/nodes/node_tree_stump.png',            'box': (24, 24)},
+    'node_rock_rubble':  {'src': 'node_rock_rubble.png',  'dst': 'assets/sprites/nodes/node_rock_rubble.png',           'box': (24, 24)},
+    'prop_den':          {'src': 'prop_den.png',          'dst': 'assets/sprites/raid/prop_den.png',                    'box': (52, 34)},
+    'prop_hive':         {'src': 'prop_hive.png',         'dst': 'assets/sprites/raid/prop_hive.png',                   'box': (32, 40)},
+    'chest_closed':      {'src': 'chest_closed.png',      'dst': 'assets/sprites/raid/chest_closed.png',                'box': (24, 24)},
+    'serraria':          {'src': 'serraria.png',          'dst': 'assets/sprites/buildings/building_serraria_1.png',     'box': (64, 64), 'gap': 1},
+    'construction_1':    {'src': 'construction_1.png',    'dst': 'assets/sprites/buildings/building_construction_1.png', 'box': (64, 64), 'gap': 1},
+    'construction_site': {'src': 'construction_site.png', 'dst': 'assets/sprites/buildings/building_construction_site.png', 'box': (64, 64), 'gap': 1},
     'node_tree':  {'src': 'node_tree.png',  'dst': 'assets/sprites/nodes/node_tree_0.png',                'box': (48, 48)},
     'node_rock':  {'src': 'node_rock.png',  'dst': 'assets/sprites/nodes/node_rock_0.png',                'box': (48, 48)},
 }

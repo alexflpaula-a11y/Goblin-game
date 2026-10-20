@@ -215,3 +215,23 @@ com a linha do chão marcada, e `tools/cena_vila.py` monta
 Correções desta rodada: `'gap': 1` nos 12 prédios, despill extra de magenta
 (a ferraria tinha 12 px de franja roxa) e refeitos `altar`, `estabulo` e
 `quartel`, que tinham vindo largos demais e ficavam menores que a arte antiga.
+
+## 10. Animações (em andamento)
+
+Quadros-chave gerados por IA e processados pelo mesmo pipeline, com tamanho
+nativo do desenho no jogo. Os quadros **intermediários não são gerados** por IA:
+são derivados por interpolação, como já é feito nos lobos e gêmeos
+(`tools/expand_wolf_frames.py`), para a animação não "tremer" entre quadros.
+
+| Animação | Quadros-chave | Tamanho | Estado |
+|---|---|---|---|
+| Baú abrindo | `chest_closed`, `chest_open_1`, `chest_open_2` | 24×24 | gerado |
+| Árvore cantando | `deity_tree_sing_0..2` (boca fechada → aberta) | 64×64 | gerado |
+| Notas musicais | `fx_notas` | 24×24 | gerado |
+| Árvore nascendo do chão | muda → árvore grande | 64×64 | pendente |
+| Golem: forja e arremesso | juntar mãos → pedra → ombro → giro de quadril → arremesso | 64×64 | pendente |
+| Pedra quicando e deslizando | arco → 1º quique → deslize →parada | 32×32 | pendente |
+
+Publicado nesta rodada: baú (2 quadros novos), árvore cantando (3 quadros) e
+notas. As três animações restantes dependem de aprovação e continuam no próximo
+turno, respeitando o limite de 10 imagens por turno.
