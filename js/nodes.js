@@ -320,8 +320,9 @@ class Nodes {
           ? (n.type === 'tree' ? 'node_tree_stump' : 'node_rock_rubble')
           : (n.type === 'tree' ? 'node_tree_0' : 'node_rock_0');
         // Nós ativos usam a arte 64px (desenhada em 48px, ancorada pela base);
-        // tocos/entulho continuam pequenos (32px).
-        const size = n.depleted ? 24 : 48;
+        // tocos/entulho usam arte 32px desenhada em 32px (antes eram 24px, e o
+        // low-poly ficava ilegível nesse tamanho).
+        const size = n.depleted ? 32 : 48;
         const rawGrowth = n.divine && !n.depleted ? (n.growth ?? 1) : 1;
         const frameCount = GROWTH_FRAMES[n.type] || 1;
         const growth = Math.min(1, Math.floor(rawGrowth * (frameCount - 1)) / Math.max(1, frameCount - 1));

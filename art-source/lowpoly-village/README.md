@@ -235,3 +235,14 @@ são derivados por interpolação, como já é feito nos lobos e gêmeos
 Publicado nesta rodada: baú (2 quadros novos), árvore cantando (3 quadros) e
 notas. As três animações restantes dependem de aprovação e continuam no próximo
 turno, respeitando o limite de 10 imagens por turno.
+
+## 11. Resquícios (toco e entulho) em 32x32
+
+Em 24x24 o render low-poly virava borrão: o toco perdia o anel da madeira e o
+entulho virava uma mancha cinza. Três tentativas de pós-processamento
+(contraste, 10 cores, limpeza de pixels soltos) não resolveram — o problema é
+de resolução, não de tratamento.
+
+Solução: arte em **32x32** e `js/nodes.js` passou a desenhar o resquício em
+`32px` (antes `24px`). Nenhuma outra regra mudou: continua ancorado pela base,
+com o fade de `REMNANT_FADE_SECONDS` e a barra de estoque no mesmo lugar.
