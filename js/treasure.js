@@ -51,7 +51,7 @@ function drawTreasure(ctx, ui, treasure, i18n, time) {
     glow.addColorStop(1, 'rgba(255,220,90,0)');
     ctx.fillStyle = glow; ctx.fillRect(p.x - 140, p.y - 140, 280, 280);
     ctx.save(); ctx.globalAlpha = pulse;
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = true; // bau low-poly em alta resolucao
     ctx.drawImage(getSprite(t.boss ? 'reward_chest_bone' : 'reward_chest_wood'), p.x - 80, p.y - 70, 160, 140);
     ctx.restore();
     for (let i = 0; i < 14; i++) {

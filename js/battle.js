@@ -557,7 +557,7 @@ function drawFighter(ctx, f, time, highlight) {
 
 function drawBattleBackdrop(ctx, bg) {
   if (bg?.image) {
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = true; // fundo low-poly 1280px desenhado em 640px
     try {
       const shift = (bg.depth || 0) % 640;
       const image = getSprite(bg.image);
@@ -565,6 +565,7 @@ function drawBattleBackdrop(ctx, bg) {
       if (shift) ctx.drawImage(image, 640 - shift, 0, 640, 360);
     }
     catch (e) { ctx.fillStyle = '#1a1410'; ctx.fillRect(0, 0, 640, 360); }
+    ctx.imageSmoothingEnabled = false;
     return;
   }
   if (bg?.terrain) {

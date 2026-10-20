@@ -503,7 +503,9 @@ class Village {
           if (work) {
             // A lona branca cercada é um sprite próprio. Poeira e brilho são
             // animados aqui para reagirem ao trabalho e ao relógio da obra.
+            ctx.imageSmoothingEnabled = true; // cenario low-poly em alta resolucao
             ctx.drawImage(getSprite('building_construction_site'), s.x - 32, s.y - 60, 64, 64);
+            ctx.imageSmoothingEnabled = false;
 
             if (work.status === 'building') {
               if (work.working) {
@@ -559,7 +561,9 @@ class Village {
           }
 
           const spr = getSprite(BUILDINGS[s.type]?.sprite || 'building_house_1');
+          ctx.imageSmoothingEnabled = true; // cenario low-poly em alta resolucao
           ctx.drawImage(spr, s.x - 32, s.y - 60, 64, 64);
+          ctx.imageSmoothingEnabled = false;
 
           // Preparos culinários têm o próprio cronômetro acima da cozinha.
           // A fumaça quente pulsa apenas enquanto o goblin designado mexe a panela.

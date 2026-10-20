@@ -39,7 +39,11 @@ Contagens batem com `js/creatures.js`: twin_jaw idle 5, walk 16, attack 9, hurt 
 - Testes do jogo: todas as suítes passam. Arquivo único reconstruído.
 
 ## Limitações conhecidas
-- Em 56×36 o estilo low-poly contrasta com a pixel art do restante do jogo.
+- Em 56×36 o estilo low-poly contrastava com a pixel art do restante do jogo.
+  Cenários e estruturas foram facetados em 20/10/2026; o que falta está em
+  `docs/lowpoly.md`. Todos os animais (inclusive lobo comum e presas) já
+  nascem low-poly na arte-fonte — esta pasta cobre só a pipeline por IA
+  dos dois chefes.
 - Pernas de aço das Patas ficam finas e escuras em alguns quadros de caminhada.
 
 ## Histórico

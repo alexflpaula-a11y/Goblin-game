@@ -2053,7 +2053,9 @@ function placementDrawList() {
     draw: (c) => {
       c.save();
       c.globalAlpha = 0.68;
+      c.imageSmoothingEnabled = true; // previa da estrutura low-poly
       c.drawImage(getSprite(sprite), x - 32, y - 60, 64, 64);
+      c.imageSmoothingEnabled = false;
       c.globalAlpha = 0.9;
       c.strokeStyle = valid ? '#75e083' : '#ff6b5e';
       c.lineWidth = 2;
@@ -2607,7 +2609,9 @@ function drawStructureCards(P) {
     }
 
     ui.glow(cx, y + 62, 34);
+    ctx.imageSmoothingEnabled = true; // card da estrutura low-poly
     ctx.drawImage(getSprite(def.sprite), cx - 22, y + 40, 44, 44);
+    ctx.imageSmoothingEnabled = false;
 
     if (full) {
       // já construída (e no limite) → selo de concluído

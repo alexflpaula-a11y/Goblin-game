@@ -319,7 +319,7 @@ class Nodes {
         const id = n.depleted
           ? (n.type === 'tree' ? 'node_tree_stump' : 'node_rock_rubble')
           : (n.type === 'tree' ? 'node_tree_0' : 'node_rock_0');
-        // Nós ativos usam a arte 64px (desenhada em 48px, ancorada pela base);
+        // Nós ativos usam a arte low-poly (desenhada em 48px, ancorada pela base);
         // tocos/entulho continuam pequenos (32px).
         const size = n.depleted ? 24 : 48;
         const rawGrowth = n.divine && !n.depleted ? (n.growth ?? 1) : 1;
@@ -345,7 +345,9 @@ class Nodes {
             ctx.rotate(Math.sin(growth * Math.PI * 3) * (1 - growth) * 0.12);
             ctx.scale(bounce, bounce);
           }
+          ctx.imageSmoothingEnabled = true; // no low-poly em alta resolucao
           ctx.drawImage(getSprite(id), -size / 2, -size, size, size);
+          ctx.imageSmoothingEnabled = false;
           ctx.restore();
 
           // Mais partículas distribuídas por quadros deixam o nascimento suave.
@@ -361,7 +363,9 @@ class Nodes {
           }
           ctx.restore();
         } else {
+          ctx.imageSmoothingEnabled = true; // no low-poly em alta resolucao
           ctx.drawImage(getSprite(id), n.x - size / 2, n.y + 2 - size, size, size);
+          ctx.imageSmoothingEnabled = false;
         }
         // barra de estoque (quando já foi coletado ou tem trabalhador)
         if (!n.depleted && (n.stock < n.max || n.worker != null)) {
