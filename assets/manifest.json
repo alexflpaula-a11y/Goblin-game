@@ -2085,6 +2085,30 @@
       "path": "assets/sprites/raid/chest_open_2.png"
     },
     {
+      "id": "deity_golem_gather",
+      "path": "assets/sprites/deities/deity_golem_gather.png"
+    },
+    {
+      "id": "deity_golem_rock",
+      "path": "assets/sprites/deities/deity_golem_rock.png"
+    },
+    {
+      "id": "deity_golem_shoulder",
+      "path": "assets/sprites/deities/deity_golem_shoulder.png"
+    },
+    {
+      "id": "deity_golem_throw",
+      "path": "assets/sprites/deities/deity_golem_throw.png"
+    },
+    {
+      "id": "deity_tree_grow_0",
+      "path": "assets/sprites/deities/deity_tree_grow_0.png"
+    },
+    {
+      "id": "deity_tree_grow_1",
+      "path": "assets/sprites/deities/deity_tree_grow_1.png"
+    },
+    {
       "id": "deity_tree_sing_0",
       "path": "assets/sprites/deities/deity_tree_sing_0.png"
     },
@@ -2393,8 +2417,16 @@
       "path": "assets/sprites/deities/fx_notas.png"
     },
     {
+      "id": "fx_pedra_arremesso",
+      "path": "assets/sprites/deities/fx_pedra_arremesso.png"
+    },
+    {
       "id": "fx_pedra_divina",
       "path": "assets/sprites/deities/fx_pedra_divina.png"
+    },
+    {
+      "id": "fx_poeira",
+      "path": "assets/sprites/deities/fx_poeira.png"
     },
     {
       "id": "goblin_attack_0",

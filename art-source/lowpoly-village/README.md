@@ -228,9 +228,9 @@ são derivados por interpolação, como já é feito nos lobos e gêmeos
 | Baú abrindo | `chest_closed`, `chest_open_1`, `chest_open_2` | 24×24 | gerado |
 | Árvore cantando | `deity_tree_sing_0..2` (boca fechada → aberta) | 64×64 | gerado |
 | Notas musicais | `fx_notas` | 24×24 | gerado |
-| Árvore nascendo do chão | muda → árvore grande | 64×64 | pendente |
-| Golem: forja e arremesso | juntar mãos → pedra → ombro → giro de quadril → arremesso | 64×64 | pendente |
-| Pedra quicando e deslizando | arco → 1º quique → deslize →parada | 32×32 | pendente |
+| Árvore nascendo do chão | `deity_tree_grow_0` (muda) → `deity_tree_grow_1` (jovem) → `building_grande_arvore_1` (grande) | 64×64 | gerado |
+| Golem: forja e arremesso | `deity_golem_gather` → `deity_golem_rock` → `deity_golem_shoulder` → `deity_golem_throw` | 64×64 | gerado |
+| Pedra e poeira | `fx_pedra_arremesso` (24×24), `fx_poeira` (40×24) | — | gerado |
 
 Publicado nesta rodada: baú (2 quadros novos), árvore cantando (3 quadros) e
 notas. As três animações restantes dependem de aprovação e continuam no próximo

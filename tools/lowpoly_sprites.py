@@ -84,6 +84,16 @@ ASSETS = {
     'serraria':          {'src': 'serraria.png',          'dst': 'assets/sprites/buildings/building_serraria_1.png',     'box': (64, 64), 'gap': 1},
     'construction_1':    {'src': 'construction_1.png',    'dst': 'assets/sprites/buildings/building_construction_1.png', 'box': (64, 64), 'gap': 1},
     'construction_site': {'src': 'construction_site.png', 'dst': 'assets/sprites/buildings/building_construction_site.png', 'box': (64, 64), 'gap': 1},
+    # --- golem: forja e arremesso da pedra ---
+    'golem_m1_gather':   {'src': 'golem_m1_gather.png',   'dst': 'assets/sprites/deities/deity_golem_gather.png',       'box': (64, 64)},
+    'golem_m2_rock':     {'src': 'golem_m2_rock.png',     'dst': 'assets/sprites/deities/deity_golem_rock.png',         'box': (64, 64)},
+    'golem_m3_shoulder': {'src': 'golem_m3_shoulder.png', 'dst': 'assets/sprites/deities/deity_golem_shoulder.png',     'box': (64, 64)},
+    'golem_m4_throw':    {'src': 'golem_m4_throw.png',    'dst': 'assets/sprites/deities/deity_golem_throw.png',        'box': (64, 64)},
+    'fx_pedra_arremesso':{'src': 'fx_pedra_arremesso.png','dst': 'assets/sprites/deities/fx_pedra_arremesso.png',       'box': (24, 24)},
+    'fx_poeira':         {'src': 'fx_poeira.png',         'dst': 'assets/sprites/deities/fx_poeira.png',                'box': (40, 24)},
+    # --- árvore sagrada: crescimento a partir da muda ---
+    'tree_grow_0':       {'src': 'tree_grow_0.png',       'dst': 'assets/sprites/deities/deity_tree_grow_0.png',        'box': (64, 64)},
+    'tree_grow_1':       {'src': 'tree_grow_1.png',       'dst': 'assets/sprites/deities/deity_tree_grow_1.png',        'box': (64, 64)},
     'node_tree':  {'src': 'node_tree.png',  'dst': 'assets/sprites/nodes/node_tree_0.png',                'box': (48, 48)},
     'node_rock':  {'src': 'node_rock.png',  'dst': 'assets/sprites/nodes/node_rock_0.png',                'box': (48, 48)},
 }
