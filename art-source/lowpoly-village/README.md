@@ -279,3 +279,30 @@ das 45 variações existentes, nenhum overlay e nenhum teste quebram.
 | Idle do ciclo completo (5 quadros) | pendente |
 | Overlays de equipamento para a variante | pendente |
 | Publicação e troca da variante | pendente |
+
+## 13. Golem integrado no jogo
+
+Os quatro quadros da forja estavam gerados mas **não eram usados**: o jogo
+desenhava sempre `building_golem_pedra_1` com uma animação procedural de
+escala/inclinação e uma pedra desenhada por código.
+
+Agora `js/deities.js` escolhe um sprite por faixa de progresso da forja:
+
+| Progresso | Quadro | Pose |
+|---|---|---|
+| 0–30% | `deity_golem_gather` | junta as duas mãos e a energia se concentra |
+| 30–52% | `deity_golem_rock` | a pedra já está formada na mão |
+| 52–64% | `deity_golem_shoulder` | levanta a pedra acima do ombro, com giro de quadril |
+| 64–100% | `deity_golem_throw` | solta a pedra; é aqui que o projétil sai |
+
+- A pedra sai da mão em **64%** do ciclo (`GOLEM_THROW_AT`), exatamente quando
+  o quadro de arremesso entra — antes ela saía em 50%, no meio da subida.
+- O golem **vira para o lado do alvo** (espelhamento horizontal quando o nó
+  está à esquerda), coisa que a arte procedural não fazia.
+- A pedra desenhada por código (`drawForgedRock`) foi removida: as mãos dos
+  quadros já seguram a pedra, então não existe mais pedra duplicada.
+- Verificação: `tools/smoke_test.mjs` confere a ordem dos quadros, o quadro de
+  cada faixa e que o lançamento acontece no quadro de arremesso;
+  `tools/render_test.mjs` confere os quatro PNGs 64×64 no manifest.
+
+Folha de conferência: `preview/golem-no-jogo.png`.

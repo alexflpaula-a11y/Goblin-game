@@ -13,7 +13,6 @@ const MAX_WORSHIPPERS = 3;
 const MAX_DEITY_LEVEL = 3;
 const ANIMATION_FRAMES = {
   treeChant: 24,
-  golemForge: 28,
   projectileSpin: 20,
 };
 // Voo da pedra em três fases: arco até o primeiro impacto, um quique curto e
@@ -21,6 +20,21 @@ const ANIMATION_FRAMES = {
 const ROCK_BOUNCE_AT = 0.62;   // fração do voo em que toca o chão pela 1ª vez
 const ROCK_BOUNCE_H = 26;      // altura do quique, em px
 const ROCK_SKID_AT = 0.78;     // a partir daqui a pedra desliza
+// Quadros da forja do Golem. Cada faixa de progresso usa um sprite desenhado
+// para aquela pose: juntar as mãos, pedra formada, pedra no ombro (giro de
+// quadril) e arremesso. O arremesso da pedra acontece no início da última.
+const GOLEM_FRAMES = [
+  { until: 0.30, id: 'deity_golem_gather' },
+  { until: 0.52, id: 'deity_golem_rock' },
+  { until: 0.64, id: 'deity_golem_shoulder' },
+  { until: 1.01, id: 'deity_golem_throw' },
+];
+const GOLEM_THROW_AT = 0.64;
+/** Quadro do Golem para um progresso de 0 a 1 da forja. */
+function golemFrameAt(p) {
+  const t = clamp01(p);
+  return (GOLEM_FRAMES.find((f) => t < f.until) || GOLEM_FRAMES[GOLEM_FRAMES.length - 1]).id;
+}
 
 // Por enquanto, os santuários produzem apenas o material-base. Os outros
 // graus permanecem reservados para o futuro sistema de runas/forja.
@@ -30,7 +44,6 @@ const DEITY_RESOURCES = {
 };
 
 const clamp01 = (n) => Math.max(0, Math.min(1, n));
-const easeOut = (n) => 1 - Math.pow(1 - clamp01(n), 3);
 const easeInOut = (n) => {
   const t = clamp01(n);
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
@@ -348,8 +361,8 @@ class Deities {
     }
 
     state.time += dt;
-    // 28 poses: condensação, levantamento, antecipação e soltura.
-    if (!state.launched && state.time >= state.duration * 0.5) {
+    // A pedra só sai da mão quando o quadro de arremesso entra em cena.
+    if (!state.launched && state.time >= state.duration * GOLEM_THROW_AT) {
       const deity = this.village.get('golem_pedra');
       if (deity && state.site) {
         this.projectiles.push({
@@ -485,21 +498,24 @@ class Deities {
       sx = 1 + Math.sin(phase * 2) * 0.042;
       sy = 1 - Math.sin(phase * 2) * 0.032;
       bob -= Math.abs(Math.sin(phase)) * 2;
-    } else if (type === 'golem_pedra' && state.mode === 'forge') {
-      const p = stepped(state.time / state.duration, ANIMATION_FRAMES.golemForge);
-      const anticipation = Math.sin(clamp01(p / 0.58) * Math.PI);
-      const release = p > 0.48 ? Math.sin(clamp01((p - 0.48) / 0.35) * Math.PI) : 0;
-      lean = anticipation * -0.035 + release * 0.075;
-      sx = 1 + anticipation * 0.035 - release * 0.025;
-      sy = 1 - anticipation * 0.045 + release * 0.055;
-      bob += anticipation * 2 - release * 4;
+    }
+
+    // As poses do Golem vêm em quadros próprios, então não deformamos o
+    // sprite: só uma respiração curta para a troca de quadro não ficar dura.
+    let frameId = spriteId;
+    let faceLeft = false;
+    if (type === 'golem_pedra' && state.mode === 'forge' && powered) {
+      frameId = golemFrameAt(state.time / state.duration);
+      // Vira para o lado do alvo: a pedra sai da mão que está do lado dele.
+      faceLeft = !!(state.site && state.site.x < s.x);
+      bob += Math.sin(time * 9) * 0.6;
     }
 
     ctx.save();
     ctx.translate(s.x, s.y + bob);
     ctx.rotate(lean);
-    ctx.scale(sx, sy);
-    ctx.drawImage(getSprite(spriteId), -36, -72, 72, 72);
+    ctx.scale((faceLeft ? -1 : 1) * sx, sy);
+    ctx.drawImage(getSprite(frameId), -36, -72, 72, 72);
     ctx.restore();
 
     const deityLevel = this.profile(type)?.level || 1;
@@ -511,8 +527,6 @@ class Deities {
     if (!state.active) this.drawActivationHint(ctx, s, time);
     if (type === 'grande_arvore' && state.mode === 'chant' && powered) {
       this.drawSong(ctx, s, state.time);
-    } else if (type === 'golem_pedra' && state.mode === 'forge' && !state.launched && powered) {
-      this.drawForgedRock(ctx, s, state.time);
     }
   }
 
@@ -544,24 +558,6 @@ class Deities {
     ctx.restore();
   }
 
-  drawForgedRock(ctx, s, t) {
-    const p = stepped(t / 1.55, 18);
-    const grow = easeOut(p);
-    const size = 6 + grow * 22;
-    const x = s.x + 25 - Math.sin(p * Math.PI) * 5;
-    const y = s.y - 48 - Math.sin(p * Math.PI) * 12;
-    ctx.save();
-    ctx.globalAlpha = 0.16 + grow * 0.28;
-    ctx.fillStyle = '#ffd75a';
-    ctx.beginPath();
-    ctx.arc(x, y, size * 0.72, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.translate(x, y);
-    ctx.rotate(p * Math.PI * 2);
-    ctx.drawImage(getSprite('fx_pedra_divina'), -size / 2, -size / 2, size, size);
-    ctx.restore();
-  }
 
   drawProjectileShadow(ctx, p) {
     const height = Math.max(0, p.groundY - p.y);
@@ -639,4 +635,5 @@ class Deities {
 module.exports = {
   Deities, DEITY_TYPES, ISLAND_NODE_CAP, ANIMATION_FRAMES,
   MAX_WORSHIPPERS, MAX_DEITY_LEVEL, DEITY_RESOURCES,
+  GOLEM_FRAMES, GOLEM_THROW_AT, golemFrameAt,
 };
