@@ -466,7 +466,9 @@ class Deities {
     ctx.translate(s.x, s.y + bob);
     ctx.rotate(lean);
     ctx.scale(sx, sy);
+    ctx.imageSmoothingEnabled = true; // cenario low-poly em alta resolucao
     ctx.drawImage(getSprite(spriteId), -36, -72, 72, 72);
+    ctx.imageSmoothingEnabled = false;
     ctx.restore();
 
     const deityLevel = this.profile(type)?.level || 1;
@@ -526,7 +528,9 @@ class Deities {
     ctx.globalAlpha = 1;
     ctx.translate(x, y);
     ctx.rotate(p * Math.PI * 2);
+    ctx.imageSmoothingEnabled = true; // pedra low-poly
     ctx.drawImage(getSprite('fx_pedra_divina'), -size / 2, -size / 2, size, size);
+    ctx.imageSmoothingEnabled = false;
     ctx.restore();
   }
 

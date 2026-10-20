@@ -20,8 +20,8 @@ const COLORS = {
   [WATER]: '#1d5c8f',
   [SAND]: '#e8d293',
   [ROCK]: '#7d8291',
-  // Toda a terra da ilha usa o mesmo azulejo de grama. A leitura do mapa
-  // vem somente de flores e pequenos enfeites espalhados com parcimônia.
+  // Toda a terra da ilha usa o mesmo verde base (facetado, ver facetTile).
+  // A leitura do mapa vem de flores e pequenos enfeites com parcimônia.
   ground: '#5aa463',
   wetSand: '#c9b57f',
   tuft: '#2f6b3c',
@@ -44,6 +44,40 @@ function hash2(x, y, seed) {
   let h = seed ^ (x * 374761393) ^ (y * 668265263);
   h = (h ^ (h >>> 13)) * 1274126177;
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+
+// ---------- terreno low-poly: cada azulejo vira 2 facetas triangulares ----
+// A cor base do azulejo nao muda; cada triangulo ganha um tom flat proprio
+// (hash do azulejo), como nas faces da arte low-poly dos animais.
+const _shadeCache = new Map();
+function shadeHex(hex, f) {
+  if (!/^#[0-9a-f]{6}$/i.test(hex)) return hex;
+  const key = hex + '|' + f.toFixed(3);
+  let out = _shadeCache.get(key);
+  if (!out) {
+    const n = parseInt(hex.slice(1), 16);
+    const c = (v) => Math.max(0, Math.min(255, Math.round(v * f)));
+    out = `rgb(${c(n >> 16)},${c((n >> 8) & 255)},${c(n & 255)})`;
+    _shadeCache.set(key, out);
+  }
+  return out;
+}
+function facetTri(g, x1, y1, x2, y2, x3, y3, fill) {
+  g.fillStyle = fill;
+  g.beginPath();
+  g.moveTo(x1, y1); g.lineTo(x2, y2); g.lineTo(x3, y3);
+  g.closePath(); g.fill();
+}
+function facetTile(g, px, py, T, hex, h1, h2) {
+  const a = shadeHex(hex, 0.94 + h1 * 0.12);
+  const b = shadeHex(hex, 0.94 + h2 * 0.12);
+  if (h1 > 0.5) {
+    facetTri(g, px, py, px + T, py, px, py + T, a);
+    facetTri(g, px + T, py, px + T, py + T, px, py + T, b);
+  } else {
+    facetTri(g, px, py, px + T, py, px + T, py + T, a);
+    facetTri(g, px, py, px + T, py + T, px, py + T, b);
+  }
 }
 
 function makeNoise(seed, cell) {
@@ -506,15 +540,13 @@ class World {
         const h = hash2(x, y, this.seed);
 
         if (t === DEEP || t === WATER) {
-          g.fillStyle = COLORS[t];
-          g.fillRect(px, py, T, T);
+          facetTile(g, px, py, T, COLORS[t], h, hash2(x, y, this.seed + 7));
           if (h > 0.86) { // variação sutil
             g.fillStyle = 'rgba(255,255,255,0.05)';
             g.fillRect(px, py, T, T);
           }
         } else if (t === SAND) {
-          g.fillStyle = COLORS[SAND];
-          g.fillRect(px, py, T, T);
+          facetTile(g, px, py, T, COLORS[SAND], h, hash2(x, y, this.seed + 7));
           // beirada molhada onde encosta água
           const near = (xx, yy) => {
             const i = yy * WORLD.COLS + xx;
@@ -530,18 +562,16 @@ class World {
             g.fillRect(px + 4 + Math.floor(h * 7) % 6, py + 5 + Math.floor(h * 13) % 6, 2, 2);
           }
         } else if (t === ROCK) {
-          g.fillStyle = COLORS[ROCK];
-          g.fillRect(px, py, T, T);
+          facetTile(g, px, py, T, COLORS[ROCK], h, hash2(x, y, this.seed + 7));
           g.fillStyle = COLORS.rockDark;
           g.fillRect(px + 2, py + 3, 6, 4);
           g.fillRect(px + 9, py + 8, 5, 4);
           g.fillStyle = 'rgba(255,255,255,0.14)';
           g.fillRect(px + 3, py + 3, 3, 1);
         } else { // GRASS
-          // Azulejo único em toda a ilha: sem clareira, pedras ou tons de
-          // grama alternados. Os poucos detalhes só evitam um vazio absoluto.
-          g.fillStyle = COLORS.ground;
-          g.fillRect(px, py, T, T);
+          // Grama low-poly: o mesmo verde base em toda a ilha, mas cada
+          // faceta tem seu tom flat. Os poucos detalhes evitam o vazio total.
+          facetTile(g, px, py, T, COLORS.ground, h, hash2(x, y, this.seed + 7));
           if (h > 0.975) { // flores visíveis, mas ainda espalhadas
             g.fillStyle = COLORS.flowers[Math.floor(hash2(x, y, this.seed + 71) * 3)];
             g.fillRect(px + 7, py + 7, 2, 2);

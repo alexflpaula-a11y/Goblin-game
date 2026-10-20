@@ -339,13 +339,18 @@ const deitySizes = deitySpriteIds.map((id) => {
   const png = fs.readFileSync(path.join(ROOT, entry.path));
   return [id, png.readUInt32BE(16), png.readUInt32BE(20)];
 });
-check('sprites das duas divindades são PNG 64×64 exatos',
-  deitySizes.every(([, w, h]) => w === 64 && h === 64),
+// Low-poly (20/10/2026): cenários/estruturas têm resolução INTERNA maior
+// (192×192 / 96×96) mas a mesma proporção e são desenhados nos tamanhos
+// fixos de sempre (72px / ~28px) — ver docs/lowpoly.md. O que importa
+// aqui é a proporção quadrada e não ficar abaixo da resolução original.
+check('sprites das duas divindades são PNG quadrados >= 64×64 (low-poly)',
+  deitySizes.every(([, w, h]) => w === h && w >= 64),
   deitySizes.map(([id, w, h]) => `${id}=${w}x${h}`).join(', '));
 const rockFx = manifest.sprites.find((s) => s.id === 'fx_pedra_divina');
 const rockPng = rockFx && fs.readFileSync(path.join(ROOT, rockFx.path));
-check('projétil rúnico polido é PNG 32×32',
-  !!rockPng && rockPng.readUInt32BE(16) === 32 && rockPng.readUInt32BE(20) === 32);
+check('projétil rúnico polido é PNG quadrado >= 32×32 (low-poly)',
+  !!rockPng && rockPng.readUInt32BE(16) === rockPng.readUInt32BE(20)
+  && rockPng.readUInt32BE(16) >= 32);
 check('sprite e tradução da Mina foram removidos',
   !haveSprites.has('building_mina_1') && !('bld.mina' in pt) && !('bld.mina' in en));
 

@@ -84,7 +84,7 @@ function drawCavePassage(ctx, ui, pass, i18n, time) {
 
   // Avanço: o túnel cresce em torno do ponto de fuga.
   ctx.save();
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true; // tunel low-poly 1280px com zoom: suaviza as facetas
   ctx.drawImage(img, VANISH.x - VANISH.x * z + sway, VANISH.y - VANISH.y * z, 640 * z, 360 * z);
   ctx.restore();
 

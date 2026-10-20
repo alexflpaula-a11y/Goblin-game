@@ -197,6 +197,7 @@ python3 tools/gen_icons.py                 # (re)gera ícones 16×16 de itens/ha
 python3 tools/gen_goblin_variations.py     # extrai as 45 variações em lotes de 5
 python3 tools/unbuild.py            # extrai a fonte de volta a partir do build
 /tmp/pv/bin/python tools/expand_wolf_frames.py   # gera os quadros de lobos/gêmeos (requer Pillow)
+/tmp/pv/bin/python tools/lowpoly_sprites.py      # faceta cenários/estruturas p/ low-poly (Pillow)
 bash    tools/test.sh               # roda as 7 suítes de teste
 ```
 
@@ -321,6 +322,20 @@ Padrão obrigatório para novos itens:
   desenvolvimento, esse progresso vale durante a sessão, não após recarregar.
 - Botão de saída e retorno ao balão pedem confirmação Sim/Não, pausando a
   expedição. Não fecha o aviso e permite continuar sem reabri-lo automaticamente.
+
+### Transformação low-poly — cenários e estruturas (20/10/2026)
+
+Os **animais já são todos low-poly** na arte-fonte (lobo, Gêmeos, javali,
+veado e lebre — 192 sprites). Esta rodada facetou o restante do **cenário**:
+as 14 estruturas + lona de obra, as duas divindades, nós de árvore/pedra,
+balão, tocas, baús, os fundos de caverna/túnel/mar e os retratos das ilhas
+(40 sprites, gerados por `tools/lowpoly_sprites.py` a partir dos originais
+preservados em `art-source/pixelart-cenarios-estruturas/`), mais o
+**terreno** da vila e das ilhas de raid, que agora é desenhado em facetas
+triangulares flat. Silhuetas, âncoras e testes de perspectiva não mudam;
+a suavização é ligada só nos desenhos de cenário. Inventário completo do
+que falta (goblins/equipamentos/ícones/UI) em
+[`docs/lowpoly.md`](docs/lowpoly.md).
 
 ### Animações fluidas, caça e passagem (13/10/2026)
 

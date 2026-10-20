@@ -124,6 +124,40 @@ function hash2(x, y, seed) {
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
 }
 
+// ---------- terreno low-poly: cada azulejo vira 2 facetas triangulares ----
+// A cor base do azulejo nao muda; cada triangulo ganha um tom flat proprio
+// (hash do azulejo), como nas faces da arte low-poly dos animais.
+const _shadeCache = new Map();
+function shadeHex(hex, f) {
+  if (!/^#[0-9a-f]{6}$/i.test(hex)) return hex;
+  const key = hex + '|' + f.toFixed(3);
+  let out = _shadeCache.get(key);
+  if (!out) {
+    const n = parseInt(hex.slice(1), 16);
+    const c = (v) => Math.max(0, Math.min(255, Math.round(v * f)));
+    out = `rgb(${c(n >> 16)},${c((n >> 8) & 255)},${c(n & 255)})`;
+    _shadeCache.set(key, out);
+  }
+  return out;
+}
+function facetTri(g, x1, y1, x2, y2, x3, y3, fill) {
+  g.fillStyle = fill;
+  g.beginPath();
+  g.moveTo(x1, y1); g.lineTo(x2, y2); g.lineTo(x3, y3);
+  g.closePath(); g.fill();
+}
+function facetTile(g, px, py, T, hex, h1, h2) {
+  const a = shadeHex(hex, 0.94 + h1 * 0.12);
+  const b = shadeHex(hex, 0.94 + h2 * 0.12);
+  if (h1 > 0.5) {
+    facetTri(g, px, py, px + T, py, px, py + T, a);
+    facetTri(g, px + T, py, px + T, py + T, px, py + T, b);
+  } else {
+    facetTri(g, px, py, px + T, py, px + T, py + T, a);
+    facetTri(g, px, py, px + T, py + T, px, py + T, b);
+  }
+}
+
 function makeNoise(seed, cell, cols, rows) {
   const rnd = mulberry32(seed);
   const gw = Math.ceil(cols / cell) + 3;
@@ -353,14 +387,14 @@ function drawBalloon(ctx, balloon, time, opts) {
   const w = flying ? 46 : (balloon.repaired ? 42 : 56);
   const h = flying ? 58 : (balloon.repaired ? 54 : 38);
   ctx.save();
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true; // cenario low-poly: arte interna maior que o desenho
   ctx.drawImage(getSprite(id), x - w / 2, y - h + 8 + bob, w, h);
   ctx.restore();
 }
 
 function drawTree(ctx, x, y, hive, node) {
   ctx.save();
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true; // cenario low-poly: arte interna maior que o desenho
   ctx.drawImage(getSprite('node_tree_0'), x - 24, y - 46, 48, 48);
   if (node && !node.taken && node.max && node.stock < node.max) {
     drawHpBar(ctx, x, y - 50, 20, node.stock, node.max);
@@ -370,7 +404,7 @@ function drawTree(ctx, x, y, hive, node) {
 
 function drawRock(ctx, x, y, node) {
   ctx.save();
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true; // cenario low-poly: arte interna maior que o desenho
   ctx.drawImage(getSprite('node_rock_0'), x - 24, y - 46, 48, 48);
   if (node && !node.taken && node.max && node.stock < node.max) {
     drawHpBar(ctx, x, y - 50, 20, node.stock, node.max);
@@ -380,7 +414,7 @@ function drawRock(ctx, x, y, node) {
 
 function drawChest(ctx, x, y, open) {
   ctx.save();
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true; // cenario low-poly: arte interna maior que o desenho
   ctx.drawImage(getSprite(open ? 'chest_open' : 'chest_closed'), x - 12, y - 20, 24, 24);
   ctx.restore();
 }
@@ -399,7 +433,7 @@ function drawHpBar(ctx, x, y, w, hp, maxHp) {
 
 function drawEnemyBuilding(ctx, b) {
   ctx.save();
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true; // cenario low-poly: arte interna maior que o desenho
   if (b.ruined) ctx.globalAlpha = 0.55;
   if (typeof ctx.filter === 'string') {
     ctx.filter = b.ruined
@@ -595,7 +629,7 @@ function drawAnimal(ctx, a, time) {
 function drawProp(ctx, p, time) {
   if (!p) return;
   ctx.save();
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true; // cenario low-poly: arte interna maior que o desenho
   if (p.type === 'den') ctx.drawImage(getSprite('prop_den'), p.x - 26, p.y - 34, 52, 34);
   else if (p.type === 'hive') ctx.drawImage(getSprite('prop_hive'), p.x - 16, p.y - 42, 32, 40);
   else if (p.type === 'vent') drawVent(ctx, p.x, p.y, time);
@@ -908,15 +942,13 @@ class RaidIsland {
         const px = x * TILE, py = y * TILE;
         const h = hash2(x, y, this.seed);
         if (t === DEEP || t === WATER) {
-          g.fillStyle = t === DEEP ? pal.deep : pal.water;
-          g.fillRect(px, py, TILE, TILE);
+          facetTile(g, px, py, TILE, t === DEEP ? pal.deep : pal.water, h, hash2(x, y, this.seed + 7));
           if (h > 0.88) {
             g.fillStyle = 'rgba(255,255,255,0.05)';
             g.fillRect(px, py, TILE, TILE);
           }
         } else if (t === SAND) {
-          g.fillStyle = pal.sand;
-          g.fillRect(px, py, TILE, TILE);
+          facetTile(g, px, py, TILE, pal.sand, h, hash2(x, y, this.seed + 7));
           g.fillStyle = pal.wetSand;
           const near = (xx, yy) => {
             if (xx < 0 || yy < 0 || xx >= RAID.COLS || yy >= RAID.ROWS) return false;
@@ -927,8 +959,7 @@ class RaidIsland {
           if (near(x - 1, y)) g.fillRect(px, py, 3, TILE);
           if (near(x + 1, y)) g.fillRect(px + TILE - 3, py, 3, TILE);
         } else {
-          g.fillStyle = pal.ground;
-          g.fillRect(px, py, TILE, TILE);
+          facetTile(g, px, py, TILE, pal.ground, h, hash2(x, y, this.seed + 7));
           if (theme === 'fangs') {
             if (h > 0.91) {
               g.fillStyle = pal.tuft;
@@ -1612,7 +1643,7 @@ class RaidIsland {
         y: den.y,
         draw: (c) => {
           c.save();
-          c.imageSmoothingEnabled = false;
+          c.imageSmoothingEnabled = true; // cenario low-poly
           if (den.cleared) c.globalAlpha = 0.45;
           c.drawImage(getSprite('prop_den'), den.x - 26, den.y - 34, 52, 34);
           c.restore();
@@ -1624,7 +1655,7 @@ class RaidIsland {
         y: this.lair.y,
         draw: (c) => {
           c.save();
-          c.imageSmoothingEnabled = false;
+          c.imageSmoothingEnabled = true; // cenario low-poly
           if (this.lair.cleared) c.globalAlpha = 0.5;
           c.drawImage(getSprite('prop_den_lair'), this.lair.x - 80, this.lair.y - 78, 160, 87);
           c.restore();
@@ -1728,7 +1759,7 @@ function islandChartWidth() {
 function drawMiniIsland(ctx, def, x, y, selected, i18n, locked) {
   ctx.save();
   ctx.translate(x, y);
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true; // cenario low-poly: arte interna maior que o desenho
   const spr = getSprite('island_' + (def.id || 'home'));
   ctx.drawImage(spr, -78, -58, 156, 108);
   if (locked) {
