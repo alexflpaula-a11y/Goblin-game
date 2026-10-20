@@ -16,6 +16,11 @@ const ANIMATION_FRAMES = {
   golemForge: 28,
   projectileSpin: 20,
 };
+// Voo da pedra em três fases: arco até o primeiro impacto, um quique curto e
+// um deslize raso até parar. Cada fase tem sprite próprio (24x24 / 32x24).
+const ROCK_BOUNCE_AT = 0.62;   // fração do voo em que toca o chão pela 1ª vez
+const ROCK_BOUNCE_H = 26;      // altura do quique, em px
+const ROCK_SKID_AT = 0.78;     // a partir daqui a pedra desliza
 
 // Por enquanto, os santuários produzem apenas o material-base. Os outros
 // graus permanecem reservados para o futuro sistema de runas/forja.
@@ -354,6 +359,7 @@ class Deities {
           x: deity.x + 25, y: deity.y - 51,
           groundY: deity.y,
           time: 0, duration: 1.85, spin: 0, trail: [],
+          phase: 'arc', dust: [], skidFrom: null,
         });
       }
       state.launched = true;
@@ -373,12 +379,39 @@ class Deities {
       if (p.trail.length > 7) p.trail.length = 7;
       p.time += dt;
       const t = clamp01(p.time / p.duration);
-      const travel = easeInOut(t);
+      const bounceT = Math.min(1, t / ROCK_BOUNCE_AT);
+      const travel = easeInOut(bounceT);
       p.x = p.x0 + (p.x1 - p.x0) * travel;
       p.groundY = p.y0 + (p.y1 - p.y0) * travel;
-      const arc = Math.sin(t * Math.PI) * Math.min(175, 82 + Math.abs(p.x1 - p.x0) * 0.16);
+      const arc = Math.sin(bounceT * Math.PI) * Math.min(175, 82 + Math.abs(p.x1 - p.x0) * 0.16);
       p.y = p.groundY - arc;
       p.spin = stepped(t, ANIMATION_FRAMES.projectileSpin) * Math.PI * 6;
+
+      // Depois do primeiro impacto: um quique curto e um deslize raso. A pedra
+      // continua avançando até o ponto do nó (p.x1/p.y1), então o repouso é o
+      // mesmo de antes; muda só a leitura do voo.
+      if (t >= ROCK_BOUNCE_AT) {
+        if (p.phase === 'arc') {
+          // poeira do impacto, no ponto em que tocou o chão
+          p.dust.push({ x: p.x, y: p.groundY, age: 0, ttl: 0.55 });
+          p.phase = 'bounce';
+        }
+        if (t >= ROCK_SKID_AT && p.phase === 'bounce') {
+          p.phase = 'skid';
+          p.skidFrom = { x: p.x, y: p.groundY };
+        }
+        const after = (t - ROCK_BOUNCE_AT) / (1 - ROCK_BOUNCE_AT);
+        if (p.phase === 'bounce') {
+          const k = clamp01(after / (ROCK_SKID_AT - ROCK_BOUNCE_AT) * (1 - ROCK_BOUNCE_AT));
+          p.y = p.groundY - Math.sin(Math.min(1, k) * Math.PI) * ROCK_BOUNCE_H;
+        } else {
+          // deslize: altura quase zero e pequenos saltos decrescentes
+          const hop = Math.max(0, Math.sin(after * Math.PI * 3)) * 4 * (1 - after);
+          p.y = p.groundY - hop;
+        }
+      }
+      for (const d of (p.dust || [])) d.age += dt;
+      if (p.dust) p.dust = p.dust.filter((d) => d.age < d.ttl);
       p.progress = t;
       p.done = t >= 1;
     }
@@ -543,7 +576,33 @@ class Deities {
   }
 
   drawProjectile(ctx, p) {
-    const sprite = getSprite('fx_pedra_divina');
+    // Cada fase usa o sprite desenhado para ela: pedra no ar, pedra batendo e
+    // pedra deslizando com rastro de poeira.
+    const sprite = getSprite(
+      p.phase === 'bounce' ? 'fx_pedra_quique'
+        : p.phase === 'skid' ? 'fx_pedra_deslize'
+          : 'fx_pedra_divina');
+    for (const d of (p.dust || [])) {
+      const k = d.age / d.ttl;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, 0.85 * (1 - k));
+      const size = 18 + k * 14;
+      ctx.drawImage(getSprite('fx_poeira'), d.x - size / 2, d.y - size * 0.45, size, size * 0.6);
+      ctx.restore();
+    }
+
+    // Fase de deslize: o sprite já traz o rastro, então ele não gira nem
+    // ganha halo — fica colado ao chão, apontando para onde a pedra vai.
+    if (p.phase === 'skid') {
+      const dir = p.x1 >= p.x0 ? 1 : -1;
+      ctx.save();
+      ctx.globalAlpha = 0.95;
+      ctx.translate(p.x, p.groundY);
+      ctx.scale(-dir, 1);
+      ctx.drawImage(sprite, -16, -22, 32, 24);
+      ctx.restore();
+      return;
+    }
     ctx.save();
     // Rastro dourado com sete ecos suaves.
     for (let i = p.trail.length - 1; i >= 0; i--) {
@@ -558,7 +617,7 @@ class Deities {
       ctx.restore();
     }
     ctx.translate(p.x, p.y);
-    ctx.rotate(p.spin || 0);
+    ctx.rotate(p.phase === 'bounce' ? (p.spin || 0) * 0.35 : (p.spin || 0));
     ctx.globalAlpha = 0.22;
     ctx.fillStyle = '#ffd75a';
     ctx.beginPath();

@@ -94,6 +94,9 @@ ASSETS = {
     # --- árvore sagrada: crescimento a partir da muda ---
     'tree_grow_0':       {'src': 'tree_grow_0.png',       'dst': 'assets/sprites/deities/deity_tree_grow_0.png',        'box': (64, 64)},
     'tree_grow_1':       {'src': 'tree_grow_1.png',       'dst': 'assets/sprites/deities/deity_tree_grow_1.png',        'box': (64, 64)},
+    # --- pedra: quique e deslize ---
+    'fx_pedra_quique':   {'src': 'fx_pedra_quique.png',   'dst': 'assets/sprites/deities/fx_pedra_quique.png',          'box': (24, 24)},
+    'fx_pedra_deslize':  {'src': 'fx_pedra_deslize.png',  'dst': 'assets/sprites/deities/fx_pedra_deslize.png',         'box': (32, 24)},
     'node_tree':  {'src': 'node_tree.png',  'dst': 'assets/sprites/nodes/node_tree_0.png',                'box': (48, 48)},
     'node_rock':  {'src': 'node_rock.png',  'dst': 'assets/sprites/nodes/node_rock_0.png',                'box': (48, 48)},
 }

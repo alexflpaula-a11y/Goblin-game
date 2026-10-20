@@ -231,6 +231,20 @@ são derivados por interpolação, como já é feito nos lobos e gêmeos
 | Árvore nascendo do chão | `deity_tree_grow_0` (muda) → `deity_tree_grow_1` (jovem) → `building_grande_arvore_1` (grande) | 64×64 | gerado |
 | Golem: forja e arremesso | `deity_golem_gather` → `deity_golem_rock` → `deity_golem_shoulder` → `deity_golem_throw` | 64×64 | gerado |
 | Pedra e poeira | `fx_pedra_arremesso` (24×24), `fx_poeira` (40×24) | — | gerado |
+| Pedra quicando e deslizando | `fx_pedra_quique` (24×24), `fx_pedra_deslize` (32×24) | — | gerado + integrado |
+
+### Voo da pedra (integrado em `js/deities.js`)
+
+O arremesso agora tem três fases, cada uma com seu sprite:
+
+1. **arco** (até 62% do voo): `fx_pedra_divina`, girando;
+2. **quique** (62% a 78%): toca o chão, sobe 26 px e desce — `fx_pedra_quique`;
+3. **deslize** (78% a 100%): fica colado ao chão, com o rastro do próprio
+   sprite, até parar no ponto onde a rocha é criada — `fx_pedra_deslize`.
+
+A poeira (`fx_poeira`) aparece no primeiro impacto e expande/some em 0,55 s.
+O ponto final não mudou: a rocha continua nascendo em `x1/y1`, então nada de
+mecânica ou balanceamento foi alterado.
 
 Publicado nesta rodada: baú (2 quadros novos), árvore cantando (3 quadros) e
 notas. As três animações restantes dependem de aprovação e continuam no próximo
@@ -246,3 +260,22 @@ de resolução, não de tratamento.
 Solução: arte em **32x32** e `js/nodes.js` passou a desenhar o resquício em
 `32px` (antes `24px`). Nenhuma outra regra mudou: continua ancorado pela base,
 com o fade de `REMNANT_FADE_SECONDS` e a barra de estoque no mesmo lugar.
+
+## 12. Goblin low-poly (em andamento)
+
+Requisito: refazer o **goblin** (não o golem) em low-poly 2D, de frente.
+
+O goblin é o ativo mais acoplado do projeto: **2.914 PNGs** em
+`assets/sprites/goblins` (45 variações físicas × idle 5, walk 8, attack 17,
+hurt 17 e death 15), mais **868 overlays** de equipamento que são empilhados
+por cima do corpo (`gear.js`). Por isso o goblin novo é tratado como uma
+**variante** (`variant_46_...`), e não como substituição global: assim nenhuma
+das 45 variações existentes, nenhum overlay e nenhum teste quebram.
+
+| Etapa | Estado |
+|---|---|
+| Corpo base low-poly 2D (frente), 32×32 | gerado (`raw/goblin_p0.png`) |
+| Poses walk / attack / hurt | pendente |
+| Idle do ciclo completo (5 quadros) | pendente |
+| Overlays de equipamento para a variante | pendente |
+| Publicação e troca da variante | pendente |

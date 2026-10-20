@@ -2421,8 +2421,16 @@
       "path": "assets/sprites/deities/fx_pedra_arremesso.png"
     },
     {
+      "id": "fx_pedra_deslize",
+      "path": "assets/sprites/deities/fx_pedra_deslize.png"
+    },
+    {
       "id": "fx_pedra_divina",
       "path": "assets/sprites/deities/fx_pedra_divina.png"
+    },
+    {
+      "id": "fx_pedra_quique",
+      "path": "assets/sprites/deities/fx_pedra_quique.png"
     },
     {
       "id": "fx_poeira",
