@@ -192,3 +192,26 @@ com peças "de jogos diferentes" (fazenda verde-limão contra o restante terroso
    preservando o alpha.
 
 Toda peça publicada passa por esse passo depois de `lowpoly_sprites.py`.
+
+## 9. Auditoria de encaixe (linha de base)
+
+`tools/auditoria_encaixe.py` compara, sprite por sprite, o recorte **antigo**
+(revisão `e565e0b`) com o **novo**:
+
+- **folga inferior** — quantos pixels vazios existem abaixo do conteúdo. A
+  pixel art antiga deixava **1 px** nos prédios; se o novo deixasse 0, a
+  estrutura afundava 1 px em relação às vizinhas. O pipeline agora tem
+  `'gap': 1` em todo prédio;
+- **centro horizontal** — deslocamento máximo aceito: 1,5 px;
+- **largura/altura** — não pode estourar a caixa nem ficar abaixo de 70% dela
+  (estruturas baixas por natureza, como o balcão do mercado, são respeitadas);
+- **bordas** — nenhum pixel opaco pode encostar na borda da caixa (corte);
+- **franja magenta** — pixels arroxeados com alpha > 40 devem ser 0.
+
+`tools/validar_encaixe.py` gera a folha visual `preview/validacao-encaixe.png`
+com a linha do chão marcada, e `tools/cena_vila.py` monta
+`preview/cena-vila.png` com os sprites reais em 1:1 sobre a cor da grama.
+
+Correções desta rodada: `'gap': 1` nos 12 prédios, despill extra de magenta
+(a ferraria tinha 12 px de franja roxa) e refeitos `altar`, `estabulo` e
+`quartel`, que tinham vindo largos demais e ficavam menores que a arte antiga.

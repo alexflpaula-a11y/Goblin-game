@@ -37,24 +37,25 @@ GRASS = (90, 164, 99, 255)  # COLORS.ground do world.js, para a conferência
 
 # box = tamanho NATIVO com que o jogo desenha o sprite, para o mapeamento de
 # pixel ser 1:1 (o canvas não usa suavização):
-#   prédios  -> 64x64  (village.js desenha s.x-32, s.y-60, 64, 64)
+#   prédios  -> 64x64, apoiados 1 px acima do pé (a pixel art antiga
+#               deixava essa folga, então a base cai na mesma linha do chão)
 #   nós      -> 48x48  (nodes.js desenha 48x48, ancorado pela base)
 #   restos   -> 24x24  (tocos e entulho são desenhados em 24x24)
 #   divindade-> 72x72  (deities.js desenha 72x72)
 ASSETS = {
-    'house':      {'src': 'house.png',      'dst': 'assets/sprites/buildings/building_house_1.png',      'box': (64, 64)},
-    'ferraria':   {'src': 'ferraria.png',   'dst': 'assets/sprites/buildings/building_ferraria_1.png',   'box': (64, 64)},
-    'altar':      {'src': 'altar.png',      'dst': 'assets/sprites/buildings/building_altar_1.png',      'box': (64, 64)},
-    'armazem':    {'src': 'armazem.png',    'dst': 'assets/sprites/buildings/building_armazem_1.png',    'box': (64, 64)},
-    'bar':        {'src': 'bar.png',        'dst': 'assets/sprites/buildings/building_bazar_1.png',      'box': (64, 64)},
-    'bazar':      {'src': 'bar.png',        'dst': 'assets/sprites/buildings/building_bazar_1.png',      'box': (64, 64)},
-    'cozinha':    {'src': 'cozinha.png',    'dst': 'assets/sprites/buildings/building_cozinha_1.png',    'box': (64, 64)},
-    'estabulo':   {'src': 'estabulo.png',   'dst': 'assets/sprites/buildings/building_estabulo_1.png',   'box': (64, 64)},
-    'fazenda':    {'src': 'fazenda.png',    'dst': 'assets/sprites/buildings/building_fazenda_1.png',    'box': (64, 64)},
-    'mercado':    {'src': 'mercado.png',    'dst': 'assets/sprites/buildings/building_mercado_1.png',    'box': (64, 64)},
-    'porto':      {'src': 'porto.png',      'dst': 'assets/sprites/buildings/building_porto_1.png',      'box': (64, 64)},
-    'quartel':    {'src': 'quartel.png',    'dst': 'assets/sprites/buildings/building_quartel_1.png',    'box': (64, 64)},
-    'questboard': {'src': 'questboard.png', 'dst': 'assets/sprites/buildings/building_questboard_1.png', 'box': (64, 64)},
+    'house':      {'src': 'house.png',      'dst': 'assets/sprites/buildings/building_house_1.png',      'box': (64, 64), 'gap': 1},
+    'ferraria':   {'src': 'ferraria.png',   'dst': 'assets/sprites/buildings/building_ferraria_1.png',   'box': (64, 64), 'gap': 1},
+    'altar':      {'src': 'altar.png',      'dst': 'assets/sprites/buildings/building_altar_1.png',      'box': (64, 64), 'gap': 1},
+    'armazem':    {'src': 'armazem.png',    'dst': 'assets/sprites/buildings/building_armazem_1.png',    'box': (64, 64), 'gap': 1},
+    'bar':        {'src': 'bar.png',        'dst': 'assets/sprites/buildings/building_bazar_1.png',      'box': (64, 64), 'gap': 1},
+    'bazar':      {'src': 'bar.png',        'dst': 'assets/sprites/buildings/building_bazar_1.png',      'box': (64, 64), 'gap': 1},
+    'cozinha':    {'src': 'cozinha.png',    'dst': 'assets/sprites/buildings/building_cozinha_1.png',    'box': (64, 64), 'gap': 1},
+    'estabulo':   {'src': 'estabulo.png',   'dst': 'assets/sprites/buildings/building_estabulo_1.png',   'box': (64, 64), 'gap': 1},
+    'fazenda':    {'src': 'fazenda.png',    'dst': 'assets/sprites/buildings/building_fazenda_1.png',    'box': (64, 64), 'gap': 1},
+    'mercado':    {'src': 'mercado.png',    'dst': 'assets/sprites/buildings/building_mercado_1.png',    'box': (64, 64), 'gap': 1},
+    'porto':      {'src': 'porto.png',      'dst': 'assets/sprites/buildings/building_porto_1.png',      'box': (64, 64), 'gap': 1},
+    'quartel':    {'src': 'quartel.png',    'dst': 'assets/sprites/buildings/building_quartel_1.png',    'box': (64, 64), 'gap': 1},
+    'questboard': {'src': 'questboard.png', 'dst': 'assets/sprites/buildings/building_questboard_1.png', 'box': (64, 64), 'gap': 1},
     'node_tree':  {'src': 'node_tree.png',  'dst': 'assets/sprites/nodes/node_tree_0.png',                'box': (48, 48)},
     'node_rock':  {'src': 'node_rock.png',  'dst': 'assets/sprites/nodes/node_rock_0.png',                'box': (48, 48)},
 }
@@ -87,11 +88,22 @@ def remove_chroma(img):
     safe = np.maximum(a, 1e-4)
     rgb = np.clip((arr - (1.0 - a) * key) / safe, 0, 255)
 
+    # Despill final: mesmo depois da desmistura sobra um roxo fraco nas bordas
+    # semitransparentes (r e b altos com g baixo). Aqui o excesso de magenta é
+    # subtraído dos dois canais, o que devolve o cinza/madeira da borda.
+    fr, fg, fb = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
+    excess = np.maximum(0.0, np.minimum(fr, fb) - fg)
+    rgb = np.dstack([np.clip(fr - excess, 0, 255), fg, np.clip(fb - excess, 0, 255)])
+    # Pixel quase transparente e ainda arroxeado vira transparente de vez.
+    still_purple = (rgb[:, :, 0] > rgb[:, :, 1] * 1.55) & (rgb[:, :, 2] > rgb[:, :, 1] * 1.35)
+    alpha = np.where(still_purple & (alpha < 0.85), 0.0, alpha)
+    alpha = np.where(alpha < 0.06, 0.0, alpha)
+
     return Image.fromarray(np.dstack([rgb, alpha * 255.0]).astype(np.uint8), 'RGBA')
 
 
-def resize_rgba(img, box):
-    """Corta no conteúdo e reduz para a caixa, no pé da caixa."""
+def resize_rgba(img, box, gap=0):
+    """Corta no conteúdo e reduz para a caixa, apoiado a `gap` px do pé."""
     bbox = img.split()[3].getbbox()
     if bbox:
         img = img.crop(bbox)
@@ -111,7 +123,7 @@ def resize_rgba(img, box):
     sprite = Image.fromarray((small * 255.0).round().astype(np.uint8), 'RGBA')
 
     canvas = Image.new('RGBA', box, (0, 0, 0, 0))
-    canvas.alpha_composite(sprite, ((box[0] - tw) // 2, box[1] - th))
+    canvas.alpha_composite(sprite, ((box[0] - tw) // 2, box[1] - th - gap))
     return canvas
 
 
@@ -182,7 +194,7 @@ def main():
         if not os.path.exists(src):
             print(f'! {name}: falta {spec["src"]}')
             continue
-        sprite = crisp(resize_rgba(remove_chroma(Image.open(src)), spec['box']))
+        sprite = crisp(resize_rgba(remove_chroma(Image.open(src)), spec['box'], spec.get('gap', 0)))
         sprite.save(candidate_path(name))
         done.append(name)
         print(f'✓ {name:12s} -> candidates/{name}.png  {sprite.size[0]}x{sprite.size[1]}')
