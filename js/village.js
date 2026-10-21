@@ -30,7 +30,7 @@ const BUILDINGS = {
     cost: { wood: 15, stone: 10 },
   },
   serraria: {
-    sprite: 'building_serraria_1', reqLevel: 2, maxCount: 1, maxLevel: 3,
+    sprite: 'building_serraria_1', doorSprite: 'building_serraria_1_porta', reqLevel: 2, maxCount: 1, maxLevel: 3,
     cost: { wood: 40, stone: 20 },
   },
   fazenda: {
@@ -38,15 +38,15 @@ const BUILDINGS = {
     cost: { wood: 35, stone: 15 },
   },
   armazem: {
-    sprite: 'building_armazem_1', reqLevel: 2, maxCount: 1, maxLevel: 3,
+    sprite: 'building_armazem_1', doorSprite: 'building_armazem_1_porta', reqLevel: 2, maxCount: 1, maxLevel: 3,
     cost: { wood: 40, stone: 30 },
   },
   cozinha: {
-    sprite: 'building_cozinha_1', reqLevel: 3, maxCount: 1, maxLevel: 3,
+    sprite: 'building_cozinha_1', doorSprite: 'building_cozinha_1_porta', reqLevel: 3, maxCount: 1, maxLevel: 3,
     cost: { wood: 50, stone: 40 },
   },
   mercado: {
-    sprite: 'building_mercado_1', reqLevel: 3, maxCount: 1, maxLevel: 3,
+    sprite: 'building_mercado_1', doorSprite: 'building_mercado_1_porta', reqLevel: 3, maxCount: 1, maxLevel: 3,
     cost: { wood: 60, stone: 30, gold: 50 },
   },
   grande_arvore: {
@@ -558,7 +558,12 @@ class Village {
             return;
           }
 
-          const spr = getSprite(BUILDINGS[s.type]?.sprite || 'building_house_1');
+          // Porta aberta enquanto um goblin trabalha DENTRO do prédio.
+          // O sprite fechado continua sendo o original; a variante é só a
+          // mesma arte com a porta aberta.
+          const def = BUILDINGS[s.type];
+          const near = s.doorOpen && def?.doorSprite;
+          const spr = getSprite(near ? def.doorSprite : (def?.sprite || 'building_house_1'));
           ctx.drawImage(spr, s.x - 32, s.y - 60, 64, 64);
 
           // Preparos culinários têm o próprio cronômetro acima da cozinha.

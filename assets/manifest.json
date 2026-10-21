@@ -2009,6 +2009,10 @@
       "path": "assets/sprites/buildings/building_armazem_1.png"
     },
     {
+      "id": "building_armazem_1_porta",
+      "path": "assets/sprites/buildings/building_armazem_1_porta.png"
+    },
+    {
       "id": "building_bazar_1",
       "path": "assets/sprites/buildings/building_bazar_1.png"
     },
@@ -2023,6 +2027,10 @@
     {
       "id": "building_cozinha_1",
       "path": "assets/sprites/buildings/building_cozinha_1.png"
+    },
+    {
+      "id": "building_cozinha_1_porta",
+      "path": "assets/sprites/buildings/building_cozinha_1_porta.png"
     },
     {
       "id": "building_estabulo_1",
@@ -2053,6 +2061,10 @@
       "path": "assets/sprites/buildings/building_mercado_1.png"
     },
     {
+      "id": "building_mercado_1_porta",
+      "path": "assets/sprites/buildings/building_mercado_1_porta.png"
+    },
+    {
       "id": "building_porto_1",
       "path": "assets/sprites/buildings/building_porto_1.png"
     },
@@ -2067,6 +2079,10 @@
     {
       "id": "building_serraria_1",
       "path": "assets/sprites/buildings/building_serraria_1.png"
+    },
+    {
+      "id": "building_serraria_1_porta",
+      "path": "assets/sprites/buildings/building_serraria_1_porta.png"
     },
     {
       "id": "chest_closed",
@@ -2413,6 +2429,18 @@
       "path": "assets/sprites/goblins/ferro_pei_walk_7.png"
     },
     {
+      "id": "fx_brilho",
+      "path": "assets/sprites/effects/fx_brilho.png"
+    },
+    {
+      "id": "fx_fumaca",
+      "path": "assets/sprites/effects/fx_fumaca.png"
+    },
+    {
+      "id": "fx_moeda",
+      "path": "assets/sprites/effects/fx_moeda.png"
+    },
+    {
       "id": "fx_notas",
       "path": "assets/sprites/deities/fx_notas.png"
     },
@@ -2435,6 +2463,10 @@
     {
       "id": "fx_poeira",
       "path": "assets/sprites/deities/fx_poeira.png"
+    },
+    {
+      "id": "fx_poeira_trabalho",
+      "path": "assets/sprites/effects/fx_poeira_trabalho.png"
     },
     {
       "id": "goblin_attack_0",

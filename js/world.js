@@ -84,6 +84,17 @@ function doorOf(structure) {
 }
 
 
+// ---------- Efeito de "tem goblin trabalhando aqui dentro" ----------
+// Um sprite só por serviço; a animação é feita no desenho (sobe, cresce e
+// desbota), então a arte não muda e o prédio continua sendo o mesmo.
+const WORK_FX = {
+  cozinha:  { sprite: 'fx_fumaca',           dx: 13, dy: -52, every: 0.60, vx: 2.5, vy: -13, scale: 1.15, life: 1.8 },
+  armazem:  { sprite: 'fx_poeira_trabalho',  dx: 0,  dy: -4,  every: 0.80, vx: 0,   vy: -5,  scale: 0.85, life: 0.9 },
+  serraria: { sprite: 'fx_poeira_trabalho',  dx: 12, dy: -10, every: 0.60, vx: 2,   vy: -6,  scale: 0.75, life: 0.8 },
+  mercado:  { sprite: 'fx_moeda',            dx: 7,  dy: -34, every: 0.85, vx: 3,   vy: -18, scale: 0.9,  life: 1.2 },
+  ferraria: { sprite: 'fx_brilho',           dx: 0,  dy: -17, every: 0.50, vx: 2,   vy: -12, scale: 1.0,  life: 0.7 },
+};
+
 // ---------- Goblin que passeia / trabalha ----------
 class GoblinWalker {
   constructor(x, y, clearing) {
@@ -533,6 +544,7 @@ class World {
     this.centerY = WORLD.H / 2;
     this.clearing = { x: this.centerX, y: this.centerY, r: 10 * WORLD.TILE };
     this.floats = [];
+    this.fx = [];             // partículas de trabalho (fumaça, moedas...)
     this.generate();
     this.prerender();
     this.goblins = [];
@@ -668,6 +680,7 @@ class World {
   }
 
   update(dt, api) {
+    this.updateWorkFx(dt, api);
     for (const gb of this.goblins) {
       gb.update(dt, api);
       // Tarefas automáticas só ocupam quem realmente está livre. Assim uma
@@ -677,6 +690,38 @@ class World {
     // textos flutuantes (+1 madeira etc.)
     for (const f of this.floats) { f.ttl -= dt; f.y -= 14 * dt; }
     this.floats = this.floats.filter((f) => f.ttl > 0);
+  }
+
+  /** Emite a fumaça/poeira/moeda dos prédios onde há goblin trabalhando. */
+  updateWorkFx(dt, api) {
+    const structures = api?.village?.structures;
+    if (structures) {
+      for (const s of structures) {
+        const cfg = WORK_FX[s.type];
+        if (!cfg) continue;
+        if (!s.doorOpen) { s._fxT = 0; continue; }
+        s._fxT = (s._fxT || 0) + dt;
+        while (s._fxT >= cfg.every) {
+          s._fxT -= cfg.every;
+          this.fx.push({
+            sprite: cfg.sprite,
+            x: s.x + cfg.dx + (Math.random() - 0.5) * 3,
+            y: s.y + cfg.dy,
+            vx: cfg.vx + (Math.random() - 0.5) * 2,
+            vy: cfg.vy,
+            life: cfg.life, max: cfg.life, scale: cfg.scale,
+          });
+        }
+      }
+    }
+    for (let i = this.fx.length - 1; i >= 0; i--) {
+      const p = this.fx[i];
+      p.life -= dt;
+      if (p.life <= 0) { this.fx.splice(i, 1); continue; }
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 2.5 * dt;      // desacelera a subida
+    }
   }
 
   draw(ctx, time, vis, extras = []) {
@@ -702,6 +747,18 @@ class World {
       ...this.goblins.map((gb) => ({ y: gb.y, draw: (c) => gb.draw(c, time) })),
     ].sort((a, b) => a.y - b.y);
     for (const d of drawables) d.draw(ctx);
+
+    // partículas de trabalho por cima de tudo, com transparência
+    for (const p of this.fx) {
+      const a = Math.max(0, Math.min(1, p.life / p.max));
+      const spr = getSprite(p.sprite);
+      // cresce um pouco enquanto sobe e desbota (animação sem trocar sprite)
+      const grow = p.scale * (1 + (1 - a) * 0.35);
+      const w = spr.width * grow, h = spr.height * grow;
+      ctx.globalAlpha = a;
+      ctx.drawImage(spr, Math.round(p.x - w / 2), Math.round(p.y - h / 2), Math.round(w), Math.round(h));
+    }
+    ctx.globalAlpha = 1;
 
     // textos flutuantes
     ctx.font = 'bold 9px monospace';

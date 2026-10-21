@@ -2021,6 +2021,10 @@ function update(dt) {
     onAutoTask: autoAssignWalker,
     workPeriod: BAL.nodes?.workPeriod ?? 1.2,
   });
+
+  // Porta aberta nos prédios onde algum goblin está lá dentro trabalhando.
+  for (const s of village.structures) s.doorOpen = false;
+  for (const wk of world.goblins) if (wk.inside) wk.inside.doorOpen = true;
 }
 
 function holdMoveDrawList() {
