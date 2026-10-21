@@ -2022,9 +2022,19 @@ function update(dt) {
     workPeriod: BAL.nodes?.workPeriod ?? 1.2,
   });
 
-  // Porta aberta nos prédios onde algum goblin está lá dentro trabalhando.
+  // Porta abrindo/fechando suavemente nos prédios onde há goblin trabalhando.
+  // doorAnim vai de 0 (fechada) a 1 (aberta) em ~0,25 s, com easing.
   for (const s of village.structures) s.doorOpen = false;
   for (const wk of world.goblins) if (wk.inside) wk.inside.doorOpen = true;
+  for (const s of village.structures) {
+    const want = s.doorOpen ? 1 : 0;
+    const cur = s.doorAnim ?? 0;
+    const step = dt / 0.25;
+    s.doorAnim = cur < want ? Math.min(want, cur + step) : Math.max(want, cur - step);
+    // easing: acelera no começo, freia no fim
+    const t = s.doorAnim;
+    s.doorAnimEased = t * t * (3 - 2 * t);
+  }
 }
 
 function holdMoveDrawList() {
