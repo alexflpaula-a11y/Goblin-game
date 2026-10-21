@@ -2013,6 +2013,10 @@
       "path": "assets/sprites/buildings/building_armazem_1_porta.png"
     },
     {
+      "id": "building_bar_1_porta",
+      "path": "assets/sprites/buildings/building_bar_1_porta.png"
+    },
+    {
       "id": "building_bazar_1",
       "path": "assets/sprites/buildings/building_bazar_1.png"
     },
@@ -2057,6 +2061,10 @@
       "path": "assets/sprites/buildings/building_house_1.png"
     },
     {
+      "id": "building_house_1_porta",
+      "path": "assets/sprites/buildings/building_house_1_porta.png"
+    },
+    {
       "id": "building_mercado_1",
       "path": "assets/sprites/buildings/building_mercado_1.png"
     },
@@ -2071,6 +2079,10 @@
     {
       "id": "building_quartel_1",
       "path": "assets/sprites/buildings/building_quartel_1.png"
+    },
+    {
+      "id": "building_quartel_1_porta",
+      "path": "assets/sprites/buildings/building_quartel_1_porta.png"
     },
     {
       "id": "building_questboard_1",
@@ -2467,6 +2479,10 @@
     {
       "id": "fx_poeira_trabalho",
       "path": "assets/sprites/effects/fx_poeira_trabalho.png"
+    },
+    {
+      "id": "fx_serra",
+      "path": "assets/sprites/effects/fx_serra.png"
     },
     {
       "id": "goblin_attack_0",

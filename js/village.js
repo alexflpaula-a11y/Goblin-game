@@ -26,7 +26,7 @@ const BUILDINGS = {
   construction: { sprite: 'building_construction_1', reqLevel: 1, maxCount: 1, maxLevel: 3, cost: null },
   quest: { sprite: 'building_questboard_1', reqLevel: 1, maxCount: 1, maxLevel: 3, cost: null },
   house: {
-    sprite: 'building_house_1', reqLevel: 1, maxCount: 12, maxLevel: 3,
+    sprite: 'building_house_1', doorSprite: 'building_house_1_porta', reqLevel: 1, maxCount: 12, maxLevel: 3,
     cost: { wood: 15, stone: 10 },
   },
   serraria: {
@@ -70,7 +70,7 @@ const BUILDINGS = {
     cost: { stone: 120, ore: 40, gold: 100 },
   },
   bazar: {
-    sprite: 'building_bazar_1', reqLevel: 6, maxCount: 1, maxLevel: 3,
+    sprite: 'building_bazar_1', doorSprite: 'building_bar_1_porta', reqLevel: 6, maxCount: 1, maxLevel: 3,
     cost: { wood: 100, stone: 60, gold: 150 },
   },
   porto: {
@@ -78,7 +78,7 @@ const BUILDINGS = {
     cost: { wood: 150, stone: 80, gold: 120 },
   },
   quartel: {
-    sprite: 'building_quartel_1', reqLevel: 8, maxCount: 1, maxLevel: 3,
+    sprite: 'building_quartel_1', doorSprite: 'building_quartel_1_porta', reqLevel: 8, maxCount: 1, maxLevel: 3,
     cost: { wood: 120, stone: 150, ore: 60, gold: 200 },
   },
 };
@@ -565,6 +565,17 @@ class Village {
           const near = s.doorOpen && def?.doorSprite;
           const spr = getSprite(near ? def.doorSprite : (def?.sprite || 'building_house_1'));
           ctx.drawImage(spr, s.x - 32, s.y - 60, 64, 64);
+
+          // Serra girando: a lâmina é UM sprite só, girado no desenho.
+          if (s.type === 'serraria' && s.doorOpen) {
+            const blade = getSprite('fx_serra');
+            ctx.save();
+            // centro exato da lâmina dentro do sprite 64x64: (15.5, 50)
+            ctx.translate(s.x - 16.5, s.y - 10);
+            ctx.rotate(time * 9);
+            ctx.drawImage(blade, -7, -7, 14, 14);
+            ctx.restore();
+          }
 
           // Preparos culinários têm o próprio cronômetro acima da cozinha.
           // A fumaça quente pulsa apenas enquanto o goblin designado mexe a panela.
