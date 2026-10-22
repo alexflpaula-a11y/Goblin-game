@@ -2029,7 +2029,7 @@ function update(dt) {
   for (const s of village.structures) {
     const want = s.doorOpen ? 1 : 0;
     const cur = s.doorAnim ?? 0;
-    const step = dt / 0.25;
+    const step = dt / 0.45;   // ~0,45 s: da tempo de ver a folha girando
     s.doorAnim = cur < want ? Math.min(want, cur + step) : Math.max(want, cur - step);
     // easing: acelera no começo, freia no fim
     const t = s.doorAnim;
