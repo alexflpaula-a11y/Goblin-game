@@ -641,7 +641,8 @@ check('remove habilidade', abilities.unequipAbility(ag, 1) === specAb.id);
 section('Divindades — canto, arremesso, distância e limite');
 // ============================================================
 const { Nodes, REMNANT_LIFETIME } = req('nodes.js');
-const { Deities, ISLAND_NODE_CAP, ANIMATION_FRAMES, MAX_WORSHIPPERS } = req('deities.js');
+const { Deities, ISLAND_NODE_CAP, ANIMATION_FRAMES, MAX_WORSHIPPERS,
+  GOLEM_FRAMES, GOLEM_THROW_AT, golemFrameAt } = req('deities.js');
 const deityVillage = new Village();
 deityVillage.level = 3;
 deityVillage.res = { wood: 9999, stone: 9999, ore: 0, food: 0, gold: 9999 };
@@ -681,8 +682,23 @@ check('jogador ativa cada divindade com um goblin livre', treeActivation.ok && g
 // O world.js transforma worship-goto em worship ao chegar; aqui avançamos
 // diretamente porque este é um teste puro sem GoblinWalker.
 deityWorld.goblins.forEach((w) => { w.job.type = 'worship'; });
-check('animações possuem mais quadros',
-  ANIMATION_FRAMES.treeChant >= 24 && ANIMATION_FRAMES.golemForge >= 24);
+check('animação de canto da árvore tem quadros suficientes',
+  ANIMATION_FRAMES.treeChant >= 24);
+// Quadros do Golem: juntar as mãos → pedra → ombro → arremesso, e a pedra só
+// sai da mão no quadro de arremesso.
+const golemPoses = GOLEM_FRAMES.map((f) => f.id);
+check('Golem tem quatro quadros de forja na ordem certa',
+  golemPoses.join(',') === 'deity_golem_gather,deity_golem_rock,deity_golem_shoulder,deity_golem_throw',
+  golemPoses.join(','));
+check('cada fase da forja escolhe o quadro correspondente',
+  golemFrameAt(0) === 'deity_golem_gather'
+  && golemFrameAt(0.4) === 'deity_golem_rock'
+  && golemFrameAt(0.58) === 'deity_golem_shoulder'
+  && golemFrameAt(GOLEM_THROW_AT) === 'deity_golem_throw'
+  && golemFrameAt(1) === 'deity_golem_throw');
+check('a pedra é lançada no quadro de arremesso',
+  GOLEM_THROW_AT >= GOLEM_FRAMES[2].until && GOLEM_THROW_AT < 1,
+  String(GOLEM_THROW_AT));
 let sawChant = false, sawForge = false, sawProjectile = false;
 let sawTreeRise = false, sawRockLand = false;
 // Tempo para observar ciclos, crescimento e o projétil sem depender do teto.

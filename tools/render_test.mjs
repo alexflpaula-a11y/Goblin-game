@@ -342,6 +342,18 @@ const deitySizes = deitySpriteIds.map((id) => {
 check('sprites das duas divindades são PNG 64×64 exatos',
   deitySizes.every(([, w, h]) => w === 64 && h === 64),
   deitySizes.map(([id, w, h]) => `${id}=${w}x${h}`).join(', '));
+const golemFrameIds = ['deity_golem_gather', 'deity_golem_rock', 'deity_golem_shoulder', 'deity_golem_throw'];
+const golemFramesOk = golemFrameIds.every((id) => {
+  const entry = manifest.sprites.find((s) => s.id === id);
+  if (!entry || !fs.existsSync(path.join(ROOT, entry.path))) return false;
+  const png = fs.readFileSync(path.join(ROOT, entry.path));
+  return png.readUInt32BE(16) === 64 && png.readUInt32BE(20) === 64;
+});
+check('os quatro quadros da forja do Golem são PNG 64×64 no manifest', golemFramesOk,
+  golemFrameIds.join(', '));
+const rockFxIds = ['fx_pedra_quique', 'fx_pedra_deslize'];
+check('pedra quicando e deslizando têm sprite no manifest',
+  rockFxIds.every((id) => haveSprites.has(id)), rockFxIds.join(', '));
 const rockFx = manifest.sprites.find((s) => s.id === 'fx_pedra_divina');
 const rockPng = rockFx && fs.readFileSync(path.join(ROOT, rockFx.path));
 check('projétil rúnico polido é PNG 32×32',

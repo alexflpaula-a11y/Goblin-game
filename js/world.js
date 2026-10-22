@@ -69,6 +69,32 @@ function makeNoise(seed, cell) {
 // o placeholder "VAR" piscando entre uma ação e outra.
 const ANIM_FRAMES = { idle: 5, walk: 8, attack: 17, hurt: 17, death: 15 };
 
+// Deslocamento horizontal da PORTA em relação ao centro da estrutura.
+// A arte nova é frontal e a porta fica no meio da fachada, então o padrão é 0;
+// o mapa existe para as peças cuja porta não é central.
+const DOOR_DX = {
+  cozinha: 0, armazem: 0, ferraria: 0, bar: 0, bazar: 0, casa: 0,
+  estabulo: 0, mercado: 0, quartel: 0, serraria: 0, altar: 0,
+};
+
+/** Ponto de entrada (soleira) de uma estrutura. */
+function doorOf(structure) {
+  const dx = DOOR_DX[structure?.type] ?? 0;
+  return { x: structure.x + dx, y: structure.y + 4 };
+}
+
+
+// ---------- Efeito de "tem goblin trabalhando aqui dentro" ----------
+// Um sprite só por serviço; a animação é feita no desenho (sobe, cresce e
+// desbota), então a arte não muda e o prédio continua sendo o mesmo.
+const WORK_FX = {
+  cozinha:  { sprite: 'fx_fumaca',           dx: 13, dy: -52, every: 0.60, vx: 2.5, vy: -13, scale: 1.15, life: 1.8 },
+  armazem:  { sprite: 'fx_poeira_trabalho',  dx: 0,  dy: -4,  every: 0.80, vx: 0,   vy: -5,  scale: 0.85, life: 0.9 },
+  serraria: { sprite: 'fx_poeira_trabalho',  dx: 12, dy: -10, every: 0.60, vx: 2,   vy: -6,  scale: 0.75, life: 0.8 },
+  mercado:  { sprite: 'fx_moeda',            dx: 7,  dy: -34, every: 0.85, vx: 3,   vy: -18, scale: 0.9,  life: 1.2 },
+  ferraria: { sprite: 'fx_brilho',           dx: 0,  dy: -17, every: 0.50, vx: 2,   vy: -12, scale: 1.0,  life: 0.7 },
+};
+
 // ---------- Goblin que passeia / trabalha ----------
 class GoblinWalker {
   constructor(x, y, clearing) {
@@ -84,6 +110,10 @@ class GoblinWalker {
     this.speed = 26 + Math.random() * 10;
     this.job = null;          // {type:'goto'|'work', node}
     this.cycle = 0;
+    // Estrutura em que o goblin está DENTRO (trabalhando lá dentro).
+    // Enquanto isso ele não é desenhado: quem mostra o serviço é a própria
+    // construção (fumaça da cozinha, forja acesa etc.).
+    this.inside = null;
   }
 
   pickTarget() {
@@ -151,17 +181,52 @@ class GoblinWalker {
       const cooks = Array.isArray(meal?.workers) ? meal.workers
         : (meal?.worker == null ? [] : [meal.worker]);
       if (!meal || meal.status !== 'cooking' || !cooks.includes(this.i) || !kitchen) {
-        this.job = null; this.wait = 0.35;
+        this.job = null; this.wait = 0.35; this.inside = null;
+      } else if (this.job.type === 'fetch-goto' || this.job.type === 'fetch') {
+        // ----- busca o ingrediente no armazém antes de cozinhar -----
+        const warehouse = this.job.warehouse;
+        if (!warehouse) { this.job.type = 'cook-goto'; return; }
+        if (this.job.type === 'fetch-goto') {
+          const target = doorOf(warehouse);
+          const dx = target.x - this.x, dy = target.y - this.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 3) {
+            this.x = target.x; this.y = target.y;
+            this.face = 1;
+            this.job.type = 'fetch';
+            this.inside = warehouse;     // entra no armazém
+            this.anim = 'idle'; this.frame = 0;
+            this.fetchT = 1.1;           // tempo de pegar o trigo lá dentro
+          } else {
+            this.x += (dx / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
+            this.y += (dy / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
+            this.face = dx >= 0 ? 1 : -1;
+            this.anim = 'walk';
+            this.animT += dt;
+            if (this.animT > 0.10) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
+          }
+          return;
+        }
+        // já pegou o trigo: sai do armazém e segue para a cozinha
+        this.inside = warehouse;
+        this.fetchT = (this.fetchT ?? 1.1) - dt;
+        if (this.fetchT <= 0) {
+          this.inside = null;
+          this.job.type = 'cook-goto';
+        }
+        return;
       } else if (this.job.type === 'cook-goto') {
-        const target = { x: kitchen.x + 13, y: kitchen.y + 4 };
+        const target = doorOf(kitchen);
         const dx = target.x - this.x, dy = target.y - this.y;
         const dist = Math.hypot(dx, dy);
         if (dist < 3) {
+          // Chegou na porta: entra na cozinha e some lá dentro para cozinhar.
           this.x = target.x; this.y = target.y;
-          this.face = -1;
+          this.face = 1;
           this.job.type = 'cook';
+          this.inside = kitchen;
+          this.anim = 'idle'; this.frame = 0; this.animT = 0;
           meal.working = true;
-          this.anim = 'attack'; this.frame = 0; this.animT = 0;
         } else {
           this.x += (dx / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
           this.y += (dy / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
@@ -172,17 +237,19 @@ class GoblinWalker {
         }
         return;
       } else {
-        this.x = kitchen.x + 13; this.y = kitchen.y + 4;
-        this.face = -1;
-        this.anim = 'attack';
-        this.animT += dt;
-        if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % 10; }
+        // Dentro da cozinha ele não aparece: fica na soleira, invisível, e o
+        // prédio mostra o serviço (fumaça e brilho na janela).
+        const target = doorOf(kitchen);
+        this.x = target.x; this.y = target.y;
+        this.inside = kitchen;
+        this.anim = 'idle'; this.frame = 0;
         // Só o cozinheiro líder atualiza o relógio; a velocidade considera
         // todos os colegas que chegaram à panela.
         if (meal.worker === this.i) api.onCook?.(meal, this.goblin, dt);
         if (meal.status !== 'cooking') {
           meal.working = false;
           this.job = null; this.wait = 0.45;
+          this.inside = null;   // sai da cozinha e reaparece na porta
         }
         return;
       }
@@ -240,17 +307,52 @@ class GoblinWalker {
       const cooks = Array.isArray(meal?.workers) ? meal.workers
         : (meal?.worker == null ? [] : [meal.worker]);
       if (!meal || meal.status !== 'cooking' || !cooks.includes(this.i) || !kitchen) {
-        this.job = null; this.wait = 0.35;
+        this.job = null; this.wait = 0.35; this.inside = null;
+      } else if (this.job.type === 'fetch-goto' || this.job.type === 'fetch') {
+        // ----- busca o ingrediente no armazém antes de cozinhar -----
+        const warehouse = this.job.warehouse;
+        if (!warehouse) { this.job.type = 'cook-goto'; return; }
+        if (this.job.type === 'fetch-goto') {
+          const target = doorOf(warehouse);
+          const dx = target.x - this.x, dy = target.y - this.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 3) {
+            this.x = target.x; this.y = target.y;
+            this.face = 1;
+            this.job.type = 'fetch';
+            this.inside = warehouse;     // entra no armazém
+            this.anim = 'idle'; this.frame = 0;
+            this.fetchT = 1.1;           // tempo de pegar o trigo lá dentro
+          } else {
+            this.x += (dx / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
+            this.y += (dy / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
+            this.face = dx >= 0 ? 1 : -1;
+            this.anim = 'walk';
+            this.animT += dt;
+            if (this.animT > 0.10) { this.animT = 0; this.frame = (this.frame + 1) % 8; }
+          }
+          return;
+        }
+        // já pegou o trigo: sai do armazém e segue para a cozinha
+        this.inside = warehouse;
+        this.fetchT = (this.fetchT ?? 1.1) - dt;
+        if (this.fetchT <= 0) {
+          this.inside = null;
+          this.job.type = 'cook-goto';
+        }
+        return;
       } else if (this.job.type === 'cook-goto') {
-        const target = { x: kitchen.x + 13, y: kitchen.y + 4 };
+        const target = doorOf(kitchen);
         const dx = target.x - this.x, dy = target.y - this.y;
         const dist = Math.hypot(dx, dy);
         if (dist < 3) {
+          // Chegou na porta: entra na cozinha e some lá dentro para cozinhar.
           this.x = target.x; this.y = target.y;
-          this.face = -1;
+          this.face = 1;
           this.job.type = 'cook';
+          this.inside = kitchen;
+          this.anim = 'idle'; this.frame = 0; this.animT = 0;
           meal.working = true;
-          this.anim = 'attack'; this.frame = 0; this.animT = 0;
         } else {
           this.x += (dx / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
           this.y += (dy / Math.max(0.001, dist)) * this.speed * 1.25 * dt;
@@ -261,17 +363,19 @@ class GoblinWalker {
         }
         return;
       } else {
-        this.x = kitchen.x + 13; this.y = kitchen.y + 4;
-        this.face = -1;
-        this.anim = 'attack';
-        this.animT += dt;
-        if (this.animT > 0.11) { this.animT = 0; this.frame = (this.frame + 1) % 10; }
+        // Dentro da cozinha ele não aparece: fica na soleira, invisível, e o
+        // prédio mostra o serviço (fumaça e brilho na janela).
+        const target = doorOf(kitchen);
+        this.x = target.x; this.y = target.y;
+        this.inside = kitchen;
+        this.anim = 'idle'; this.frame = 0;
         // Só o cozinheiro líder atualiza o relógio; a velocidade considera
         // todos os colegas que chegaram à panela.
         if (meal.worker === this.i) api.onCook?.(meal, this.goblin, dt);
         if (meal.status !== 'cooking') {
           meal.working = false;
           this.job = null; this.wait = 0.45;
+          this.inside = null;   // sai da cozinha e reaparece na porta
         }
         return;
       }
@@ -373,6 +477,8 @@ class GoblinWalker {
   }
 
   draw(ctx, time = 0) {
+    // Está trabalhando DENTRO de uma estrutura: não é desenhado.
+    if (this.inside) return;
     // sombra
     ctx.fillStyle = this.dragged ? 'rgba(0,0,0,0.16)' : 'rgba(0,0,0,0.28)';
     ctx.beginPath();
@@ -438,6 +544,7 @@ class World {
     this.centerY = WORLD.H / 2;
     this.clearing = { x: this.centerX, y: this.centerY, r: 10 * WORLD.TILE };
     this.floats = [];
+    this.fx = [];             // partículas de trabalho (fumaça, moedas...)
     this.generate();
     this.prerender();
     this.goblins = [];
@@ -573,6 +680,7 @@ class World {
   }
 
   update(dt, api) {
+    this.updateWorkFx(dt, api);
     for (const gb of this.goblins) {
       gb.update(dt, api);
       // Tarefas automáticas só ocupam quem realmente está livre. Assim uma
@@ -582,6 +690,38 @@ class World {
     // textos flutuantes (+1 madeira etc.)
     for (const f of this.floats) { f.ttl -= dt; f.y -= 14 * dt; }
     this.floats = this.floats.filter((f) => f.ttl > 0);
+  }
+
+  /** Emite a fumaça/poeira/moeda dos prédios onde há goblin trabalhando. */
+  updateWorkFx(dt, api) {
+    const structures = api?.village?.structures;
+    if (structures) {
+      for (const s of structures) {
+        const cfg = WORK_FX[s.type];
+        if (!cfg) continue;
+        if (!s.doorOpen) { s._fxT = 0; continue; }
+        s._fxT = (s._fxT || 0) + dt;
+        while (s._fxT >= cfg.every) {
+          s._fxT -= cfg.every;
+          this.fx.push({
+            sprite: cfg.sprite,
+            x: s.x + cfg.dx + (Math.random() - 0.5) * 3,
+            y: s.y + cfg.dy,
+            vx: cfg.vx + (Math.random() - 0.5) * 2,
+            vy: cfg.vy,
+            life: cfg.life, max: cfg.life, scale: cfg.scale,
+          });
+        }
+      }
+    }
+    for (let i = this.fx.length - 1; i >= 0; i--) {
+      const p = this.fx[i];
+      p.life -= dt;
+      if (p.life <= 0) { this.fx.splice(i, 1); continue; }
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 2.5 * dt;      // desacelera a subida
+    }
   }
 
   draw(ctx, time, vis, extras = []) {
@@ -608,6 +748,18 @@ class World {
     ].sort((a, b) => a.y - b.y);
     for (const d of drawables) d.draw(ctx);
 
+    // partículas de trabalho por cima de tudo, com transparência
+    for (const p of this.fx) {
+      const a = Math.max(0, Math.min(1, p.life / p.max));
+      const spr = getSprite(p.sprite);
+      // cresce um pouco enquanto sobe e desbota (animação sem trocar sprite)
+      const grow = p.scale * (1 + (1 - a) * 0.35);
+      const w = spr.width * grow, h = spr.height * grow;
+      ctx.globalAlpha = a;
+      ctx.drawImage(spr, Math.round(p.x - w / 2), Math.round(p.y - h / 2), Math.round(w), Math.round(h));
+    }
+    ctx.globalAlpha = 1;
+
     // textos flutuantes
     ctx.font = 'bold 9px monospace';
     ctx.textAlign = 'center';
@@ -623,4 +775,4 @@ class World {
   }
 }
 
-module.exports = { WORLD, World };
+module.exports = { WORLD, World, GoblinWalker };

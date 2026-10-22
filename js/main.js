@@ -825,6 +825,7 @@ function releaseGoblinForDrag(walker) {
     meal.working = meal.workers.some((i) => world.goblins[i]?.job?.type === 'cook');
   }
   walker.job = null;
+  walker.inside = null;   // se estava cozinhando lá dentro, volta a aparecer
   walker.target = null;
   walker.wait = 0.4;
   const goblin = village.goblins[walker.i];
@@ -1073,7 +1074,13 @@ function assignCooks() {
   for (const cook of world.goblins) {
     if (workers.length >= cooking.MAX_COOKS) break;
     if (cook.job || village.goblins[cook.i]?.assignment !== 'cook') continue;
-    cook.job = { type: 'cook-goto', cooking: meal, kitchen, cookSlot: workers.length };
+    // Com armazém construído, o cozinheiro busca o trigo antes: armazém →
+    // cozinha. Sem armazém, vai direto (não trava a receita).
+    const warehouse = village.get('armazem');
+    cook.job = {
+      type: warehouse ? 'fetch-goto' : 'cook-goto',
+      cooking: meal, kitchen, warehouse, cookSlot: workers.length,
+    };
     workers.push(cook.i);
   }
   meal.worker = workers[0] ?? null;
@@ -1262,6 +1269,7 @@ function setGoblinAssignment(index, task) {
   }
   if (walker.job?.node) walker.job.node.worker = null;
   walker.job = null;
+  walker.inside = null;
   walker.wait = 0.2;
   goblin.assignment = TASKS.includes(task) ? task : null;
   if (goblin.assignment) autoAssignWalker(walker);
@@ -1928,6 +1936,7 @@ function update(dt) {
             const goblin = village.goblins[wk.i];
             if (goblin) goblin.assignment = null;
             wk.job = null;
+            wk.inside = null;   // sai de dentro da estrutura ao ser chamado
             wk.wait = 0.3;
             toast('toast.recalled');
           }
@@ -2012,6 +2021,20 @@ function update(dt) {
     onAutoTask: autoAssignWalker,
     workPeriod: BAL.nodes?.workPeriod ?? 1.2,
   });
+
+  // Porta abrindo/fechando suavemente nos prédios onde há goblin trabalhando.
+  // doorAnim vai de 0 (fechada) a 1 (aberta) em ~0,25 s, com easing.
+  for (const s of village.structures) s.doorOpen = false;
+  for (const wk of world.goblins) if (wk.inside) wk.inside.doorOpen = true;
+  for (const s of village.structures) {
+    const want = s.doorOpen ? 1 : 0;
+    const cur = s.doorAnim ?? 0;
+    const step = dt / 0.45;   // ~0,45 s: da tempo de ver a folha girando
+    s.doorAnim = cur < want ? Math.min(want, cur + step) : Math.max(want, cur - step);
+    // easing: acelera no começo, freia no fim
+    const t = s.doorAnim;
+    s.doorAnimEased = t * t * (3 - 2 * t);
+  }
 }
 
 function holdMoveDrawList() {

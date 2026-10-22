@@ -26,11 +26,11 @@ const BUILDINGS = {
   construction: { sprite: 'building_construction_1', reqLevel: 1, maxCount: 1, maxLevel: 3, cost: null },
   quest: { sprite: 'building_questboard_1', reqLevel: 1, maxCount: 1, maxLevel: 3, cost: null },
   house: {
-    sprite: 'building_house_1', reqLevel: 1, maxCount: 12, maxLevel: 3,
+    sprite: 'building_house_1', doorSprite: 'building_house_1_porta', reqLevel: 1, maxCount: 12, maxLevel: 3,
     cost: { wood: 15, stone: 10 },
   },
   serraria: {
-    sprite: 'building_serraria_1', reqLevel: 2, maxCount: 1, maxLevel: 3,
+    sprite: 'building_serraria_1', doorSprite: 'building_serraria_1_porta', reqLevel: 2, maxCount: 1, maxLevel: 3,
     cost: { wood: 40, stone: 20 },
   },
   fazenda: {
@@ -38,15 +38,15 @@ const BUILDINGS = {
     cost: { wood: 35, stone: 15 },
   },
   armazem: {
-    sprite: 'building_armazem_1', reqLevel: 2, maxCount: 1, maxLevel: 3,
+    sprite: 'building_armazem_1', doorSprite: 'building_armazem_1_porta', reqLevel: 2, maxCount: 1, maxLevel: 3,
     cost: { wood: 40, stone: 30 },
   },
   cozinha: {
-    sprite: 'building_cozinha_1', reqLevel: 3, maxCount: 1, maxLevel: 3,
+    sprite: 'building_cozinha_1', doorSprite: 'building_cozinha_1_porta', reqLevel: 3, maxCount: 1, maxLevel: 3,
     cost: { wood: 50, stone: 40 },
   },
   mercado: {
-    sprite: 'building_mercado_1', reqLevel: 3, maxCount: 1, maxLevel: 3,
+    sprite: 'building_mercado_1', doorSprite: 'building_mercado_1_porta', reqLevel: 3, maxCount: 1, maxLevel: 3,
     cost: { wood: 60, stone: 30, gold: 50 },
   },
   grande_arvore: {
@@ -70,7 +70,7 @@ const BUILDINGS = {
     cost: { stone: 120, ore: 40, gold: 100 },
   },
   bazar: {
-    sprite: 'building_bazar_1', reqLevel: 6, maxCount: 1, maxLevel: 3,
+    sprite: 'building_bazar_1', doorSprite: 'building_bar_1_porta', reqLevel: 6, maxCount: 1, maxLevel: 3,
     cost: { wood: 100, stone: 60, gold: 150 },
   },
   porto: {
@@ -78,7 +78,7 @@ const BUILDINGS = {
     cost: { wood: 150, stone: 80, gold: 120 },
   },
   quartel: {
-    sprite: 'building_quartel_1', reqLevel: 8, maxCount: 1, maxLevel: 3,
+    sprite: 'building_quartel_1', doorSprite: 'building_quartel_1_porta', reqLevel: 8, maxCount: 1, maxLevel: 3,
     cost: { wood: 120, stone: 150, ore: 60, gold: 200 },
   },
 };
@@ -86,6 +86,18 @@ const BUILDINGS = {
 // Ordem de exibição no catálogo da Casa de Construção
 const BUILD_ORDER = ['construction', 'quest', 'house', 'serraria', 'fazenda', 'armazem', 'cozinha', 'mercado',
   'grande_arvore', 'golem_pedra', 'estabulo', 'ferraria', 'altar', 'bazar', 'porto', 'quartel'];
+
+// Faixa da porta dentro do sprite 64x64: [x0, y0, x1, y1].
+const DOOR_BOX = {
+  house: [24, 46, 36, 62], bar: [24, 45, 38, 63], quartel: [29, 53, 38, 63],
+  armazem: [17, 37, 47, 62], cozinha: [33, 45, 49, 61],
+  serraria: [43, 39, 59, 62], mercado: [5, 40, 14, 62],
+};
+// X da dobradiça: ponto em que a folha gira.
+const DOOR_HINGE = {
+  house: 24, bar: 24, quartel: 29, armazem: 17,
+  cozinha: 33, serraria: 43, mercado: 5, bazar: 24,
+};
 
 // Posições fixas (slots) para novas casas dentro da clareira
 const HOUSE_SLOTS = [
@@ -558,8 +570,37 @@ class Village {
             return;
           }
 
-          const spr = getSprite(BUILDINGS[s.type]?.sprite || 'building_house_1');
-          ctx.drawImage(spr, s.x - 32, s.y - 60, 64, 64);
+          // Porta: fechada -> entreaberta -> aberta, com o mesmo sprite.
+          // A "entreaberta" usa SÓ a faixa da porta: as colunas da variante
+          // com a porta aberta são comprimidas na horizontal a partir da
+          // dobradiça, como uma folha girando. O resto do prédio não muda.
+          const def = BUILDINGS[s.type];
+          const doorT = s.doorAnimEased ?? 0;    // 0 fechada .. 1 aberta
+          const baseSpr = getSprite(def?.sprite || 'building_house_1');
+          ctx.drawImage(baseSpr, s.x - 32, s.y - 60, 64, 64);
+          if (def?.doorSprite && doorT > 0.01) {
+            const box = DOOR_BOX[s.type];
+            const open = getSprite(def.doorSprite);
+            const ox = s.x - 32, oy = s.y - 60;
+            if (doorT >= 0.99 || !box) {
+              ctx.drawImage(open, ox, oy, 64, 64);
+            } else {
+              const [dx0, dy0, dx1, dy1] = box;
+              const hinge = DOOR_HINGE[s.type] ?? dx0;
+              const w = Math.max(1, Math.round((dx1 - hinge) * doorT));
+              ctx.save();
+              ctx.imageSmoothingEnabled = false;
+              // apaga a porta fechada da faixa que já abriu
+              const baseCrop = baseSpr;
+              ctx.drawImage(baseCrop, hinge, dy0, w, dy1 - dy0,
+                            ox + hinge, oy + dy0, w, dy1 - dy0);
+              // e desenha as colunas da porta aberta comprimidas
+              const srcW = Math.max(1, Math.round(w / Math.max(0.15, doorT)));
+              ctx.drawImage(open, hinge, dy0, srcW, dy1 - dy0,
+                            ox + hinge, oy + dy0, w, dy1 - dy0);
+              ctx.restore();
+            }
+          }
 
           // Preparos culinários têm o próprio cronômetro acima da cozinha.
           // A fumaça quente pulsa apenas enquanto o goblin designado mexe a panela.
